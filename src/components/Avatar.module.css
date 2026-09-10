@@ -1,0 +1,13 @@
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  flex-shrink: 0;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.02em;
+}
+.neutral { background: var(--surface-alt); color: var(--ink-600); }
+.accent { background: var(--accent-soft); color: var(--accent-text); }
+.ink { background: var(--ink-900); color: var(--surface); }
+.text { line-height: 1; }

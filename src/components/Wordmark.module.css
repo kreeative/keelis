@@ -1,0 +1,7 @@
+.mark { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--ink-900); }
+.glyph { width: 24px; height: 24px; }
+.name { font-size: var(--fs-h2); font-weight: var(--fw-h2); letter-spacing: var(--ls-h2); line-height: 1; }
+.sm .glyph { width: 20px; height: 20px; }
+.sm .name { font-size: var(--fs-body); }
+.lg .glyph { width: 32px; height: 32px; }
+.lg .name { font-size: var(--fs-h1); letter-spacing: var(--ls-h1); }

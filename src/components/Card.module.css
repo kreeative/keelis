@@ -1,0 +1,14 @@
+.card {
+  display: block;
+  background: var(--surface-alt);
+  border-radius: var(--r-card);
+  color: var(--ink-900);
+  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.md { padding: var(--sp-4); }
+.lg { padding: var(--sp-5); }
+.none { padding: 0; }
+.interactive:hover { filter: brightness(0.98); }
+:global([data-theme="dark"]) .interactive:hover { filter: brightness(1.08); }
+.interactive:active { transform: scale(0.995); }
+.interactive:focus-visible { box-shadow: var(--focus-ring); }

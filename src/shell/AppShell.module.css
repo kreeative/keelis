@@ -1,0 +1,23 @@
+.shell { min-height: 100dvh; }
+.content {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--navbar-height) + var(--safe-bottom));
+}
+.main { min-height: 60dvh; outline: none; }
+  .skip {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  left: var(--sp-4);
+  top: -100px;
+  z-index: 200;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--ink-900);
+  color: var(--surface);
+  border-radius: var(--r-field);
+}
+.skip:focus { top: var(--sp-4); }
+@media (min-width: 768px) {
+  .content { padding-bottom: 0; padding-left: var(--rail-width); }
+}

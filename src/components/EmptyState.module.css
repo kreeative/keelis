@@ -1,0 +1,19 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sp-4);
+  padding-block: var(--sp-7);
+}
+.compact { padding-block: var(--sp-5); }
+.figure { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); color: var(--line); }
+.placeholder { width: 160px; height: 100px; color: var(--ink-300); opacity: 0.6; }
+.caption {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--ink-400);
+  max-width: 280px;
+}
+.message { font-size: var(--fs-body); color: var(--ink-600); max-width: 320px; }
+.action { margin-top: var(--sp-2); }

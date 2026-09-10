@@ -1,0 +1,8 @@
+.qr {
+  color: var(--ink-900);
+  background: var(--surface);
+  padding: var(--sp-3);
+  border-radius: var(--r-card);
+  border: 1px solid var(--line);
+  box-sizing: content-box;
+}

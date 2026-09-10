@@ -1,0 +1,113 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--control-md);
+  padding-inline: var(--sp-5);
+  border-radius: var(--r-field);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-body);
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.btn:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.985);
+}
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.btn.loading:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+
+.lg {
+  min-height: var(--control-lg);
+  padding-inline: var(--sp-6);
+}
+.block {
+  width: 100%;
+}
+.iconOnly {
+  width: var(--control-md);
+  min-width: var(--control-md);
+  padding-inline: 0;
+}
+.iconOnly.lg {
+  width: var(--control-lg);
+  min-width: var(--control-lg);
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.loading .content {
+  visibility: hidden;
+}
+.spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon {
+  display: inline-flex;
+}
+
+/* Variants */
+.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.primary:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+.primary:focus-visible {
+  box-shadow: var(--focus-ring-offset);
+}
+
+.secondary {
+  background: var(--surface-alt);
+  color: var(--ink-900);
+}
+.secondary:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+:global([data-theme="dark"]) .secondary:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--accent);
+  padding-inline: var(--sp-3);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.destructive {
+  background: transparent;
+  color: var(--neg);
+  border: 1px solid var(--line);
+}
+.destructive:hover:not(:disabled) {
+  background: var(--surface-alt);
+}
+.destructive:focus-visible {
+  box-shadow: var(--focus-ring-neg);
+}
