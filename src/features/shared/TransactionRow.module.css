@@ -1,0 +1,13 @@
+.circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar);
+  height: var(--avatar);
+  border-radius: var(--r-pill);
+  background: var(--surface-alt);
+  color: var(--ink-600);
+  flex-shrink: 0;
+}
+.accent { background: var(--accent-soft); color: var(--accent-text); }
+.failed { text-decoration: line-through; color: var(--ink-400); }
