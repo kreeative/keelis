@@ -1,0 +1,50 @@
+/* Tight vertical rhythm so the keypad stays visible at 390×844. */
+:global(.page).trade { padding-block: var(--sp-3) var(--sp-4); }
+.trade .head { margin-bottom: var(--sp-3); }
+
+/* AmountEntry quick-amount chips are 36px in the shared component; lift them to the tap target. */
+.entry button { min-height: var(--tap); }
+
+.fees {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-4);
+}
+.line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-4);
+  min-height: 36px;
+  padding-block: var(--sp-2);
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+}
+.line + .line { border-top: 1px solid var(--line); }
+.lineStrong {
+  color: var(--ink-900);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+}
+.lineLabel { flex-shrink: 0; }
+.lineValue {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+@media (min-width: 768px) {
+  :global(.page).trade {
+    max-width: calc(480px + 2 * var(--gutter));
+    padding-block: var(--sp-5) var(--sp-7);
+  }
+  .trade .head { margin-bottom: var(--sp-5); }
+}

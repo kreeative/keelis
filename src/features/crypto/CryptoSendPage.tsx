@@ -1,11 +1,270 @@
-import { PageHeader } from '@/components/PageHeader'
-import { EmptyState } from '@/components/EmptyState'
+/**
+ * /crypto/:id/envoyer — network → address → quantity → network fee preview → confirm → send.
+ * Sends are irreversible: the confirmation sheet repeats the destination, network and total.
+ */
+import { useState, type ReactNode } from 'react'
+import { useParams } from 'react-router-dom'
+import { api } from '@/api'
+import type { ApiError, CryptoSendPreview, CryptoSendRequest, MoneyMovementResult } from '@/api/types'
+import { Button, ErrorState, Field, Icon, PageHeader, SegmentedControl, SkeletonAmount } from '@/components'
+import { AmountEntry, ConfirmSheet, SuccessScreen, useHoldings } from '@/features/shared'
+import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
+import { useAsset, useMutation, useSettings, useToast } from '@/store'
+import { cn } from '@/lib/cn'
+import { abbreviateAddress, floorTo, toKeypadRaw } from './cryptoFormat'
+import styles from './CryptoSendPage.module.css'
 
-export default function Page() {
+function FeeLine({ label, value, sub, strong = false }: { label: string; value: ReactNode; sub?: ReactNode; strong?: boolean }) {
   return (
-    <div className="page">
-      <PageHeader title="Envoyer" back={-1} />
-      <EmptyState message="Cet écran est en construction." compact />
+    <div className={cn(styles.line, strong && styles.lineStrong)}>
+      <dt className={styles.lineLabel}>{label}</dt>
+      <dd className={styles.lineValue}>
+        <span>{value}</span>
+        {sub ? <span className={styles.lineSub}>{sub}</span> : null}
+      </dd>
+    </div>
+  )
+}
+
+export default function CryptoSendPage() {
+  const { id = '' } = useParams()
+  const { locale } = useSettings()
+  const { toast } = useToast()
+  const assetQ = useAsset(id)
+  const asset = assetQ.data
+  const holdings = useHoldings()
+  const holding = holdings.data?.find((h) => h.assetId === id)
+
+  const [networkId, setNetworkId] = useState<string | null>(null)
+  const [address, setAddress] = useState('')
+  const [addressError, setAddressError] = useState<string | null>(null)
+  const [raw, setRaw] = useState('')
+  const [entryError, setEntryError] = useState<string | null>(null)
+  const [preview, setPreview] = useState<CryptoSendPreview | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [result, setResult] = useState<{ res: MoneyMovementResult; req: CryptoSendRequest; preview: CryptoSendPreview } | null>(null)
+
+  const previewM = useMutation((req: CryptoSendRequest) => api.crypto.previewSend(req))
+  const sendM = useMutation((req: CryptoSendRequest) => api.crypto.send(req))
+
+  const networks = asset?.networks ?? []
+  const network = networks.find((n) => n.id === networkId) ?? networks[0]
+  const decimals = asset?.decimals ?? 8
+  const price = asset?.price ?? 0
+  const fee = network?.feeEstimate ?? 0
+  const quantity = parseAmountInput(raw)
+  const totalDebit = quantity + fee
+  const held = holding?.quantity ?? 0
+
+  const clientError = (() => {
+    if (quantity <= 0) return null
+    if (holdings.data && totalDebit > held + 1e-12) return 'Avoirs insuffisants (frais réseau inclus)'
+    return null
+  })()
+  const shownEntryError = entryError ?? clientError
+  const canContinue = !!asset && !!network && quantity > 0 && address.trim().length > 0 && !clientError && !previewM.pending
+
+  const request = (): CryptoSendRequest | null => (asset && network ? { assetId: asset.id, networkId: network.id, address: address.trim(), quantity } : null)
+
+  const onPaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText()
+      if (!text.trim()) {
+        toast('Le presse-papiers est vide', 'error')
+        return
+      }
+      setAddress(text.trim())
+      setAddressError(null)
+    } catch {
+      toast('Impossible de lire le presse-papiers', 'error')
+    }
+  }
+
+  const onMax = () => {
+    setRaw(toKeypadRaw(floorTo(Math.max(0, held - fee), decimals), decimals))
+    setEntryError(null)
+  }
+
+  const onContinue = async () => {
+    const req = request()
+    if (!req) return
+    setAddressError(null)
+    setEntryError(null)
+    try {
+      const p = await previewM.mutate(req)
+      setPreview(p)
+      sendM.reset()
+      setSheetOpen(true)
+    } catch (err) {
+      const e = err as ApiError
+      if (e.details?.address) setAddressError(e.details.address)
+      else setEntryError(e.message)
+    }
+  }
+
+  const onConfirm = async () => {
+    const req = request()
+    if (!req || !preview) return
+    try {
+      const res = await sendM.mutate(req)
+      setSheetOpen(false)
+      setResult({ res, req, preview })
+    } catch {
+      /* shown inline in the sheet */
+    }
+  }
+
+  if (result && asset) {
+    const net = asset.networks.find((n) => n.id === result.req.networkId)
+    return (
+      <div className={cn('page', styles.send)}>
+        <SuccessScreen
+          title="Envoi en cours"
+          hero={formatCrypto(result.preview.quantity, asset.symbol, { locale })}
+          caption={`vers ${abbreviateAddress(result.req.address)}`}
+          status={`En attente · ${result.res.eta}`}
+          details={[
+            { label: 'Adresse', value: <span className={styles.mono}>{abbreviateAddress(result.req.address)}</span> },
+            { label: 'Réseau', value: net?.name ?? result.req.networkId },
+            { label: 'Frais réseau', value: formatCrypto(result.preview.networkFee, asset.symbol, { locale }) },
+            { label: 'Total débité', value: formatCrypto(result.preview.totalDebit, asset.symbol, { locale }) },
+          ]}
+          primaryLabel={`Voir ${asset.symbol}`}
+          primaryTo={`/crypto/${id}`}
+          secondaryLabel="Retour à l'accueil"
+          secondaryTo="/"
+        />
+      </div>
+    )
+  }
+
+  if (!asset || !network) {
+    return (
+      <div className={cn('page', styles.send)}>
+        <PageHeader close back={`/crypto/${id}`} title="Envoyer" />
+        {assetQ.error ? <ErrorState error={assetQ.error} onRetry={() => void assetQ.refetch()} /> : <SkeletonAmount />}
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn('page', styles.send)}>
+      <PageHeader close back={`/crypto/${id}`} title={`Envoyer ${asset.symbol}`} />
+
+      <section className={styles.block} aria-labelledby="network-title">
+        <h2 id="network-title" className="t-label">
+          Réseau
+        </h2>
+        {networks.length > 1 && networks.length <= 4 ? (
+          <SegmentedControl
+            segments={networks.map((n) => ({ value: n.id, label: n.name }))}
+            value={network.id}
+            onChange={(v) => {
+              setNetworkId(v)
+              setAddressError(null)
+              setEntryError(null)
+            }}
+            label="Réseau"
+            block
+            className={styles.tabs}
+          />
+        ) : (
+          <p className={styles.networkName}>{network.name}</p>
+        )}
+        <p className={styles.warning} role="note">
+          <Icon name="circle-alert" size={18} className={styles.warningIcon} />
+          <span>{network.warning}</span>
+        </p>
+      </section>
+
+      <section className={styles.block} aria-labelledby="address-title">
+        <h2 id="address-title" className="t-label">
+          Adresse
+        </h2>
+        <Field
+          label={`Adresse ${network.name}`}
+          hideLabel
+          className={styles.address}
+          value={address}
+          onChange={(e) => {
+            setAddress(e.target.value)
+            if (addressError) setAddressError(null)
+          }}
+          placeholder={network.addressPrefix ? `${network.addressPrefix}…` : 'Adresse de destination'}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          inputMode="text"
+          error={addressError ?? undefined}
+          trailing={
+            <span className={styles.addressActions}>
+              <Button variant="ghost" onClick={() => void onPaste()}>
+                Coller
+              </Button>
+              <Button variant="ghost" iconOnly aria-label="Scanner un code QR" title="Caméra non disponible dans cette version" disabled className={styles.scan}>
+                <Icon name="scan" />
+              </Button>
+            </span>
+          }
+        />
+      </section>
+
+      <section className={cn(styles.block, styles.entry)} aria-label="Quantité">
+        <AmountEntry
+          label="Quantité à envoyer"
+          value={raw}
+          onChange={(v) => {
+            setRaw(v)
+            if (entryError) setEntryError(null)
+          }}
+          mode="crypto"
+          unit={asset.symbol}
+          secondary={quantity > 0 ? `≈ ${formatMoney(quantity * price, { locale })}` : holdings.data ? `Disponible : ${formatCrypto(held, asset.symbol, { locale })}` : undefined}
+          error={shownEntryError}
+          onMax={onMax}
+          maxDecimals={decimals}
+          disabled={previewM.pending}
+        />
+      </section>
+
+      <dl className={styles.fees} aria-label="Frais réseau estimés">
+        <FeeLine label="Frais réseau" value={`${formatCrypto(fee, asset.symbol, { locale })} ≈ ${formatMoney(fee * price, { locale })}`} />
+        <FeeLine label="Délai estimé" value={`≈ ${network.etaMinutes} min`} />
+        <FeeLine label="Total débité" value={formatCrypto(totalDebit, asset.symbol, { locale })} sub={quantity > 0 ? `≈ ${formatMoney(totalDebit * price, { locale })}` : undefined} strong />
+      </dl>
+
+      <div className={styles.cta}>
+        <Button size="lg" block disabled={!canContinue} loading={previewM.pending} onClick={() => void onContinue()}>
+          Continuer
+        </Button>
+      </div>
+
+      {preview ? (
+        <ConfirmSheet
+          open={sheetOpen}
+          onClose={() => {
+            if (sendM.pending) return
+            setSheetOpen(false)
+          }}
+          title="Confirmer l'envoi"
+          hero={formatCrypto(preview.quantity, asset.symbol, { locale })}
+          heroCaption={`≈ ${formatMoney(preview.fiatValue, { locale })}`}
+          lines={[
+            { label: 'Destination', value: <span className={styles.mono}>{abbreviateAddress(address)}</span> },
+            { label: 'Réseau', value: network.name },
+            { label: 'Quantité', value: formatCrypto(preview.quantity, asset.symbol, { locale }) },
+            { label: 'Frais réseau', value: formatCrypto(preview.networkFee, asset.symbol, { locale }), hint: `≈ ${formatMoney(preview.networkFee * price, { locale })}` },
+            { label: 'Total débité', value: formatCrypto(preview.totalDebit, asset.symbol, { locale }), strong: true },
+            { label: 'Délai', value: `≈ ${preview.etaMinutes} min` },
+          ]}
+          note="Les envois sont irréversibles. Vérifiez l'adresse et le réseau."
+          confirmLabel="Envoyer"
+          onConfirm={() => void onConfirm()}
+          pending={sendM.pending}
+          error={sendM.error}
+        />
+      ) : null}
     </div>
   )
 }

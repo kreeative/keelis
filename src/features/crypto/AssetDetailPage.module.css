@@ -1,0 +1,138 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--sp-3);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--tap);
+  margin-bottom: var(--sp-3);
+}
+.back { margin-left: calc(-1 * var(--sp-3)); color: var(--ink-900); }
+.star { margin-right: calc(-1 * var(--sp-3)); color: var(--ink-900); }
+.starOn { color: var(--accent); }
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.chartBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin-top: var(--sp-6);
+}
+.chart { width: 100%; }
+.tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
+
+.actions { margin-top: var(--sp-6); }
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-7);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+  padding: var(--sp-4);
+  background: var(--surface-alt);
+  border-radius: var(--r-card);
+}
+.cellValue {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.cellStack { display: flex; flex-direction: column; gap: 2px; }
+.cellDelta { font-size: var(--fs-small); font-weight: var(--fw-body); }
+.quiet { color: var(--ink-600); }
+
+.description { color: var(--ink-600); }
+.facts { display: flex; flex-direction: column; margin-top: var(--sp-2); }
+.fact {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-4);
+  min-height: 48px;
+  padding-block: var(--sp-3);
+}
+.fact + .fact { border-top: 1px solid var(--line); }
+.factLabel { color: var(--ink-600); font-size: var(--fs-small); flex-shrink: 0; }
+.factValue { text-align: right; overflow-wrap: anywhere; }
+
+.bar {
+  position: sticky;
+  bottom: calc(var(--navbar-height) + var(--safe-bottom) + var(--sp-3));
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-7);
+  margin-inline: calc(-1 * var(--gutter));
+  padding: var(--sp-3) var(--gutter);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+/* Fill the strip between the bar and the bottom nav so the bar reads as docked. */
+.bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: var(--sp-3);
+  background: var(--surface);
+}
+
+@media (min-width: 768px) {
+  .page { padding-bottom: var(--sp-7); }
+  .bar {
+    position: static;
+    margin-inline: 0;
+    padding: 0;
+    border-top: 0;
+    max-width: 480px;
+  }
+  .bar::after { content: none; }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-areas:
+      'top top'
+      'hero bar'
+      'chart actions'
+      'chart holdings'
+      'chart about'
+      'chart .';
+    grid-template-rows: auto auto auto auto auto 1fr;
+    column-gap: var(--sp-8);
+    align-items: start;
+  }
+  .topbar { grid-area: top; }
+  .hero { grid-area: hero; }
+  .chartBlock { grid-area: chart; margin-top: var(--sp-6); }
+  .actions { grid-area: actions; margin-top: var(--sp-6); }
+  .holdings { grid-area: holdings; margin-top: var(--sp-6); }
+  .about { grid-area: about; margin-top: var(--sp-6); }
+  .bar { grid-area: bar; margin-top: 0; align-self: end; max-width: none; }
+}

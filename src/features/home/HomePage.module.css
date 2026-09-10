@@ -1,0 +1,77 @@
+.topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+}
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-right: calc(-1 * var(--sp-2));
+}
+.iconBtn { color: var(--ink-900); }
+.iconLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-md);
+  height: var(--control-md);
+  border-radius: var(--r-field);
+  color: var(--ink-900);
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.iconLink:hover { background: var(--accent-soft); color: var(--accent-text); }
+.iconLink:focus-visible { box-shadow: var(--focus-ring); }
+.dot {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  width: var(--sp-2);
+  height: var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  outline: 2px solid var(--surface);
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-block: var(--sp-6) var(--sp-6);
+}
+
+.actions { margin-top: var(--sp-6); }
+
+.section { margin-top: var(--sp-6); }
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+  margin-bottom: var(--sp-1);
+}
+.seeAll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: var(--tap);
+  padding-inline: var(--sp-3);
+  margin-right: calc(-1 * var(--sp-3));
+  border-radius: var(--r-field);
+  color: var(--accent);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.seeAll:hover { background: var(--accent-soft); color: var(--accent-text); }
+.seeAll:focus-visible { box-shadow: var(--focus-ring); }
+
+@media (min-width: 768px) {
+  .hero { padding-block: var(--sp-7) var(--sp-6); }
+}
