@@ -8,7 +8,8 @@
  *  - audits: horizontal overflow, text < 12px, tap targets < 44px, shadows outside sheets,
  *    gradients, and WCAG contrast (< 4.5:1 for text, < 3:1 for ≥24px text)
  *
- * Usage: node e2e/screenshots.mjs [--routes=/,/crypto] [--widths=390,1440] [--themes=light,dark] [--no-shots]
+ * Usage: node e2e/screenshots.mjs [--routes=/,/crypto] [--widths=390,1440] [--themes=light,dark] [--no-shots] [--anonymous]
+ *   --anonymous : do not inject the demo session (for /bienvenue and /inscription/* routes)
  */
 import { chromium } from 'playwright-core'
 import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
@@ -27,6 +28,7 @@ const ROUTES = (args.routes ? String(args.routes).split(',') : [
 const WIDTHS = (args.widths ? String(args.widths).split(',').map(Number) : [320, 390, 768, 1440])
 const THEMES = (args.themes ? String(args.themes).split(',') : ['light', 'dark'])
 const SHOTS = !args['no-shots']
+const ANON = !!args.anonymous
 const OUT = new URL('./out/', import.meta.url).pathname
 mkdirSync(OUT, { recursive: true })
 
@@ -154,10 +156,15 @@ try {
     const ctx = await browser.newContext({ colorScheme: theme, locale: 'fr-CA', deviceScaleFactor: 1 })
     await ctx.addInitScript((session) => {
       try {
-        localStorage.setItem('kaalis.session', JSON.stringify(session))
-        localStorage.setItem('kaalis.pin', '"1234"')
+        if (session) {
+          localStorage.setItem('kaalis.session', JSON.stringify(session))
+          localStorage.setItem('kaalis.pin', '"1234"')
+        } else {
+          localStorage.removeItem('kaalis.session')
+          localStorage.removeItem('kaalis.onboarding')
+        }
       } catch {}
-    }, DEMO_SESSION)
+    }, ANON ? null : DEMO_SESSION)
     for (const width of WIDTHS) {
       const page = await ctx.newPage()
       await page.setViewportSize({ width, height: width < 768 ? 844 : 900 })
