@@ -6,6 +6,7 @@ import { DataProvider } from '@/store/data'
 import { MarketProvider } from '@/store/market'
 import { AppRoutes } from '@/shell/routes'
 import { ToastViewport } from '@/components/Toast'
+import { AmbientGround } from '@/components/AmbientGround'
 
 /** Hash routing is used for the single-file hosted demo (see vite.single.config.ts). */
 const Router = import.meta.env.VITE_ROUTER === 'hash' ? HashRouter : BrowserRouter
@@ -17,6 +18,7 @@ export function App() {
         <SessionProvider>
           <DataProvider>
             <MarketProvider>
+              <AmbientGround />
               <Router>
                 <AppRoutes />
               </Router>

@@ -1,17 +1,43 @@
 .card {
   display: block;
-  background: var(--surface-alt);
-  border-radius: var(--r-card);
   color: var(--ink-900);
-  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  border-radius: var(--r-card);
+  /* Transform and shadow only: both composite cheaply, so the lift stays at 60fps. */
+  transition:
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    background-color var(--dur-fast) var(--ease);
+}
+.solid {
+  background: var(--surface-alt);
+  border: 1px solid transparent;
 }
 .md { padding: var(--sp-4); }
 .lg { padding: var(--sp-5); }
 .none { padding: 0; }
-.interactive:hover { filter: brightness(0.98); }
-:global([data-theme="dark"]) .interactive:hover { filter: brightness(1.08); }
-@media (prefers-color-scheme: dark) {
-  :global(:root:not([data-theme="light"])) .interactive:hover { filter: brightness(1.08); }
+
+.asButton {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  letter-spacing: inherit;
 }
-.interactive:active { transform: scale(0.995); }
-.interactive:focus-visible { box-shadow: var(--focus-ring); }
+
+.interactive {
+  cursor: pointer;
+  /* Promote only interactive cards: a blurred layer per card is expensive. */
+  will-change: transform;
+}
+.interactive:hover {
+  transform: var(--lift);
+  box-shadow: var(--elev-2-hover);
+}
+.interactive:active {
+  transform: var(--press);
+  box-shadow: var(--elev-1);
+  transition-duration: var(--dur-fast);
+}
+.interactive:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), var(--elev-2-hover);
+}

@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, PriceHistory } from '@/api/types'
-import { AmountDisplay, Button, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SegmentedControl, SkeletonRow } from '@/components'
+import { AmountDisplay, Button, Card, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SegmentedControl, SkeletonRow } from '@/components'
 import { TransactionRow, useAccounts, useTransactions } from '@/features/shared'
 import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
@@ -130,15 +130,19 @@ export default function HomePage() {
               </Link>
             </div>
             {recent.loading ? (
-              <SkeletonRow count={RECENT_COUNT} />
+              <Card padding="md" elevation={1}>
+                <SkeletonRow count={RECENT_COUNT} />
+              </Card>
             ) : recent.error && !recentItems ? (
               <ErrorState compact error={recent.error} onRetry={() => void recent.refetch()} />
             ) : recentItems && recentItems.length > 0 ? (
-              <List>
-                {recentItems.map((tx) => (
-                  <TransactionRow key={tx.id} tx={tx} />
-                ))}
-              </List>
+              <Card padding="md" elevation={1}>
+                <List>
+                  {recentItems.map((tx) => (
+                    <TransactionRow key={tx.id} tx={tx} />
+                  ))}
+                </List>
+              </Card>
             ) : (
               <EmptyState
                 compact

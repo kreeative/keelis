@@ -13,14 +13,19 @@
   line-height: 1;
   white-space: nowrap;
   user-select: none;
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
 }
 .btn:focus-visible {
   box-shadow: var(--focus-ring);
   outline: none;
 }
 .btn:active:not(:disabled) {
-  transform: scale(0.985);
+  transform: var(--press);
 }
 .btn:disabled {
   cursor: not-allowed;
@@ -68,23 +73,39 @@
 }
 
 /* Variants */
+/* The single high-contrast accent, reserved for primary calls to action. */
 .primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--cta);
+  color: var(--on-cta);
+  box-shadow: var(--elev-1);
 }
 .primary:hover:not(:disabled) {
-  filter: brightness(0.94);
+  background: var(--cta-hover);
+  transform: var(--lift);
+  box-shadow: var(--elev-2);
+}
+.primary:active:not(:disabled) {
+  box-shadow: var(--elev-1);
 }
 .primary:focus-visible {
-  box-shadow: var(--focus-ring-offset);
+  box-shadow: var(--focus-ring-offset), var(--elev-1);
 }
 
 .secondary {
-  background: var(--surface-alt);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--ink-900);
+  border: 1px solid transparent;
+  border-top-color: var(--glass-border);
+  box-shadow: var(--elev-1);
 }
 .secondary:hover:not(:disabled) {
-  filter: brightness(0.97);
+  transform: var(--lift);
+  box-shadow: var(--elev-2);
+}
+.secondary:active:not(:disabled) {
+  box-shadow: var(--elev-1);
 }
 :global([data-theme="dark"]) .secondary:hover:not(:disabled) {
   filter: brightness(1.12);
@@ -106,7 +127,9 @@
 }
 
 .destructive {
-  background: transparent;
+  background: var(--glass-bg-soft);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   color: var(--neg);
   border: 1px solid var(--line);
 }

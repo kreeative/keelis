@@ -5,8 +5,11 @@
   right: 0;
   bottom: 0;
   z-index: var(--z-nav);
-  background: var(--surface);
-  border-top: 1px solid var(--line);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--glass-border);
+  box-shadow: var(--elev-2);
   padding-bottom: var(--safe-bottom);
 }
 .barList {
@@ -61,7 +64,9 @@
     align-items: center;
     gap: var(--sp-5);
     padding-block: var(--sp-4);
-    background: var(--surface);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
     border-right: 1px solid var(--line);
     overflow: visible;
   }

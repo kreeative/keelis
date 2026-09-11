@@ -15,7 +15,8 @@
   border-radius: var(--r-field);
   font-size: var(--fs-h2);
   font-weight: var(--fw-h2);
-  letter-spacing: var(--ls-h2);
+  font-family: var(--font-numeric);
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
   color: var(--ink-900);
   transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);

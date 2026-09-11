@@ -8,6 +8,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* The base ground colour. The colour fields on top of it are painted by
+     <AmbientGround />, a single fixed layer behind the app. */
   background: var(--surface);
 }
 
@@ -19,7 +21,8 @@ body {
   letter-spacing: var(--ls-body);
   font-weight: var(--fw-body);
   color: var(--ink-900);
-  background: var(--surface);
+  /* Transparent so <AmbientGround /> shows through. */
+  background: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
@@ -73,12 +76,36 @@ img, svg {
   border-radius: var(--r-field);
 }
 
+/* Glass material. Composed by .glass + an elevation class. */
+.glass {
+  background: var(--glass-fallback);
+  border: 1px solid transparent;
+  border-top-color: var(--glass-border);
+  border-radius: var(--r-card);
+}
+.glass-strong { background: var(--glass-fallback-strong); }
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  .glass-strong { background: var(--glass-bg-strong); }
+  .glass-soft { background: var(--glass-bg-soft); }
+}
+
+.elev-1 { box-shadow: var(--elev-1); }
+.elev-2 { box-shadow: var(--elev-2); }
+.elev-3 { box-shadow: var(--elev-3); }
+
 /* Type utilities — the only allowed text styles */
 .t-display {
   font-size: var(--fs-display);
   line-height: var(--lh-display);
-  letter-spacing: var(--ls-display);
+  letter-spacing: var(--ls-numeric);
   font-weight: var(--fw-display);
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
 }
 .t-h1 {
@@ -122,6 +149,12 @@ img, svg {
 .t-accent { color: var(--accent); }
 .t-mono { font-family: var(--font-mono); }
 .num { font-variant-numeric: tabular-nums; }
+/* Financial figures: monospace, tight, high contrast. */
+.figures {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ls-numeric);
+}
 
 /* Visually hidden (screen-reader only) */
 .sr-only {

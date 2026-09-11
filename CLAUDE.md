@@ -8,14 +8,19 @@ Kaalis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three p
 - `pnpm e2e` — Playwright screenshots + runtime audit (contrast, tap targets, overflow, shadows) against the preview server
 
 ## Non-negotiable design rules (enforced by `scripts/check-design.mjs` and `e2e/screenshots.mjs`)
-- **All visual values come from `src/styles/tokens.css`.** Never write a colour literal, px font-size, shadow or gradient in a component. Use `var(--…)`.
-- One accent (`--accent`) for primary actions/positive states, never as a large filled surface. Text on `--accent` uses `--on-accent`. Accent-as-text on `--accent-soft` uses `--accent-text`.
+- **All visual values come from `src/styles/tokens.css`.** Never write a colour literal, px font-size, shadow, blur or gradient in a component. Use `var(--…)`.
+- **Material.** Surfaces are glass: `.glass` (or `.glass-strong`) + an `.elev-*` class, or the `Card` component, which composes both. Glass = translucent background + `var(--glass-blur)` + a hairline `--glass-border` top highlight. There is an opaque `@supports` fallback; never assume backdrop-filter exists.
+- **Elevation is layered, never a single blur.** Use `--elev-1/2/3` (ambient contact + direct drop + deep lift) and `--elev-2-hover`. A hand-rolled `box-shadow` fails the design check.
+- **Tactile physics.** Interactive surfaces lift with `var(--lift)` (`translateY(-2px) scale(1.01)`) and settle with `var(--press)`; both collapse to `none` under reduced motion. Animate transform and box-shadow only.
+- **Ambient ground.** `<AmbientGround />` (mounted once in `App`) paints the colour field the glass refracts. `body` is transparent on purpose — do not give it a background.
+- **One CTA accent.** `--cta` (citrine) is a **fill only**, reserved for primary buttons and positive highlights; text on it is `--on-cta`. It is unreadable as text on a light surface. Links, ghost buttons and focus rings use `--accent` (teal); accent text on `--accent-soft` uses `--accent-text`.
 - `--ink-300` is **not** for text (fails contrast); use `--ink-400` for labels/tertiary text.
-- No shadows except `--sheet-shadow` (Sheet only) and focus rings. No gradients. No emoji. No borders-as-accent on cards.
-- Text ≥ 12px (`--fs-label`); nav labels use `--fs-nav` (11px) only in NavBar. Tap targets ≥ 44px (`--tap`).
+- No emoji. Gradients only in the token/base/AmbientGround layer. `backdrop-filter` only via `--glass-blur`.
+- Text ≥ 12px (`--fs-label`). Tap targets ≥ 44px (`--tap`).
 - Motion 150–250 ms via `--dur-*` and `--ease`; nothing bounces. Reduced motion is handled globally.
 - Every screen has one dominant number (`AmountDisplay`) or one dominant title (`PageHeader` / `.t-h1`).
-- `font-variant-numeric: tabular-nums` wherever a number can change (`.num`, `Money`, `AmountDisplay`).
+- **Financial figures are monospace**: `--font-numeric` with `tabular-nums` and `--ls-numeric`. `Money`, `AmountDisplay`, `.figures`, `.t-display` and `ListRow` values already carry it. Body copy uses `--font-sans` (SF Pro style system stack).
+- Radii: `--r-card` 24px for cards and panels, `--r-field` 16px for inner elements, `--r-pill` for pills.
 
 ## Architecture
 - `src/api/types.ts` — the `KaalisApi` contract. `src/api/mock/` implements it (latency, events, price ticks, optimistic settlement). Screens import `api` from `@/api` only.

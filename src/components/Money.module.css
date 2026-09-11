@@ -1,5 +1,7 @@
 .money {
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
   white-space: nowrap;
 }
 .pos { color: var(--pos); }

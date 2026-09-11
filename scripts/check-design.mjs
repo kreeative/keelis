@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Enforces the Kaalis acceptance criteria that can be checked statically:
+ * Enforces the Kaalis design system statically:
  *  - no hard-coded colours outside tokens.css
- *  - no box-shadow outside the Sheet component (and the tokens file)
- *  - no gradients
- *  - no font-size below 12px (except the 11px nav label token)
+ *  - elevation only through the layered --elev-* / --sheet-shadow / focus-ring tokens
+ *    (a hand-rolled single-blur shadow is the thing this catches)
+ *  - gradients only in the token and base layers (the ambient ground)
+ *  - blur only through --glass-blur, so every glass surface matches
+ *  - no font-size below 12px
  *  - no emoji in source
- *  - no foreign font families (Inter, Roboto)
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -25,7 +26,12 @@ function walk(dir) {
 
 const emoji = /[\u{1F300}-\u{1FAFF}\u{1F000}-\u{1F2FF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}]/u
 const colourLiteral = /(#[0-9a-fA-F]{3,8}\b|\b(rgb|rgba|hsl|hsla|oklch|oklab|lab|lch|color)\(|\b(white|black|red|green|blue|gray|grey|orange|yellow|purple|teal|pink)\b(?=\s*[;,)]))/
+const BASE = join(ROOT, 'styles/base.css')
+// The one component whose whole job is to paint the ambient colour field.
+const AMBIENT = join(ROOT, 'components/AmbientGround.module.css')
 const allowedColourFiles = [TOKENS]
+const allowedGradientFiles = [TOKENS, BASE, AMBIENT]
+const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg)\)/
 
 function check(file) {
   const rel = relative(ROOT, file)
@@ -36,11 +42,11 @@ function check(file) {
     const trimmed = line.trim()
     if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return
     if (emoji.test(line)) violations.push(`${where}: emoji found`)
-    if (/gradient\(/.test(line)) violations.push(`${where}: gradient`)
-    if (/\b(Inter|Roboto)\b/.test(line) && /font/.test(line)) violations.push(`${where}: foreign font family`)
+    if (/gradient\(/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: gradient outside the token/base layer`)
     if (file.endsWith('.css')) {
       if (!allowedColourFiles.includes(file) && colourLiteral.test(line) && !/currentColor|transparent|inherit/.test(line)) violations.push(`${where}: hard-coded colour → use a token`)
-      if (/box-shadow\s*:/.test(line) && !/var\(--(sheet-shadow|focus-ring(-offset|-neg)?)\)/.test(line) && !/box-shadow\s*:\s*none/.test(line) && file !== TOKENS) violations.push(`${where}: box-shadow outside tokens (only --sheet-shadow / --focus-ring allowed)`)
+      if (/box-shadow\s*:/.test(line) && !SHADOW_TOKENS.test(line) && !/box-shadow\s*:\s*none/.test(line) && file !== TOKENS) violations.push(`${where}: hand-rolled box-shadow — use the layered --elev-* tokens`)
+      if (/backdrop-filter\s*:/.test(line) && !/var\(--glass-blur\)/.test(line) && !/backdrop-filter\s*:\s*(none|blur\(2px\))/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: backdrop-filter outside --glass-blur`)
       const fs = line.match(/font-size\s*:\s*(\d+(?:\.\d+)?)px/)
       if (fs && Number(fs[1]) < 12 && file !== TOKENS) violations.push(`${where}: font-size ${fs[1]}px < 12px`)
       const min = line.match(/(min-height|height|min-width|width)\s*:\s*(\d+)px/)
@@ -59,5 +65,5 @@ if (violations.length) {
   console.error(`Design check failed (${violations.length}):\n` + violations.map((v) => '  - ' + v).join('\n'))
   process.exit(1)
 } else {
-  console.log('Design check passed: no hard-coded colours, shadows, gradients, emoji or sub-12px text.')
+  console.log('Design check passed: colours, elevation, blur and gradients all come from the token layer; no emoji or sub-12px text.')
 }

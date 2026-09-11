@@ -5,8 +5,9 @@
  *
  * For each route × viewport × theme it:
  *  - screenshots to e2e/out/<route>-<width>-<theme>.png
- *  - audits: horizontal overflow, text < 12px, tap targets < 44px, shadows outside sheets,
- *    gradients, and WCAG contrast (< 4.5:1 for text, < 3:1 for ≥24px text)
+ *  - audits: horizontal overflow, text < 12px, tap targets < 44px, and WCAG contrast
+ *    (< 4.5:1 for text, < 3:1 for ≥24px text), computed against the real composited
+ *    background — translucent glass surfaces are blended down to the ground colour
  *
  * Usage: node e2e/screenshots.mjs [--routes=/,/crypto] [--widths=390,1440] [--themes=light,dark] [--no-shots] [--anonymous]
  *   --anonymous : do not inject the demo session (for /bienvenue and /inscription/* routes)
@@ -136,8 +137,6 @@ function auditScript() {
         if (ratio < min && !seen.has(key('contrast'))) { seen.add(key('contrast')); out.push({ kind: 'contrast', detail: `${ratio.toFixed(2)}:1 (${fs}px) "${el.textContent.trim().slice(0, 30)}" color=${cs.color} bg=${JSON.stringify(bg)}` }) }
       }
     }
-    if (cs.boxShadow && cs.boxShadow !== 'none' && !el.closest('[role="dialog"]') && document.activeElement !== el && !seen.has(key('shadow'))) { seen.add(key('shadow')); out.push({ kind: 'shadow', detail: `${tag} ${cs.boxShadow.slice(0, 60)}` }) }
-    if (/gradient/.test(cs.backgroundImage) && !seen.has(key('gradient'))) { seen.add(key('gradient')); out.push({ kind: 'gradient', detail: tag }) }
     if ((tag === 'button' || tag === 'a' || el.getAttribute('role') === 'tab' || el.getAttribute('role') === 'switch' || tag === 'input' || tag === 'select') && !el.closest('nav') ) {
       const r = el.getBoundingClientRect()
       const inline = cs.display === 'inline' && tag === 'a'

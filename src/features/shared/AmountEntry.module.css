@@ -6,8 +6,9 @@
   gap: var(--sp-2);
   font-size: var(--fs-display);
   line-height: var(--lh-display);
-  letter-spacing: var(--ls-display);
+  letter-spacing: var(--ls-numeric);
   font-weight: var(--fw-display);
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
   color: var(--ink-900);
   min-height: calc(var(--fs-display) * 1.1);
