@@ -192,8 +192,8 @@ export default function SavingsPage() {
           <QuickActions
             className={styles.actions}
             actions={[
-              { label: 'Déposer', icon: <Icon name="arrow-down-to-line" />, to: '/epargne/deposer' },
-              { label: 'Retirer', icon: <Icon name="arrow-up-from-line" />, to: '/epargne/retirer' },
+              { label: 'Déposer', icon: <Icon name="deposit" />, to: '/epargne/deposer' },
+              { label: 'Retirer', icon: <Icon name="withdraw" />, to: '/epargne/retirer' },
               { label: 'Créer un objectif', icon: <Icon name="target" />, to: '/epargne/objectifs/nouveau' },
               { label: 'Détails', icon: <Icon name="landmark" />, to: '/carte/details?compte=epargne' },
             ]}

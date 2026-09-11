@@ -109,7 +109,7 @@ export default function CryptoListPage() {
           to="/crypto/recurrents"
           leading={
             <span className={styles.recurringIcon} aria-hidden="true">
-              <Icon name="repeat" size={20} />
+              <Icon name="recurring" size={20} />
             </span>
           }
           title="Achats récurrents"

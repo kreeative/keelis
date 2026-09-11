@@ -199,8 +199,8 @@ export default function AssetDetailPage() {
         <QuickActions
           actions={[
             { label: 'Envoyer', icon: <Icon name="send" />, to: `/crypto/${id}/envoyer`, disabled: holdings.data !== undefined && !hasHolding },
-            { label: 'Recevoir', icon: <Icon name="arrow-down-to-line" />, to: `/crypto/${id}/recevoir` },
-            { label: 'Récurrent', icon: <Icon name="repeat" />, to: '/crypto/recurrents' },
+            { label: 'Recevoir', icon: <Icon name="deposit" />, to: `/crypto/${id}/recevoir` },
+            { label: 'Récurrent', icon: <Icon name="recurring" />, to: '/crypto/recurrents' },
           ]}
         />
       </div>

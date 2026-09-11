@@ -1,11 +1,13 @@
 /**
- * Single icon family: lucide outlines, forced to 1.5px stroke, 24px, round joins.
+ * Single icon family: lucide outlines, forced to 1.5px stroke, round joins.
+ * Default box is 20px, matching the reference kit's icon grid (a 20px box holding a
+ * ~16px glyph). Pass `size` where a screen needs a larger or smaller one.
  * Icons are imported explicitly (tree-shaken). Add to ICONS when a screen needs a new one.
  * Usage: <Icon name="arrow-up-right" />
  */
 import { forwardRef, type SVGProps } from 'react'
 import {
-  ArrowDownLeft, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUpFromLine, ArrowUpRight, Banknote, Bell, BellOff, Building2, Calendar, Camera, ChartLine, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, CircleAlert, CircleUserRound, Clock, CloudOff, Copy, CreditCard, Delete, Download, Eye, EyeOff, FileText, Filter, Fingerprint, Flag, Globe, HelpCircle, House, Info, Landmark, Languages, Link2, Lock, LockKeyhole, LogOut, Mail, Minus, Monitor, Moon, MoreHorizontal, Pencil, PiggyBank, Plus, QrCode, Receipt, Repeat, RotateCw, Scan, Search, Send, Settings, Shield, ShieldCheck, Smartphone, Snowflake, Star, StarOff, Sun, Target, Trash2, TrendingDown, TrendingUp, Upload, User, Wallet, WifiOff, X,
+  ArrowDownLeft, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUpFromLine, ArrowUpRight, Banknote, Bell, BellOff, Building2, Calendar, CalendarClock, Camera, ChartLine, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, CircleAlert, CircleCheck, CirclePlus, CircleUserRound, CircleX, Clock, CloudOff, Coins, Copy, CreditCard, Delete, Download, ExternalLink, Eye, EyeOff, FileSignature, FileText, Filter, Fingerprint, Flag, Gem, Gift, Globe, HelpCircle, House, Info, Landmark, Languages, Link2, Lock, LockKeyhole, LogOut, Mail, MessageCircle, Minus, Monitor, Moon, MoreHorizontal, Pencil, PiggyBank, Plus, QrCode, Receipt, Repeat, RotateCw, Scan, ScanFace, Search, Send, Settings, Share2, Shield, ShieldCheck, Smartphone, Snowflake, Split, Star, StarOff, Sun, Sunrise, Target, ThumbsDown, ThumbsUp, Trash2, TrendingDown, TrendingUp, TriangleAlert, Upload, User, Users, Wallet, WifiOff, X,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -87,6 +89,41 @@ export const ICONS = {
   wallet: Wallet,
   'wifi-off': WifiOff,
   x: X,
+
+  /* ---- Semantic names, from the reference kit's icon set ----
+     The kit draws filled glyphs; these are the nearest outline equivalents. Prefer a
+     semantic name over a generic arrow at a call site: it says what the action means,
+     and it survives a later change of glyph. */
+  deposit: ArrowDownToLine,
+  withdraw: ArrowUpFromLine,
+  transfer: ArrowLeftRight,
+  recurring: Repeat,
+  automated: Repeat,
+  schedule: CalendarClock,
+  cheque: Banknote,
+  money: Banknote,
+  wire: Landmark,
+  'bank-draft': FileSignature,
+  'sign-doc': FileSignature,
+  crypto: Coins,
+  invest: TrendingUp,
+  increase: TrendingUp,
+  split: Split,
+  'face-id': ScanFace,
+  warning: TriangleAlert,
+  cancel: CircleX,
+  'plus-circle': CirclePlus,
+  'checkmark-filled': CircleCheck,
+  'new-tab': ExternalLink,
+  share: Share2,
+  'double-user': Users,
+  diamond: Gem,
+  chat: MessageCircle,
+  gift: Gift,
+  'thumbs-up': ThumbsUp,
+  'thumbs-down': ThumbsDown,
+  premarket: Sunrise,
+  'after-hours': Moon,
 } satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS
@@ -98,7 +135,7 @@ export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'ref' | 'name'>
   label?: string
 }
 
-export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon({ name, label, size = 24, ...rest }, ref) {
+export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon({ name, label, size = 20, ...rest }, ref) {
   const Cmp = ICONS[name] ?? Circle
   return (
     <Cmp

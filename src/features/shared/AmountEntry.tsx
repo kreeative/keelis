@@ -48,7 +48,7 @@ export function AmountEntry({ value, onChange, mode = 'fiat', unit = 'CAD', seco
         {!symbolFirst ? <span className={styles.unit}>{symbol}</span> : null}
         {onToggleMode ? (
           <Button variant="secondary" iconOnly aria-label={mode === 'fiat' ? 'Saisir en crypto' : 'Saisir en dollars'} onClick={onToggleMode} className={styles.swap} disabled={disabled}>
-            <Icon name="arrow-left-right" size={18} />
+            <Icon name="transfer" size={18} />
           </Button>
         ) : null}
       </div>

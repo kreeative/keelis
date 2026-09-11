@@ -147,7 +147,7 @@ export default function CheckingPage() {
             actions={[
               { label: 'Ajouter', icon: <Icon name="plus" />, to: '/fonds' },
               { label: 'Envoyer', icon: <Icon name="send" />, to: '/envoyer' },
-              { label: 'Virement', icon: <Icon name="arrow-left-right" />, to: '/envoyer?mode=interne' },
+              { label: 'Virement', icon: <Icon name="transfer" />, to: '/envoyer?mode=interne' },
               { label: 'Détails', icon: <Icon name="landmark" />, to: '/carte/details' },
             ]}
           />

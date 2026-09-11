@@ -24,6 +24,7 @@ Kaalis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three p
 - **The typeface is Futura** (`--font-sans`), with the self-hosted geometric stand-in Jost (`src/styles/fonts.css`, `public/fonts/`) wherever Futura is not installed, then Century Gothic. Never add a third-party font request. Financial figures use `--font-numeric` (the same family) with `tabular-nums` so columns still align.
 - Futura's figures are narrow: give short controls an explicit `min-width: var(--tap)` or they fall under 44px.
 - Radii: `--r-card` 24px for cards and panels, `--r-field` 16px for inner elements, `--r-pill` for pills.
+- **Icons** are a 20px box (`--icon`, the reference kit's grid size) holding a ~16px glyph, lucide outlines at 1.5px stroke. `Icon` defaults to 20; pass `size` only where a screen needs otherwise. The `ICONS` map ends with a semantic group taken from the kit — `deposit`, `withdraw`, `transfer`, `recurring`, `cheque`, `wire`, `crypto`, `invest`, `split`, `face-id`, `warning` and friends. Prefer the semantic name over a generic arrow: it says what the action means and survives a change of glyph.
 
 ## Design source
 The visual reference is a duplicated copy of the Wealthsimple 2025 UI kit, in the owner's

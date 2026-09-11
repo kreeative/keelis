@@ -219,7 +219,7 @@ export default function TransactionDetailPage() {
               subtitle="Renvoyer le même montant"
               leading={
                 <span className={styles.actionIcon} aria-hidden="true">
-                  <Icon name="repeat" size={20} />
+                  <Icon name="recurring" size={20} />
                 </span>
               }
               chevron
