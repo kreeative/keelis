@@ -79,7 +79,7 @@
 
 .bar {
   position: sticky;
-  bottom: calc(var(--navbar-height) + var(--safe-bottom) + var(--sp-3));
+  bottom: calc(var(--navbar-height) + var(--navbar-gap) * 2 + var(--safe-bottom) + var(--sp-2));
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

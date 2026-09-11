@@ -50,6 +50,7 @@ set in Futura, and those two decisions outrank the kit.
 - `src/store/` — `useQuery` (cache; data never drops to undefined during refetch), `useMutation`, `QK` query keys, `useSession` (auth + PIN lock), `useSettings` (theme / locale / hidden balances), `useToast`, `useMarket` / `useAsset` (live prices), `useOnline`.
 - `src/components/` — the component library. Import from `@/components`. Do not create parallel primitives; extend these.
 - `src/features/<area>/` — screens. Routes live in `src/shell/routes.tsx` (French paths).
+- **Mobile navigation is a floating pill**, not a bar welded to the edge: centred, glass, `--elev-2`, with the active destination in a filled capsule and icons only (each link carries its name as an `aria-label`). Anything sticky at the bottom of a screen must clear it — `calc(var(--navbar-height) + var(--navbar-gap) * 2 + var(--safe-bottom) + …)`.
 - Layout: wrap page content in `<div className="page">` (gutter + max-width). Type utilities: `.t-display .t-h1 .t-h2 .t-body .t-small .t-label .t-muted .t-faint .num`.
 
 ## Money flows

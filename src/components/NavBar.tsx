@@ -63,17 +63,21 @@ export function NavBar({ unread = 0 }: { unread?: number }) {
 
   return (
     <>
-      {/* Mobile */}
+      {/* Mobile: a floating pill above the content, not a bar welded to the edge. */}
       <nav className={styles.bar} aria-label="Navigation principale">
         <ul className={styles.barList}>
           {NAV_ITEMS.map((item) => (
             <li key={item.to} className={styles.barItem}>
-              <NavLink to={item.to} end={item.end} className={({ isActive }) => cn(styles.barLink, isActive && styles.barActive)}>
+              <NavLink
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) => cn(styles.barLink, isActive && styles.barActive)}
+                aria-label={item.to === '/profil' && unread > 0 ? `${item.label}, ${unread} notification${unread > 1 ? 's' : ''} non lue${unread > 1 ? 's' : ''}` : item.label}
+              >
                 <span className={styles.barIcon}>
                   <Icon name={item.icon} />
                   {item.to === '/profil' && unread > 0 ? <StatusDot corner /> : null}
                 </span>
-                <span className={styles.barLabel}>{item.label}</span>
               </NavLink>
             </li>
           ))}

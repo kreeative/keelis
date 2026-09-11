@@ -1,11 +1,11 @@
 .shell {
   min-height: 100dvh;
   /* Lifts the toast above the mobile bottom bar (see Toast.module.css). */
-  --toast-offset: var(--navbar-height);
+  --toast-offset: calc(var(--navbar-height) + var(--navbar-gap) * 2);
 }
 .content {
   min-height: 100dvh;
-  padding-bottom: calc(var(--navbar-height) + var(--safe-bottom));
+  padding-bottom: calc(var(--navbar-height) + var(--navbar-gap) * 2 + var(--safe-bottom));
 }
 .main { min-height: 60dvh; outline: none; }
   .skip {

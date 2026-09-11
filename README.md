@@ -8,7 +8,15 @@ Application fintech mobile-first (web app responsive) qui réunit trois produits
 | **Kaalis Épargne** | compte à intérêt élevé (APY 4,00 %) avec objectifs |
 | **Kaalis Crypto** | achat, vente, détention, envoi et réception de 8 actifs, spread affiché avant chaque ordre |
 
-Style : « fintech nordique minimaliste ». Le chiffre est le héros, vide généreux, un seul accent, zéro décoration. Tout le système visuel est défini par `src/styles/tokens.css`.
+Style : monochrome intégral et Futura, sur une matière de verre posée sur un fond de couleur neutre. Le chiffre est le héros — les montants sont en graisse 900, plus lourds que n'importe quel titre. Tout le système visuel est défini par `src/styles/tokens.css`, et `DESIGN.md` en détaille les mesures.
+
+## Déployer
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fkreeative%2Fkeelis)
+
+Le dépôt est prêt pour Vercel : `vercel.json` fixe le cadriciel, la commande de compilation, le dossier de sortie et les réécritures nécessaires à une application à page unique. Aucune variable d'environnement n'est requise, les données sont simulées.
+
+Import manuel : sur Vercel, **Add New → Project → Import Git Repository**, choisis `kreeative/keelis`, puis **Deploy**. Vercel détecte Vite tout seul. La branche `main` devient la production ; chaque autre branche reçoit une adresse de prévisualisation.
 
 ## Démarrer
 

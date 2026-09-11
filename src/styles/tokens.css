@@ -140,7 +140,8 @@
   --doc-max: 880px;        /* documentation column (/composants), from the kit's own page */
   --doc-gap: 72px;         /* rhythm between documentation sections */
   --rail-width: 72px;      /* desktop icon rail */
-  --navbar-height: 64px;   /* mobile bottom bar */
+  --navbar-height: 44px;   /* mobile floating pill */
+  --navbar-gap: 12px;      /* space between the pill and the screen edge */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   /* ---- Radii ---- */

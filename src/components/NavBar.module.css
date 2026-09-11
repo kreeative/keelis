@@ -1,40 +1,51 @@
-/* ---------- Mobile: bottom bar ---------- */
+/* ---------- Mobile: floating pill ----------
+   The bar detaches from the screen edge and floats over the content: a glass pill with
+   the active destination in a filled capsule. Icons only — each link carries its name as
+   an accessible label. */
 .bar {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--safe-bottom) + var(--sp-3));
   z-index: var(--z-nav);
+  max-width: calc(100% - var(--sp-5));
+  padding: var(--sp-1);
+  border-radius: var(--r-pill);
   background: var(--glass-bg-strong);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
-  border-top: 1px solid var(--glass-border);
+  border: 1px solid transparent;
+  border-top-color: var(--glass-border);
   box-shadow: var(--elev-2);
-  padding-bottom: var(--safe-bottom);
 }
 .barList {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  height: var(--navbar-height);
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 .barItem { display: flex; }
 .barLink {
-  flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-height: var(--tap);
+  width: 56px;
+  min-width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--r-pill);
   color: var(--ink-400);
-  border-radius: var(--r-field);
-  transition: color var(--dur-fast) var(--ease);
+  transition: color var(--dur-fast) var(--ease), background-color var(--dur) var(--ease);
 }
 .barLink:hover { color: var(--ink-600); }
 .barLink:focus-visible { box-shadow: var(--focus-ring); }
-.barActive { color: var(--ink-900); }
+.barActive {
+  color: var(--ink-900);
+  background: var(--fill-subtle);
+}
 .barIcon { position: relative; display: inline-flex; }
-.barLabel { font-size: var(--fs-nav); line-height: 1.2; letter-spacing: 0.01em; }
+
+@media (max-width: 359px) {
+  .barLink { width: 48px; }
+}
 
 /* ---------- Desktop: icon rail ---------- */
 .rail { display: none; }
