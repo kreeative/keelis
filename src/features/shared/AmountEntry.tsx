@@ -53,7 +53,8 @@ export function AmountEntry({ value, onChange, mode = 'fiat', unit = 'CAD', seco
         ) : null}
       </div>
       <p className={cn(styles.secondary, error && styles.error)} role={error ? 'alert' : undefined} aria-live="polite">
-        {error ?? secondary ?? ' '}
+        {error ? <Icon name="circle-alert" size={16} className={styles.errorIcon} /> : null}
+        <span>{error ?? secondary ?? ' '}</span>
       </p>
       {presets?.length || onMax ? (
         <div className={styles.presets} role="group" aria-label="Montants rapides">

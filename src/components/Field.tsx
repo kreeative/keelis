@@ -8,7 +8,7 @@
  */
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
-import { Icon } from './Icon'
+import { Icon, type IconName } from './Icon'
 import styles from './Field.module.css'
 
 interface BaseProps {
@@ -17,6 +17,9 @@ interface BaseProps {
   error?: string
   /** Confirmation under the field — the kit's success state */
   success?: string
+  /** A caution that does not block submission — the kit's warning state. Unlike an
+      error it leaves the field's own border alone; only the message says something. */
+  warning?: string
   /** Visually hide the label (still announced) */
   hideLabel?: boolean
   /** Leading adornment (icon or text) */
@@ -26,8 +29,16 @@ interface BaseProps {
   className?: string
 }
 
-/** The line under a field: hint (quiet, no glyph), success, or error. */
-function Message({ id, kind, children }: { id?: string; kind: 'hint' | 'success' | 'error'; children: ReactNode }) {
+type MessageKind = 'hint' | 'success' | 'warning' | 'error'
+
+const MESSAGE: Record<Exclude<MessageKind, 'hint'>, { icon: IconName; cls: string; role: 'alert' | 'status' }> = {
+  success: { icon: 'checkmark-filled', cls: 'success', role: 'status' },
+  warning: { icon: 'warning', cls: 'warning', role: 'status' },
+  error: { icon: 'circle-alert', cls: 'error', role: 'alert' },
+}
+
+/** The line under a field: hint (quiet, no glyph), success, warning, or error. */
+function Message({ id, kind, children }: { id?: string; kind: MessageKind; children: ReactNode }) {
   if (kind === 'hint') {
     return (
       <p id={id} className={styles.hint}>
@@ -35,9 +46,10 @@ function Message({ id, kind, children }: { id?: string; kind: 'hint' | 'success'
       </p>
     )
   }
+  const m = MESSAGE[kind]
   return (
-    <p id={id} className={kind === 'error' ? styles.error : styles.success} role={kind === 'error' ? 'alert' : 'status'}>
-      <Icon name={kind === 'error' ? 'circle-alert' : 'checkmark-filled'} size={16} className={styles.messageIcon} />
+    <p id={id} className={styles[m.cls]} role={m.role}>
+      <Icon name={m.icon} size={16} className={styles.messageIcon} />
       <span>{children}</span>
     </p>
   )
@@ -45,10 +57,10 @@ function Message({ id, kind, children }: { id?: string; kind: 'hint' | 'success'
 
 export interface FieldProps extends BaseProps, Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {}
 
-export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ label, hint, error, success, hideLabel, leading, trailing, className, id, ...rest }, ref) {
+export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ label, hint, error, success, warning, hideLabel, leading, trailing, className, id, ...rest }, ref) {
   const auto = useId()
   const inputId = id ?? auto
-  const describedBy = [hint ? `${inputId}-hint` : null, success ? `${inputId}-success` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
+  const describedBy = [hint ? `${inputId}-hint` : null, success ? `${inputId}-success` : null, warning ? `${inputId}-warning` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
   return (
     <div className={cn(styles.field, error && styles.hasError, className)}>
       <label htmlFor={inputId} className={cn(styles.label, hideLabel && 'sr-only')}>
@@ -59,7 +71,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ l
         <input ref={ref} id={inputId} className={styles.input} aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...rest} />
         {trailing ? <span className={cn(styles.adornment, styles.trailing)}>{trailing}</span> : null}
       </div>
-      {hint && !error && !success ? (
+      {hint && !error && !success && !warning ? (
         <Message id={`${inputId}-hint`} kind="hint">
           {hint}
         </Message>
@@ -67,6 +79,11 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ l
       {success && !error ? (
         <Message id={`${inputId}-success`} kind="success">
           {success}
+        </Message>
+      ) : null}
+      {warning && !error ? (
+        <Message id={`${inputId}-warning`} kind="warning">
+          {warning}
         </Message>
       ) : null}
       {error ? (
@@ -82,10 +99,10 @@ export interface SelectFieldProps extends BaseProps, Omit<SelectHTMLAttributes<H
   children: ReactNode
 }
 
-export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(function SelectField({ label, hint, error, success, hideLabel, leading, trailing, className, id, children, ...rest }, ref) {
+export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(function SelectField({ label, hint, error, success, warning, hideLabel, leading, trailing, className, id, children, ...rest }, ref) {
   const auto = useId()
   const inputId = id ?? auto
-  const describedBy = [hint ? `${inputId}-hint` : null, success ? `${inputId}-success` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
+  const describedBy = [hint ? `${inputId}-hint` : null, success ? `${inputId}-success` : null, warning ? `${inputId}-warning` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
   return (
     <div className={cn(styles.field, error && styles.hasError, className)}>
       <label htmlFor={inputId} className={cn(styles.label, hideLabel && 'sr-only')}>
@@ -101,7 +118,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(funct
         </span>
         {trailing ? <span className={cn(styles.adornment, styles.trailing)}>{trailing}</span> : null}
       </div>
-      {hint && !error && !success ? (
+      {hint && !error && !success && !warning ? (
         <Message id={`${inputId}-hint`} kind="hint">
           {hint}
         </Message>
@@ -109,6 +126,11 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(funct
       {success && !error ? (
         <Message id={`${inputId}-success`} kind="success">
           {success}
+        </Message>
+      ) : null}
+      {warning && !error ? (
+        <Message id={`${inputId}-warning`} kind="warning">
+          {warning}
         </Message>
       ) : null}
       {error ? (
@@ -122,7 +144,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(funct
 
 export interface TextAreaFieldProps extends BaseProps, Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'className'> {}
 
-export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(function TextAreaField({ label, hint, error, success, hideLabel, className, id, ...rest }, ref) {
+export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(function TextAreaField({ label, hint, error, success, warning, hideLabel, className, id, ...rest }, ref) {
   const auto = useId()
   const inputId = id ?? auto
   return (
@@ -133,8 +155,9 @@ export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>
       <div className={styles.control}>
         <textarea ref={ref} id={inputId} className={cn(styles.input, styles.textarea)} aria-invalid={error ? true : undefined} {...rest} />
       </div>
-      {hint && !error && !success ? <Message kind="hint">{hint}</Message> : null}
+      {hint && !error && !success && !warning ? <Message kind="hint">{hint}</Message> : null}
       {success && !error ? <Message kind="success">{success}</Message> : null}
+      {warning && !error ? <Message kind="warning">{warning}</Message> : null}
       {error ? <Message kind="error">{error}</Message> : null}
     </div>
   )

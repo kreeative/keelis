@@ -531,6 +531,9 @@ export default function ComponentsGallery() {
           <Example caption="Field · succès — l’icône, pas la teinte, distingue le message" fill>
             <Field label="Adresse Bitcoin" value="bc1q…f4k2" readOnly success="Adresse valide sur le réseau Bitcoin." />
           </Example>
+          <Example caption="Field · avertissement — le message apparaît, la bordure reste neutre" fill>
+            <Field label="Adresse Bitcoin" value="0xA3f…91c" readOnly warning="Une adresse Bitcoin commence habituellement par « bc1 »." />
+          </Example>
           <Example caption="Field · désactivé" fill>
             <Field label="Numéro de compte" value="4001 8827 3" disabled readOnly />
           </Example>

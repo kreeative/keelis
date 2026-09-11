@@ -57,6 +57,16 @@ export default function CryptoSendPage() {
   const totalDebit = quantity + fee
   const held = holding?.quantity ?? 0
 
+  /* The API refuses a mismatched address, but only once the whole form is submitted.
+     The kit asks for timely assistance during the task, so flag it while typing — as a
+     warning, not an error: an address we do not recognise may still be valid. */
+  const addressWarning = (() => {
+    const a = address.trim()
+    if (!a || addressError || !network?.addressPrefix) return null
+    if (a.startsWith(network.addressPrefix)) return null
+    return `Une adresse ${network.name} commence habituellement par « ${network.addressPrefix} ».`
+  })()
+
   const clientError = (() => {
     if (quantity <= 0) return null
     if (holdings.data && totalDebit > held + 1e-12) return 'Avoirs insuffisants (frais réseau inclus)'
@@ -198,6 +208,7 @@ export default function CryptoSendPage() {
           spellCheck={false}
           inputMode="text"
           error={addressError ?? undefined}
+          warning={addressWarning ?? undefined}
           trailing={
             <span className={styles.addressActions}>
               <Button variant="ghost" onClick={() => void onPaste()}>

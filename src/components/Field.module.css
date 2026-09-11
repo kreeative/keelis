@@ -66,7 +66,8 @@
 .hint { font-size: var(--fs-small); color: var(--ink-600); }
 /* The glyph is what separates success from error here — both resolve to the same ink. */
 .error,
-.success {
+.success,
+.warning {
   display: flex;
   align-items: flex-start;
   gap: var(--sp-1);
@@ -75,4 +76,6 @@
 }
 .error { color: var(--neg); }
 .success { color: var(--pos); }
+/* A caution, not a refusal: the message appears but the field's border stays neutral. */
+.warning { color: var(--warn); }
 .messageIcon { flex-shrink: 0; margin-top: 1px; }

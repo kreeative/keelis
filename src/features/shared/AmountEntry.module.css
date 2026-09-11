@@ -27,7 +27,9 @@
 }
 .swap { align-self: center; margin-left: var(--sp-2); }
 .secondary { min-height: 22px; font-size: var(--fs-small); color: var(--ink-600); text-align: center; font-variant-numeric: tabular-nums; }
-.error { color: var(--neg); }
+/* The glyph, not the ink, is what makes this read as a refusal rather than a hint. */
+.error { color: var(--neg); display: flex; align-items: center; justify-content: center; gap: var(--sp-1); }
+.errorIcon { flex-shrink: 0; }
 .presets { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
 .chip {
   min-height: var(--tap);
