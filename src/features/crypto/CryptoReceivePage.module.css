@@ -1,6 +1,6 @@
 .receive { display: flex; flex-direction: column; }
 
-.block { display: flex; flex-direction: column; gap: var(--sp-3); }
+.block { display: flex; flex-direction: column; gap: var(--space-block); }
 .tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
 
 .center {

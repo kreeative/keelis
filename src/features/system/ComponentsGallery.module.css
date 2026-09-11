@@ -198,3 +198,40 @@
     box-shadow: var(--focus-ring);
   }
 }
+
+/* Spacing board */
+.spacingGroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--sp-5);
+  width: 100%;
+}
+.spacingGroup { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+.spacingRow { display: flex; align-items: center; gap: var(--sp-3); min-height: 24px; }
+.spacingPx { color: var(--ink-600); min-width: 48px; }
+.spacingBar {
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--fill-subtle);
+  flex-shrink: 0;
+}
+
+.useTable { display: flex; flex-direction: column; width: 100%; min-width: 0; }
+.useHead,
+.useRow {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--sp-3);
+  align-items: center;
+  padding-block: var(--sp-3);
+  font-size: var(--fs-small);
+}
+.useHead {
+  font-size: var(--fs-label);
+  font-weight: var(--fw-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+.useRow + .useRow,
+.useHead + .useRow { border-top: 1px solid var(--line); }

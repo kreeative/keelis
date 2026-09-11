@@ -6,7 +6,7 @@
   margin-inline: auto;
   width: 100%;
 }
-.layout { display: flex; flex-direction: column; gap: var(--sp-6); }
+.layout { display: flex; flex-direction: column; gap: var(--space-section); }
 .main { display: flex; flex-direction: column; min-width: 0; }
 
 .head {
@@ -26,9 +26,9 @@
 .chart { width: 100%; }
 .chartError { width: 100%; }
 
-.actions { margin-top: var(--sp-6); }
+.actions { margin-top: var(--space-section); }
 
-.section { margin-top: var(--sp-6); }
+.section { margin-top: var(--space-section); }
 
 /* Interest cells */
 .stats {
@@ -76,7 +76,7 @@
 }
 .freeValue { color: var(--ink-900); }
 
-.asideMobile { margin-top: var(--sp-6); }
+.asideMobile { margin-top: var(--space-section); }
 .aside { display: none; }
 
 @media (min-width: 768px) {

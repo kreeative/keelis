@@ -54,6 +54,7 @@ const THEME_SEGMENTS: ReadonlyArray<{ value: ThemeChoice; label: string }> = [
 
 const SECTIONS: ReadonlyArray<{ id: string; title: string }> = [
   { id: 'couleurs', title: 'Couleurs' },
+  { id: 'espacement', title: 'Espacement' },
   { id: 'typographie', title: 'Typographie' },
   { id: 'boutons', title: 'Button' },
   { id: 'montants', title: 'Montants' },
@@ -68,6 +69,22 @@ const SECTIONS: ReadonlyArray<{ id: string; title: string }> = [
   { id: 'etats', title: 'États vides, erreurs, toast' },
   { id: 'squelettes', title: 'Skeleton' },
   { id: 'divers', title: 'Avatar, Card, QR, navigation' },
+]
+
+/** The kit's spacing scale, grouped as its own « Design application » board groups it. */
+const SPACING: ReadonlyArray<{ group: string; steps: Array<[string, number]> }> = [
+  { group: 'Petit', steps: [['--sp-1', 4], ['--sp-2', 8], ['--sp-3', 12]] },
+  { group: 'Moyen', steps: [['--sp-4', 16], ['--sp-5', 24], ['--sp-6', 32]] },
+  { group: 'Grand', steps: [['--sp-7', 48], ['--sp-8', 64], ['--sp-9', 96]] },
+]
+
+/** Where each one goes — the kit's second board, the one that made the rhythm consistent. */
+const SPACING_USE: ReadonlyArray<{ what: string; small: string; large: string; token: string }> = [
+  { what: 'Entre éléments', small: '4, 8', large: '4, 8', token: '--space-elements' },
+  { what: 'Entre lignes de liste', small: '16', large: '16', token: '--space-items' },
+  { what: 'Titre de section → contenu', small: '16', large: '24', token: '--space-block' },
+  { what: 'Entre sections', small: '40', large: '48', token: '--space-section' },
+  { what: 'Marge au bord de l’écran', small: '16', large: 'flex', token: '--gutter' },
 ]
 
 const TOKENS: ReadonlyArray<{ name: string }> = [
@@ -175,6 +192,49 @@ export default function ComponentsGallery() {
               </div>
             ))}
           </div>
+        </Section>
+
+        <Section id="espacement" title="Espacement">
+          <Example caption="L’échelle, groupée comme la planche « Design application » du kit" wide>
+            <div className={styles.spacingGroups}>
+              {SPACING.map((g) => (
+                <div key={g.group} className={styles.spacingGroup}>
+                  <p className="t-label">{g.group}</p>
+                  {g.steps.map(([name, px]) => (
+                    <div key={name} className={styles.spacingRow}>
+                      <span className={styles.mono}>{name}</span>
+                      <span className={`t-small ${styles.spacingPx}`}>{px} px</span>
+                      <span className={styles.spacingBar} style={{ width: `var(${name})` }} aria-hidden="true" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </Example>
+          <Example caption="Où chaque valeur va. Seules les deux mesures de section grandissent, au point de rupture 1024 px du kit." wide>
+            <div className={styles.useTable} role="table" aria-label="Application de l’échelle d’espacement">
+              <div className={styles.useHead} role="row">
+                <span role="columnheader">Espace entre</span>
+                <span role="columnheader">≤ 1023</span>
+                <span role="columnheader">≥ 1024</span>
+                <span role="columnheader">Jeton</span>
+              </div>
+              {SPACING_USE.map((r) => (
+                <div key={r.what} className={styles.useRow} role="row">
+                  <span role="cell">{r.what}</span>
+                  <span className="num" role="cell">
+                    {r.small}
+                  </span>
+                  <span className="num" role="cell">
+                    {r.large}
+                  </span>
+                  <span className={styles.mono} role="cell">
+                    {r.token}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Example>
         </Section>
 
         <Section id="typographie" title="Typographie">

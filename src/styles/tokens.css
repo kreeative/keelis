@@ -135,7 +135,18 @@
   --sp-8: 64px;
   --sp-9: 96px;
 
-  --gutter: 20px;          /* mobile */
+  /* ---- Spacing application ----
+     The kit's second spacing board says not what the steps are but where they go, and
+     which of them grow on a large screen. Its breakpoint is 1024. Sections and the gap
+     from a header to its content are the only two that change; everything inside a
+     component holds still at every width. */
+  --space-elements: var(--sp-2);   /* 8  — between elements inside one component */
+  --space-items: var(--sp-4);      /* 16 — between list items */
+  --space-block: var(--sp-4);      /* 16 → 24 — section header to its content */
+  --space-section: 40px;           /* 40 → 48 — between sections (the kit's s5 → s6) */
+  --space-edge: var(--sp-5);       /* 24 — margin to the top and bottom of the screen */
+
+  --gutter: 16px;          /* mobile — the kit's left/right margin to the screen edge */
   --content-max: 1120px;   /* desktop centring */
   --doc-max: 880px;        /* documentation column (/composants), from the kit's own page */
   --doc-gap: 72px;         /* rhythm between documentation sections */
@@ -287,6 +298,15 @@
   :root {
     --gutter: 32px;
     --fs-display: 64px;
+  }
+}
+
+/* The kit's own breakpoint for spacing: large is 1024 and up, and only the two
+   section-level gaps grow there. */
+@media (min-width: 1024px) {
+  :root {
+    --space-block: var(--sp-5);     /* 24 */
+    --space-section: var(--sp-7);   /* 48 */
   }
 }
 

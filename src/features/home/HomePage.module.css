@@ -5,7 +5,7 @@
   margin-inline: auto;
   width: 100%;
 }
-.layout { display: flex; flex-direction: column; gap: var(--sp-6); }
+.layout { display: flex; flex-direction: column; gap: var(--space-section); }
 .main { display: flex; flex-direction: column; min-width: 0; }
 
 .head {
@@ -25,13 +25,13 @@
 
 .chartBlock { display: flex; flex-direction: column; gap: var(--sp-4); align-items: flex-start; }
 
-.asideMobile { margin-top: var(--sp-6); }
+.asideMobile { margin-top: var(--space-section); }
 .holdings { margin-top: var(--sp-3); }
 .aside { display: none; }
 
-.actions { margin-top: var(--sp-6); }
+.actions { margin-top: var(--space-section); }
 
-.section { margin-top: var(--sp-6); }
+.section { margin-top: var(--space-section); }
 
 @media (min-width: 768px) {
   .headActions { display: flex; }

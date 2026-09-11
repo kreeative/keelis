@@ -17,8 +17,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  min-height: var(--tap);
-  margin-bottom: var(--sp-1);
+  margin-bottom: var(--space-block);
 }
 
 .action {

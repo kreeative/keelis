@@ -30,13 +30,13 @@
 .chart { width: 100%; }
 .tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
 
-.actions { margin-top: var(--sp-6); }
+.actions { margin-top: var(--space-section); }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
-  margin-top: var(--sp-7);
+  gap: var(--space-block);
+  margin-top: var(--space-section);
 }
 
 .grid {

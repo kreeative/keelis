@@ -3,9 +3,9 @@
 .block {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
+  gap: var(--space-block);
 }
-.block + .block { margin-top: var(--sp-6); }
+.block + .block { margin-top: var(--space-section); }
 
 .networkName { font-size: var(--fs-body); }
 

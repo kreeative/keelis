@@ -6,10 +6,10 @@
   width: 100%;
 }
 .block {
-  margin-top: var(--sp-5);
+  margin-top: var(--space-section);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
+  gap: var(--space-block);
 }
 .description {
   font-size: var(--fs-small);
