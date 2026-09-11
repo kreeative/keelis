@@ -6,7 +6,8 @@ import { useCallback, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, CryptoAsset, Holding, PriceHistory, PricePoint } from '@/api/types'
-import { AmountDisplay, Button, Chart, Delta, ErrorState, Icon, Money, QuickActions, SegmentedControl, Skeleton, SkeletonAmount } from '@/components'
+import type { Stat } from '@/components'
+import { AmountDisplay, Button, Chart, Delta, ErrorState, Icon, Money, QuickActions, SegmentedControl, Skeleton, SkeletonAmount, StatGrid } from '@/components'
 import { MASKED, formatCrypto, formatDateTime } from '@/lib/format'
 import { QK, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
@@ -66,11 +67,11 @@ function HoldingsSection({ asset, holding, loading }: { asset: CryptoAsset; hold
 
 function AboutSection({ asset }: { asset: CryptoAsset }) {
   const { locale } = useSettings()
-  const facts: Array<[string, string]> = [
-    ['Capitalisation', formatCompactMoney(asset.marketCap, locale)],
-    ['Volume 24 h', formatCompactMoney(asset.volume24h, locale)],
-    ['Offre en circulation', formatCompactQuantity(asset.circulatingSupply, asset.symbol, locale)],
-    ['Réseaux', asset.networks.map((n) => n.name).join(', ')],
+  const facts: Stat[] = [
+    { label: 'Capitalisation', value: formatCompactMoney(asset.marketCap, locale) },
+    { label: 'Volume 24 h', value: formatCompactMoney(asset.volume24h, locale) },
+    { label: 'Offre en circulation', value: formatCompactQuantity(asset.circulatingSupply, asset.symbol, locale) },
+    { label: 'Réseaux', value: asset.networks.map((n) => n.name).join(', ') },
   ]
   return (
     <section className={cn(styles.section, styles.about)} aria-labelledby="about-title">
@@ -78,14 +79,7 @@ function AboutSection({ asset }: { asset: CryptoAsset }) {
         À propos
       </h2>
       <p className={styles.description}>{asset.description}</p>
-      <dl className={styles.facts}>
-        {facts.map(([label, value]) => (
-          <div key={label} className={styles.fact}>
-            <dt className={styles.factLabel}>{label}</dt>
-            <dd className={cn(styles.factValue, 'num')}>{value}</dd>
-          </div>
-        ))}
-      </dl>
+      <StatGrid stats={facts} label={`Données de marché — ${asset.name}`} className={styles.facts} />
     </section>
   )
 }

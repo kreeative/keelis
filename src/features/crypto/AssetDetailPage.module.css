@@ -64,18 +64,7 @@
 .quiet { color: var(--ink-600); }
 
 .description { color: var(--ink-600); }
-.facts { display: flex; flex-direction: column; margin-top: var(--sp-2); }
-.fact {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--sp-4);
-  min-height: 48px;
-  padding-block: var(--sp-3);
-}
-.fact + .fact { border-top: 1px solid var(--line); }
-.factLabel { color: var(--ink-600); font-size: var(--fs-small); flex-shrink: 0; }
-.factValue { text-align: right; overflow-wrap: anywhere; }
+.facts { margin-top: var(--sp-2); }
 
 .bar {
   position: sticky;

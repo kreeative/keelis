@@ -1,0 +1,31 @@
+.grid { display: flex; flex-direction: column; }
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-4);
+  min-height: 48px;
+  padding-block: var(--sp-3);
+}
+.stat + .stat { border-top: 1px solid var(--line); }
+.label { color: var(--ink-600); font-size: var(--fs-small); flex-shrink: 0; }
+.value { text-align: right; overflow-wrap: anywhere; }
+
+@media (min-width: 768px) {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    column-gap: var(--sp-5);
+    row-gap: var(--sp-5);
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-1);
+    min-height: 0;
+    padding-block: 0;
+  }
+  .stat + .stat { border-top: 0; }
+  .value { text-align: left; }
+}

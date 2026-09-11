@@ -6,7 +6,7 @@ import { useState, type ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ApiError, CryptoSendPreview, CryptoSendRequest, MoneyMovementResult } from '@/api/types'
-import { Button, ErrorState, Field, Icon, PageHeader, SegmentedControl, SkeletonAmount } from '@/components'
+import { Button, ChoiceList, ErrorState, Field, Icon, PageHeader, SkeletonAmount } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
 import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings, useToast } from '@/store'
@@ -156,18 +156,21 @@ export default function CryptoSendPage() {
         <h2 id="network-title" className="t-label">
           Réseau
         </h2>
-        {networks.length > 1 && networks.length <= 4 ? (
-          <SegmentedControl
-            segments={networks.map((n) => ({ value: n.id, label: n.name }))}
+        {networks.length > 1 ? (
+          <ChoiceList
+            label="Réseau d’envoi"
             value={network.id}
             onChange={(v) => {
               setNetworkId(v)
               setAddressError(null)
               setEntryError(null)
             }}
-            label="Réseau"
-            block
-            className={styles.tabs}
+            options={networks.map((n) => ({
+              value: n.id,
+              title: n.name,
+              subtitle: `Frais ${formatCrypto(n.feeEstimate, asset.symbol, { locale })} · ~${n.etaMinutes} min`,
+              label: `${n.name}, frais ${formatCrypto(n.feeEstimate, asset.symbol, { locale })}, environ ${n.etaMinutes} minutes`,
+            }))}
           />
         ) : (
           <p className={styles.networkName}>{network.name}</p>

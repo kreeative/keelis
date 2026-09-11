@@ -25,6 +25,30 @@
 .value { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; font-family: var(--font-numeric); font-weight: var(--fw-numeric); letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .valueMain { font-size: var(--fs-body); line-height: 1.3; }
 .valueSub { font-size: var(--fs-small); color: var(--ink-600); line-height: 1.3; }
+/* The kit's mobile variant: "when there's left and right content present", the value
+   drops under the text instead of fighting it for width. Leading and trailing span both
+   rows, so the avatar and the control stay put. Above 768px the row is a row again. */
+.stack {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--sp-3);
+  row-gap: 2px;
+}
+.stack > .leading { grid-column: 1; grid-row: 1 / span 2; }
+.stack > .main { grid-column: 2; grid-row: 1; }
+.stack > .value { grid-column: 2; grid-row: 2; align-items: flex-start; text-align: left; }
+.stack > .trailing,
+.stack > .chevron { grid-column: 3; grid-row: 1 / span 2; }
+
+@media (min-width: 768px) {
+  .stack {
+    display: flex;
+    column-gap: var(--sp-3);
+  }
+  .stack > .value { align-items: flex-end; text-align: right; }
+}
+
 .wrap .title,
 .wrap .subtitle { white-space: normal; overflow: visible; text-overflow: clip; }
 .muted { color: var(--ink-600); }

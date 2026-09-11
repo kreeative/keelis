@@ -18,6 +18,8 @@ import {
   Keypad,
   List,
   ListRow,
+  ChoiceList,
+  StatGrid,
   Money,
   OfflineBanner,
   PageHeader,
@@ -57,6 +59,7 @@ const SECTIONS: ReadonlyArray<{ id: string; title: string }> = [
   { id: 'montants', title: 'Montants' },
   { id: 'clavier', title: 'Keypad' },
   { id: 'listes', title: 'ListRow et List' },
+  { id: 'selection', title: 'ChoiceList et StatGrid' },
   { id: 'segments', title: 'SegmentedControl' },
   { id: 'feuilles', title: 'Sheet et confirmation' },
   { id: 'graphiques', title: 'Chart et Sparkline' },
@@ -130,6 +133,7 @@ export default function ComponentsGallery() {
   const [seg3, setSeg3] = useState('m')
   const [seg4, setSeg4] = useState('1j')
   const [on, setOn] = useState(true)
+  const [choice, setChoice] = useState('interac')
   const [off, setOff] = useState(false)
   const [sheet, setSheet] = useState(false)
   const [pinSheet, setPinSheet] = useState(false)
@@ -321,6 +325,53 @@ export default function ComponentsGallery() {
               <ListRow static title="Ligne statique" subtitle="Aucune interaction" value="—" />
               <ListRow muted title="Ligne atténuée" subtitle="En attente de règlement" value={<Money value={-18.4} />} valueSub={<Badge tone="neutral">En attente</Badge>} />
             </List>
+          </Example>
+          <Example caption="List · stack — sous 768 px la valeur passe sous le texte au lieu de le comprimer" wide>
+            <List>
+              <ListRow
+                stack
+                leading={<Avatar label="Bitcoin" monogram="BTC" tone="accent" />}
+                title="Compte d’épargne à intérêt élevé"
+                subtitle="Non enregistré · Géré"
+                value={<Money value={9012345.67} />}
+                valueSub="CAD"
+                chevron
+              />
+            </List>
+          </Example>
+        </Section>
+
+        <Section id="selection" title="ChoiceList et StatGrid">
+          <Example caption="ChoiceList · un radiogroup complet : flèches, Home/Fin, un seul arrêt de tabulation" wide>
+            <ChoiceList
+              label="Provenance des fonds"
+              value={choice}
+              onChange={setChoice}
+              options={[
+                { value: 'interac', title: 'Virement Interac', subtitle: 'Instantané · jusqu’à 3 000 $', leading: <Avatar label="Interac" monogram="IN" /> },
+                { value: 'compte', title: 'Compte bancaire ···· 4394', subtitle: 'Dernier dépôt : 50,00 $ le 10 janvier', leading: <Avatar label="Banque" monogram="BQ" /> },
+                { value: 'carte', title: 'Carte de débit ···· 8888', subtitle: 'Frais de 1,5 % · immédiat', leading: <Avatar label="Carte" monogram="CA" /> },
+                { value: 'cheque', title: 'Dépôt de chèque', subtitle: 'Indisponible pour ce compte', leading: <Avatar label="Chèque" monogram="CH" />, disabled: true },
+              ]}
+              footer={
+                <Button variant="ghost" icon={<Icon name="plus" size={18} />}>
+                  Ajouter une source
+                </Button>
+              }
+            />
+          </Example>
+          <Example caption="StatGrid · lignes étiquette/valeur sous 768 px, grille étiquette-au-dessus au-delà" wide>
+            <StatGrid
+              label="Données de marché"
+              stats={[
+                { label: 'Capitalisation', value: '1 342 G$' },
+                { label: 'Volume 24 h', value: '28,4 G$' },
+                { label: 'Sommet 52 sem.', value: '73 750,00 $' },
+                { label: 'Creux 52 sem.', value: '24 900,00 $' },
+                { label: 'Offre en circulation', value: '19,8 M BTC' },
+                { label: 'Réseaux', value: 'Bitcoin, Lightning' },
+              ]}
+            />
           </Example>
         </Section>
 

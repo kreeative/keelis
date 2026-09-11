@@ -1,0 +1,23 @@
+.radio {
+  position: relative;
+  display: inline-block;
+  width: var(--icon);
+  height: var(--icon);
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--ink-400);
+  background: transparent;
+  transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.checked {
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+}
+/* the punched-out centre, so the selected state reads as a shape and not only as a fill */
+.checked::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+}

@@ -26,10 +26,12 @@ export interface ListRowProps extends Omit<ButtonHTMLAttributes<HTMLButtonElemen
   muted?: boolean
   /** Let the title and subtitle wrap instead of truncating (long names, document titles) */
   wrap?: boolean
+  /** Below 768px, drop the value under the text rather than beside it (the kit's mobile row) */
+  stack?: boolean
 }
 
 export const ListRow = forwardRef<HTMLButtonElement, ListRowProps>(function ListRow(
-  { leading, title, subtitle, value, valueSub, to, chevron = false, trailing, static: isStatic = false, muted = false, wrap = false, className, onClick, ...rest },
+  { leading, title, subtitle, value, valueSub, to, chevron = false, trailing, static: isStatic = false, muted = false, wrap = false, stack = false, className, onClick, ...rest },
   ref,
 ) {
   const body = (
@@ -48,7 +50,7 @@ export const ListRow = forwardRef<HTMLButtonElement, ListRowProps>(function List
       {trailing ? <span className={styles.trailing}>{trailing}</span> : chevron ? <Icon name="chevron-right" className={styles.chevron} /> : null}
     </>
   )
-  const cls = cn(styles.row, (to || onClick) && !isStatic && styles.interactive, className)
+  const cls = cn(styles.row, stack && styles.stack, (to || onClick) && !isStatic && styles.interactive, className)
   if (to && !isStatic) {
     return (
       <Link to={to} className={cls}>

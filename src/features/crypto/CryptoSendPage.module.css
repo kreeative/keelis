@@ -7,7 +7,6 @@
 }
 .block + .block { margin-top: var(--sp-6); }
 
-.tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
 .networkName { font-size: var(--fs-body); }
 
 .warning {
