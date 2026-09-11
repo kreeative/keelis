@@ -103,6 +103,7 @@ export default function ActivityPage() {
   } else if (filtered.length === 0) {
     body = (
       <EmptyState
+        compact
         message="Aucune transaction ne correspond."
         action={
           <Button variant="secondary" onClick={clearFilters} disabled={!hasFilters}>

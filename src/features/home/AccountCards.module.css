@@ -40,7 +40,8 @@
   min-height: calc(var(--fs-small) * var(--lh-small));
 }
 
-@media (min-width: 768px) {
+/* Three columns only once the rail leaves enough room for three balances. */
+@media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--sp-4);

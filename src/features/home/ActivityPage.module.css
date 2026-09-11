@@ -10,6 +10,8 @@
   -webkit-appearance: none;
   appearance: none;
 }
+/* The Field already draws the ring on its control (focus-within); avoid a second ring on the input. */
+.search input:focus-visible { box-shadow: none; }
 .clear { color: var(--ink-600); }
 .clear:hover:not(:disabled) { background: transparent; color: var(--ink-900); }
 
