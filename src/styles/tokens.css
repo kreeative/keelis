@@ -52,6 +52,10 @@
   --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
   --glass-blur: blur(24px) saturate(1.08);
   /* Opaque stand-ins for browsers without backdrop-filter, and for print. */
+  /* The K disc, from the brand sheet's embossed artwork. Ink on a light page, paper on
+     a dark one — the sheet draws both, and only the used one is ever fetched. */
+  --mark-disc: url('/brand/mark-ink.png');
+
   --glass-fallback: oklch(0.995 0 0);
   --glass-fallback-strong: oklch(1 0 0);
 
@@ -231,6 +235,7 @@
   --glass-edge: rgba(0, 0, 0, 0.5);
   --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
   --fill-subtle: oklch(0.97 0 0 / 0.14);
+  --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.185 0 0);
   --glass-fallback-strong: oklch(0.215 0 0);
   --elev-1:
@@ -284,6 +289,7 @@
     --glass-edge: rgba(0, 0, 0, 0.5);
     --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
     --fill-subtle: oklch(0.97 0 0 / 0.14);
+  --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.185 0 0);
     --glass-fallback-strong: oklch(0.215 0 0);
     --elev-1:

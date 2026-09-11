@@ -3,13 +3,20 @@
 Keelis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three products: Crypto, Chèque (spending + card), Épargne (high-interest savings). UI copy is **French (fr-CA)**; number/date formatting is localised via `src/lib/format.ts`.
 
 ## Brand
-The wordmark and the K monogram in `src/components/Wordmark.tsx` are traced from the brand
-artwork (`Keel_is.pdf`) — the wordmark from its lettering, the monogram from the K's own
-vector. Both are single paths on `currentColor`, so they invert with the theme and add no
-request. Do not redraw them, and do not set the name as live text: the brand face is
-**EtherealDemo-ExtraBold**, a *demo* release that is not licensed for commercial use. The
-outlines are here as artwork; shipping that font as a webfont, or buying a licence, is a
-decision for the owner.
+The marks live in `src/components/Wordmark.tsx` and come from the brand artwork
+(`Keel_is.pdf`), not from a redraw.
+
+- **The wordmark** is a raster in the PDF, traced to one bezier path on `currentColor`, so
+  it inverts with the theme and costs no request.
+- **The monogram is an image on purpose.** The sheet draws the K disc *embossed* — a raised
+  letter, a lit rim, a soft shadow — and tracing it to a flat vector throws all of that
+  away. `public/brand/mark-ink.png` and `mark-paper.png` are the sheet's own two versions;
+  `--mark-disc` picks one by theme, so only the used one is fetched, and `tone="ink"` /
+  `tone="paper"` pins one where the surface decides instead (the virtual card is always
+  dark, so it always takes the paper disc). Do not replace it with a drawn circle.
+- **The brand face is EtherealDemo-ExtraBold, a *demo* release not licensed for commercial
+  use.** The outlines ship as artwork; never set the name as live text in it, and never add
+  it as a webfont. Licensing it is the owner's decision.
 
 ## Commands
 - `pnpm dev` — dev server · `pnpm build` — typecheck + build · `pnpm preview` — serve `dist/` on :4173

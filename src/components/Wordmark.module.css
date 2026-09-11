@@ -5,19 +5,21 @@
 .sm .word { height: 17px; }
 .lg .word { height: 30px; }
 
-/* The monogram sits in a disc of ink with the K knocked out, which is how the brand
-   sheet draws it. The disc is CSS so it inverts with the theme. */
+/* The embossed disc from the brand sheet, as an image: the raised K and the lit rim are
+   in the artwork, and a flat vector would throw them away. --mark-disc follows the theme;
+   .ink / .paper pin one version where the surface decides instead (the card is always
+   dark, so the mark on it is always the paper one). */
 .disc {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 36px;
   height: 36px;
-  border-radius: var(--r-pill);
   flex-shrink: 0;
+  background-image: var(--mark-disc);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-.ink { background: var(--ink-900); color: var(--surface); }
-.paper { background: var(--surface); color: var(--ink-900); }
-.monogram { height: 44%; width: auto; display: block; }
+.ink { background-image: url('/brand/mark-ink.png'); }
+.paper { background-image: url('/brand/mark-paper.png'); }
 .sm.disc { width: 28px; height: 28px; }
-.lg.disc { width: 44px; height: 44px; }
+.lg.disc { width: 48px; height: 48px; }

@@ -24,12 +24,15 @@ for (const f of readdirSync(assets)) {
   else if (f.endsWith('.css')) css += content + '\n'
 }
 
-// Fonts are served from /fonts/ in the app; a single HTML file has no such path, so
-// embed them. The eight Poppins faces keep the typeface working offline.
-css = css.replace(/url\((['"]?)(?:\.\.)?\/fonts\/([^'")]+)\1\)/g, (whole, _q, name) => {
-  const file = join(root, 'public', 'fonts', name)
+// Fonts and brand art are served from /fonts/ and /brand/ in the app; a single HTML file
+// has no such paths, so embed them. The eight Poppins faces keep the typeface working
+// offline, and the two discs keep the mark from going missing.
+css = css.replace(/url\((['"]?)(?:\.\.)?\/(fonts|brand)\/([^'")]+)\1\)/g, (whole, _q, dir, name) => {
+  const file = join(root, 'public', dir, name)
   if (!existsSync(file)) return whole
-  return `url(data:font/woff2;base64,${readFileSync(file).toString('base64')})`
+  const mime = name.endsWith('.woff2') ? 'font/woff2' : name.endsWith('.png') ? 'image/png' : null
+  if (!mime) return whole
+  return `url(data:${mime};base64,${readFileSync(file).toString('base64')})`
 })
 // The theme pre-paint script authored in index.html (first plain <script>)
 const themeScript = (original.match(/<script>([\s\S]*?)<\/script>/) || ['', ''])[1]
