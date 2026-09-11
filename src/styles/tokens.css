@@ -70,6 +70,11 @@
     0 16px 32px -6px rgba(0, 0, 0, 0.10),
     0 40px 72px -16px rgba(0, 0, 0, 0.16);
 
+  /* The kit's item-shadow-light, lifting a small control off its track. */
+  --elev-item: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+  /* Subtle ink wash the kit uses behind inactive controls (ink at 8%). */
+  --fill-subtle: oklch(0.17 0 0 / 0.08);
+
   /* Tactile lift on hover / press */
   --lift: translateY(-2px) scale(1.01);
   --press: translateY(0) scale(0.995);
@@ -198,6 +203,7 @@
   --glass-bg-strong: rgba(26, 26, 26, 0.85);
   --glass-bg-soft: rgba(19, 19, 19, 0.65);
   --glass-border: rgba(255, 255, 255, 0.12);
+  --fill-subtle: oklch(0.97 0 0 / 0.14);
   --glass-fallback: oklch(0.185 0 0);
   --glass-fallback-strong: oklch(0.215 0 0);
   --elev-1:
@@ -247,7 +253,8 @@
     --glass-bg-strong: rgba(26, 26, 26, 0.85);
     --glass-bg-soft: rgba(19, 19, 19, 0.65);
     --glass-border: rgba(255, 255, 255, 0.12);
-    --glass-fallback: oklch(0.185 0 0);
+    --fill-subtle: oklch(0.97 0 0 / 0.14);
+  --glass-fallback: oklch(0.185 0 0);
     --glass-fallback-strong: oklch(0.215 0 0);
     --elev-1:
       0 1px 2px rgba(0, 0, 0, 0.24),
