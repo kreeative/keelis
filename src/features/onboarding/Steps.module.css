@@ -1,0 +1,218 @@
+/* Step-specific pieces. Chrome lives in OnboardingPage.module.css. */
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.lede {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink-600);
+}
+
+.error {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--neg);
+}
+
+.note {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-400);
+}
+
+/* ---- Code ---- */
+.codeField input {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: 0.32em;
+  text-align: center;
+  padding-inline: var(--sp-3);
+  min-height: var(--control-lg);
+}
+.codeField input::placeholder {
+  color: var(--ink-400);
+  letter-spacing: 0.32em;
+}
+.demoHint {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  color: var(--ink-400);
+  text-align: center;
+}
+
+/* The shared SelectField draws no affordance of its own. */
+.select {
+  position: relative;
+}
+.selectChevron {
+  position: absolute;
+  right: var(--sp-4);
+  /* vertically centred on the 44px control that sits at the bottom of the field */
+  bottom: calc((var(--control-md) - 18px) / 2);
+  color: var(--ink-600);
+  pointer-events: none;
+}
+
+/* ---- Pièce d’identité ---- */
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-6) var(--sp-4);
+  background: var(--surface-alt);
+  border: 1px dashed var(--line);
+  border-radius: var(--r-card);
+  text-align: center;
+  transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+.dropActive {
+  border-color: var(--accent);
+}
+.dropIcon {
+  color: var(--ink-400);
+  margin-bottom: var(--sp-2);
+}
+.dropName {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+.dropMeta {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--sp-2);
+}
+
+/* ---- Deux facteurs ---- */
+.circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar);
+  height: var(--avatar);
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  flex-shrink: 0;
+}
+
+/* ---- NIP ---- */
+.pin {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+}
+.dots {
+  display: flex;
+  gap: var(--sp-3);
+  padding-block: var(--sp-4);
+}
+.dot,
+.dotOn {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.dotOn {
+  background: var(--ink-900);
+}
+.pinError {
+  min-height: 20px;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--neg);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .pin {
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+}
+
+/* ---- Premier produit ---- */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+  min-height: calc(var(--row-height) + var(--sp-2));
+  padding: var(--sp-4);
+  border-radius: var(--r-card);
+  background: var(--surface-alt);
+  color: var(--ink-900);
+  text-align: left;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.choice:hover {
+  filter: brightness(0.97);
+}
+:global([data-theme='dark']) .choice:hover {
+  filter: brightness(1.12);
+}
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .choice:hover {
+    filter: brightness(1.12);
+  }
+}
+.choice:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+.choiceOn {
+  background: var(--accent-soft);
+}
+.choiceOn:hover {
+  filter: none;
+}
+.choiceIcon {
+  display: inline-flex;
+  color: var(--ink-600);
+  flex-shrink: 0;
+}
+.choiceOn .choiceIcon,
+.choiceOn .choiceCheck {
+  color: var(--accent-text);
+}
+.choiceText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+  flex: 1;
+}
+.choiceName {
+  font-size: var(--fs-body);
+  line-height: 1.3;
+  font-weight: var(--fw-medium);
+}
+.choiceDesc {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+}
+.choiceCheck {
+  display: inline-flex;
+  width: var(--icon);
+  height: var(--icon);
+  flex-shrink: 0;
+}

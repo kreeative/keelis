@@ -89,6 +89,11 @@
 :global([data-theme="dark"]) .secondary:hover:not(:disabled) {
   filter: brightness(1.12);
 }
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="light"])) .secondary:hover:not(:disabled) {
+    filter: brightness(1.12);
+  }
+}
 
 .ghost {
   background: transparent;

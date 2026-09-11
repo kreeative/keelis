@@ -20,3 +20,18 @@
 .lede { max-width: 34ch; }
 .actions { display: flex; flex-direction: column; gap: var(--sp-2); }
 .footer { text-align: center; }
+
+/* The toast viewport offsets itself by the desktop icon rail, which does not
+   exist on the public pages: this transformed box becomes its containing block
+   and mirrors the offset so the toast stays centred. */
+.toasts {
+  position: fixed;
+  inset: 0;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .toasts {
+    right: var(--rail-width);
+  }
+}

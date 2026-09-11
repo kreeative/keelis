@@ -47,12 +47,12 @@ export function transactionSubtitle(t: Transaction, locale: 'fr-CA' | 'en-CA'): 
   return parts.join(' · ')
 }
 
-export function TransactionLeading({ tx }: { tx: Transaction }) {
-  if (tx.type === 'card' || tx.type === 'refund') return <Avatar label={tx.counterparty} />
+export function TransactionLeading({ tx, size = 40 }: { tx: Transaction; size?: number }) {
+  if (tx.type === 'card' || tx.type === 'refund') return <Avatar label={tx.counterparty} size={size} />
   const icon = transactionIcon(tx)
   return (
-    <span className={cn(styles.circle, icon.tone === 'accent' && styles.accent)} aria-hidden="true">
-      <Icon name={icon.name} size={20} />
+    <span className={cn(styles.circle, icon.tone === 'accent' && styles.accent)} style={{ width: size, height: size }} aria-hidden="true">
+      <Icon name={icon.name} size={Math.round(size / 2)} />
     </span>
   )
 }

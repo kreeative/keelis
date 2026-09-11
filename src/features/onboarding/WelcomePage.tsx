@@ -53,6 +53,8 @@ export default function WelcomePage() {
         </Button>
       </div>
       <p className={`t-label ${styles.footer}`}>Kaalis Technologies · Montréal</p>
+      <div className={styles.toasts}>
+      </div>
     </div>
   )
 }

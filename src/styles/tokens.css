@@ -92,6 +92,14 @@
   --dur-slow: 250ms;
   --skeleton-pulse: 1.4s;
   --toast-duration: 3000ms;
+
+  /* ---- Layer order (one scale, so nothing guesses) ---- */
+  --z-nav: 50;
+  --z-sticky: 60;
+  --z-toast: 100;
+  --z-sheet: 200;   /* a sheet always covers a toast */
+  --z-lock: 300;
+  --z-skip: 400;
 }
 
 /* ---- Colour: dark ---- */

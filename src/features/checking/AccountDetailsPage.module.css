@@ -1,0 +1,81 @@
+/* A reference sheet, not a dashboard: one narrow centred column at every width. */
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-5) var(--sp-7);
+  max-width: 640px;
+  margin-inline: auto;
+  width: 100%;
+}
+.tabs {
+  margin-top: var(--sp-2);
+  max-width: 320px;
+}
+.state {
+  margin-top: var(--sp-6);
+}
+.rows {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-6);
+}
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding-block: var(--sp-3);
+  min-height: var(--row-height);
+  justify-content: center;
+}
+.row + .row {
+  border-top: 1px solid var(--line);
+}
+.label {
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  letter-spacing: var(--ls-label);
+  font-weight: var(--fw-label);
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+.value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+}
+.text {
+  font-size: var(--fs-body);
+  color: var(--ink-900);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* Six copy buttons in a row would turn the accent into decoration; they stay quiet
+   until hovered or focused, where the ghost button's accent takes over. */
+.value .copy {
+  color: var(--ink-600);
+}
+.value .copy:hover:not(:disabled),
+.value .copy:focus-visible {
+  color: var(--accent-text);
+}
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+}
+.copyAll {
+  margin-left: calc(-1 * var(--sp-3));
+}
+.note {
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+  max-width: 46ch;
+}

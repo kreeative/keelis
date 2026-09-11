@@ -1,0 +1,166 @@
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-5) var(--sp-7);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  align-items: start;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+  width: 100%;
+}
+.search {
+  max-width: 420px;
+  margin-bottom: var(--sp-2);
+}
+/* Field draws the ring on its control; the inner input must not double it. */
+.search input:focus-visible {
+  box-shadow: none;
+}
+.search input::-webkit-search-cancel-button,
+.search input::-webkit-search-decoration {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.faq {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.item + .item {
+  border-top: 1px solid var(--line);
+}
+.heading {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  line-height: var(--lh-body);
+}
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+  min-height: var(--row-height);
+  padding-block: var(--sp-3);
+  text-align: left;
+  color: var(--ink-900);
+}
+.trigger:focus-visible {
+  box-shadow: var(--focus-ring);
+  border-radius: var(--r-field);
+}
+.question {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body);
+  line-height: 1.35;
+}
+.chevron {
+  flex-shrink: 0;
+  color: var(--ink-400);
+  transition: transform var(--dur) var(--ease);
+}
+.chevronOpen {
+  transform: rotate(180deg);
+}
+.panel {
+  padding-bottom: var(--sp-4);
+  max-width: 62ch;
+}
+.panel[hidden] {
+  display: none;
+}
+.answer {
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  color: var(--ink-600);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: 100%;
+  min-width: 0;
+}
+.contacts {
+  display: flex;
+  flex-direction: column;
+}
+.contact + .contact {
+  border-top: 1px solid var(--line);
+}
+.contact {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: var(--row-height);
+  padding-block: var(--sp-2);
+  text-align: left;
+  color: var(--ink-900);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.contact:hover {
+  background: var(--surface-alt);
+  margin-inline: calc(-1 * var(--sp-3));
+  padding-inline: var(--sp-3);
+  width: auto;
+}
+.contact:focus-visible {
+  box-shadow: var(--focus-ring);
+  border-radius: var(--r-field);
+}
+.contactText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.contactTitle {
+  font-size: var(--fs-body);
+  line-height: 1.3;
+}
+.contactSub {
+  font-size: var(--fs-small);
+  line-height: 1.3;
+  color: var(--ink-600);
+  overflow-wrap: anywhere;
+}
+.contactChevron {
+  flex-shrink: 0;
+  color: var(--ink-300);
+}
+.note {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-small);
+  color: var(--ink-400);
+  max-width: 44ch;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    flex-direction: row;
+    gap: var(--sp-7);
+  }
+  .main {
+    flex: 1;
+  }
+  .side {
+    width: 320px;
+    flex-shrink: 0;
+    position: sticky;
+    top: var(--sp-5);
+  }
+}

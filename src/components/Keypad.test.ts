@@ -24,3 +24,12 @@ describe('keypadReduce', () => {
     expect(keypadReduce('12', ',', { integerOnly: true })).toBe('12')
   })
 })
+
+describe('keypadReduce — values seeded from outside', () => {
+  it('normalises a dot decimal so the cap still applies', () => {
+    // A "Max" button or a deep link may hand over "4218.37".
+    expect(keypadReduce('4218.37', '9', { maxDecimals: 2 })).toBe('4218,37')
+    expect(keypadReduce('4218.37', ',', { maxDecimals: 2 })).toBe('4218,37')
+    expect(keypadReduce('4218.3', '7', { maxDecimals: 2 })).toBe('4218,37')
+  })
+})

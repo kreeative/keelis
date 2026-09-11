@@ -1,0 +1,15 @@
+.circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar);
+  height: var(--avatar);
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface-alt);
+  color: var(--ink-600);
+}
+.accent {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}

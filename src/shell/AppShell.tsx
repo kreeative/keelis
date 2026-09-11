@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom'
 import { api } from '@/api'
 import type { AppNotification } from '@/api/types'
 import { NavBar } from '@/components/NavBar'
-import { ToastViewport } from '@/components/Toast'
 import { OfflineBanner } from '@/components/States'
 import { QK } from '@/store/data'
 import { useQuery } from '@/store/query'
@@ -26,7 +25,6 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
-      <ToastViewport />
       {locked ? <LockScreen /> : null}
     </div>
   )

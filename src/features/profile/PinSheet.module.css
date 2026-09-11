@@ -1,0 +1,33 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-2);
+}
+.step {
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+  text-align: center;
+}
+.dots {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.dotOn {
+  background: var(--ink-900);
+}
+.error {
+  min-height: 20px;
+  font-size: var(--fs-small);
+  color: var(--neg);
+  text-align: center;
+}

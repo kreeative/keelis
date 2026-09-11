@@ -1,0 +1,28 @@
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-5) var(--sp-7);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.intro {
+  font-size: var(--fs-body);
+  color: var(--ink-600);
+  max-width: 46ch;
+  margin-top: calc(-1 * var(--sp-2));
+}
+.section {
+  margin-top: var(--sp-6);
+  max-width: 620px;
+}
+.skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.footnote {
+  margin-top: var(--sp-5);
+  font-size: var(--fs-small);
+  color: var(--ink-400);
+  max-width: 46ch;
+}

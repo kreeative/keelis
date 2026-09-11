@@ -1,0 +1,103 @@
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1.586;
+  border-radius: var(--r-card);
+  background: var(--card-surface);
+  color: var(--card-ink);
+  padding: var(--sp-5);
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+/* The card keeps the same ink in both themes; in dark mode a hairline separates
+   it from the page, which is almost the same value. */
+:global([data-theme='dark']) .card {
+  border-color: var(--line);
+}
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .card {
+    border-color: var(--line);
+  }
+}
+.face {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  transition: opacity var(--dur) var(--ease);
+}
+.faded {
+  opacity: 0.55;
+}
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.mark {
+  color: var(--card-ink);
+}
+.kind {
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  letter-spacing: var(--ls-label);
+  font-weight: var(--fw-label);
+  text-transform: uppercase;
+  color: var(--card-ink-muted);
+}
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.number {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--ls-h2);
+  font-weight: var(--fw-h2);
+  font-variant-numeric: tabular-nums;
+  color: var(--card-ink);
+}
+.foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+.holder,
+.expiry {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--card-ink-muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.expiry {
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.frozenLayer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+/* The badge sits on the card, whose ink is deliberately theme-independent: the default
+   neutral tone (--surface-alt) would disappear into the card in dark mode. */
+.frozenLayer .frozenBadge {
+  background: var(--card-ink);
+  color: var(--card-surface);
+}
+.skeleton {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1.586;
+}

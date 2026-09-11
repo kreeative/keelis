@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 50;
+  z-index: var(--z-nav);
   background: var(--surface);
   border-top: 1px solid var(--line);
   padding-bottom: var(--safe-bottom);
@@ -54,7 +54,7 @@
     top: 0;
     bottom: 0;
     left: 0;
-    z-index: 50;
+    z-index: var(--z-nav);
     width: var(--rail-width);
     display: flex;
     flex-direction: column;

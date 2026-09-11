@@ -25,6 +25,8 @@
 .value { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; font-variant-numeric: tabular-nums; }
 .valueMain { font-size: var(--fs-body); line-height: 1.3; }
 .valueSub { font-size: var(--fs-small); color: var(--ink-600); line-height: 1.3; }
+.wrap .title,
+.wrap .subtitle { white-space: normal; overflow: visible; text-overflow: clip; }
 .muted { color: var(--ink-600); }
 .chevron { color: var(--ink-300); flex-shrink: 0; }
 .trailing { flex-shrink: 0; display: inline-flex; }

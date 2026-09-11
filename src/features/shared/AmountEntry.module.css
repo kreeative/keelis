@@ -29,7 +29,7 @@
 .error { color: var(--neg); }
 .presets { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
 .chip {
-  min-height: 36px;
+  min-height: var(--tap);
   padding-inline: var(--sp-4);
   border-radius: var(--r-pill);
   background: var(--surface-alt);

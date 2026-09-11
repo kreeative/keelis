@@ -1,0 +1,85 @@
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-4) var(--sp-7);
+  max-width: calc(520px + 2 * var(--gutter));
+  margin-inline: auto;
+  width: 100%;
+}
+.head { margin-bottom: var(--sp-4); }
+
+/* Form fields keep the 44px tap target (the shared input is 42px inside its control). */
+.form { display: flex; flex-direction: column; gap: var(--sp-4); }
+.form input { min-height: var(--tap); }
+.symbol { color: var(--ink-600); }
+.error { font-size: var(--fs-small); color: var(--neg); }
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-6);
+}
+.summaryRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.summaryMain { font-size: var(--fs-body); font-weight: var(--fw-medium); }
+.summaryAside { color: var(--ink-400); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.summaryHint { color: var(--ink-600); }
+
+.cta { margin-top: var(--sp-6); }
+
+/* Detail */
+.hero { display: flex; flex-direction: column; gap: var(--sp-4); padding-block: var(--sp-4) var(--sp-2); }
+.bar { margin-top: var(--sp-1); }
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-5);
+}
+.cell {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  min-height: 48px;
+  padding-block: var(--sp-3);
+}
+.cell + .cell { border-top: 1px solid var(--line); }
+.cellValue {
+  font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.note { color: var(--ink-400); margin-top: var(--sp-4); }
+
+.danger { margin-top: var(--sp-6); }
+
+.entry { padding-bottom: var(--sp-2); }
+.entry button { min-height: var(--tap); }
+
+.skeletonLine { margin-top: var(--sp-3); }
+
+@media (min-width: 768px) {
+  .page { padding-block: var(--sp-5) var(--sp-7); }
+  .head { margin-bottom: var(--sp-5); }
+  .stats { flex-direction: row; gap: var(--sp-2); }
+  .cell {
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    /* values stay aligned across cells even when a label wraps to two lines */
+    justify-content: space-between;
+    gap: var(--sp-2);
+    padding: var(--sp-4);
+    background: var(--surface-alt);
+    border-radius: var(--r-card);
+    min-width: 0;
+  }
+  .cell + .cell { border-top: 0; }
+  .cellValue { text-align: left; }
+}

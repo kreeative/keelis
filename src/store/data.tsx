@@ -27,6 +27,7 @@ export const QK = {
   fundingSources: 'funding:sources',
   notifications: 'notifications',
   notificationPrefs: 'notifications:prefs',
+  security: 'profile:security',
   devices: 'profile:devices',
   statements: 'profile:statements',
   taxDocs: 'profile:tax',

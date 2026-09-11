@@ -88,12 +88,13 @@ export function formatCrypto(quantity: number, symbol?: string, opts: { locale?:
 }
 
 /** Percent with sign, e.g. +1,4 % */
-export function formatPercent(value: number, opts: { locale?: Locale; signed?: boolean; maxFraction?: number } = {}): string {
+export function formatPercent(value: number, opts: { locale?: Locale; signed?: boolean; maxFraction?: number; minFraction?: number } = {}): string {
   const locale = opts.locale ?? currentLocale
+  const minimumFractionDigits = opts.minFraction ?? 1
   const f = numberFormat(locale, {
     style: 'percent',
-    minimumFractionDigits: 1,
-    maximumFractionDigits: opts.maxFraction ?? 2,
+    minimumFractionDigits,
+    maximumFractionDigits: Math.max(minimumFractionDigits, opts.maxFraction ?? 2),
     signDisplay: opts.signed === false ? 'auto' : 'exceptZero',
   })
   return joinParts(f.formatToParts(value / 100), locale)
@@ -133,6 +134,13 @@ export function formatDate(d: Date | string | number, opts: { locale?: Locale; s
 export function formatDateTime(d: Date | string | number, opts: { locale?: Locale } = {}): string {
   const locale = opts.locale ?? currentLocale
   return dateFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(toDate(d))
+}
+
+/** « avril 2027 » — month + year, capitalised. */
+export function formatMonthYear(d: Date | string | number, opts: { locale?: Locale } = {}): string {
+  const locale = opts.locale ?? currentLocale
+  const s = dateFormat(locale, { month: 'long', year: 'numeric' }).format(toDate(d))
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 /** 14:32 */
@@ -203,6 +211,14 @@ export function percentAriaLabel(value: number, opts: { locale?: Locale } = {}):
 
 /** Mask a balance for privacy mode */
 export const MASKED = '••••'
+
+/**
+ * An amount written inside a sentence or caption, where <Money> cannot be used.
+ * Respects the privacy mask like the component does.
+ */
+export function inlineMoney(value: number, hidden: boolean, opts: MoneyOptions = {}): string {
+  return hidden ? MASKED : formatMoney(value, opts)
+}
 
 /** Parse a keypad string ("1234,56") into a number regardless of locale separator. */
 export function parseAmountInput(raw: string): number {

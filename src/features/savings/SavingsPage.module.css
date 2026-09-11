@@ -1,0 +1,124 @@
+/* Same composition as Accueil: one column on mobile, main + sticky side column ≥1120px. */
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-5) var(--sp-7);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.layout { display: flex; flex-direction: column; gap: var(--sp-6); }
+.main { display: flex; flex-direction: column; min-width: 0; }
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+}
+.eye { color: var(--ink-400); }
+.eye:hover { color: var(--ink-900); }
+
+.hero { display: flex; flex-direction: column; gap: var(--sp-2); padding-block: var(--sp-5) var(--sp-4); }
+.heroTop { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); }
+
+.chartBlock { display: flex; flex-direction: column; gap: var(--sp-4); align-items: flex-start; }
+.chart { width: 100%; }
+.chartError { width: 100%; }
+
+.actions { margin-top: var(--sp-6); }
+
+.section { margin-top: var(--sp-6); }
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+  margin-bottom: var(--sp-1);
+}
+.seeAll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: var(--tap);
+  padding-inline: var(--sp-3);
+  margin-right: calc(-1 * var(--sp-3));
+  border-radius: var(--r-field);
+  color: var(--accent);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.seeAll:hover { background: var(--accent-soft); color: var(--accent-text); }
+.seeAll:focus-visible { box-shadow: var(--focus-ring); }
+
+/* Interest cells */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;  /* values align across cells even when a label wraps */
+  gap: var(--sp-2);
+  min-width: 0;
+  padding: var(--sp-4);
+  background: var(--surface-alt);
+  border-radius: var(--r-card);
+}
+.cellValue { overflow-wrap: anywhere; }
+
+/* Goals — the shared Card provides the surface, radius, hover and focus ring. */
+.goals { display: flex; flex-direction: column; gap: var(--sp-2); }
+.goal { min-width: 0; }
+.goalInner { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+.goalTop { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
+.goalName {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goalAmount { flex-shrink: 0; font-size: var(--fs-small); font-variant-numeric: tabular-nums; }
+.goalTarget { color: var(--ink-400); }
+.goalMeta { color: var(--ink-600); }
+
+.free {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+  padding-inline: var(--sp-4);
+  margin-top: var(--sp-1);
+}
+.freeValue { color: var(--ink-900); }
+
+.asideMobile { margin-top: var(--sp-6); }
+.aside { display: none; }
+
+@media (min-width: 768px) {
+  .hero { padding-block: var(--sp-6) var(--sp-5); }
+}
+
+@media (min-width: 1120px) {
+  .layout { flex-direction: row; align-items: flex-start; gap: var(--sp-6); }
+  .main { flex: 1; }
+  .aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    width: 340px;
+    flex-shrink: 0;
+    position: sticky;
+    top: var(--sp-5);
+  }
+  .aside .section { margin-top: var(--sp-2); }
+  .asideMobile { display: none; }
+}

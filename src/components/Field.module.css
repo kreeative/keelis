@@ -24,7 +24,7 @@
   flex: 1;
   min-width: 0;
   width: 100%;
-  min-height: calc(var(--control-md) - 2px);
+  min-height: var(--control-md);
   padding: var(--sp-3) var(--sp-4);
   background: transparent;
   border: 0;
@@ -34,12 +34,25 @@
   font-variant-numeric: tabular-nums;
   border-radius: var(--r-field);
 }
+/* The wrapper already draws the ring on :focus-within — the control must not draw a second
+   one, which would also paint accent over the --neg ring in the error state. */
+.input:focus-visible { box-shadow: none; }
 .input::placeholder { color: var(--ink-400); }
 .input:disabled { color: var(--ink-400); cursor: not-allowed; }
+.selectWrap { position: relative; display: flex; flex: 1; min-width: 0; }
 .select {
   appearance: none;
-  padding-right: var(--sp-6);
+  padding-right: var(--sp-7);
   background-image: none;
+  cursor: pointer;
+}
+.selectChevron {
+  position: absolute;
+  right: var(--sp-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-600);
+  pointer-events: none;
 }
 .textarea { min-height: 96px; resize: vertical; line-height: var(--lh-body); }
 .adornment {

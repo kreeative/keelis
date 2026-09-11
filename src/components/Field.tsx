@@ -4,6 +4,7 @@
  */
 import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
+import { Icon } from './Icon'
 import styles from './Field.module.css'
 
 interface BaseProps {
@@ -53,22 +54,32 @@ export interface SelectFieldProps extends BaseProps, Omit<SelectHTMLAttributes<H
   children: ReactNode
 }
 
-export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(function SelectField({ label, hint, error, hideLabel, className, id, children, ...rest }, ref) {
+export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(function SelectField({ label, hint, error, hideLabel, leading, trailing, className, id, children, ...rest }, ref) {
   const auto = useId()
   const inputId = id ?? auto
+  const describedBy = [hint ? `${inputId}-hint` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
   return (
     <div className={cn(styles.field, error && styles.hasError, className)}>
       <label htmlFor={inputId} className={cn(styles.label, hideLabel && 'sr-only')}>
         {label}
       </label>
       <div className={styles.control}>
-        <select ref={ref} id={inputId} className={cn(styles.input, styles.select)} aria-invalid={error ? true : undefined} {...rest}>
-          {children}
-        </select>
+        {leading ? <span className={styles.adornment}>{leading}</span> : null}
+        <span className={styles.selectWrap}>
+          <select ref={ref} id={inputId} className={cn(styles.input, styles.select)} aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...rest}>
+            {children}
+          </select>
+          <Icon name="chevron-down" size={18} className={styles.selectChevron} />
+        </span>
+        {trailing ? <span className={cn(styles.adornment, styles.trailing)}>{trailing}</span> : null}
       </div>
-      {hint && !error ? <p className={styles.hint}>{hint}</p> : null}
+      {hint && !error ? (
+        <p id={`${inputId}-hint`} className={styles.hint}>
+          {hint}
+        </p>
+      ) : null}
       {error ? (
-        <p className={styles.error} role="alert">
+        <p id={`${inputId}-error`} className={styles.error} role="alert">
           {error}
         </p>
       ) : null}

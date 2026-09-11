@@ -1,4 +1,8 @@
-.shell { min-height: 100dvh; }
+.shell {
+  min-height: 100dvh;
+  /* Lifts the toast above the mobile bottom bar (see Toast.module.css). */
+  --toast-offset: var(--navbar-height);
+}
 .content {
   min-height: 100dvh;
   padding-bottom: calc(var(--navbar-height) + var(--safe-bottom));
@@ -11,7 +15,7 @@
   min-height: var(--tap);
   left: var(--sp-4);
   top: -100px;
-  z-index: 200;
+  z-index: var(--z-skip);
   padding: var(--sp-2) var(--sp-4);
   background: var(--ink-900);
   color: var(--surface);
@@ -19,5 +23,6 @@
 }
 .skip:focus { top: var(--sp-4); }
 @media (min-width: 768px) {
+  .shell { --toast-offset: 0px; }
   .content { padding-bottom: 0; padding-left: var(--rail-width); }
 }

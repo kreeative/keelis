@@ -19,9 +19,12 @@ export interface KeypadProps {
   disabled?: boolean
 }
 
-export function keypadReduce(value: string, key: string, opts: { maxDecimals?: number; maxLength?: number; integerOnly?: boolean } = {}): string {
+export function keypadReduce(rawValue: string, key: string, opts: { maxDecimals?: number; maxLength?: number; integerOnly?: boolean } = {}): string {
   const maxDecimals = opts.maxDecimals ?? 2
   const maxLength = opts.maxLength ?? 12
+  // A value seeded from outside (a Max button, a deep link) may carry a '.' decimal.
+  // Normalise first, or the decimal cap below would not see it.
+  const value = rawValue.replace('.', ',')
   if (key === 'back') return value.slice(0, -1)
   if (key === ',') {
     if (opts.integerOnly || value.includes(',')) return value
@@ -52,7 +55,7 @@ export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integ
     <div className={styles.pad} role="group" aria-label="Pavé numérique">
       {keys.map((k, i) =>
         k === '' ? (
-          <span key={i} aria-hidden="true" />
+          <span key={`gap-${i}`} aria-hidden="true" />
         ) : (
           <button
             key={k}

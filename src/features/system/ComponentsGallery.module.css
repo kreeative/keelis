@@ -1,0 +1,198 @@
+.root {
+  min-height: 100dvh;
+  background: var(--surface);
+  padding-bottom: var(--sp-9);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.topbarInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--gutter);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+.themeControl {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-5) var(--sp-7);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  width: 100%;
+}
+
+.toc {
+  display: none;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding-block: var(--sp-6);
+  min-width: 0;
+  /* the sticky top bar must never cover an anchored section */
+  scroll-margin-top: calc(var(--sp-8) + var(--sp-3));
+}
+.section + .section {
+  border-top: 1px solid var(--line);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-6) var(--sp-5);
+  align-items: start;
+  min-width: 0;
+}
+.example {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+.wide {
+  grid-column: 1 / -1;
+}
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  min-width: 0;
+}
+.demo > * {
+  max-width: 100%;
+}
+.wide .demo {
+  align-items: stretch;
+}
+.demoFill {
+  align-items: stretch;
+}
+.demoFill > * {
+  width: 100%;
+  max-width: 420px;
+}
+.caption {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-400);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+.stackWide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  width: 100%;
+  min-width: 0;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.swatches {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: var(--sp-4);
+}
+.swatchItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.swatch {
+  display: block;
+  width: 100%;
+  height: 48px;
+  border-radius: var(--r-field);
+  border: 1px solid var(--line);
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  color: var(--ink-400);
+  overflow-wrap: anywhere;
+}
+
+.padDemo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  width: 100%;
+  max-width: 360px;
+}
+
+.padSheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  text-align: center;
+}
+
+.frame {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  padding: var(--sp-4);
+}
+
+@media (min-width: 768px) {
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    padding-bottom: var(--sp-3);
+  }
+  .tocLink {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding-inline: var(--sp-4);
+    border-radius: var(--r-pill);
+    background: var(--surface-alt);
+    color: var(--ink-600);
+    font-size: var(--fs-small);
+    transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .tocLink:hover {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+  }
+  .tocLink:focus-visible {
+    box-shadow: var(--focus-ring);
+  }
+}

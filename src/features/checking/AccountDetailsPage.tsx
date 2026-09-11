@@ -1,11 +1,127 @@
-import { PageHeader } from '@/components/PageHeader'
-import { EmptyState } from '@/components/EmptyState'
+/**
+ * Coordonnées bancaires du compte Chèque ou Épargne, copiables une par une ou en bloc.
+ */
+import { useSearchParams } from 'react-router-dom'
+import { api, IDS } from '@/api'
+import type { AccountDetails } from '@/api/types'
+import { Button, ErrorState, Icon, PageHeader, SegmentedControl, Skeleton } from '@/components'
+import { QK, useQuery, useToast } from '@/store'
+import { cn } from '@/lib/cn'
+import styles from './AccountDetailsPage.module.css'
 
-export default function Page() {
+type AccountParam = 'cheque' | 'epargne'
+
+const ACCOUNTS: ReadonlyArray<{ value: AccountParam; label: string; id: string; name: string }> = [
+  { value: 'cheque', label: 'Chèque', id: IDS.checking, name: 'Compte Chèque' },
+  { value: 'epargne', label: 'Épargne', id: IDS.savings, name: 'Compte Épargne' },
+]
+
+const PARAM = 'compte'
+
+interface DetailRow {
+  label: string
+  value: string
+  /** Used in the copy confirmation and the aria-label of the copy button */
+  short: string
+  /** Numbers are set in the mono face; names are not. */
+  mono?: boolean
+}
+
+const SKELETON_ROWS = 6
+
+function rowsOf(d: AccountDetails): DetailRow[] {
+  return [
+    { label: 'Titulaire', value: d.holderName, short: 'le nom du titulaire', mono: false },
+    { label: 'Numéro d’institution', value: d.institutionNumber, short: 'le numéro d’institution', mono: true },
+    { label: 'Numéro de transit', value: d.transitNumber, short: 'le numéro de transit', mono: true },
+    { label: 'Numéro de compte', value: d.accountNumber, short: 'le numéro de compte', mono: true },
+    { label: 'IBAN', value: d.iban, short: 'l’IBAN', mono: true },
+    { label: 'SWIFT/BIC', value: d.swift, short: 'le code SWIFT', mono: true },
+  ]
+}
+
+export default function AccountDetailsPage() {
+  const [params, setParams] = useSearchParams()
+  const { toast } = useToast()
+  const current = ACCOUNTS.find((a) => a.value === params.get(PARAM)) ?? ACCOUNTS[0]!
+  const details = useQuery<AccountDetails>(QK.accountDetails(current.id), () => api.accounts.details(current.id), { staleTime: 60_000 })
+
+  const select = (value: AccountParam) => {
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.set(PARAM, value)
+        return next
+      },
+      { replace: true },
+    )
+  }
+
+  const copy = async (value: string, what: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      toast(`Copié : ${what}`)
+    } catch {
+      toast('Impossible de copier', 'error')
+    }
+  }
+
+  const rows = details.data ? rowsOf(details.data) : []
+
+  const copyAll = () => {
+    if (!details.data) return
+    const text = [current.name, ...rows.map((r) => `${r.label} : ${r.value}`)].join('\n')
+    void copy(text, 'toutes les coordonnées')
+  }
+
   return (
-    <div className="page">
-      <PageHeader title="Détails du compte" back={-1} />
-      <EmptyState message="Cet écran est en construction." compact />
+    <div className={styles.page}>
+      <PageHeader back="/carte" title="Détails du compte" eyebrow={current.name} />
+
+      <SegmentedControl
+        segments={ACCOUNTS.map((a) => ({ value: a.value, label: a.label }))}
+        value={current.value}
+        onChange={select}
+        label="Compte"
+        block
+        className={styles.tabs}
+      />
+
+      {details.error && !details.data ? (
+        <ErrorState error={details.error} onRetry={() => void details.refetch()} className={styles.state} />
+      ) : (
+        <>
+          <dl className={styles.rows} aria-busy={!details.data || undefined}>
+            {details.data
+              ? rows.map((row) => (
+                  <div key={row.label} className={styles.row}>
+                    <dt className={styles.label}>{row.label}</dt>
+                    <dd className={styles.value}>
+                      <span className={cn(styles.text, row.mono && styles.mono)}>{row.value}</span>
+                      <Button variant="ghost" iconOnly aria-label={`Copier ${row.short}`} onClick={() => void copy(row.value, row.short)} className={styles.copy}>
+                        <Icon name="copy" size={18} />
+                      </Button>
+                    </dd>
+                  </div>
+                ))
+              : Array.from({ length: SKELETON_ROWS }).map((_, i) => (
+                  <div key={i} className={styles.row}>
+                    <Skeleton width="40%" height={12} />
+                    <Skeleton width="60%" height={16} />
+                  </div>
+                ))}
+          </dl>
+
+          <div className={styles.footer}>
+            <Button variant="ghost" onClick={copyAll} disabled={!details.data} icon={<Icon name="copy" size={18} />} className={styles.copyAll}>
+              Tout copier
+            </Button>
+            <p className={styles.note}>
+              Ces coordonnées servent à recevoir un dépôt direct ou un virement depuis une autre institution. Les fonds arrivent généralement en 1 à 2 jours ouvrables.
+            </p>
+          </div>
+        </>
+      )}
     </div>
   )
 }

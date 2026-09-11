@@ -24,16 +24,18 @@ export interface ListRowProps extends Omit<ButtonHTMLAttributes<HTMLButtonElemen
   /** Non-interactive row */
   static?: boolean
   muted?: boolean
+  /** Let the title and subtitle wrap instead of truncating (long names, document titles) */
+  wrap?: boolean
 }
 
 export const ListRow = forwardRef<HTMLButtonElement, ListRowProps>(function ListRow(
-  { leading, title, subtitle, value, valueSub, to, chevron = false, trailing, static: isStatic = false, muted = false, className, onClick, ...rest },
+  { leading, title, subtitle, value, valueSub, to, chevron = false, trailing, static: isStatic = false, muted = false, wrap = false, className, onClick, ...rest },
   ref,
 ) {
   const body = (
     <>
       {leading ? <span className={styles.leading}>{leading}</span> : null}
-      <span className={styles.main}>
+      <span className={cn(styles.main, wrap && styles.wrap)}>
         <span className={cn(styles.title, muted && styles.muted)}>{title}</span>
         {subtitle ? <span className={styles.subtitle}>{subtitle}</span> : null}
       </span>

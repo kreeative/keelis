@@ -22,6 +22,8 @@
   line-height: var(--lh-h1);
   letter-spacing: var(--ls-h1);
 }
+.amountPos { color: var(--pos); }
+.amountNeg { color: var(--neg); }
 .number { min-width: 0; }
 .currency {
   font-size: var(--fs-h2);
