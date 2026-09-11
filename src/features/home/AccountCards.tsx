@@ -4,7 +4,7 @@
  */
 import type { Account } from '@/api/types'
 import { IDS } from '@/api'
-import { Badge, Card, Delta, Money, Skeleton, Sparkline } from '@/components'
+import { Badge, Card, Delta, Money, MoneyDelta, Skeleton, Sparkline } from '@/components'
 import { formatPercent } from '@/lib/format'
 import { useSettings } from '@/store'
 import styles from './AccountCards.module.css'
@@ -33,14 +33,7 @@ function AccountCard({ account, to }: { account: Account; to: string }) {
           <Money value={account.balance} currency={account.currency} />
         </span>
         <span className={styles.sub}>
-          {isCrypto ? (
-            <Delta value={account.change24hPct} suffix="24 h" />
-          ) : (
-            <>
-              <Money value={account.change24h} currency={account.currency} signed />
-              <span>aujourd'hui</span>
-            </>
-          )}
+          {isCrypto ? <Delta value={account.change24hPct} suffix="24 h" variant="pill" /> : <MoneyDelta value={account.change24h} suffix="aujourd'hui" />}
         </span>
       </span>
     </Card>

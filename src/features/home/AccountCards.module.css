@@ -30,14 +30,9 @@
 }
 .sub {
   display: flex;
+  align-items: center;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--sp-1);
-  font-size: var(--fs-small);
-  line-height: var(--lh-small);
-  color: var(--ink-600);
-  font-variant-numeric: tabular-nums;
-  min-height: calc(var(--fs-small) * var(--lh-small));
 }
 
 /* Three columns only once the rail leaves enough room for three balances. */

@@ -26,6 +26,7 @@
 .chartBlock { display: flex; flex-direction: column; gap: var(--sp-4); align-items: flex-start; }
 
 .asideMobile { margin-top: var(--sp-6); }
+.holdings { margin-top: var(--sp-3); }
 .aside { display: none; }
 
 .actions { margin-top: var(--sp-6); }

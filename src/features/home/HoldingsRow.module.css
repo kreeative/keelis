@@ -1,0 +1,9 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--row-height);
+}
+.text { font-size: var(--fs-body); flex: 1; min-width: 0; }
+.value { font-size: var(--fs-body); }
+.chevron { color: var(--ink-300); flex-shrink: 0; }

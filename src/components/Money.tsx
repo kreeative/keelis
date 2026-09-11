@@ -31,15 +31,54 @@ export function Money({ value, tone = false, unmasked = false, signed, compactCe
   )
 }
 
-/** Percentage / delta text, coloured by sign, with tabular numerals. */
-export function Delta({ value, suffix, className, ...rest }: { value: number; suffix?: string; className?: string } & HTMLAttributes<HTMLSpanElement>) {
+export interface DeltaProps extends HTMLAttributes<HTMLSpanElement> {
+  value: number
+  /** Trailing context, e.g. « 24 h », « ce mois-ci » */
+  suffix?: string
+  /** 'text' sits inline; 'pill' encloses it in a rounded chip, as on a stat card. */
+  variant?: 'text' | 'pill'
+  className?: string
+}
+
+/**
+ * Percentage delta. The sign is always explicit — the palette is monochrome, so direction
+ * is never carried by hue.
+ */
+export function Delta({ value, suffix, variant = 'text', className, ...rest }: DeltaProps) {
   const { locale } = useSettings()
   const sign = value > 0 ? '+' : value < 0 ? '−' : ''
   const abs = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(Math.abs(value))
   const text = `${sign}${abs} %${suffix ? ` · ${suffix}` : ''}`
   const dir = value > 0 ? 'en hausse de' : value < 0 ? 'en baisse de' : 'stable'
   return (
-    <span className={cn(styles.money, value > 0 && styles.pos, value < 0 && styles.neg, className)} aria-label={value === 0 ? 'stable' : `${dir} ${abs} pour cent${suffix ? ` sur ${suffix}` : ''}`} {...rest}>
+    <span
+      className={cn(styles.money, variant === 'pill' && styles.pill, value > 0 && styles.pos, value < 0 && styles.neg, className)}
+      aria-label={value === 0 ? 'stable' : `${dir} ${abs} pour cent${suffix ? ` sur ${suffix}` : ''}`}
+      {...rest}
+    >
+      {text}
+    </span>
+  )
+}
+
+export interface MoneyDeltaProps extends HTMLAttributes<HTMLSpanElement> {
+  /** Signed fiat change */
+  value: number
+  suffix?: string
+  variant?: 'text' | 'pill'
+  className?: string
+}
+
+/** Same chip, carrying a money amount instead of a percentage (« +100,00 $ ce mois-ci »). */
+export function MoneyDelta({ value, suffix, variant = 'pill', className, ...rest }: MoneyDeltaProps) {
+  const { hidden, locale } = useSettings()
+  const text = hidden ? MASKED : `${formatMoney(value, { locale, signed: true })}${suffix ? ` ${suffix}` : ''}`
+  return (
+    <span
+      className={cn(styles.money, variant === 'pill' && styles.pill, className)}
+      aria-label={hidden ? 'Montant masqué' : `${moneyAriaLabel(value, { locale })}${suffix ? `, ${suffix}` : ''}`}
+      {...rest}
+    >
       {text}
     </span>
   )

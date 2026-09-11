@@ -14,6 +14,7 @@ import { QK, useQuery, useSettings } from '@/store'
 import { useSession } from '@/store/session'
 import { AccountCards } from './AccountCards'
 import { HoldingsPanel } from './HoldingsPanel'
+import { HoldingsRow } from './HoldingsRow'
 import styles from './HomePage.module.css'
 
 const RECENT_COUNT = 5
@@ -110,6 +111,9 @@ export default function HomePage() {
 
           <div className={styles.asideMobile}>
             <AccountCards accounts={accounts.data} loading={accounts.loading} />
+            <div className={styles.holdings}>
+              <HoldingsRow />
+            </div>
           </div>
 
           <QuickActions

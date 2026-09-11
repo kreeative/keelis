@@ -6,3 +6,16 @@
 }
 .pos { color: var(--pos); }
 .neg { color: var(--neg); }
+
+/* Stat-card chip: the delta enclosed rather than loose beside the figure. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: var(--fs-small);
+  line-height: var(--lh-label);
+  white-space: nowrap;
+}

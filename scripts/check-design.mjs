@@ -32,7 +32,7 @@ const BASE = join(ROOT, 'styles/base.css')
 const AMBIENT = join(ROOT, 'components/AmbientGround.module.css')
 const allowedColourFiles = [TOKENS]
 const allowedGradientFiles = [TOKENS, BASE, AMBIENT]
-const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg)\)/
+const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg|surface)\)/
 
 function check(file) {
   const rel = relative(ROOT, file)
