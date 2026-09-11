@@ -100,7 +100,7 @@
      positive tracking — the figure outweighs every heading on the screen. Its scale tops
      out at 20px, so the tracking is eased at display sizes rather than extrapolated. */
   --font-numeric: var(--font-sans);
-  --fw-numeric: 900;
+  --fw-numeric: 700;
   --ls-numeric: 0.02em;
 
   /* Tracking follows the reference kit's Foundations page, which is set in Futura and
@@ -112,7 +112,7 @@
   /* H1 22/29 and H2 20/27 are the kit's own values, read off its Text styles panel; its
      heading scale tops out at 22px and does not scale with the viewport. The money display
      is a separate style in their system ($), so it stays ours and stays responsive. */
-  --fs-display: 48px;  --lh-display: 1.08; --ls-display: 0.01em;   --fw-display: 900;
+  --fs-display: 48px;  --lh-display: 1.08; --ls-display: 0.01em;   --fw-display: 700;
   --fs-h1: 22px;       --lh-h1: 1.32;      --ls-h1: 0.045em;       --fw-h1: 700;
   --fs-h2: 20px;       --lh-h2: 1.35;      --ls-h2: 0.025em;       --fw-h2: 700;
   --fs-body: 16px;     --lh-body: 1.625;   --ls-body: -0.016em;    --fw-body: 400;
@@ -122,7 +122,7 @@
   --fw-medium: 500;
   --fw-demi: 600;
   --fw-bold: 700;    /* the kit's heading weight (Futura Demi Bold) */
-  --fw-black: 900;   /* the kit's money weight */
+  --fw-black: 900;   /* reserved; money is bold, not black */
 
   /* ---- Spacing scale ---- */
   --sp-1: 4px;
