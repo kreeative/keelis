@@ -50,19 +50,19 @@ function AccountCard({ account, to }: { account: Account; to: string }) {
 export function AccountCards({ accounts, loading }: { accounts: Account[] | undefined; loading: boolean }) {
   if (!accounts) {
     return (
-      <div className={styles.grid} aria-busy={loading || undefined} aria-label="Comptes">
+      <section className={styles.grid} aria-busy={loading || undefined} aria-label="Comptes">
         {ORDER.map((o) => (
           <Skeleton key={o.id} shape="card" height={SKELETON_HEIGHT} />
         ))}
-      </div>
+      </section>
     )
   }
   return (
-    <div className={styles.grid} aria-label="Comptes">
+    <section className={styles.grid} aria-label="Comptes">
       {ORDER.map((o) => {
         const account = accounts.find((a) => a.id === o.id)
         return account ? <AccountCard key={o.id} account={account} to={o.to} /> : null
       })}
-    </div>
+    </section>
   )
 }

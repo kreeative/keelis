@@ -1,48 +1,32 @@
-.topbar {
-  position: relative;
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-5) var(--sp-7);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.layout { display: flex; flex-direction: column; gap: var(--sp-6); }
+.main { display: flex; flex-direction: column; min-width: 0; }
+
+.head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
   min-height: var(--tap);
 }
-.topActions {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  margin-right: calc(-1 * var(--sp-2));
-}
-.iconBtn { color: var(--ink-900); }
-.iconLink {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-md);
-  height: var(--control-md);
-  border-radius: var(--r-field);
-  color: var(--ink-900);
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-}
-.iconLink:hover { background: var(--accent-soft); color: var(--accent-text); }
-.iconLink:focus-visible { box-shadow: var(--focus-ring); }
-.dot {
-  position: absolute;
-  top: var(--sp-2);
-  right: var(--sp-2);
-  width: var(--sp-2);
-  height: var(--sp-2);
-  border-radius: var(--r-pill);
-  background: var(--accent);
-  outline: 2px solid var(--surface);
-}
+.greeting { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.headActions { display: none; gap: var(--sp-2); flex-shrink: 0; }
 
-.hero {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  padding-block: var(--sp-6) var(--sp-6);
-}
+.hero { display: flex; flex-direction: column; gap: var(--sp-2); padding-block: var(--sp-5) var(--sp-4); }
+.heroTop { display: flex; align-items: center; gap: var(--sp-1); min-height: var(--tap); }
+.eye { color: var(--ink-400); }
+.eye:hover { color: var(--ink-900); }
+
+.chartBlock { display: flex; flex-direction: column; gap: var(--sp-4); align-items: flex-start; }
+
+.asideMobile { margin-top: var(--sp-6); }
+.aside { display: none; }
 
 .actions { margin-top: var(--sp-6); }
 
@@ -73,5 +57,22 @@
 .seeAll:focus-visible { box-shadow: var(--focus-ring); }
 
 @media (min-width: 768px) {
-  .hero { padding-block: var(--sp-7) var(--sp-6); }
+  .headActions { display: flex; }
+  .hero { padding-block: var(--sp-6) var(--sp-5); }
+  .actions { display: none; }
+}
+
+@media (min-width: 1120px) {
+  .layout { flex-direction: row; align-items: flex-start; gap: var(--sp-6); }
+  .main { flex: 1; }
+  .aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    width: 340px;
+    flex-shrink: 0;
+    position: sticky;
+    top: var(--sp-5);
+  }
+  .asideMobile { display: none; }
 }

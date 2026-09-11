@@ -390,6 +390,32 @@ export const mockApi: KaalisApi = {
       if (!a) throw new ApiError('Compte introuvable.', 'not_found')
       return a
     },
+    async history(range) {
+      await simulate()
+      const cfg = RANGE_CONFIG[range]
+      const end = NOW.getTime()
+      const accounts = state.accounts()
+      const total = accounts.reduce((s, a) => s + a.balance, 0)
+      const cryptoNow = state.cryptoValue()
+      const cash = total - cryptoNow
+      // Cash side: savings deposits every ~30 days, otherwise stable. Crypto side: the
+      // market history of the portfolio, scaled to its current value.
+      const btc = state.asset('btc')
+      const shape = generateHistory(9_101 + cfg.points, btc.price, range, { '1D': btc.change24hPct / 100, '1W': 0.04, '1M': 0.11, '1Y': 0.9, MAX: 6 }[range])
+      const shapeEnd = shape[shape.length - 1]?.p ?? 1
+      const rng = createPrng(31_337 + cfg.points)
+      const pts: PricePoint[] = shape.map((p) => {
+        const daysBack = (end - p.t) / 86_400_000
+        let cashThen = cash
+        cashThen -= 650 * Math.floor(Math.max(0, daysBack - 3) / 30 + (daysBack >= 3 ? 1 : 0))
+        cashThen += 2_184.5 * Math.floor(daysBack / 15) * 0.35
+        cashThen += rng.range(-40, 40)
+        const cryptoThen = (p.p / shapeEnd) * cryptoNow
+        return { t: p.t, p: Math.max(0, cashThen) + cryptoThen }
+      })
+      pts[pts.length - 1] = { t: end, p: total }
+      return withChange('all', range, pts)
+    },
     async details(id) {
       await simulate()
       if (id !== IDS.checking && id !== IDS.savings) throw new ApiError('Compte introuvable.', 'not_found')

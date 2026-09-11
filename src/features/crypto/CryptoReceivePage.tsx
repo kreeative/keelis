@@ -6,8 +6,9 @@ import { useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ReceiveAddress } from '@/api/types'
 import { Button, ErrorState, Icon, PageHeader, QRCode, SegmentedControl, Skeleton } from '@/components'
-import { useAsset, useQuery, useToast } from '@/store'
+import { useToast } from '@/store'
 import { cn } from '@/lib/cn'
+import { useLiveAsset, useLiveQuery } from './hooks'
 import styles from './CryptoReceivePage.module.css'
 
 const QR_SIZE = 200
@@ -17,14 +18,14 @@ const QR_BOX = QR_SIZE + 2 * 12 + 2
 export default function CryptoReceivePage() {
   const { id = '' } = useParams()
   const { toast } = useToast()
-  const assetQ = useAsset(id)
+  const assetQ = useLiveAsset(id)
   const asset = assetQ.data
   const [networkId, setNetworkId] = useState<string | null>(null)
   const networks = asset?.networks ?? []
   const network = networks.find((n) => n.id === networkId) ?? networks[0]
 
   const key = asset && network ? `crypto:receive/${asset.id}/${network.id}` : null
-  const addr = useQuery<ReceiveAddress>(key, () => api.crypto.receiveAddress(asset!.id, network!.id), { staleTime: 5 * 60_000 })
+  const addr = useLiveQuery<ReceiveAddress>(key, () => api.crypto.receiveAddress(asset!.id, network!.id), { staleTime: 5 * 60_000 })
 
   const copy = async () => {
     if (!addr.data) return

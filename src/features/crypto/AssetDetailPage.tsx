@@ -7,12 +7,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, CryptoAsset, Holding, PriceHistory, PricePoint } from '@/api/types'
 import { AmountDisplay, Button, Chart, Delta, ErrorState, Icon, Money, QuickActions, SegmentedControl, Skeleton, SkeletonAmount } from '@/components'
-import { useHoldings } from '@/features/shared'
 import { MASKED, formatCrypto, formatDateTime } from '@/lib/format'
-import { QK, setQueryData, useAsset, useQuery, useSettings, useToast } from '@/store'
+import { QK, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { RANGES, formatCompactMoney, formatCompactQuantity, rangePeriod } from './cryptoFormat'
-import { useDesktop } from './hooks'
+import { patchQuery, useDesktop, useLiveAsset, useLiveHistory, useLiveHoldings } from './hooks'
 import styles from './AssetDetailPage.module.css'
 
 function toneOf(n: number): 'pos' | 'neg' | 'ink' {
@@ -97,14 +96,14 @@ export default function AssetDetailPage() {
   const { locale } = useSettings()
   const { toast } = useToast()
   const desktop = useDesktop()
-  const assetQ = useAsset(id)
+  const assetQ = useLiveAsset(id)
   const asset = assetQ.data
-  const holdings = useHoldings()
+  const holdings = useLiveHoldings()
   const holding = holdings.data?.find((h) => h.assetId === id)
   const hasHolding = !!holding && holding.quantity > 0
 
   const [range, setRange] = useState<ChartRange>('1D')
-  const history = useQuery<PriceHistory>(id ? QK.history(id, range) : null, () => api.crypto.history(id, range), { staleTime: 60_000 })
+  const history = useLiveHistory(id, range)
   // Keep the last loaded range on screen while the next one loads.
   const [shown, setShown] = useState<PriceHistory | undefined>(undefined)
   if (history.data && history.data !== shown) setShown(history.data)
@@ -119,14 +118,14 @@ export default function AssetDetailPage() {
     const next = !asset.watched
     const patch = (a: CryptoAsset | undefined) => (a ? { ...a, watched: next } : a!)
     setWatchPending(true)
-    setQueryData<CryptoAsset>(QK.asset(id), patch)
-    setQueryData<CryptoAsset[]>(QK.assets, (list) => (list ?? []).map((a) => (a.id === id ? { ...a, watched: next } : a)))
+    patchQuery<CryptoAsset>(QK.asset(id), patch)
+    patchQuery<CryptoAsset[]>(QK.assets, (list) => (list ?? []).map((a) => (a.id === id ? { ...a, watched: next } : a)))
     try {
       await api.crypto.setWatched(id, next)
       toast(next ? 'Ajouté aux suivis' : 'Retiré des suivis')
     } catch (err) {
-      setQueryData<CryptoAsset>(QK.asset(id), (a) => (a ? { ...a, watched: !next } : a!))
-      setQueryData<CryptoAsset[]>(QK.assets, (list) => (list ?? []).map((a) => (a.id === id ? { ...a, watched: !next } : a)))
+      patchQuery<CryptoAsset>(QK.asset(id), (a) => (a ? { ...a, watched: !next } : a!))
+      patchQuery<CryptoAsset[]>(QK.assets, (list) => (list ?? []).map((a) => (a.id === id ? { ...a, watched: !next } : a)))
       toast(err instanceof Error ? err.message : 'Impossible de modifier les suivis', 'error')
     } finally {
       setWatchPending(false)

@@ -3,7 +3,7 @@
   display: inline-flex;
   align-items: stretch;
   gap: 0;
-  padding: var(--sp-1);
+  padding: var(--seg-pad, var(--sp-1));
   background: var(--surface-alt);
   border-radius: var(--r-pill);
   isolation: isolate;
@@ -13,8 +13,8 @@
 
 .pill {
   position: absolute;
-  top: var(--sp-1);
-  bottom: var(--sp-1);
+  top: var(--seg-pad, var(--sp-1));
+  bottom: var(--seg-pad, var(--sp-1));
   left: 0;
   background: var(--accent-soft);
   border-radius: var(--r-pill);
@@ -27,7 +27,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
   padding-inline: var(--sp-4);
   border-radius: var(--r-pill);
   font-size: var(--fs-small);
@@ -36,10 +35,10 @@
   white-space: nowrap;
   transition: color var(--dur-fast) var(--ease);
 }
-.md .segment { min-height: 36px; }
-.sm .segment { min-height: 32px; padding-inline: var(--sp-3); }
-.control.md { min-height: var(--tap); }
-.control.sm { min-height: 40px; }
+/* Every segment is a tap target: at least 44px tall in both sizes. */
+.segment { min-height: var(--tap); }
+.sm { --seg-pad: 0px; }
+.sm .segment { padding-inline: var(--sp-4); }
 .segment:hover { color: var(--ink-900); }
 .segment:focus-visible { box-shadow: var(--focus-ring); border-radius: var(--r-pill); }
 .selected { color: var(--accent-text); }

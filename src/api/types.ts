@@ -489,6 +489,8 @@ export interface KaalisApi {
     list(): Promise<Account[]>
     get(id: string): Promise<Account>
     details(id: string): Promise<AccountDetails>
+    /** Total net worth over time (all accounts combined). */
+    history(range: ChartRange): Promise<PriceHistory>
   }
   transactions: {
     list(filter?: TransactionFilter): Promise<Transaction[]>

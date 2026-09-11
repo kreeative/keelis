@@ -64,7 +64,7 @@
 
   --gutter: 20px;          /* mobile */
   --content-max: 1120px;   /* desktop centring */
-  --rail-width: 240px;     /* desktop side rail */
+  --rail-width: 72px;      /* desktop icon rail */
   --navbar-height: 64px;   /* mobile bottom bar */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 

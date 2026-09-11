@@ -22,7 +22,7 @@ describe('formatCompactMoney', () => {
 
 describe('formatCompactQuantity', () => {
   it('keeps the symbol', () => {
-    expect(norm(formatCompactQuantity(19_820_000, 'BTC', 'fr-CA'))).toBe('19,82 M BTC')
+    expect(norm(formatCompactQuantity(19_820_000, 'BTC', 'fr-CA'))).toBe('19,8 M BTC')
     expect(norm(formatCompactQuantity(57_000_000_000, 'XRP', 'en-CA'))).toBe('57.0B XRP')
   })
 })

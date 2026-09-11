@@ -47,3 +47,7 @@
     gap: var(--sp-4);
   }
 }
+
+@media (min-width: 1120px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+}

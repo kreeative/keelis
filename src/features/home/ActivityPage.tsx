@@ -10,8 +10,7 @@ import type { Transaction } from '@/api/types'
 import { Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SegmentedControl, SkeletonRow } from '@/components'
 import { TransactionRow, groupByDay, isIncoming, useTransactions } from '@/features/shared'
 import { formatDayHeading, formatNumber } from '@/lib/format'
-import { QK, useSettings } from '@/store'
-import { useLiveQuery } from './useLiveQuery'
+import { useSettings } from '@/store'
 import styles from './ActivityPage.module.css'
 
 type Direction = 'all' | 'in' | 'out'
@@ -52,7 +51,7 @@ export default function ActivityPage() {
   const account = ACCOUNTS.find((a) => a.value === params.get(PARAM))
   const [query, setQuery] = useState('')
   const [direction, setDirection] = useState<Direction>('all')
-  const txs = useLiveQuery(useTransactions('all'), QK.transactions('all'))
+  const txs = useTransactions('all')
 
   const selectAccount = (value: AccountParam | null) => {
     setParams(
@@ -74,7 +73,6 @@ export default function ActivityPage() {
 
   const groups = useMemo(() => groupByDay(filtered), [filtered])
 
-  const hasFilters = query.trim() !== '' || direction !== 'all' || account !== undefined
   const clearFilters = () => {
     setQuery('')
     setDirection('all')
@@ -106,7 +104,7 @@ export default function ActivityPage() {
         compact
         message="Aucune transaction ne correspond."
         action={
-          <Button variant="secondary" onClick={clearFilters} disabled={!hasFilters}>
+          <Button variant="secondary" onClick={clearFilters}>
             Effacer les filtres
           </Button>
         }

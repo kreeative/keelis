@@ -5,11 +5,11 @@
 import { useDeferredValue, useMemo, useState } from 'react'
 import { AmountDisplay, Avatar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
 import type { CryptoAsset, Holding } from '@/api/types'
-import { useAccount, useHoldings, useRecurring } from '@/features/shared'
 import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
-import { useMarket, useSettings } from '@/store'
+import { useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import { monthlyTotal } from './cryptoFormat'
+import { useLiveAccount, useLiveAssets, useLiveHoldings, useLiveRecurring } from './hooks'
 import styles from './CryptoListPage.module.css'
 
 type Filter = 'all' | 'mine' | 'watched'
@@ -53,10 +53,10 @@ function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | u
 
 export default function CryptoListPage() {
   const { locale } = useSettings()
-  const market = useMarket()
-  const account = useAccount('crypto')
-  const holdings = useHoldings()
-  const recurring = useRecurring()
+  const market = useLiveAssets()
+  const account = useLiveAccount('crypto')
+  const holdings = useLiveHoldings()
+  const recurring = useLiveRecurring()
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query)

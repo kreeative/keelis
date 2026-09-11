@@ -1,4 +1,5 @@
-.nav {
+/* ---------- Mobile: bottom bar ---------- */
+.bar {
   position: fixed;
   left: 0;
   right: 0;
@@ -8,14 +9,13 @@
   border-top: 1px solid var(--line);
   padding-bottom: var(--safe-bottom);
 }
-.brand { display: none; }
-.list {
+.barList {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   height: var(--navbar-height);
 }
-.item { display: flex; }
-.link {
+.barItem { display: flex; }
+.barLink {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -27,11 +27,11 @@
   border-radius: var(--r-field);
   transition: color var(--dur-fast) var(--ease);
 }
-.link:hover { color: var(--ink-600); }
-.link:focus-visible { box-shadow: var(--focus-ring); }
-.active { color: var(--ink-900); }
-.iconWrap { position: relative; display: inline-flex; }
-.dot {
+.barLink:hover { color: var(--ink-600); }
+.barLink:focus-visible { box-shadow: var(--focus-ring); }
+.barActive { color: var(--ink-900); }
+.barIcon { position: relative; display: inline-flex; }
+.barDot {
   position: absolute;
   top: 0;
   right: -2px;
@@ -41,41 +41,111 @@
   background: var(--accent);
   outline: 2px solid var(--surface);
 }
-.label {
-  font-size: var(--fs-nav);
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-}
+.barLabel { font-size: var(--fs-nav); line-height: 1.2; letter-spacing: 0.01em; }
+
+/* ---------- Desktop: icon rail ---------- */
+.rail { display: none; }
 
 @media (min-width: 768px) {
-  .nav {
+  .bar { display: none; }
+
+  .rail {
+    position: fixed;
     top: 0;
     bottom: 0;
-    right: auto;
+    left: 0;
+    z-index: 50;
     width: var(--rail-width);
-    border-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-5);
+    padding-block: var(--sp-4);
+    background: var(--surface);
     border-right: 1px solid var(--line);
-    padding: var(--sp-5) var(--sp-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-6);
+    overflow: visible;
   }
-  .brand { display: block; padding-inline: var(--sp-3); }
-  .list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-1);
-    height: auto;
-  }
-  .link {
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: var(--sp-3);
-    padding-inline: var(--sp-3);
-    min-height: var(--tap);
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap);
+    height: var(--tap);
     border-radius: var(--r-field);
+    color: var(--ink-900);
+    flex-shrink: 0;
   }
-  .link:hover { background: var(--surface-alt); }
-  .active { background: var(--surface-alt); }
-  .label { font-size: var(--fs-body); }
+  .brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  .railList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-1);
+    width: 100%;
+  }
+  .railBottom { margin-top: auto; }
+
+  .railLink {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap);
+    height: var(--tap);
+    border-radius: var(--r-field);
+    color: var(--ink-400);
+    transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .railLink:hover { background: var(--surface-alt); color: var(--ink-900); }
+  .railLink:focus-visible { box-shadow: var(--focus-ring); }
+  .railActive { background: var(--surface-alt); color: var(--ink-900); }
+
+  .railDot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    outline: 2px solid var(--surface);
+  }
+
+  .railAvatar { color: var(--ink-600); }
+  .initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--r-pill);
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-medium);
+    line-height: 1;
+  }
+
+  /* Tooltip: the label the rail cannot show inline. Decorative — the control is labelled. */
+  .tip {
+    position: absolute;
+    left: calc(100% + var(--sp-2));
+    top: 50%;
+    transform: translateY(-50%);
+    padding: var(--sp-1) var(--sp-3);
+    border-radius: var(--r-field);
+    background: var(--ink-900);
+    color: var(--surface);
+    font-size: var(--fs-label);
+    line-height: var(--lh-label);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease);
+    z-index: 1;
+  }
+  .railLink:hover .tip,
+  .railLink:focus-visible .tip { opacity: 1; }
 }

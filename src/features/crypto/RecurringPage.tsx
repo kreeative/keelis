@@ -6,11 +6,11 @@ import { useMemo, useState } from 'react'
 import { api } from '@/api'
 import type { ApiError, RecurringBuy, RecurringFrequency } from '@/api/types'
 import { AmountDisplay, Avatar, Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SegmentedControl, SelectField, Sheet, SkeletonRow, Switch } from '@/components'
-import { useRecurring } from '@/features/shared'
 import { formatDate, formatMoney, parseAmountInput } from '@/lib/format'
-import { QK, setQueryData, useMarket, useMutation, useSettings, useToast } from '@/store'
+import { QK, useMutation, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { FREQUENCIES, FREQUENCY_ORDER, floorTo, formatRate, formatShortDate, monthlyTotal } from './cryptoFormat'
+import { patchQuery, useLiveAssets, useLiveRecurring } from './hooks'
 import styles from './RecurringPage.module.css'
 
 const MIN_AMOUNT = 5
@@ -42,8 +42,9 @@ function RecurringRow({ item, onOpen, onToggle }: { item: RecurringBuy; onOpen: 
 export default function RecurringPage() {
   const { locale } = useSettings()
   const { toast } = useToast()
-  const market = useMarket()
-  const recurring = useRecurring()
+  const market = useLiveAssets()
+  const byId = useMemo(() => new Map((market.assets ?? []).map((a) => [a.id, a] as const)), [market.assets])
+  const recurring = useLiveRecurring()
   const items = useMemo(() => (recurring.data ?? []).slice().sort((a, b) => (a.nextRun < b.nextRun ? -1 : 1)), [recurring.data])
   const activeCount = items.filter((r) => r.active).length
   const monthly = monthlyTotal(items)
@@ -51,12 +52,12 @@ export default function RecurringPage() {
 
   // ----- pause / resume (optimistic)
   const toggle = async (item: RecurringBuy, next: boolean) => {
-    setQueryData<RecurringBuy[]>(QK.recurring, (list) => (list ?? []).map((r) => (r.id === item.id ? { ...r, active: next } : r)))
+    patchQuery<RecurringBuy[]>(QK.recurring, (list) => (list ?? []).map((r) => (r.id === item.id ? { ...r, active: next } : r)))
     try {
       await api.crypto.recurring.update(item.id, { active: next })
       toast(next ? 'Achat récurrent repris' : 'Achat récurrent mis en pause')
     } catch (err) {
-      setQueryData<RecurringBuy[]>(QK.recurring, (list) => (list ?? []).map((r) => (r.id === item.id ? { ...r, active: !next } : r)))
+      patchQuery<RecurringBuy[]>(QK.recurring, (list) => (list ?? []).map((r) => (r.id === item.id ? { ...r, active: !next } : r)))
       toast(err instanceof Error ? err.message : 'Modification impossible', 'error')
     }
   }
@@ -77,7 +78,7 @@ export default function RecurringPage() {
     const id = selected.id
     try {
       await removeM.mutate(id)
-      setQueryData<RecurringBuy[]>(QK.recurring, (list) => (list ?? []).filter((r) => r.id !== id))
+      patchQuery<RecurringBuy[]>(QK.recurring, (list) => (list ?? []).filter((r) => r.id !== id))
       setSelectedId(null)
       setStep('view')
       toast('Achat récurrent supprimé')
@@ -94,7 +95,7 @@ export default function RecurringPage() {
   const [amountError, setAmountError] = useState<string | null>(null)
   const createM = useMutation((input: { assetId: string; amount: number; frequency: RecurringFrequency }) => api.crypto.recurring.create(input))
   const assets = useMemo(() => (market.assets ?? []).slice().sort((a, b) => a.rank - b.rank), [market.assets])
-  const chosenAsset = market.byId.get(assetId) ?? assets[0]
+  const chosenAsset = byId.get(assetId) ?? assets[0]
   const amount = parseAmountInput(amountRaw)
   const nextRun = new Date(Date.now() + FREQUENCIES[frequency].days * 86_400_000)
   const openCreate = () => {
@@ -116,7 +117,7 @@ export default function RecurringPage() {
     }
     try {
       const created = await createM.mutate({ assetId: chosenAsset.id, amount: floorTo(amount, 2), frequency })
-      setQueryData<RecurringBuy[]>(QK.recurring, (list) => [...(list ?? []).filter((r) => r.id !== created.id), created])
+      patchQuery<RecurringBuy[]>(QK.recurring, (list) => [...(list ?? []).filter((r) => r.id !== created.id), created])
       setCreateOpen(false)
       toast('Achat récurrent créé')
     } catch (err) {
@@ -187,7 +188,7 @@ export default function RecurringPage() {
             <dl className={styles.lines}>
               <div className={styles.line}>
                 <dt className={styles.lineLabel}>Actif</dt>
-                <dd className={styles.lineValue}>{market.byId.get(selected.assetId)?.name ?? selected.symbol}</dd>
+                <dd className={styles.lineValue}>{byId.get(selected.assetId)?.name ?? selected.symbol}</dd>
               </div>
               <div className={styles.line}>
                 <dt className={styles.lineLabel}>Montant</dt>
@@ -205,7 +206,7 @@ export default function RecurringPage() {
               </div>
               <div className={styles.line}>
                 <dt className={styles.lineLabel}>Écart (spread)</dt>
-                <dd className={styles.lineValue}>{formatRate(market.byId.get(selected.assetId)?.spreadPct ?? 0, locale)}</dd>
+                <dd className={styles.lineValue}>{formatRate(byId.get(selected.assetId)?.spreadPct ?? 0, locale)}</dd>
               </div>
               <div className={styles.line}>
                 <dt className={styles.lineLabel}>Frais</dt>

@@ -8,11 +8,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { AmountMode, ApiError, Order, QuoteRequest, Quote } from '@/api/types'
 import { Button, ErrorState, Money, PageHeader, SkeletonAmount } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useHoldings, useTransaction } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
 import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
-import { useAsset, useMutation, useSettings } from '@/store'
+import { useMutation, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import { floorTo, formatRate, toKeypadRaw } from './cryptoFormat'
+import { useLiveAccount, useLiveAsset, useLiveHoldings, useLiveTransaction } from './hooks'
 import styles from './TradePage.module.css'
 
 type Side = 'buy' | 'sell'
@@ -28,7 +29,7 @@ function FeeLine({ label, value, strong = false }: { label: string; value: React
 
 function TradeSuccess({ order, side, assetId }: { order: Order; side: Side; assetId: string }) {
   const { locale } = useSettings()
-  const tx = useTransaction(order.transactionId)
+  const tx = useLiveTransaction(order.transactionId)
   const settled = tx.data?.status === 'posted'
   const failed = tx.data?.status === 'failed' || tx.data?.status === 'reversed'
   const q = order.quote
@@ -57,10 +58,10 @@ export default function TradePage({ side }: { side: Side }) {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const { locale } = useSettings()
-  const assetQ = useAsset(id)
+  const assetQ = useLiveAsset(id)
   const asset = assetQ.data
-  const checking = useAccount('checking')
-  const holdings = useHoldings()
+  const checking = useLiveAccount('checking')
+  const holdings = useLiveHoldings()
   const holding = holdings.data?.find((h) => h.assetId === id)
   const hasHolding = !!holding && holding.quantity > 0
 

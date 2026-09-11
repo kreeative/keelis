@@ -7,11 +7,12 @@ import { useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ApiError, CryptoSendPreview, CryptoSendRequest, MoneyMovementResult } from '@/api/types'
 import { Button, ErrorState, Field, Icon, PageHeader, SegmentedControl, SkeletonAmount } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen, useHoldings } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
 import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
-import { useAsset, useMutation, useSettings, useToast } from '@/store'
+import { useMutation, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { abbreviateAddress, floorTo, toKeypadRaw } from './cryptoFormat'
+import { useLiveAsset, useLiveHoldings } from './hooks'
 import styles from './CryptoSendPage.module.css'
 
 function FeeLine({ label, value, sub, strong = false }: { label: string; value: ReactNode; sub?: ReactNode; strong?: boolean }) {
@@ -30,9 +31,9 @@ export default function CryptoSendPage() {
   const { id = '' } = useParams()
   const { locale } = useSettings()
   const { toast } = useToast()
-  const assetQ = useAsset(id)
+  const assetQ = useLiveAsset(id)
   const asset = assetQ.data
-  const holdings = useHoldings()
+  const holdings = useLiveHoldings()
   const holding = holdings.data?.find((h) => h.assetId === id)
 
   const [networkId, setNetworkId] = useState<string | null>(null)
