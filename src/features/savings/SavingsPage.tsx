@@ -3,10 +3,10 @@
  * Desktop ≥1120px: main column (hero, chart, activité) + sticky side column (intérêts, objectifs).
  */
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { api, IDS } from '@/api'
 import type { ChartRange, PriceHistory, PricePoint, SavingsGoal } from '@/api/types'
-import { AmountDisplay, Badge, Button, Card, Chart, EmptyState, ErrorState, Icon, List, Money, ProgressBar, QuickActions, SegmentedControl, Skeleton, SkeletonRow } from '@/components'
+import { AmountDisplay, Badge, Button, Card, Chart, EmptyState, ErrorState, Icon, List, Money, ProgressBar, QuickActions, SectionHeader, SegmentedControl, Skeleton, SkeletonRow } from '@/components'
 import { TransactionRow, useAccount, useGoals, useSavings, useTransactions } from '@/features/shared'
 import { MASKED, formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
@@ -78,13 +78,7 @@ function GoalsPanel({ goals, loading, error, onRetry, free }: { goals: SavingsGo
   const navigate = useNavigate()
   return (
     <section className={styles.section} aria-busy={loading || undefined}>
-      <div className={styles.sectionHead}>
-        <h2 className="t-label">Objectifs</h2>
-        <Link to="/epargne/objectifs/nouveau" className={styles.seeAll}>
-          Nouveau
-          <Icon name="plus" size={16} />
-        </Link>
-      </div>
+      <SectionHeader title="Objectifs" action={{ label: 'Nouvel objectif', to: '/epargne/objectifs/nouveau', icon: 'plus', variant: 'circle' }} />
       {loading ? (
         <div className={styles.goals}>
           <Skeleton shape="card" height={92} />
@@ -211,13 +205,7 @@ export default function SavingsPage() {
           </div>
 
           <section className={styles.section} aria-busy={activity.loading || undefined}>
-            <div className={styles.sectionHead}>
-              <h2 className="t-label">Activité</h2>
-              <Link to="/activite" className={styles.seeAll}>
-                Tout voir
-                <Icon name="arrow-right" size={16} />
-              </Link>
-            </div>
+            <SectionHeader title="Activité" action={{ label: 'Tout voir', to: '/activite', icon: 'arrow-right' }} />
             {activity.loading ? (
               <SkeletonRow count={RECENT_COUNT} />
             ) : activity.error && !recent ? (

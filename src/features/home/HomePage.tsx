@@ -4,10 +4,10 @@
  * Mobile: one column, same order.
  */
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, PriceHistory } from '@/api/types'
-import { AmountDisplay, Button, Card, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SegmentedControl, SkeletonRow } from '@/components'
+import { AmountDisplay, Button, Card, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SectionHeader, SegmentedControl, SkeletonRow } from '@/components'
 import { TransactionRow, useAccounts, useTransactions } from '@/features/shared'
 import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
@@ -126,13 +126,7 @@ export default function HomePage() {
           />
 
           <section className={styles.section} aria-busy={recent.loading || undefined}>
-            <div className={styles.sectionHead}>
-              <h2 className="t-label">Activité récente</h2>
-              <Link to="/activite" className={styles.seeAll}>
-                Tout voir
-                <Icon name="arrow-right" size={16} />
-              </Link>
-            </div>
+            <SectionHeader title="Activité récente" action={{ label: 'Tout voir', to: '/activite', icon: 'arrow-right' }} />
             {recent.loading ? (
               <Card padding="md" elevation={1}>
                 <SkeletonRow count={RECENT_COUNT} />

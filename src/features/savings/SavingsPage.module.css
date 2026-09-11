@@ -29,30 +29,6 @@
 .actions { margin-top: var(--sp-6); }
 
 .section { margin-top: var(--sp-6); }
-.sectionHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  min-height: var(--tap);
-  margin-bottom: var(--sp-1);
-}
-.seeAll {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-1);
-  min-height: var(--tap);
-  padding-inline: var(--sp-3);
-  margin-right: calc(-1 * var(--sp-3));
-  border-radius: var(--r-field);
-  color: var(--accent);
-  font-size: var(--fs-small);
-  font-weight: var(--fw-medium);
-  white-space: nowrap;
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-}
-.seeAll:hover { background: var(--accent-soft); color: var(--accent-text); }
-.seeAll:focus-visible { box-shadow: var(--focus-ring); }
 
 /* Interest cells */
 .stats {

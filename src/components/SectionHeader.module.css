@@ -1,0 +1,41 @@
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+  margin-bottom: var(--sp-1);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: var(--tap);
+  padding-inline: var(--sp-3);
+  margin-right: calc(-1 * var(--sp-3));
+  border-radius: var(--r-field);
+  color: var(--accent);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.action:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent-text); }
+.action:focus-visible { box-shadow: var(--focus-ring); }
+.action:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Round icon button sitting beside the label. */
+.circle {
+  justify-content: center;
+  width: var(--tap);
+  min-width: var(--tap);
+  padding-inline: 0;
+  margin-right: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface-alt);
+  color: var(--ink-900);
+}
+.circle:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent-text); transform: var(--lift); }
+.circle:active:not(:disabled) { transform: var(--press); }
