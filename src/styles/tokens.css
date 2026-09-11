@@ -117,6 +117,8 @@
 
   --gutter: 20px;          /* mobile */
   --content-max: 1120px;   /* desktop centring */
+  --doc-max: 880px;        /* documentation column (/composants), from the kit's own page */
+  --doc-gap: 72px;         /* rhythm between documentation sections */
   --rail-width: 72px;      /* desktop icon rail */
   --navbar-height: 64px;   /* mobile bottom bar */
   --safe-bottom: env(safe-area-inset-bottom, 0px);

@@ -18,7 +18,7 @@
   justify-content: space-between;
   gap: var(--sp-3);
   padding: var(--sp-3) var(--gutter);
-  max-width: var(--content-max);
+  max-width: var(--doc-max);
   margin-inline: auto;
   width: 100%;
 }
@@ -33,10 +33,12 @@
   margin-left: auto;
 }
 
+/* Documentation canvas: an 880px column with a 72px rhythm between sections — the
+   measurements the reference kit uses for its own component pages. */
 .page {
   padding-inline: var(--gutter);
   padding-block: var(--sp-5) var(--sp-7);
-  max-width: var(--content-max);
+  max-width: var(--doc-max);
   margin-inline: auto;
   width: 100%;
 }
@@ -49,7 +51,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
-  padding-block: var(--sp-6);
+  padding-block: calc(var(--doc-gap) / 2);
   min-width: 0;
   /* the sticky top bar must never cover an anchored section */
   scroll-margin-top: calc(var(--sp-8) + var(--sp-3));
