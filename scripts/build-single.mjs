@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+/**
+ * Builds the app as ONE self-contained HTML file (hash routing, all JS/CSS inlined):
+ *   dist-single/index.html  — standalone page (open directly in a browser)
+ *   dist-single/kaalis.html — body-only variant for hosting in an Artifact wrapper
+ */
+import { execSync } from 'node:child_process'
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+
+const root = new URL('../', import.meta.url).pathname
+execSync('npx vite build --config vite.single.config.ts', { cwd: root, stdio: 'inherit' })
+
+const out = join(root, 'dist-single')
+const assets = join(out, 'assets')
+const original = readFileSync(join(out, 'index.html'), 'utf8')
+const escapeScript = (s) => s.replace(/<\/script/gi, '<\\/script')
+
+let css = ''
+let js = ''
+for (const f of readdirSync(assets)) {
+  const content = readFileSync(join(assets, f), 'utf8')
+  if (f.endsWith('.js')) js += content + '\n'
+  else if (f.endsWith('.css')) css += content + '\n'
+}
+// The theme pre-paint script authored in index.html (first plain <script>)
+const themeScript = (original.match(/<script>([\s\S]*?)<\/script>/) || ['', ''])[1]
+const title = (original.match(/<title>([^<]*)<\/title>/) || [])[1] ?? 'Kaalis'
+
+const head = `<meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>${title}</title>
+    <script>${themeScript}</script>
+    <style>${css}</style>`
+const standalone = `<!doctype html>\n<html lang="fr-CA">\n  <head>\n    ${head}\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module">${escapeScript(js)}</script>\n  </body>\n</html>\n`
+writeFileSync(join(out, 'index.html'), standalone)
+
+// Body-only variant: the artifact host supplies doctype/html/head/body.
+const body = `<title>${title}</title>\n<meta name="color-scheme" content="light dark">\n<style>${css}</style>\n<script>${themeScript}</script>\n<div id="root"></div>\n<script type="module">${escapeScript(js)}</script>\n`
+writeFileSync(join(out, 'kaalis.html'), body)
+console.log(`single-file build: ${(Buffer.byteLength(standalone) / 1024).toFixed(0)} KB (index.html), ${(Buffer.byteLength(body) / 1024).toFixed(0)} KB (kaalis.html)`)

@@ -5,3 +5,4 @@ dist-ssr
 .DS_Store
 e2e/out
 coverage
+dist-single

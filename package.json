@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "check:design": "node scripts/check-design.mjs",
     "e2e": "node e2e/screenshots.mjs",
+    "build:single": "node scripts/build-single.mjs",
     "check": "pnpm typecheck && pnpm test && pnpm check:design"
   },
   "dependencies": {
