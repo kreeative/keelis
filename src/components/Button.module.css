@@ -6,7 +6,8 @@
   gap: var(--sp-2);
   min-height: var(--control-md);
   padding-inline: var(--sp-5);
-  border-radius: var(--r-field);
+  /* The kit's buttons are pills; its fields and cards are not. */
+  border-radius: var(--r-pill);
   font-size: var(--fs-body);
   font-weight: var(--fw-medium);
   letter-spacing: var(--ls-body);

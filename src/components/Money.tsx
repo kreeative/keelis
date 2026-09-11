@@ -6,7 +6,7 @@
  * - privacy masking when balances are hidden
  */
 import type { HTMLAttributes } from 'react'
-import { MASKED, formatMoney, moneyAriaLabel, type MoneyOptions } from '@/lib/format'
+import { formatMoney, maskedMoney, moneyAriaLabel, type MoneyOptions } from '@/lib/format'
 import { useSettings } from '@/store/settings'
 import { cn } from '@/lib/cn'
 import styles from './Money.module.css'
@@ -22,7 +22,7 @@ export interface MoneyProps extends HTMLAttributes<HTMLSpanElement>, MoneyOption
 export function Money({ value, tone = false, unmasked = false, signed, compactCents, maxFraction, currency, className, ...rest }: MoneyProps) {
   const { hidden, locale } = useSettings()
   const masked = hidden && !unmasked
-  const text = masked ? MASKED : formatMoney(value, { locale, signed, compactCents, maxFraction, currency })
+  const text = masked ? maskedMoney({ locale, currency }) : formatMoney(value, { locale, signed, compactCents, maxFraction, currency })
   const label = masked ? 'Montant masqué' : moneyAriaLabel(value, { locale, currency })
   return (
     <span className={cn(styles.money, tone && value > 0 && styles.pos, tone && value < 0 && styles.neg, className)} aria-label={label} {...rest}>
@@ -72,7 +72,7 @@ export interface MoneyDeltaProps extends HTMLAttributes<HTMLSpanElement> {
 /** Same chip, carrying a money amount instead of a percentage (« +100,00 $ ce mois-ci »). */
 export function MoneyDelta({ value, suffix, variant = 'pill', className, ...rest }: MoneyDeltaProps) {
   const { hidden, locale } = useSettings()
-  const text = hidden ? MASKED : `${formatMoney(value, { locale, signed: true })}${suffix ? ` ${suffix}` : ''}`
+  const text = hidden ? maskedMoney({ locale }) : `${formatMoney(value, { locale, signed: true })}${suffix ? ` ${suffix}` : ''}`
   return (
     <span
       className={cn(styles.money, variant === 'pill' && styles.pill, className)}

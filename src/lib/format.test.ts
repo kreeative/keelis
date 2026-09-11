@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatPercent, moneyAriaLabel, parseAmountInput } from './format'
+import { maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatPercent, moneyAriaLabel, parseAmountInput } from './format'
+
+const norm = (v: string) => v.replace(/[\u202f\u00a0]/g, ' ')
 
 const NNBSP = ' '
 const NBSP = ' '
@@ -62,5 +64,12 @@ describe('dates', () => {
 describe('a11y', () => {
   it('produces a long-form label', () => {
     expect(moneyAriaLabel(1234.56, { locale: 'fr-CA' })).toMatch(/dollars canadiens/)
+  })
+})
+
+describe('maskedMoney', () => {
+  it('keeps the currency symbol on the side the locale puts it', () => {
+    expect(norm(maskedMoney({ locale: 'fr-CA' }))).toBe('••••• $')
+    expect(norm(maskedMoney({ locale: 'en-CA' }))).toBe('$•••••')
   })
 })

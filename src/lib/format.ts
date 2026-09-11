@@ -210,7 +210,31 @@ export function percentAriaLabel(value: number, opts: { locale?: Locale } = {}):
 }
 
 /** Mask a balance for privacy mode */
-export const MASKED = '••••'
+export const MASKED = '•••••'
+
+/**
+ * A masked balance that keeps its currency symbol, and keeps it on the side the locale
+ * puts it — « ••••• $ » in fr-CA, « $••••• » in en-CA. The reference kit masks this way
+ * rather than dropping the symbol, which leaves the row unreadable as money.
+ */
+export function maskedMoney(opts: { locale?: Locale; currency?: string } = {}): string {
+  const locale = opts.locale ?? currentLocale
+  const parts = numberFormat(locale, {
+    style: 'currency',
+    currency: opts.currency ?? 'CAD',
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).formatToParts(0)
+  return parts
+    .map((p) => {
+      if (p.type === 'currency') return p.value
+      if (p.type === 'literal') return NBSP
+      if (p.type === 'integer') return MASKED
+      return ''
+    })
+    .join('')
+}
 
 /**
  * An amount written inside a sentence or caption, where <Money> cannot be used.

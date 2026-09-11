@@ -58,7 +58,7 @@ export function AmountDisplay({ value, currency = 'CAD', delta, deltaPct, period
         role="text"
       >
         <span className={styles.number}>{masked ? MASKED : number}</span>
-        {!masked && !unit && (locale === 'fr-CA' ? <span className={styles.currency}>{symbol}</span> : null)}
+        {!unit && locale === 'fr-CA' ? <span className={styles.currency}>{symbol}</span> : null}
         {unit ? <span className={styles.currency}>{unit}</span> : null}
       </div>
       {hasDelta ? (
