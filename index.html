@@ -7,8 +7,9 @@
     <meta name="theme-color" content="#fcfcfc" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#131313" media="(prefers-color-scheme: dark)" />
     <title>Kaalis</title>
-    <!-- Futura where installed (macOS/iOS); the self-hosted Jost stand-in everywhere else. -->
-    <link rel="preload" href="/fonts/jost-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Poppins, self-hosted. Preload the two faces that paint first: body and bold. -->
+    <link rel="preload" href="/fonts/poppins-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script>
       // Apply the stored theme before first paint to avoid a flash.

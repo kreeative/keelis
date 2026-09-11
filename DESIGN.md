@@ -53,19 +53,19 @@ Contrastes vérifiés (oklch → luminance relative, WCAG 2.x) :
 
 L'audit navigateur recalcule ces contrastes sur le rendu réel, en aplatissant les surfaces translucides sur le fond effectivement composé.
 
-## Typographie : Futura
+## Typographie : Poppins
 
 Une seule famille, pour tout, y compris les montants.
 
 ```
---font-sans: "Futura", "Futura PT", "Jost", "Century Gothic", "Avenir Next", "Avenir", sans-serif
+--font-sans: "Poppins", "Jost", "Century Gothic", "Avenir Next", "Avenir", system-ui, sans-serif
 ```
 
-Futura est installée sur macOS et iOS. Partout ailleurs, **Jost** prend le relais : c'est la reprise géométrique libre de Futura, hébergée par nous (`src/styles/fonts.css`, `public/fonts/jost-latin*.woff2`, 43 Ko en police variable). Aucune requête vers un tiers, donc rien à attendre au premier rendu et la démo en fichier unique fonctionne hors ligne, les polices étant intégrées en base64. Century Gothic ferme la marche sur Windows.
+**Poppins**, hébergée par nous sous licence SIL OFL (`src/styles/fonts.css`, `public/fonts/poppins-*.woff2`). Aucune requête vers un tiers, donc rien à attendre au premier rendu et la démo en fichier unique fonctionne hors ligne, les polices étant intégrées en base64. Poppins se distribue en graisses statiques : seules les quatre que le jeu de jetons nomme sont déclarées — 400, 500, 600, 700 — chacune en latin et latin-ext. Ajouter une graisse veut dire ajouter ses deux fichiers.
 
-Les montants restent en Futura avec `font-variant-numeric: tabular-nums`, ce qui garde les colonnes alignées sans changer de famille. `--ls-numeric: -0.01em`.
+Les montants restent dans la même famille avec `font-variant-numeric: tabular-nums`, ce qui garde les colonnes alignées. `--ls-numeric: -0.01em`.
 
-Les chiffres de Futura sont étroits : un contrôle au libellé court a besoin d'un `min-width: var(--tap)` explicite, sinon il passe sous 44 px.
+Un contrôle au libellé court a besoin d'un `min-width: var(--tap)` explicite, sinon il passe sous 44 px.
 
 | Style | Mobile / Bureau | Tracking | Graisse | Classe |
 |---|---|---|---|---|
@@ -107,6 +107,6 @@ Parcours d'argent (`features/shared`) : `AmountEntry` (chiffre héros monospace 
 
 1. Brief « fintech nordique minimaliste » : zéro ombre hors feuilles modales, zéro dégradé, zéro glassmorphism, accent teal.
 2. Remplacé par le système verre et profondeur : glassmorphism, ombres en trois couches, fond ambiant, accent citrine, chiffres en monospace.
-3. Remplacé par l'état actuel : **monochrome intégral** et **Futura**. La matière de verre et la pile d'élévation restent ; la teinte et la monospace disparaissent.
+3. Remplacé par l'état actuel : **monochrome intégral** et **Poppins** (Futura d'abord, puis Poppins sur demande). La matière de verre et la pile d'élévation restent ; la teinte et la monospace disparaissent.
 
 `scripts/check-design.mjs` et l'audit navigateur ont suivi chaque fois. Ce qui n'a jamais changé : tout passe par les tokens, contraste ≥ 4,5:1, cibles ≥ 44 px, texte ≥ 12 px, mode sombre complet, aucune information portée par la seule couleur.

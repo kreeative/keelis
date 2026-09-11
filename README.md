@@ -8,7 +8,7 @@ Application fintech mobile-first (web app responsive) qui réunit trois produits
 | **Kaalis Épargne** | compte à intérêt élevé (APY 4,00 %) avec objectifs |
 | **Kaalis Crypto** | achat, vente, détention, envoi et réception de 8 actifs, spread affiché avant chaque ordre |
 
-Style : monochrome intégral et Futura, sur une matière de verre posée sur un fond de couleur neutre. Le chiffre est le héros — les montants sont en graisse 900, plus lourds que n'importe quel titre. Tout le système visuel est défini par `src/styles/tokens.css`, et `DESIGN.md` en détaille les mesures.
+Style : monochrome intégral et Poppins, sur une matière de verre translucide posée sur un champ de dégradés neutres. Le chiffre est le héros — les montants sont en graisse 700, à l'échelle d'affichage. Tout le système visuel est défini par `src/styles/tokens.css`, et `DESIGN.md` en détaille les mesures.
 
 ## Déployer
 

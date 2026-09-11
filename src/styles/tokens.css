@@ -48,7 +48,9 @@
   --glass-border: rgba(255, 255, 255, 0.9);
   /* The hairline that reads as the cut edge of the pane, under the top highlight. */
   --glass-edge: rgba(0, 0, 0, 0.06);
-  --glass-blur: blur(20px) saturate(1.05);
+  /* The lit corner of a pane. Layered over the translucent fill, not replacing it. */
+  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
+  --glass-blur: blur(24px) saturate(1.08);
   /* Opaque stand-ins for browsers without backdrop-filter, and for print. */
   --glass-fallback: oklch(0.995 0 0);
   --glass-fallback-strong: oklch(1 0 0);
@@ -86,10 +88,10 @@
      was indistinguishable from an opaque one: the material was there, the thing it was
      supposed to refract was not. Deeper fields and a lighter pane make the translucency
      visible — the audit measures composited contrast, so the text stays legible. */
-  --ambient-1: oklch(0.805 0 0 / 0.88);
-  --ambient-2: oklch(0.885 0 0 / 0.80);
-  --ambient-3: oklch(0.765 0 0 / 0.82);
-  --ambient-4: oklch(0.835 0 0 / 0.68);
+  --ambient-1: oklch(0.745 0 0 / 0.92);
+  --ambient-2: oklch(0.855 0 0 / 0.86);
+  --ambient-3: oklch(0.705 0 0 / 0.88);
+  --ambient-4: oklch(0.795 0 0 / 0.76);
 
   /* Derived */
   --backdrop: oklch(0.17 0 0 / 0.35);
@@ -99,13 +101,12 @@
   --sheet-shadow: 0 -1px 40px oklch(0.17 0 0 / 0.10);
 
   /* ---- Typography ---- */
-  /* Futura where it is installed (macOS, iOS); Jost is the geometric stand-in loaded as a
-     webfont everywhere else, then Century Gothic on Windows. */
-  --font-sans: "Futura", "Futura PT", "Jost", "Century Gothic", "Avenir Next", "Avenir", sans-serif;
+  /* Poppins, self-hosted (see fonts.css). No system fallback comes close to it, so the
+     stack lists geometric neighbours only as a last resort before the platform sans. */
+  --font-sans: "Poppins", "Jost", "Century Gothic", "Avenir Next", "Avenir", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
-  /* Financial figures stay in Futura. The kit's money style ($) is weight 900 with
-     positive tracking — the figure outweighs every heading on the screen. Its scale tops
-     out at 20px, so the tracking is eased at display sizes rather than extrapolated. */
+  /* Financial figures use the same family with tabular figures, so columns line up.
+     Bold, not black: at display sizes the size already carries the hierarchy. */
   --font-numeric: var(--font-sans);
   --fw-numeric: 700;
   --ls-numeric: 0.02em;
@@ -228,6 +229,7 @@
   --glass-bg-soft: rgba(19, 19, 19, 0.42);
   --glass-border: rgba(255, 255, 255, 0.16);
   --glass-edge: rgba(0, 0, 0, 0.5);
+  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
   --fill-subtle: oklch(0.97 0 0 / 0.14);
   --glass-fallback: oklch(0.185 0 0);
   --glass-fallback-strong: oklch(0.215 0 0);
@@ -247,10 +249,10 @@
     0 4px 8px rgba(0, 0, 0, 0.32),
     0 16px 32px -6px rgba(0, 0, 0, 0.44),
     0 40px 72px -16px rgba(0, 0, 0, 0.58);
-  --ambient-1: oklch(0.40 0 0 / 0.72);
-  --ambient-2: oklch(0.245 0 0 / 0.62);
-  --ambient-3: oklch(0.43 0 0 / 0.66);
-  --ambient-4: oklch(0.32 0 0 / 0.55);
+  --ambient-1: oklch(0.47 0 0 / 0.80);
+  --ambient-2: oklch(0.225 0 0 / 0.70);
+  --ambient-3: oklch(0.50 0 0 / 0.76);
+  --ambient-4: oklch(0.36 0 0 / 0.64);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -280,6 +282,7 @@
     --glass-bg-soft: rgba(19, 19, 19, 0.42);
     --glass-border: rgba(255, 255, 255, 0.16);
     --glass-edge: rgba(0, 0, 0, 0.5);
+    --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
     --fill-subtle: oklch(0.97 0 0 / 0.14);
   --glass-fallback: oklch(0.185 0 0);
     --glass-fallback-strong: oklch(0.215 0 0);
@@ -299,10 +302,10 @@
       0 4px 8px rgba(0, 0, 0, 0.32),
       0 16px 32px -6px rgba(0, 0, 0, 0.44),
       0 40px 72px -16px rgba(0, 0, 0, 0.58);
-    --ambient-1: oklch(0.40 0 0 / 0.72);
-    --ambient-2: oklch(0.245 0 0 / 0.62);
-    --ambient-3: oklch(0.43 0 0 / 0.66);
-    --ambient-4: oklch(0.32 0 0 / 0.55);
+    --ambient-1: oklch(0.47 0 0 / 0.80);
+    --ambient-2: oklch(0.225 0 0 / 0.70);
+    --ambient-3: oklch(0.50 0 0 / 0.76);
+    --ambient-4: oklch(0.36 0 0 / 0.64);
   }
 }
 

@@ -21,10 +21,10 @@ Kaalis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three p
 - Text ≥ 12px (`--fs-label`). Tap targets ≥ 44px (`--tap`).
 - Motion 150–250 ms via `--dur-*` and `--ease`; nothing bounces. Reduced motion is handled globally.
 - Every screen has one dominant number (`AmountDisplay`) or one dominant title (`PageHeader` / `.t-h1`).
-- **The typeface is Futura** (`--font-sans`), with the self-hosted geometric stand-in Jost (`src/styles/fonts.css`, `public/fonts/`) wherever Futura is not installed, then Century Gothic. Never add a third-party font request. Financial figures use `--font-numeric` (the same family) with `tabular-nums` so columns still align. The reference kit is set in Futura too, and its Foundations page is the authority for the scale.
-- **Headings track positive, running text tracks negative.** Measured from the kit's named styles: H1 22/29/+1px, H3 16/21/+0.5, H4 14/19/+0.5, H6 11/15/+1.5 uppercase, body/large 16/26/−0.25, body/med 14/20/0. Headings are weight 700 (Futura Demi Bold).
-- **Money is weight 700** (`--fw-numeric`) — bold, not black. Futura at 900 turns a balance into a slab; the size already carries the hierarchy, so the weight does not have to. It applies through `Money`, `AmountDisplay`, `.t-display`, `.figures`, `AmountEntry` and `ListRow` values; change the token, never a component.
-- Futura's figures are narrow: give short controls an explicit `min-width: var(--tap)` or they fall under 44px.
+- **The typeface is Poppins** (`--font-sans`), self-hosted under SIL OFL in `src/styles/fonts.css` and `public/fonts/`. Never add a third-party font request — the offline and single-file builds depend on it. Poppins ships as static weights, so only the four the token layer names are declared (400 / 500 / 600 / 700); adding a weight means adding its two faces. Financial figures use the same family with `tabular-nums` so columns still align.
+- **Headings track positive, running text tracks negative.** Measured from the kit's named styles: H1 22/29/+1px, H3 16/21/+0.5, H4 14/19/+0.5, H6 11/15/+1.5 uppercase, body/large 16/26/−0.25, body/med 14/20/0. Headings are weight 700.
+- **Money is weight 700** (`--fw-numeric`) — bold, not black. 900 turns a balance into a slab; the size already carries the hierarchy, so the weight does not have to. It applies through `Money`, `AmountDisplay`, `.t-display`, `.figures`, `AmountEntry` and `ListRow` values; change the token, never a component.
+- Give short controls an explicit `min-width: var(--tap)` so they never fall under 44px.
 - The spacing scale is the kit's: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 (`--sp-1`…`--sp-8`, plus 96 for documentation). The screen's side margin is `--gutter` — 16px on mobile, the kit's own value.
 - Radii follow the kit's scale (2 / 4 / 8 / 12 / 16 / 24 / 32): `--r-card` 16px for a card, `--r-panel` 24px for a container that holds cards, `--r-field` 16px for inner elements, `--r-sheet` 32px, `--r-pill` for pills and buttons.
 - **Three text roles, three classes, no improvising.** `.t-section` is a section's title (14/18, 700, uppercase, `--ls-section` = −0.002em, full ink — all four from the kit's own title component; uppercase at 14px tracks essentially not at all, and the Foundations H6's +0.14em belongs to an 11px style, not this one) — `SectionHeader` and any bare heading a screen writes both use it, so they cannot drift apart. `.t-name` names a value below it (« Solde total », « Chèque », « Quantité ») — 14px, sentence case, `--ink-600`: it labels the figure, it does not shout over it. `.t-label` (12px, uppercase, tracked +0.135em) is for true micro-annotations only — form labels, column heads. A page title is never `.t-label`.
@@ -52,7 +52,7 @@ so if `/mcp` does not list Figma, start a fresh session rather than retrying.
 
 Take structure from it — component anatomy, spacing, states, screen composition. Do NOT take
 its wordmark, its cream ground, its accent hues or its typeface: Kaalis is monochrome and
-set in Futura, and those two decisions outrank the kit.
+set in Poppins, and those two decisions outrank the kit.
 
 ## Architecture
 - `src/api/types.ts` — the `KaalisApi` contract. `src/api/mock/` implements it (latency, events, price ticks, optimistic settlement). Screens import `api` from `@/api` only.

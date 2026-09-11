@@ -87,12 +87,15 @@ img, svg {
 
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
-    background: var(--glass-bg);
+    /* Fill and sheen are separate layers: the colour is the pane's translucency, the
+       image is the light catching its top-left corner. */
+    background-color: var(--glass-bg);
+    background-image: var(--glass-sheen);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
   }
-  .glass-strong { background: var(--glass-bg-strong); }
-  .glass-soft { background: var(--glass-bg-soft); }
+  .glass-strong { background-color: var(--glass-bg-strong); }
+  .glass-soft { background-color: var(--glass-bg-soft); }
 }
 
 .elev-1 { box-shadow: var(--elev-1); }

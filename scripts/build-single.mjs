@@ -25,7 +25,7 @@ for (const f of readdirSync(assets)) {
 }
 
 // Fonts are served from /fonts/ in the app; a single HTML file has no such path, so
-// embed them. ~43 KB of woff2 keeps Futura's stand-in working offline.
+// embed them. The eight Poppins faces keep the typeface working offline.
 css = css.replace(/url\((['"]?)(?:\.\.)?\/fonts\/([^'")]+)\1\)/g, (whole, _q, name) => {
   const file = join(root, 'public', 'fonts', name)
   if (!existsSync(file)) return whole
