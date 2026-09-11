@@ -148,13 +148,15 @@ img, svg {
 .t-warn { color: var(--warn); }
 .t-accent { color: var(--accent); }
 /* A section's title. One definition, shared by <SectionHeader> and by the bare headings
-   that screens write themselves — before this they were two different sizes. The spec is
-   the kit's own section title: 14/18, weight 700, uppercase, full ink. */
+   that screens write themselves. All four values come from the same place — the kit's own
+   title component: 14/18, weight 700, uppercase, full ink, tracking -0.002em. That last
+   one is near zero, not the +0.14em of the Foundations H6; that style is 11px, and taking
+   three values from the component and the fourth from a different style was the mistake. */
 .t-section {
   font-size: var(--fs-small);
   line-height: 18px;
   font-weight: var(--fw-bold);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--ls-section);
   text-transform: uppercase;
   color: var(--ink-900);
 }
