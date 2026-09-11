@@ -144,8 +144,11 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   /* ---- Radii ---- */
-  --r-field: 16px;   /* inner elements: inputs, buttons, list tiles */
-  --r-card: 24px;    /* cards and panels */
+  /* The kit puts every card at 16px and reserves 24px for the large container that holds
+     them (its radius page runs 2 / 4 / 8 / 12 / 16 / 24 / 32). */
+  --r-field: 16px;   /* inner elements: inputs, list tiles */
+  --r-card: 16px;    /* cards */
+  --r-panel: 24px;   /* a container holding cards */
   --r-sheet: 32px;  /* on the kit's radius scale: 2 / 4 / 8 / 12 / 16 / 24 / 32 */
   --r-pill: 999px;
 
