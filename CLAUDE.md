@@ -22,8 +22,8 @@ Kaalis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three p
 - Motion 150–250 ms via `--dur-*` and `--ease`; nothing bounces. Reduced motion is handled globally.
 - Every screen has one dominant number (`AmountDisplay`) or one dominant title (`PageHeader` / `.t-h1`).
 - **The typeface is Futura** (`--font-sans`), with the self-hosted geometric stand-in Jost (`src/styles/fonts.css`, `public/fonts/`) wherever Futura is not installed, then Century Gothic. Never add a third-party font request. Financial figures use `--font-numeric` (the same family) with `tabular-nums` so columns still align. The reference kit is set in Futura too, and its Foundations page is the authority for the scale.
-- **Tracking is positive at text sizes.** The kit tracks +0.25px at 20px, +0.5px at 14–16px and +1.5px on 11px uppercase. Negative tracking is a Helvetica reflex and crowds Futura's geometric sidebearings — only `display` and `h1` keep a restrained negative. Uppercase needs real air: `--ls-label` is 0.135em.
-- Headings use Demi Bold (`--fw-demi`, 600), the kit's heading weight — not Medium.
+- **Headings track positive, running text tracks negative.** Measured from the kit's named styles: H1 22/29/+1px, H3 16/21/+0.5, H4 14/19/+0.5, H6 11/15/+1.5 uppercase, body/large 16/26/−0.25, body/med 14/20/0. Headings are weight 700 (Futura Demi Bold).
+- **Money is weight 900** (`--fw-numeric`), the kit's `$` style — the figure outweighs every heading on the screen. It applies through `Money`, `AmountDisplay`, `.t-display`, `.figures`, `AmountEntry` and `ListRow` values. Never set a money figure at a heading weight.
 - Futura's figures are narrow: give short controls an explicit `min-width: var(--tap)` or they fall under 44px.
 - Radii: `--r-card` 24px for cards and panels, `--r-field` 16px for inner elements, `--r-pill` for pills.
 - **Section titles** (`SectionHeader`) carry the kit's own title spec: 14px / 18px, weight 700, uppercase, full `--ink-900`. Inline labels stay on `.t-label` (12px, weight 500, `--ink-400`) — titles assert, labels recede. Do not collapse the two.

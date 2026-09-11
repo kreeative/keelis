@@ -104,7 +104,7 @@ img, svg {
   font-size: var(--fs-display);
   line-height: var(--lh-display);
   letter-spacing: var(--ls-numeric);
-  font-weight: var(--fw-display);
+  font-weight: var(--fw-numeric);
   font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
 }
@@ -152,6 +152,7 @@ img, svg {
 /* Financial figures: monospace, tight, high contrast. */
 .figures {
   font-family: var(--font-numeric);
+  font-weight: var(--fw-numeric);
   font-variant-numeric: tabular-nums;
   letter-spacing: var(--ls-numeric);
 }

@@ -40,6 +40,10 @@
 .lg {
   min-height: var(--control-lg);
   padding-inline: var(--sp-6);
+  /* the kit's button/large: 18/24, Demi Bold */
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: var(--fw-bold);
 }
 .block {
   width: 100%;

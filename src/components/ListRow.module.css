@@ -22,7 +22,7 @@
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .title { font-size: var(--fs-body); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .subtitle { font-size: var(--fs-small); color: var(--ink-600); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.value { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; font-family: var(--font-numeric); letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
+.value { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; font-family: var(--font-numeric); font-weight: var(--fw-numeric); letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .valueMain { font-size: var(--fs-body); line-height: 1.3; }
 .valueSub { font-size: var(--fs-small); color: var(--ink-600); line-height: 1.3; }
 .wrap .title,
