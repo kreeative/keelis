@@ -25,6 +25,20 @@ Kaalis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three p
 - Futura's figures are narrow: give short controls an explicit `min-width: var(--tap)` or they fall under 44px.
 - Radii: `--r-card` 24px for cards and panels, `--r-field` 16px for inner elements, `--r-pill` for pills.
 
+## Design source
+The visual reference is a duplicated copy of the Wealthsimple 2025 UI kit, in the owner's
+Figma drafts:
+
+    https://www.figma.com/design/LEKUzfrzrGOCBBbGMvGK2z/Wealthsimple-Design-System-2025-%7C-UI-Kit--Community---Copy-?node-id=26-692
+
+Read it with the Figma MCP tools (`get_design_context`, `get_variable_defs`, `get_screenshot`)
+— fileKey `LEKUzfrzrGOCBBbGMvGK2z`, nodeId `26:692`. The server is resolved at session start,
+so if `/mcp` does not list Figma, start a fresh session rather than retrying.
+
+Take structure from it — component anatomy, spacing, states, screen composition. Do NOT take
+its wordmark, its cream ground, its accent hues or its typeface: Kaalis is monochrome and
+set in Futura, and those two decisions outrank the kit.
+
 ## Architecture
 - `src/api/types.ts` — the `KaalisApi` contract. `src/api/mock/` implements it (latency, events, price ticks, optimistic settlement). Screens import `api` from `@/api` only.
 - `src/store/` — `useQuery` (cache; data never drops to undefined during refetch), `useMutation`, `QK` query keys, `useSession` (auth + PIN lock), `useSettings` (theme / locale / hidden balances), `useToast`, `useMarket` / `useAsset` (live prices), `useOnline`.
