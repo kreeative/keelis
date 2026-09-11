@@ -1,0 +1,14 @@
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--ink-900);
+  flex-shrink: 0;
+}
+/* Overlapping an icon: a ring of the surface separates it from the glyph beneath. */
+.corner {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  box-shadow: 0 0 0 2px var(--surface);
+}

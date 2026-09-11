@@ -120,13 +120,6 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--r-pill);
-  background: var(--accent);
-  flex-shrink: 0;
-}
 
 .side {
   display: none;

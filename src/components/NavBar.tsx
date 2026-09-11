@@ -9,6 +9,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { useSession, useSettings } from '@/store'
 import { Icon, type IconName } from './Icon'
+import { StatusDot } from './StatusDot'
 import { Wordmark } from './Wordmark'
 import styles from './NavBar.module.css'
 
@@ -41,8 +42,10 @@ function RailLink({ item, badge }: { item: NavItem; badge?: boolean }) {
   return (
     <li>
       <NavLink to={item.to} end={item.end} className={({ isActive }) => cn(styles.railLink, isActive && styles.railActive)} aria-label={item.label}>
-        <Icon name={item.icon} />
-        {badge ? <span className={styles.railDot} aria-hidden="true" /> : null}
+        <span className={styles.railIcon}>
+          <Icon name={item.icon} />
+          {badge ? <StatusDot corner /> : null}
+        </span>
         <span className={styles.tip} aria-hidden="true">
           {item.label}
         </span>
@@ -68,7 +71,7 @@ export function NavBar({ unread = 0 }: { unread?: number }) {
               <NavLink to={item.to} end={item.end} className={({ isActive }) => cn(styles.barLink, isActive && styles.barActive)}>
                 <span className={styles.barIcon}>
                   <Icon name={item.icon} />
-                  {item.to === '/profil' && unread > 0 ? <span className={styles.barDot} aria-hidden="true" /> : null}
+                  {item.to === '/profil' && unread > 0 ? <StatusDot corner /> : null}
                 </span>
                 <span className={styles.barLabel}>{item.label}</span>
               </NavLink>

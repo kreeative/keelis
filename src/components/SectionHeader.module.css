@@ -1,3 +1,17 @@
+/* Section title, from the kit's own spec: 14px / 18px, weight 700, uppercase, full ink —
+   a stated heading rather than a muted grey label. Its tracking is -0.002em there, which is
+   effectively zero; Futura's caps are wider than Circular's and crowd at zero, so this keeps
+   a hair of air instead. */
+.title {
+  font-size: var(--fs-small);
+  line-height: 18px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink-900);
+  margin: 0;
+}
+
 .head {
   display: flex;
   align-items: center;

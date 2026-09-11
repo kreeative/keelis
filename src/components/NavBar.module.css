@@ -34,16 +34,6 @@
 .barLink:focus-visible { box-shadow: var(--focus-ring); }
 .barActive { color: var(--ink-900); }
 .barIcon { position: relative; display: inline-flex; }
-.barDot {
-  position: absolute;
-  top: 0;
-  right: -2px;
-  width: 8px;
-  height: 8px;
-  border-radius: var(--r-pill);
-  background: var(--accent);
-  outline: 2px solid var(--surface);
-}
 .barLabel { font-size: var(--fs-nav); line-height: 1.2; letter-spacing: 0.01em; }
 
 /* ---------- Desktop: icon rail ---------- */
@@ -107,16 +97,9 @@
   .railLink:focus-visible { box-shadow: var(--focus-ring); }
   .railActive { background: var(--surface-alt); color: var(--ink-900); }
 
-  .railDot {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 8px;
-    height: 8px;
-    border-radius: var(--r-pill);
-    background: var(--accent);
-    outline: 2px solid var(--surface);
-  }
+
+  /* The dot anchors to the glyph's corner, not to the 44px control around it. */
+  .railIcon { position: relative; display: inline-flex; }
 
   .railAvatar { color: var(--ink-600); }
   .initials {

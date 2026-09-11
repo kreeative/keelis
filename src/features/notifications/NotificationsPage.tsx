@@ -5,7 +5,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, type AppNotification, type NotificationKind } from '@/api'
-import { Button, EmptyState, ErrorState, Icon, ListRow, PageHeader, SkeletonRow, type IconName } from '@/components'
+import { Button, EmptyState, ErrorState, Icon, ListRow, PageHeader, SkeletonRow, type IconName, StatusDot } from '@/components'
 import { useNotifications } from '@/features/shared'
 import { dayKey, formatDayHeading, formatRelative } from '@/lib/format'
 import { QK, invalidate, setQueryData, useSettings, useToast } from '@/store'
@@ -98,7 +98,7 @@ export default function NotificationsPage() {
                           <span className={cn(styles.title, !n.read && styles.unread)}>{n.title}</span>
                           <span className={styles.meta}>
                             <span className={styles.time}>{formatRelative(n.date, { locale })}</span>
-                            {n.read ? null : <span className={styles.dot} aria-label="Non lue" role="img" />}
+                            {n.read ? null : <StatusDot />}
                           </span>
                         </span>
                         <span className={styles.body}>{n.body}</span>
