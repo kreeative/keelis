@@ -1,16 +1,19 @@
 /**
- * Ajouter des fonds — deux temps : d’abord d’où vient l’argent et où il va,
- * ensuite combien. Les frais, la limite quotidienne et le délai sont affichés
- * avant la confirmation ; la confirmation mène à la page de statut.
+ * Ajouter des fonds. Sur mobile, deux temps : d’abord d’où vient l’argent et où il va,
+ * ensuite combien. À partir de 1024 px — le point où le kit demande de regrouper une
+ * tâche plutôt que de la dérouler, parce qu’un clavier et une souris vont plus vite
+ * qu’un assistant — les trois champs tiennent dans un seul formulaire.
+ * Les frais, la limite quotidienne et le délai sont affichés avant la confirmation ;
+ * la confirmation mène à la page de statut.
  */
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, IDS } from '@/api'
 import { ApiError, type AccountDetails, type FundingSource } from '@/api/types'
-import { Badge, Button, EmptyState, ErrorState, Icon, List, ListRow, Money, PageHeader, SegmentedControl, Sheet, Skeleton, SkeletonRow, type IconName } from '@/components'
+import { Badge, Button, Callout, ChoiceList, EmptyState, ErrorState, Icon, List, ListRow, Money, PageHeader, SegmentedControl, Sheet, Skeleton, SkeletonRow, type IconName } from '@/components'
 import { AmountEntry, ConfirmSheet, useAccounts } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
-import { QK, useQuery, useSettings, useToast } from '@/store'
+import { QK, useLargeScreen, useQuery, useSettings, useToast } from '@/store'
 import styles from './AddFundsPage.module.css'
 
 type Destination = 'cheque' | 'epargne'
@@ -62,6 +65,10 @@ export default function AddFundsPage() {
   const [pending, setPending] = useState(false)
   const [submitError, setSubmitError] = useState<ApiError | null>(null)
   const [wireOpen, setWireOpen] = useState(false)
+  const [sourceError, setSourceError] = useState<string | null>(null)
+
+  /** The kit's « large » breakpoint: group the steps instead of stepping through them. */
+  const grouped = useLargeScreen()
 
   const target = DESTINATIONS.find((d) => d.value === destination) ?? DESTINATIONS[0]!
   const account = accounts.data?.find((a) => a.id === target.accountId)
@@ -75,11 +82,16 @@ export default function AddFundsPage() {
   const choose = (id: string) => {
     setSourceId(id)
     setAmountError(null)
+    setSourceError(null)
     setSubmitError(null)
   }
 
   const validate = (): boolean => {
-    if (!source) return false
+    if (!source) {
+      setSourceError('Choisissez une provenance.')
+      return false
+    }
+    setSourceError(null)
     if (!(value > 0)) {
       setAmountError('Entrez un montant.')
       return false
@@ -135,11 +147,11 @@ export default function AddFundsPage() {
 
   return (
     <div className={styles.page}>
-      <PageHeader close back={-1} title="Ajouter des fonds" eyebrow={`Étape ${source ? 2 : 1} sur 2`} />
+      <PageHeader close back={-1} title="Ajouter des fonds" eyebrow={grouped ? undefined : `Étape ${source ? 2 : 1} sur 2`} />
 
       <div className={styles.layout}>
         <div className={styles.main}>
-          {source ? (
+          {source && !grouped ? (
             <section className={styles.chosen} aria-label="Source sélectionnée">
               <Badge tone="neutral" icon={<Icon name={SOURCE_ICONS[source.kind]} size={14} />}>
                 {source.label}
@@ -148,7 +160,9 @@ export default function AddFundsPage() {
                 Changer
               </Button>
             </section>
-          ) : (
+          ) : null}
+
+          {!source || grouped ? (
             <>
               <section className={styles.block} aria-labelledby="funds-destination">
                 <h2 id="funds-destination" className="t-label">
@@ -173,6 +187,25 @@ export default function AddFundsPage() {
                   <SkeletonRow count={4} />
                 ) : sources.data && sources.data.length === 0 ? (
                   <EmptyState compact message="Aucune source de fonds n’est reliée à votre compte pour l’instant." />
+                ) : grouped ? (
+                  /* Everything is on screen at once, so the list keeps its selection
+                     visible rather than navigating away from it. */
+                  <ChoiceList
+                    label="Provenance des fonds"
+                    value={sourceId}
+                    onChange={choose}
+                    options={(sources.data ?? []).map((s) => ({
+                      value: s.id,
+                      title: s.label,
+                      subtitle: `${s.mask} · ${s.eta}`,
+                      label: `${s.label}, ${s.mask}, ${s.eta}`,
+                      leading: (
+                        <span className={styles.circle} aria-hidden="true">
+                          <Icon name={SOURCE_ICONS[s.kind]} size={20} />
+                        </span>
+                      ),
+                    }))}
+                  />
                 ) : (
                   <List>
                     {sources.data?.map((s) => (
@@ -191,11 +224,12 @@ export default function AddFundsPage() {
                     ))}
                   </List>
                 )}
+                {sourceError ? <Callout icon="circle-alert">{sourceError}</Callout> : null}
               </section>
             </>
-          )}
+          ) : null}
 
-          {source ? (
+          {source || grouped ? (
             <section className={styles.amount} aria-labelledby="funds-amount">
               <h2 id="funds-amount" className="sr-only">
                 Montant à déposer
@@ -208,7 +242,11 @@ export default function AddFundsPage() {
                   setAmountError(null)
                 }}
                 presets={PRESETS}
-                secondary={`Limite quotidienne : ${formatMoney(source.limitPerDay, { locale, compactCents: true })} · Délai : ${source.eta}`}
+                secondary={
+                  source
+                    ? `Limite quotidienne : ${formatMoney(source.limitPerDay, { locale, compactCents: true })} · Délai : ${source.eta}`
+                    : 'La limite et le délai dépendent de la provenance choisie.'
+                }
                 error={amountError}
               />
             </section>
@@ -216,19 +254,19 @@ export default function AddFundsPage() {
         </div>
 
         <aside className={styles.aside}>
-          {source ? (
+          {source || grouped ? (
             <>
               <h2 className="t-label">Aperçu</h2>
               <List>
-                <ListRow static title="Source" subtitle={source.mask} value={source.label} />
+                <ListRow static title="Source" subtitle={source?.mask} value={source ? source.label : '—'} />
                 <ListRow
                   static
                   title="Destination"
                   subtitle={account ? <>Solde : <Money value={account.balance} /></> : undefined}
                   value={target.name.replace('Compte ', '')}
                 />
-                <ListRow static title="Frais" value={<Money value={fee} unmasked />} />
-                <ListRow static title="Délai" value={source.eta} />
+                <ListRow static title="Frais" value={source ? <Money value={fee} unmasked /> : '—'} />
+                <ListRow static title="Délai" value={source ? source.eta : '—'} />
               </List>
               <div className={styles.asideActions}>
                 <Button
@@ -240,7 +278,7 @@ export default function AddFundsPage() {
                 >
                   Continuer
                 </Button>
-                {source.kind === 'wire' ? (
+                {source?.kind === 'wire' ? (
                   <Button variant="ghost" block onClick={() => setWireOpen(true)}>
                     Instructions de virement
                   </Button>

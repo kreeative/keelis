@@ -6,7 +6,7 @@ import { useState, type ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ApiError, CryptoSendPreview, CryptoSendRequest, MoneyMovementResult } from '@/api/types'
-import { Button, ChoiceList, ErrorState, Field, Icon, PageHeader, SkeletonAmount } from '@/components'
+import { Button, Callout, ChoiceList, ErrorState, Field, Icon, PageHeader, SkeletonAmount } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
 import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings, useToast } from '@/store'
@@ -175,10 +175,7 @@ export default function CryptoSendPage() {
         ) : (
           <p className={styles.networkName}>{network.name}</p>
         )}
-        <p className={styles.warning} role="note">
-          <Icon name="circle-alert" size={18} className={styles.warningIcon} />
-          <span>{network.warning}</span>
-        </p>
+        <Callout icon="circle-alert">{network.warning}</Callout>
       </section>
 
       <section className={styles.block} aria-labelledby="address-title">

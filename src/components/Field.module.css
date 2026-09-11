@@ -64,4 +64,15 @@
 }
 .trailing { padding-left: 0; padding-right: var(--sp-2); }
 .hint { font-size: var(--fs-small); color: var(--ink-600); }
-.error { font-size: var(--fs-small); color: var(--neg); }
+/* The glyph is what separates success from error here — both resolve to the same ink. */
+.error,
+.success {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+}
+.error { color: var(--neg); }
+.success { color: var(--pos); }
+.messageIcon { flex-shrink: 0; margin-top: 1px; }

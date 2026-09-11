@@ -9,16 +9,6 @@
 
 .networkName { font-size: var(--fs-body); }
 
-.warning {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--sp-2);
-  font-size: var(--fs-small);
-  line-height: var(--lh-small);
-  color: var(--ink-600);
-}
-.warningIcon { color: var(--warn); flex-shrink: 0; margin-top: 1px; }
-
 .address input { font-family: var(--font-mono); font-size: var(--fs-small); }
 .addressActions { display: inline-flex; align-items: center; gap: var(--sp-1); }
 .scan { color: var(--ink-600); }

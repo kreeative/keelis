@@ -151,7 +151,9 @@
   }
 }
 
-@media (min-width: 1120px) {
+/* The kit's « large » breakpoint, the same one that groups the steps into one form:
+   the two columns arrive with the grouping, not 96px later. */
+@media (min-width: 1024px) {
   .layout {
     max-width: none;
     flex-direction: row;

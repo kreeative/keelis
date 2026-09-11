@@ -19,6 +19,7 @@ import {
   List,
   ListRow,
   ChoiceList,
+  Callout,
   StatGrid,
   Money,
   OfflineBanner,
@@ -66,6 +67,7 @@ const SECTIONS: ReadonlyArray<{ id: string; title: string }> = [
   { id: 'graphiques', title: 'Chart et Sparkline' },
   { id: 'champs', title: 'Field' },
   { id: 'indicateurs', title: 'Badge, Switch, ProgressBar' },
+  { id: 'avertissements', title: 'Callout' },
   { id: 'etats', title: 'États vides, erreurs, toast' },
   { id: 'squelettes', title: 'Skeleton' },
   { id: 'divers', title: 'Avatar, Card, QR, navigation' },
@@ -526,6 +528,9 @@ export default function ComponentsGallery() {
           <Example caption="Field · erreur" fill>
             <Field label="Montant" value="0" readOnly error="Le montant doit être supérieur à 0 $." />
           </Example>
+          <Example caption="Field · succès — l’icône, pas la teinte, distingue le message" fill>
+            <Field label="Adresse Bitcoin" value="bc1q…f4k2" readOnly success="Adresse valide sur le réseau Bitcoin." />
+          </Example>
           <Example caption="Field · désactivé" fill>
             <Field label="Numéro de compte" value="4001 8827 3" disabled readOnly />
           </Example>
@@ -609,6 +614,17 @@ export default function ComponentsGallery() {
               <Spinner size={28} />
               <Refreshing active />
             </div>
+          </Example>
+        </Section>
+
+        <Section id="avertissements" title="Callout">
+          <Example caption="Callout · note en ligne, avant l’action et non après" wide>
+            <Callout icon="circle-alert">Les envois sont irréversibles. Vérifiez l’adresse et le réseau avant de confirmer.</Callout>
+          </Example>
+          <Example caption="Callout · encadré, pour une conséquence qui mérite qu’on s’arrête" wide>
+            <Callout variant="panel" title="Un retrait d’Épargne interrompt les intérêts">
+              Les intérêts sont calculés sur le solde quotidien. Un retrait aujourd’hui réduit le versement du mois en cours.
+            </Callout>
           </Example>
         </Section>
 
