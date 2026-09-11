@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
         <div className={styles.groups}>
           <section className={styles.group} aria-labelledby="grp-compte">
-            <h2 className="t-label" id="grp-compte">
+            <h2 className="t-section" id="grp-compte">
               Compte
             </h2>
             <List>
@@ -85,7 +85,7 @@ export default function ProfilePage() {
           </section>
 
           <section className={styles.group} aria-labelledby="grp-pref">
-            <h2 className="t-label" id="grp-pref">
+            <h2 className="t-section" id="grp-pref">
               Préférences
             </h2>
             <List>
@@ -113,7 +113,7 @@ export default function ProfilePage() {
           </section>
 
           <section className={styles.group} aria-labelledby="grp-aide">
-            <h2 className="t-label" id="grp-aide">
+            <h2 className="t-section" id="grp-aide">
               Assistance
             </h2>
             <List>

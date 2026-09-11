@@ -66,7 +66,7 @@ export default function DocumentsPage() {
         </div>
 
         <aside className={styles.side}>
-          <h2 className="t-label">Bon à savoir</h2>
+          <h2 className="t-section">Bon à savoir</h2>
           <p className={styles.note}>Le relevé du mois est déposé le premier jour du mois suivant. Les douze derniers mois restent accessibles ici.</p>
           <List>
             <ListRow to="/profil/fiscalite" leading={<RowIcon name="receipt" />} title="Fiscalité" subtitle={<span className={styles.wrap}>Feuillets T5, Relevé 3 et rapport crypto</span>} chevron />

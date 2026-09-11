@@ -99,7 +99,7 @@ export default function HelpPage() {
             className={styles.search}
           />
 
-          <h2 className="t-label" id="faq-title">
+          <h2 className="t-section" id="faq-title">
             Questions fréquentes
           </h2>
           <section className={styles.faq} aria-labelledby="faq-title">
@@ -134,7 +134,7 @@ export default function HelpPage() {
         </div>
 
         <aside className={styles.side} aria-labelledby="contact-title">
-          <h2 className="t-label" id="contact-title">
+          <h2 className="t-section" id="contact-title">
             Nous joindre
           </h2>
           <div className={styles.contacts}>

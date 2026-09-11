@@ -297,17 +297,17 @@ function GoalDetail({ goal, free }: { goal: SavingsGoal; free: number | undefine
 
       <dl className={styles.stats}>
         <div className={styles.cell}>
-          <dt className="t-label">Versement mensuel</dt>
+          <dt className="t-name">Versement mensuel</dt>
           <dd className={styles.cellValue}>
             <Money value={goal.monthlyContribution} compactCents />
           </dd>
         </div>
         <div className={styles.cell}>
-          <dt className="t-label">Date estimée</dt>
+          <dt className="t-name">Date estimée</dt>
           <dd className={styles.cellValue}>{months === null ? '—' : formatMonthYear(goal.estimatedDate, locale)}</dd>
         </div>
         <div className={styles.cell}>
-          <dt className="t-label">Restant</dt>
+          <dt className="t-name">Restant</dt>
           <dd className={styles.cellValue}>
             <Money value={remaining} compactCents />
           </dd>

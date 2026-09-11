@@ -8,17 +8,13 @@
 .layout { display: flex; flex-direction: column; gap: var(--space-section); }
 .main { display: flex; flex-direction: column; min-width: 0; }
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  min-height: var(--tap);
-}
+/* Below 768px this row holds nothing — the greeting is in the AppBar and the actions
+   are in QuickActions — so it must not reserve height. */
+.head { display: none; }
 .greeting { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .headActions { display: none; gap: var(--sp-2); flex-shrink: 0; }
 
-.hero { display: flex; flex-direction: column; gap: var(--sp-2); padding-block: var(--sp-5) var(--sp-4); }
+.hero { display: flex; flex-direction: column; gap: var(--sp-2); padding-block: 0 var(--sp-4); }
 .heroTop { display: flex; align-items: center; gap: var(--sp-1); min-height: var(--tap); }
 .eye { color: var(--ink-400); }
 .eye:hover { color: var(--ink-900); }
@@ -34,6 +30,13 @@
 .section { margin-top: var(--space-section); }
 
 @media (min-width: 768px) {
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    min-height: var(--tap);
+  }
   .headActions { display: flex; }
   .hero { padding-block: var(--sp-6) var(--sp-5); }
   .actions { display: none; }

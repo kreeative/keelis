@@ -2,15 +2,7 @@
    than a muted grey label. Tracking follows the kit's Foundations page, whose uppercase
    style tracks +1.5px on 11px (~0.14em), not the near-zero value one component's CSS
    reported. Set a shade tighter here because this runs larger. */
-.title {
-  font-size: var(--fs-small);
-  line-height: 18px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-900);
-  margin: 0;
-}
+.title { margin: 0; }
 
 .head {
   display: flex;

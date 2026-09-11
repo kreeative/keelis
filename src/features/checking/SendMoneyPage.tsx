@@ -164,7 +164,7 @@ export default function SendMoneyPage() {
       <PageHeader close back="/carte" title="Envoyer" />
 
       <section className={styles.block} aria-labelledby="send-method">
-        <h2 id="send-method" className="t-label">
+        <h2 id="send-method" className="t-section">
           Méthode
         </h2>
         <SegmentedControl segments={MODES.map((m) => ({ value: m.value, label: m.label }))} value={mode} onChange={setMode} label="Méthode d’envoi" block />

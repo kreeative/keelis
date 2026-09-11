@@ -116,7 +116,7 @@ export default function ActivityPage() {
       return (
         <section key={g.day} className={styles.group} aria-label={formatDayHeading(g.date, { locale })}>
           <div className={styles.dayHead}>
-            <h2 className="t-label">{formatDayHeading(g.date, { locale })}</h2>
+            <h2 className="t-section">{formatDayHeading(g.date, { locale })}</h2>
             <Money value={total} signed className={styles.dayTotal} />
           </div>
           <List>

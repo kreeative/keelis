@@ -165,7 +165,7 @@ export default function AddFundsPage() {
           {!source || grouped ? (
             <>
               <section className={styles.block} aria-labelledby="funds-destination">
-                <h2 id="funds-destination" className="t-label">
+                <h2 id="funds-destination" className="t-section">
                   Déposer dans
                 </h2>
                 <SegmentedControl
@@ -178,7 +178,7 @@ export default function AddFundsPage() {
               </section>
 
               <section className={styles.block} aria-labelledby="funds-sources">
-                <h2 id="funds-sources" className="t-label">
+                <h2 id="funds-sources" className="t-section">
                   Provenance
                 </h2>
                 {sources.error && !sources.data ? (
@@ -256,7 +256,7 @@ export default function AddFundsPage() {
         <aside className={styles.aside}>
           {source || grouped ? (
             <>
-              <h2 className="t-label">Aperçu</h2>
+              <h2 className="t-section">Aperçu</h2>
               <List>
                 <ListRow static title="Source" subtitle={source?.mask} value={source ? source.label : '—'} />
                 <ListRow
@@ -287,7 +287,7 @@ export default function AddFundsPage() {
             </>
           ) : (
             <>
-              <h2 className="t-label">{target.name}</h2>
+              <h2 className="t-section">{target.name}</h2>
               {accounts.error && !account ? (
                 <ErrorState compact error={accounts.error} onRetry={() => void accounts.refetch()} />
               ) : (

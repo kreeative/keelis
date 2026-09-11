@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, IDS } from '@/api'
 import type { ChartRange, PriceHistory, PricePoint, SavingsGoal } from '@/api/types'
-import { AmountDisplay, Badge, Button, Card, Chart, EmptyState, ErrorState, Icon, List, Money, ProgressBar, QuickActions, SectionHeader, SegmentedControl, Skeleton, SkeletonRow } from '@/components'
+import { AmountDisplay, AppBar, Badge, Button, Card, Chart, EmptyState, ErrorState, Icon, List, Money, ProgressBar, QuickActions, SectionHeader, SegmentedControl, Skeleton, SkeletonRow } from '@/components'
 import { TransactionRow, useAccount, useGoals, useSavings, useTransactions } from '@/features/shared'
 import { MASKED, formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
@@ -25,7 +25,7 @@ const RANGES: ReadonlyArray<{ value: ChartRange; label: string; period: string }
 function StatCell({ label, value, tone = false, failed }: { label: string; value: number | undefined; tone?: boolean; failed: boolean }) {
   return (
     <div className={styles.cell}>
-      <p className="t-label">{label}</p>
+      <p className="t-name">{label}</p>
       {value === undefined ? (
         failed ? (
           <p className={`t-h2 ${styles.cellValue}`}>—</p>
@@ -145,17 +145,15 @@ export default function SavingsPage() {
     <div className={styles.page}>
       <div className={styles.layout}>
         <div className={styles.main}>
-          <header className={styles.head}>
-            <h1 className="t-h2">Épargne</h1>
-            <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
-              <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
-            </Button>
-          </header>
+          <AppBar title="Épargne" />
 
           <section className={styles.hero} aria-busy={savings.loading || undefined}>
             <div className={styles.heroTop}>
-              <p className="t-label">Solde</p>
+              <p className="t-name">Solde</p>
               {apy !== undefined ? <Badge tone="accent">{`APY ${formatApy(apy, locale)}`}</Badge> : null}
+              <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
+                <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
+              </Button>
             </div>
             {savings.error && balance === undefined ? (
               <ErrorState compact error={savings.error} onRetry={() => void savings.refetch()} />

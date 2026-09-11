@@ -60,14 +60,14 @@ export default function CryptoReceivePage() {
 
       {networks.length > 1 ? (
         <section className={styles.block} aria-labelledby="network-title">
-          <h2 id="network-title" className="t-label">
+          <h2 id="network-title" className="t-section">
             Réseau
           </h2>
           <SegmentedControl segments={networks.map((n) => ({ value: n.id, label: n.name }))} value={network.id} onChange={setNetworkId} label="Réseau" block className={styles.tabs} />
         </section>
       ) : (
         <section className={styles.block} aria-labelledby="network-title">
-          <h2 id="network-title" className="t-label">
+          <h2 id="network-title" className="t-section">
             Réseau
           </h2>
           <p>{network.name}</p>

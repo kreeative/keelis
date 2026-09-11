@@ -25,7 +25,7 @@ function AccountCard({ account, to }: { account: Account; to: string }) {
     <Card to={to} className={styles.card}>
       <span className={styles.inner}>
         <span className={styles.head}>
-          <span className="t-label">{account.name}</span>
+          <span className="t-name">{account.name}</span>
           {isSavings && account.apy !== undefined ? <Badge>APY {formatPercent(account.apy, { locale, signed: false })}</Badge> : null}
           {isCrypto && account.sparkline ? <Sparkline values={account.sparkline} width={72} height={24} /> : null}
         </span>

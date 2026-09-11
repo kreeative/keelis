@@ -3,7 +3,7 @@
  * Prices come from useMarket() (tick every 10 s) and update in place, without animation.
  */
 import { useDeferredValue, useMemo, useState } from 'react'
-import { AmountDisplay, Avatar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
+import { AmountDisplay, AppBar, Avatar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
 import type { CryptoAsset, Holding } from '@/api/types'
 import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -93,10 +93,9 @@ export default function CryptoListPage() {
 
   return (
     <div className={cn('page', styles.page)}>
-      <section className={styles.hero} aria-labelledby="crypto-title">
-        <h1 id="crypto-title" className="t-label">
-          Compte Crypto
-        </h1>
+      <AppBar title="Crypto" />
+      <section className={styles.hero} aria-label="Solde du compte Crypto">
+        <p className="t-name">Valeur du portefeuille</p>
         {account.error && account.data === undefined ? (
           <ErrorState error={account.error} onRetry={() => void account.refetch()} compact />
         ) : (

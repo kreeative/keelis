@@ -42,7 +42,7 @@ export function SectionHeader({ title, as: Tag = 'h2', action, className }: Sect
   const cls = cn(styles.action, circle && styles.circle)
   return (
     <div className={cn(styles.head, className)}>
-      <Tag className={styles.title}>{title}</Tag>
+      <Tag className={cn('t-section', styles.title)}>{title}</Tag>
       {action ? (
         action.to && !action.disabled ? (
           <Link to={action.to} className={cls} aria-label={circle ? action.label : undefined}>

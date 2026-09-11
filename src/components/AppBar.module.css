@@ -1,0 +1,55 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--tap);
+  margin-bottom: var(--sp-4);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-h2);
+  color: var(--ink-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.end { display: flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
+
+/* Round glass buttons, the same material as every other raised surface. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  background: var(--surface-alt);
+  color: var(--ink-900);
+  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.button:hover { background: var(--accent-soft); color: var(--accent-text); transform: var(--lift); box-shadow: var(--elev-1); }
+.button:active { transform: var(--press); }
+.button:focus-visible { box-shadow: var(--focus-ring); }
+
+/* The dot hangs off the glyph, not off the 44px control around it. */
+.glyph { position: relative; display: inline-flex; }
+
+.initials {
+  font-size: var(--fs-small);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.02em;
+}
+
+/* From 768px the rail carries the bell, the theme switch and the profile. */
+@media (min-width: 768px) {
+  .bar { display: none; }
+}

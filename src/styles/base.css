@@ -147,6 +147,30 @@ img, svg {
 .t-neg { color: var(--neg); }
 .t-warn { color: var(--warn); }
 .t-accent { color: var(--accent); }
+/* A section's title. One definition, shared by <SectionHeader> and by the bare headings
+   that screens write themselves — before this they were two different sizes. The spec is
+   the kit's own section title: 14/18, weight 700, uppercase, full ink. */
+.t-section {
+  font-size: var(--fs-small);
+  line-height: 18px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-900);
+}
+
+/* The name that sits above a value — « Solde total », « Disponible », « Chèque ».
+   Sentence case and grey: it labels the figure, it does not shout over it. Reserve
+   .t-label (12px, uppercase, tracked out) for true micro-annotations: form labels,
+   column heads, the kit's H6. */
+.t-name {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  font-weight: var(--fw-small);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-600);
+}
 .t-mono { font-family: var(--font-mono); }
 .num { font-variant-numeric: tabular-nums; }
 /* Financial figures: monospace, tight, high contrast. */

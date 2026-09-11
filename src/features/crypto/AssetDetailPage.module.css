@@ -7,9 +7,22 @@
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--sp-2);
   min-height: var(--tap);
   margin-bottom: var(--sp-3);
+}
+/* The asset names the page; the symbol goes above the price instead. */
+.topTitle {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-h2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .back { margin-left: calc(-1 * var(--sp-3)); color: var(--ink-900); }
 .star { margin-right: calc(-1 * var(--sp-3)); color: var(--ink-900); }

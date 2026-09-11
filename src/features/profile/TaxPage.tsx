@@ -42,7 +42,7 @@ export default function TaxPage() {
           ) : (
             years.map(([year, items]) => (
               <section key={year} className={styles.year} aria-labelledby={`year-${year}`}>
-                <h2 className="t-label" id={`year-${year}`}>
+                <h2 className="t-section" id={`year-${year}`}>
                   Année {year}
                 </h2>
                 <List>
@@ -71,7 +71,7 @@ export default function TaxPage() {
         </div>
 
         <aside className={styles.side}>
-          <h2 className="t-label">Cryptomonnaies</h2>
+          <h2 className="t-section">Cryptomonnaies</h2>
           <p className={styles.note}>
             Les gains et les pertes en cryptomonnaie se déclarent vous-même. Kaalis fournit l’historique complet de vos transactions, sans remplacer un conseil fiscal.
           </p>

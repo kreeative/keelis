@@ -106,7 +106,7 @@ export default function SecurityPage() {
       <div className={styles.layout}>
         <div className={styles.main}>
           <section className={styles.section} aria-labelledby="sec-acces">
-            <h2 className="t-label" id="sec-acces">
+            <h2 className="t-section" id="sec-acces">
               Accès au compte
             </h2>
             {loadError && !value ? (
@@ -135,7 +135,7 @@ export default function SecurityPage() {
           </section>
 
           <section className={styles.section} aria-labelledby="sec-verrou">
-            <h2 className="t-label" id="sec-verrou">
+            <h2 className="t-section" id="sec-verrou">
               NIP et verrouillage
             </h2>
             {loadError && !value ? null : value ? (
@@ -175,7 +175,7 @@ export default function SecurityPage() {
         </div>
 
         <aside className={styles.side} aria-labelledby="sec-appareils">
-          <h2 className="t-label" id="sec-appareils">
+          <h2 className="t-section" id="sec-appareils">
             Appareils
           </h2>
           {devices.loading ? (

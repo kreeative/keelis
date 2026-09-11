@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, PriceHistory } from '@/api/types'
-import { AmountDisplay, Button, Card, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SectionHeader, SegmentedControl, SkeletonRow } from '@/components'
+import { AmountDisplay, AppBar, Button, Card, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SectionHeader, SegmentedControl, SkeletonRow } from '@/components'
 import { TransactionRow, useAccounts, useTransactions } from '@/features/shared'
 import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
@@ -62,16 +62,19 @@ export default function HomePage() {
   const heroCaption = hover ? formatDateTime(hover.t, { locale }) : undefined
 
   const recentItems = recent.data?.slice(0, RECENT_COUNT)
+  const hello = `${greeting()}${user ? `, ${user.firstName}` : ''}`
 
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
         <div className={styles.main}>
+          {/* The bar carries the greeting below 768px; from there up the rail carries the
+              bell and the profile, so the greeting comes back as the page's own heading.
+              Only one of the two is ever in the accessibility tree. */}
+          <AppBar title={hello} />
+
           <header className={styles.head}>
-            <h1 className={`t-h2 ${styles.greeting}`}>
-              {greeting()}
-              {user ? `, ${user.firstName}` : ''}
-            </h1>
+            <h1 className={`t-h2 ${styles.greeting}`}>{hello}</h1>
             <div className={styles.headActions}>
               <Button variant="secondary" icon={<Icon name="plus" size={18} />} onClick={() => navigate('/fonds')}>
                 Ajouter des fonds
@@ -84,7 +87,7 @@ export default function HomePage() {
 
           <section className={styles.hero} aria-busy={accounts.loading || undefined}>
             <div className={styles.heroTop}>
-              <p className="t-label">Solde total</p>
+              <p className="t-name">Solde total</p>
               <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
                 <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
               </Button>

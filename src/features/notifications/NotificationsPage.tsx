@@ -86,7 +86,7 @@ export default function NotificationsPage() {
           ) : (
             groups.map((g) => (
               <section key={g.key} className={styles.group} aria-label={formatDayHeading(g.date, { locale })}>
-                <h2 className="t-label">{formatDayHeading(g.date, { locale })}</h2>
+                <h2 className="t-section">{formatDayHeading(g.date, { locale })}</h2>
                 <div className={styles.rows}>
                   {g.items.map((n) => (
                     <button key={n.id} type="button" className={styles.row} onClick={() => markRead(n)}>
@@ -112,7 +112,7 @@ export default function NotificationsPage() {
         </div>
 
         <aside className={styles.side}>
-          <h2 className="t-label">Résumé</h2>
+          <h2 className="t-section">Résumé</h2>
           <p className={styles.asideNumber}>{unread}</p>
           <p className={styles.asideLabel}>non lue{unread > 1 ? 's' : ''} sur {data?.length ?? 0}</p>
           <div className={styles.asideLink}>

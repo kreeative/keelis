@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IDS } from '@/api'
 import type { Transaction } from '@/api/types'
-import { AmountDisplay, Badge, Button, EmptyState, ErrorState, Field, Icon, List, QuickActions, Refreshing, SkeletonRow } from '@/components'
+import { AmountDisplay, AppBar, Badge, Button, EmptyState, ErrorState, Field, Icon, List, QuickActions, Refreshing, SkeletonRow } from '@/components'
 import { TransactionRow, groupByDay, useAccount, useTransactions } from '@/features/shared'
 import { formatDayHeading, formatMoney, formatNumber } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -123,12 +123,11 @@ export default function CheckingPage() {
 
   return (
     <div className={styles.page}>
+      <AppBar title="Chèque" />
       <div className={styles.layout}>
-        <section className={styles.hero} aria-labelledby="checking-title" aria-busy={account.loading || undefined}>
+        <section className={styles.hero} aria-label="Solde du compte Chèque" aria-busy={account.loading || undefined}>
           <div className={styles.heroTop}>
-            <h1 id="checking-title" className="t-label">
-              Compte Chèque
-            </h1>
+            <p className="t-name">Disponible</p>
             <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
               <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
             </Button>
@@ -156,7 +155,7 @@ export default function CheckingPage() {
         <section className={styles.transactions} aria-labelledby="checking-tx" aria-busy={firstLoad || undefined}>
           <div className={styles.txHead}>
             <span className={styles.txTitle}>
-              <h2 id="checking-tx" className="t-label">
+              <h2 id="checking-tx" className="t-section">
                 Transactions
               </h2>
               <Refreshing active={!firstLoad && txs.data === undefined && !txs.error} />

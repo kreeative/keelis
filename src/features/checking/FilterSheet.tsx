@@ -41,7 +41,7 @@ export function FilterSheet({ open, onClose, value, onApply }: FilterSheetProps)
       }
     >
       <section className={styles.block} aria-labelledby="filter-types">
-        <h3 id="filter-types" className="t-label">
+        <h3 id="filter-types" className="t-section">
           Type
         </h3>
         <div className={styles.chips}>
@@ -57,7 +57,7 @@ export function FilterSheet({ open, onClose, value, onApply }: FilterSheetProps)
       </section>
 
       <section className={styles.block} aria-labelledby="filter-amount">
-        <h3 id="filter-amount" className="t-label">
+        <h3 id="filter-amount" className="t-section">
           Montant
         </h3>
         <div className={styles.amounts}>
@@ -81,7 +81,7 @@ export function FilterSheet({ open, onClose, value, onApply }: FilterSheetProps)
       </section>
 
       <section className={styles.block} aria-labelledby="filter-period">
-        <h3 id="filter-period" className="t-label">
+        <h3 id="filter-period" className="t-section">
           Période
         </h3>
         <SegmentedControl

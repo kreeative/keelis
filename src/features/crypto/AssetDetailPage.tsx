@@ -23,7 +23,7 @@ function HoldingsSection({ asset, holding, loading }: { asset: CryptoAsset; hold
   const { locale, hidden } = useSettings()
   return (
     <section className={cn(styles.section, styles.holdings)} aria-labelledby="holdings-title">
-      <h2 id="holdings-title" className="t-label">
+      <h2 id="holdings-title" className="t-section">
         Vos avoirs
       </h2>
       {loading ? (
@@ -35,23 +35,23 @@ function HoldingsSection({ asset, holding, loading }: { asset: CryptoAsset; hold
       ) : holding && holding.quantity > 0 ? (
         <dl className={styles.grid}>
           <div className={styles.cell}>
-            <dt className="t-label">Quantité</dt>
+            <dt className="t-name">Quantité</dt>
             <dd className={styles.cellValue}>{hidden ? MASKED : formatCrypto(holding.quantity, asset.symbol, { locale })}</dd>
           </div>
           <div className={styles.cell}>
-            <dt className="t-label">Valeur</dt>
+            <dt className="t-name">Valeur</dt>
             <dd className={styles.cellValue}>
               <Money value={holding.value} />
             </dd>
           </div>
           <div className={styles.cell}>
-            <dt className="t-label">Prix moyen</dt>
+            <dt className="t-name">Prix moyen</dt>
             <dd className={styles.cellValue}>
               <Money value={holding.avgCost} unmasked />
             </dd>
           </div>
           <div className={styles.cell}>
-            <dt className="t-label">Rendement</dt>
+            <dt className="t-name">Rendement</dt>
             <dd className={cn(styles.cellValue, styles.cellStack)}>
               <Money value={holding.pnl} signed tone />
               <Delta value={holding.pnlPct} className={styles.cellDelta} />
@@ -75,7 +75,7 @@ function AboutSection({ asset }: { asset: CryptoAsset }) {
   ]
   return (
     <section className={cn(styles.section, styles.about)} aria-labelledby="about-title">
-      <h2 id="about-title" className="t-label">
+      <h2 id="about-title" className="t-section">
         À propos
       </h2>
       <p className={styles.description}>{asset.description}</p>
@@ -159,6 +159,7 @@ export default function AssetDetailPage() {
         <Button variant="ghost" iconOnly aria-label="Retour" onClick={() => navigate('/crypto')} className={styles.back}>
           <Icon name="arrow-left" />
         </Button>
+        <h1 className={styles.topTitle}>{asset.name}</h1>
         <Button
           variant="ghost"
           iconOnly
@@ -172,7 +173,7 @@ export default function AssetDetailPage() {
       </header>
 
       <section className={styles.hero} aria-label={`Prix de ${asset.name}`}>
-        <h1 className="t-label">{asset.symbol}</h1>
+        <p className="t-name">{asset.symbol}</p>
         <AmountDisplay value={heroValue} delta={delta} deltaPct={deltaPct} period={delta !== undefined ? rangePeriod(range) : undefined} caption={caption} unmasked />
       </section>
 

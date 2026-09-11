@@ -184,7 +184,7 @@ export default function TransactionDetailPage() {
       </section>
 
       <section className={styles.section} aria-labelledby="tx-details">
-        <h2 id="tx-details" className="t-label">
+        <h2 id="tx-details" className="t-section">
           Détails
         </h2>
         <dl className={styles.rows}>
@@ -198,7 +198,7 @@ export default function TransactionDetailPage() {
       </section>
 
       <section className={styles.section} aria-labelledby="tx-actions">
-        <h2 id="tx-actions" className="t-label">
+        <h2 id="tx-actions" className="t-section">
           Actions
         </h2>
         <List>

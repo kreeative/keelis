@@ -163,7 +163,7 @@ export default function CryptoSendPage() {
       <PageHeader close back={`/crypto/${id}`} title={`Envoyer ${asset.symbol}`} />
 
       <section className={styles.block} aria-labelledby="network-title">
-        <h2 id="network-title" className="t-label">
+        <h2 id="network-title" className="t-section">
           Réseau
         </h2>
         {networks.length > 1 ? (
@@ -189,7 +189,7 @@ export default function CryptoSendPage() {
       </section>
 
       <section className={styles.block} aria-labelledby="address-title">
-        <h2 id="address-title" className="t-label">
+        <h2 id="address-title" className="t-section">
           Adresse
         </h2>
         <Field
