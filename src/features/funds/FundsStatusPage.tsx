@@ -6,7 +6,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { IDS } from '@/api'
 import type { Transaction } from '@/api/types'
-import { AmountDisplay, Badge, Button, EmptyState, ErrorState, PageHeader, Skeleton } from '@/components'
+import type { IconName } from '@/components'
+import { AmountDisplay, Badge, Button, EmptyState, ErrorState, Icon, PageHeader, Skeleton } from '@/components'
 import { useTransaction } from '@/features/shared'
 import { formatDateTime } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -21,16 +22,16 @@ function accountName(accountId: string): string {
   return 'Chèque'
 }
 
-function statusBadge(tx: Transaction): { label: string; tone: 'accent' | 'neutral' | 'neg' } {
+function statusBadge(tx: Transaction): { label: string; tone: 'accent' | 'neutral' | 'neg'; icon: IconName } {
   switch (tx.status) {
     case 'posted':
-      return { label: 'Terminé', tone: 'accent' }
+      return { label: 'Terminé', tone: 'accent', icon: 'checkmark-filled' }
     case 'failed':
-      return { label: 'Échoué', tone: 'neg' }
+      return { label: 'Échoué', tone: 'neg', icon: 'circle-alert' }
     case 'reversed':
-      return { label: 'Annulé', tone: 'neg' }
+      return { label: 'Annulé', tone: 'neg', icon: 'circle-alert' }
     default:
-      return { label: 'En attente', tone: 'neutral' }
+      return { label: 'En attente', tone: 'neutral', icon: 'clock' }
   }
 }
 
@@ -107,7 +108,7 @@ function Status({ tx, locale }: { tx: Transaction; locale: 'fr-CA' | 'en-CA' }) 
 
       <div className={styles.live} aria-live="polite">
         <div className={styles.badge}>
-          <Badge tone={badge.tone}>{badge.label}</Badge>
+          <Badge tone={badge.tone} icon={<Icon name={badge.icon} />}>{badge.label}</Badge>
         </div>
 
         <ol className={styles.timeline}>

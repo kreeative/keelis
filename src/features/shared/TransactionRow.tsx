@@ -69,7 +69,7 @@ export function TransactionRow({ tx, to }: { tx: Transaction; to?: string }) {
       title={tx.counterparty}
       subtitle={transactionSubtitle(tx, locale)}
       value={<Money value={tx.amount} signed={incoming} tone={incoming && !failed} className={failed ? styles.failed : undefined} />}
-      valueSub={pending ? <Badge tone="neutral">En attente</Badge> : failed ? <Badge tone="neg">{tx.status === 'reversed' ? 'Annulée' : 'Échouée'}</Badge> : undefined}
+      valueSub={pending ? <Badge tone="neutral">En attente</Badge> : failed ? <Badge tone="neg" icon>{tx.status === 'reversed' ? 'Annulée' : 'Échouée'}</Badge> : undefined}
       muted={pending}
       chevron={false}
     />

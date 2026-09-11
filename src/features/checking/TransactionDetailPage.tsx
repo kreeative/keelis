@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, CATEGORY_LABELS, TYPE_LABELS } from '@/api'
 import type { Transaction, TransactionStatus } from '@/api/types'
-import type { BadgeTone } from '@/components'
+import type { BadgeTone, IconName } from '@/components'
 import { AmountDisplay, Avatar, Badge, Button, EmptyState, ErrorState, Icon, List, ListRow, PageHeader, SelectField, Sheet, Skeleton, TextAreaField } from '@/components'
 import { transactionIcon, useTransaction } from '@/features/shared'
 import { formatCrypto, formatDateTime, formatMoney } from '@/lib/format'
@@ -14,11 +14,11 @@ import { useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import styles from './TransactionDetailPage.module.css'
 
-const STATUS: Record<TransactionStatus, { label: string; tone: BadgeTone }> = {
-  pending: { label: 'En attente', tone: 'neutral' },
-  posted: { label: 'Réglée', tone: 'accent' },
-  failed: { label: 'Échouée', tone: 'neg' },
-  reversed: { label: 'Annulée', tone: 'neg' },
+const STATUS: Record<TransactionStatus, { label: string; tone: BadgeTone; icon: IconName }> = {
+  pending: { label: 'En attente', tone: 'neutral', icon: 'clock' },
+  posted: { label: 'Réglée', tone: 'accent', icon: 'checkmark-filled' },
+  failed: { label: 'Échouée', tone: 'neg', icon: 'circle-alert' },
+  reversed: { label: 'Annulée', tone: 'neg', icon: 'circle-alert' },
 }
 
 const CHANNELS: Record<NonNullable<Transaction['channel']>, string> = {
@@ -178,7 +178,7 @@ export default function TransactionDetailPage() {
         <h1 className="t-h2">{tx.counterparty}</h1>
         <AmountDisplay value={tx.amount} size="h1" className={cn(styles.amount, incoming && styles.incoming, incoming && !hidden && styles.plus)} />
         <div className={styles.meta}>
-          <Badge tone={status.tone}>{status.label}</Badge>
+          <Badge tone={status.tone} icon={<Icon name={status.icon} />}>{status.label}</Badge>
           <span className={styles.date}>{formatDateTime(tx.date, { locale })}</span>
         </div>
       </section>

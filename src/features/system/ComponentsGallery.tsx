@@ -443,6 +443,34 @@ export default function ComponentsGallery() {
               <Badge icon={<Icon name="shield-check" />}>Avec icône</Badge>
             </div>
           </Example>
+          <Example caption="Badge · icône de tonalité (icon) — la forme porte le statut, la teinte ne le peut pas" wide>
+            <div className={styles.row}>
+              <Badge icon>Vérifié</Badge>
+              <Badge tone="neutral" icon>
+                En attente
+              </Badge>
+              <Badge tone="pos" icon>
+                Réglée
+              </Badge>
+              <Badge tone="neg" icon>
+                Échouée
+              </Badge>
+              <Badge tone="warn" icon>
+                Gelée
+              </Badge>
+            </div>
+          </Example>
+          <Example caption="Badge · taille xs, texte seul" wide>
+            <div className={styles.row}>
+              <Badge size="xs">Nouveau</Badge>
+              <Badge size="xs" tone="neutral">
+                En attente
+              </Badge>
+              <Badge size="xs" tone="neg">
+                Échouée
+              </Badge>
+            </div>
+          </Example>
           <Example caption="Switch · activé, désactivé, inactif, en cours">
             <div className={styles.row}>
               <Switch checked={on} onChange={setOn} label="Activé" />
