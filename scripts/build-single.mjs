@@ -5,7 +5,7 @@
  *   dist-single/kaalis.html — body-only variant for hosting in an Artifact wrapper
  */
 import { execSync } from 'node:child_process'
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 const root = new URL('../', import.meta.url).pathname
@@ -23,6 +23,14 @@ for (const f of readdirSync(assets)) {
   if (f.endsWith('.js')) js += content + '\n'
   else if (f.endsWith('.css')) css += content + '\n'
 }
+
+// Fonts are served from /fonts/ in the app; a single HTML file has no such path, so
+// embed them. ~43 KB of woff2 keeps Futura's stand-in working offline.
+css = css.replace(/url\((['"]?)(?:\.\.)?\/fonts\/([^'")]+)\1\)/g, (whole, _q, name) => {
+  const file = join(root, 'public', 'fonts', name)
+  if (!existsSync(file)) return whole
+  return `url(data:font/woff2;base64,${readFileSync(file).toString('base64')})`
+})
 // The theme pre-paint script authored in index.html (first plain <script>)
 const themeScript = (original.match(/<script>([\s\S]*?)<\/script>/) || ['', ''])[1]
 const title = (original.match(/<title>([^<]*)<\/title>/) || [])[1] ?? 'Kaalis'

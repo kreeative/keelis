@@ -35,8 +35,9 @@
   white-space: nowrap;
   transition: color var(--dur-fast) var(--ease);
 }
-/* Every segment is a tap target: at least 44px tall in both sizes. */
-.segment { min-height: var(--tap); }
+/* Every segment is a tap target: at least 44px in both directions, whatever the
+   label width — Futura's narrow figures make short labels like « 1J » undersized. */
+.segment { min-height: var(--tap); min-width: var(--tap); }
 .sm { --seg-pad: 0px; }
 .sm .segment { padding-inline: var(--sp-4); }
 .segment:hover { color: var(--ink-900); }

@@ -30,37 +30,46 @@ Les surfaces sont du verre translucide posé sur un fond de couleur, avec une pi
 
 **Fond ambiant.** `<AmbientGround />`, monté une fois dans `App`, peint trois champs radiaux (`--ambient-1/2/3`) derrière toute l'application. Sans lui le flou n'a rien à réfracter et le verre ressemble à du blanc. C'est une couche fixe unique plutôt qu'un `background-attachment: fixed`, qui repeint le dégradé à chaque image de défilement sur mobile. `body` est volontairement transparent.
 
-## Couleur
+## Couleur : aucune
 
-L'accent haute intensité `--cta` (citrine `oklch(0.90 0.17 105)`) est réservé aux appels à l'action et aux indicateurs positifs. Il sert uniquement de **fond** : en texte sur une surface claire il ne fait que 1,3:1. Le texte posé dessus est `--on-cta` (encre presque noire), soit 14,1:1. Les liens, boutons fantômes et anneaux de focus gardent le teal `--accent`.
+La palette est monochrome. Chaque valeur est un neutre dérivé du noir et du blanc, écrit `oklch(L 0 0)`. `pnpm check:design` refuse un token dont la chroma dépasse 0, ou un `rgb()` dont les canaux diffèrent.
+
+`--cta` sert de **fond** aux actions principales : encre en clair, papier en sombre, 18,6:1 dans les deux sens avec `--on-cta`.
+
+**La direction n'est jamais portée par la teinte.** `--pos`, `--neg` et `--warn` valent tous `--ink-900`. Ce qui distingue une hausse d'une baisse : le signe explicite (`+` / `−`), la flèche, la graisse, et pour les erreurs l'icône d'alerte plus la bordure pleine du champ. C'est la règle d'accessibilité habituelle poussée à son terme — aucune information ne dépend de la couleur, puisqu'il n'y en a pas.
 
 Contrastes vérifiés (oklch → luminance relative, WCAG 2.x) :
 
 | Paire | Clair | Sombre |
 |---|---|---|
-| `--ink-900` sur `--surface` | 18,3:1 | 17,8:1 |
-| `--ink-600` sur `--surface` | 6,9:1 | 7,8:1 |
-| `--ink-400` sur `--surface-alt` | 5,0:1 | 4,9:1 |
-| `--on-cta` sur `--cta` | 14,1:1 | 14,1:1 |
-| `--accent` en texte sur `--surface` | 5,2:1 | 8,3:1 |
-| `--pos` / `--neg` sur `--surface-alt` | 4,7:1 / 4,8:1 | 7,4:1 / 5,9:1 |
+| `--ink-900` sur `--surface` | 18,6:1 | 18,0:1 |
+| `--ink-600` sur `--surface` | 6,9:1 | 7,9:1 |
+| `--ink-400` sur `--surface-alt` | 5,4:1 | 5,5:1 |
+| `--ink-400` sur `--accent-soft` | 4,9:1 | 4,5:1 |
+| `--on-cta` sur `--cta` | 18,6:1 | 18,0:1 |
+| `--accent-text` sur `--accent-soft` | 13,0:1 | 11,5:1 |
 
 `--ink-300` n'est jamais du texte : placeholders, glyphes désactivés, traits décoratifs.
 
 L'audit navigateur recalcule ces contrastes sur le rendu réel, en aplatissant les surfaces translucides sur le fond effectivement composé.
 
-## Typographie
+## Typographie : Futura
 
-| Rôle | Police |
-|---|---|
-| Courant, titres | `--font-sans` : pile système menée par SF Pro |
-| Montants financiers | `--font-numeric` : monospace système, `tabular-nums`, `--ls-numeric: -0.04em` |
+Une seule famille, pour tout, y compris les montants.
 
-`Money`, `AmountDisplay`, `.figures`, `.t-display`, les valeurs de `ListRow` et le pavé numérique portent déjà la monospace.
+```
+--font-sans: "Futura", "Futura PT", "Jost", "Century Gothic", "Avenir Next", "Avenir", sans-serif
+```
+
+Futura est installée sur macOS et iOS. Partout ailleurs, **Jost** prend le relais : c'est la reprise géométrique libre de Futura, hébergée par nous (`src/styles/fonts.css`, `public/fonts/jost-latin*.woff2`, 43 Ko en police variable). Aucune requête vers un tiers, donc rien à attendre au premier rendu et la démo en fichier unique fonctionne hors ligne, les polices étant intégrées en base64. Century Gothic ferme la marche sur Windows.
+
+Les montants restent en Futura avec `font-variant-numeric: tabular-nums`, ce qui garde les colonnes alignées sans changer de famille. `--ls-numeric: -0.01em`.
+
+Les chiffres de Futura sont étroits : un contrôle au libellé court a besoin d'un `min-width: var(--tap)` explicite, sinon il passe sous 44 px.
 
 | Style | Mobile / Bureau | Tracking | Graisse | Classe |
 |---|---|---|---|---|
-| display | 48 / 64 | −0,04em | 500 | `.t-display` |
+| display | 48 / 64 | −0,01em | 500 | `.t-display` |
 | h1 | 30 / 38 | −0,02em | 500 | `.t-h1` |
 | h2 | 22 / 26 | −0,015em | 500 | `.t-h2` |
 | body | 16 | −0,005em | 400 | `.t-body` |
@@ -96,4 +105,8 @@ Parcours d'argent (`features/shared`) : `AmountEntry` (chiffre héros monospace 
 
 ## Historique
 
-La première itération suivait un brief « fintech nordique minimaliste » : zéro ombre hors feuilles modales, zéro dégradé, zéro glassmorphism. Le brief a été remplacé par le système verre et profondeur décrit ci-dessus ; `scripts/check-design.mjs` et l'audit navigateur ont été mis à jour en conséquence. Ce qui n'a pas changé : tout passe par les tokens, contraste ≥ 4,5:1, cibles ≥ 44px, texte ≥ 12px, mode sombre complet.
+1. Brief « fintech nordique minimaliste » : zéro ombre hors feuilles modales, zéro dégradé, zéro glassmorphism, accent teal.
+2. Remplacé par le système verre et profondeur : glassmorphism, ombres en trois couches, fond ambiant, accent citrine, chiffres en monospace.
+3. Remplacé par l'état actuel : **monochrome intégral** et **Futura**. La matière de verre et la pile d'élévation restent ; la teinte et la monospace disparaissent.
+
+`scripts/check-design.mjs` et l'audit navigateur ont suivi chaque fois. Ce qui n'a jamais changé : tout passe par les tokens, contraste ≥ 4,5:1, cibles ≥ 44 px, texte ≥ 12 px, mode sombre complet, aucune information portée par la seule couleur.

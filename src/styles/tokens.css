@@ -9,33 +9,35 @@
   color-scheme: light;
 
   /* ---- Colour: light (default) ---- */
-  --ink-900: oklch(0.18 0.012 250);   /* primary text, near-black blue */
-  --ink-600: oklch(0.46 0.010 250);   /* secondary text */
-  --ink-400: oklch(0.52 0.008 250);   /* tertiary text, labels (≥4.5:1 on surface & surface-alt) */
-  --ink-300: oklch(0.66 0.008 250);   /* NON-TEXT only: placeholders, disabled glyphs, decorative strokes */
-  --line: oklch(0.91 0.005 250);      /* 1px separators */
-  --surface: oklch(0.99 0.003 250);   /* page background */
-  --surface-alt: oklch(0.965 0.005 250); /* cards, fields, list rows */
+  /* Monochrome only: every value is a neutral derived from black and white (chroma 0). */
+  --ink-900: oklch(0.17 0 0);         /* primary text */
+  --ink-600: oklch(0.46 0 0);         /* secondary text */
+  --ink-400: oklch(0.50 0 0);         /* tertiary text, labels (≥4.5:1 on every surface) */
+  --ink-300: oklch(0.66 0 0);         /* NON-TEXT only: placeholders, disabled glyphs, decorative strokes */
+  --line: oklch(0.90 0 0);            /* 1px separators */
+  --surface: oklch(0.99 0 0);         /* page background */
+  --surface-alt: oklch(0.965 0 0);    /* cards, fields, list rows */
 
-  --accent: oklch(0.50 0.13 175);     /* deep teal — primary actions (≥4.5:1 as text on surface) */
-  --accent-text: oklch(0.44 0.12 175);/* accent used as text on --accent-soft */
-  --accent-soft: oklch(0.94 0.035 175); /* badge background / selected state */
-  --on-accent: oklch(0.99 0.003 250); /* text placed on --accent */
+  --accent: oklch(0.17 0 0);          /* links, ghost buttons, focus rings */
+  --accent-text: oklch(0.25 0 0);     /* accent used as text on --accent-soft */
+  --accent-soft: oklch(0.93 0 0);     /* badge background / selected state */
+  --on-accent: oklch(0.99 0 0);       /* text placed on --accent */
 
-  /* High-contrast CTA accent — fills only (primary buttons, positive highlights).
-     Never as text on a light surface: citrine on white is 1.3:1. Text/links use --accent. */
-  --cta: oklch(0.90 0.17 105);        /* citrine */
-  --cta-hover: oklch(0.86 0.18 103);
-  --on-cta: oklch(0.18 0.012 250);    /* 14.1:1 on --cta */
+  /* CTA fill. Monochrome: ink in light, paper in dark. 18.6:1 either way. */
+  --cta: oklch(0.17 0 0);
+  --cta-hover: oklch(0.28 0 0);
+  --on-cta: oklch(0.99 0 0);
 
-  --pos: oklch(0.52 0.11 150);        /* up */
-  --neg: oklch(0.54 0.11 25);         /* down */
-  --warn: oklch(0.54 0.11 75);        /* attention */
+  /* Direction is carried by the explicit sign (+ / −), the arrow glyph and weight,
+     never by hue — the palette has none. */
+  --pos: oklch(0.17 0 0);             /* up */
+  --neg: oklch(0.17 0 0);             /* down */
+  --warn: oklch(0.17 0 0);            /* attention */
 
   /* Card (virtual card) — deliberately the same in both modes */
-  --card-surface: oklch(0.18 0.012 250);
-  --card-ink: oklch(0.97 0.004 250);
-  --card-ink-muted: oklch(0.72 0.008 250);
+  --card-surface: oklch(0.17 0 0);
+  --card-ink: oklch(0.97 0 0);
+  --card-ink-muted: oklch(0.72 0 0);
 
   /* ---- Glass material ----
      Semi-transparent surface + heavy blur + a hairline top highlight where light
@@ -44,9 +46,9 @@
   --glass-bg-strong: rgba(255, 255, 255, 0.85);
   --glass-bg-soft: rgba(255, 255, 255, 0.65);
   --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-blur: blur(16px) saturate(180%);
+  --glass-blur: blur(16px);
   /* Opaque stand-ins for browsers without backdrop-filter, and for print. */
-  --glass-fallback: oklch(0.995 0.002 250);
+  --glass-fallback: oklch(0.995 0 0);
   --glass-fallback-strong: oklch(1 0 0);
 
   /* ---- Elevation: layered, never a single blur ----
@@ -73,23 +75,25 @@
   --press: translateY(0) scale(0.995);
 
   /* ---- Ambient ground: soft colour fields that give the glass something to blur ---- */
-  --ambient-1: oklch(0.89 0.10 190 / 0.46);
-  --ambient-2: oklch(0.93 0.13 102 / 0.40);
-  --ambient-3: oklch(0.87 0.07 285 / 0.44);
+  --ambient-1: oklch(0.92 0 0 / 0.55);
+  --ambient-2: oklch(0.955 0 0 / 0.60);
+  --ambient-3: oklch(0.90 0 0 / 0.50);
 
   /* Derived */
-  --backdrop: oklch(0.18 0.012 250 / 0.35);
+  --backdrop: oklch(0.17 0 0 / 0.35);
   --focus-ring: 0 0 0 2px var(--accent);
   --focus-ring-offset: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); /* on accent-filled controls */
   --focus-ring-neg: 0 0 0 2px var(--neg);
-  --sheet-shadow: 0 -1px 40px oklch(0.18 0.01 250 / 0.10);
+  --sheet-shadow: 0 -1px 40px oklch(0.17 0 0 / 0.10);
 
   /* ---- Typography ---- */
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Söhne", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* Futura where it is installed (macOS, iOS); Jost is the geometric stand-in loaded as a
+     webfont everywhere else, then Century Gothic on Windows. */
+  --font-sans: "Futura", "Futura PT", "Jost", "Century Gothic", "Avenir Next", "Avenir", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
-  /* Financial balances: crisp monospace figures, tightened so large numbers stay compact. */
-  --font-numeric: var(--font-mono);
-  --ls-numeric: -0.04em;
+  /* Financial figures stay in Futura; tabular-nums keeps the columns aligned. */
+  --font-numeric: var(--font-sans);
+  --ls-numeric: -0.01em;
 
   --fs-display: 48px;  --lh-display: 1.05; --ls-display: -0.03em; --fw-display: 500;
   --fs-h1: 30px;       --lh-h1: 1.15;      --ls-h1: -0.02em;      --fw-h1: 500;
@@ -154,31 +158,31 @@
 /* ---- Colour: dark ---- */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --ink-900: oklch(0.97 0.004 250);
-  --ink-600: oklch(0.72 0.008 250);
-  --ink-400: oklch(0.62 0.008 250);
-  --ink-300: oklch(0.50 0.008 250);
-  --line: oklch(0.28 0.008 250);
-  --surface: oklch(0.16 0.010 250);
-  --surface-alt: oklch(0.21 0.012 250);
-  --accent: oklch(0.72 0.12 175);
-  --accent-text: oklch(0.76 0.12 175);
-  --accent-soft: oklch(0.28 0.05 175);
-  --on-accent: oklch(0.16 0.010 250);
-  --pos: oklch(0.72 0.10 150);
-  --neg: oklch(0.68 0.11 25);
-  --warn: oklch(0.70 0.11 75);
-  --cta: oklch(0.90 0.17 105);
-  --cta-hover: oklch(0.94 0.15 107);
-  --on-cta: oklch(0.18 0.012 250);
-  --backdrop: oklch(0.10 0.010 250 / 0.55);
-  --sheet-shadow: 0 -1px 40px oklch(0.08 0.01 250 / 0.35);
-  --glass-bg: rgba(24, 24, 28, 0.72);
-  --glass-bg-strong: rgba(24, 24, 28, 0.85);
-  --glass-bg-soft: rgba(18, 18, 20, 0.65);
+  --ink-900: oklch(0.97 0 0);
+  --ink-600: oklch(0.72 0 0);
+  --ink-400: oklch(0.65 0 0);
+  --ink-300: oklch(0.50 0 0);
+  --line: oklch(0.28 0 0);
+  --surface: oklch(0.15 0 0);
+  --surface-alt: oklch(0.21 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-text: oklch(0.92 0 0);
+  --accent-soft: oklch(0.28 0 0);
+  --on-accent: oklch(0.15 0 0);
+  --pos: oklch(0.97 0 0);
+  --neg: oklch(0.97 0 0);
+  --warn: oklch(0.97 0 0);
+  --cta: oklch(0.97 0 0);
+  --cta-hover: oklch(0.88 0 0);
+  --on-cta: oklch(0.15 0 0);
+  --backdrop: oklch(0.08 0 0 / 0.55);
+  --sheet-shadow: 0 -1px 40px oklch(0.06 0 0 / 0.35);
+  --glass-bg: rgba(26, 26, 26, 0.72);
+  --glass-bg-strong: rgba(26, 26, 26, 0.85);
+  --glass-bg-soft: rgba(19, 19, 19, 0.65);
   --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-fallback: oklch(0.195 0.011 250);
-  --glass-fallback-strong: oklch(0.215 0.012 250);
+  --glass-fallback: oklch(0.185 0 0);
+  --glass-fallback-strong: oklch(0.215 0 0);
   --elev-1:
     0 1px 2px rgba(0, 0, 0, 0.24),
     0 4px 8px -2px rgba(0, 0, 0, 0.32),
@@ -195,39 +199,39 @@
     0 4px 8px rgba(0, 0, 0, 0.32),
     0 16px 32px -6px rgba(0, 0, 0, 0.44),
     0 40px 72px -16px rgba(0, 0, 0, 0.58);
-  --ambient-1: oklch(0.55 0.12 190 / 0.60);
-  --ambient-2: oklch(0.58 0.13 102 / 0.26);
-  --ambient-3: oklch(0.48 0.11 285 / 0.62);
+  --ambient-1: oklch(0.34 0 0 / 0.60);
+  --ambient-2: oklch(0.26 0 0 / 0.50);
+  --ambient-3: oklch(0.36 0 0 / 0.55);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --ink-900: oklch(0.97 0.004 250);
-    --ink-600: oklch(0.72 0.008 250);
-    --ink-400: oklch(0.62 0.008 250);
-    --ink-300: oklch(0.50 0.008 250);
-    --line: oklch(0.28 0.008 250);
-    --surface: oklch(0.16 0.010 250);
-    --surface-alt: oklch(0.21 0.012 250);
-    --accent: oklch(0.72 0.12 175);
-    --accent-text: oklch(0.76 0.12 175);
-    --accent-soft: oklch(0.28 0.05 175);
-    --on-accent: oklch(0.16 0.010 250);
-    --pos: oklch(0.72 0.10 150);
-    --neg: oklch(0.68 0.11 25);
-    --warn: oklch(0.70 0.11 75);
-    --cta: oklch(0.90 0.17 105);
-    --cta-hover: oklch(0.94 0.15 107);
-    --on-cta: oklch(0.18 0.012 250);
-    --backdrop: oklch(0.10 0.010 250 / 0.55);
-    --sheet-shadow: 0 -1px 40px oklch(0.08 0.01 250 / 0.35);
-    --glass-bg: rgba(24, 24, 28, 0.72);
-    --glass-bg-strong: rgba(24, 24, 28, 0.85);
-    --glass-bg-soft: rgba(18, 18, 20, 0.65);
+    --ink-900: oklch(0.97 0 0);
+    --ink-600: oklch(0.72 0 0);
+    --ink-400: oklch(0.65 0 0);
+    --ink-300: oklch(0.50 0 0);
+    --line: oklch(0.28 0 0);
+    --surface: oklch(0.15 0 0);
+    --surface-alt: oklch(0.21 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-text: oklch(0.92 0 0);
+    --accent-soft: oklch(0.28 0 0);
+    --on-accent: oklch(0.15 0 0);
+    --pos: oklch(0.97 0 0);
+    --neg: oklch(0.97 0 0);
+    --warn: oklch(0.97 0 0);
+    --cta: oklch(0.97 0 0);
+    --cta-hover: oklch(0.88 0 0);
+    --on-cta: oklch(0.15 0 0);
+    --backdrop: oklch(0.08 0 0 / 0.55);
+    --sheet-shadow: 0 -1px 40px oklch(0.06 0 0 / 0.35);
+    --glass-bg: rgba(26, 26, 26, 0.72);
+    --glass-bg-strong: rgba(26, 26, 26, 0.85);
+    --glass-bg-soft: rgba(19, 19, 19, 0.65);
     --glass-border: rgba(255, 255, 255, 0.12);
-    --glass-fallback: oklch(0.195 0.011 250);
-    --glass-fallback-strong: oklch(0.215 0.012 250);
+    --glass-fallback: oklch(0.185 0 0);
+    --glass-fallback-strong: oklch(0.215 0 0);
     --elev-1:
       0 1px 2px rgba(0, 0, 0, 0.24),
       0 4px 8px -2px rgba(0, 0, 0, 0.32),
@@ -244,9 +248,9 @@
       0 4px 8px rgba(0, 0, 0, 0.32),
       0 16px 32px -6px rgba(0, 0, 0, 0.44),
       0 40px 72px -16px rgba(0, 0, 0, 0.58);
-    --ambient-1: oklch(0.55 0.12 190 / 0.60);
-    --ambient-2: oklch(0.58 0.13 102 / 0.26);
-    --ambient-3: oklch(0.48 0.11 285 / 0.62);
+    --ambient-1: oklch(0.34 0 0 / 0.60);
+    --ambient-2: oklch(0.26 0 0 / 0.50);
+    --ambient-3: oklch(0.36 0 0 / 0.55);
   }
 }
 

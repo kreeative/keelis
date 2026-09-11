@@ -6,6 +6,7 @@
  *    (a hand-rolled single-blur shadow is the thing this catches)
  *  - gradients only in the token and base layers (the ambient ground)
  *  - blur only through --glass-blur, so every glass surface matches
+ *  - the palette stays monochrome: every oklch token has chroma 0
  *  - no font-size below 12px
  *  - no emoji in source
  */
@@ -57,6 +58,17 @@ function check(file) {
       const fs = line.match(/fontSize\s*:\s*['"]?(\d+)px/)
       if (fs && Number(fs[1]) < 12) violations.push(`${where}: fontSize ${fs[1]}px < 12px`)
     }
+  })
+}
+
+// The palette is monochrome by decision: an oklch value with chroma > 0 reintroduces a hue.
+{
+  const src = readFileSync(TOKENS, 'utf8')
+  src.split('\n').forEach((line, i) => {
+    const m = line.match(/oklch\(\s*[\d.]+\s+([\d.]+)/)
+    if (m && Number(m[1]) > 0) violations.push(`styles/tokens.css:${i + 1}: oklch chroma ${m[1]} — the palette is black-and-white only`)
+    const rgb = line.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+    if (rgb && !(rgb[1] === rgb[2] && rgb[2] === rgb[3])) violations.push(`styles/tokens.css:${i + 1}: rgb(${rgb[1]},${rgb[2]},${rgb[3]}) is not a neutral`)
   })
 }
 

@@ -13,13 +13,16 @@ Kaalis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three p
 - **Elevation is layered, never a single blur.** Use `--elev-1/2/3` (ambient contact + direct drop + deep lift) and `--elev-2-hover`. A hand-rolled `box-shadow` fails the design check.
 - **Tactile physics.** Interactive surfaces lift with `var(--lift)` (`translateY(-2px) scale(1.01)`) and settle with `var(--press)`; both collapse to `none` under reduced motion. Animate transform and box-shadow only.
 - **Ambient ground.** `<AmbientGround />` (mounted once in `App`) paints the colour field the glass refracts. `body` is transparent on purpose — do not give it a background.
-- **One CTA accent.** `--cta` (citrine) is a **fill only**, reserved for primary buttons and positive highlights; text on it is `--on-cta`. It is unreadable as text on a light surface. Links, ghost buttons and focus rings use `--accent` (teal); accent text on `--accent-soft` uses `--accent-text`.
+- **The palette is monochrome.** Every colour is a neutral derived from black and white — `oklch(L 0 0)`. A token with chroma > 0, or an `rgb()` whose channels differ, fails the design check. No hue anywhere, including charts, badges and status.
+- **Direction and status are never carried by hue.** Gains, losses, warnings and errors all resolve to `--ink-900`; the signal is the explicit sign (`+` / `−`), the directional glyph, weight and the alert icon. Keep `signed` on amounts that can go either way.
+- **`--cta` is a fill only** (ink in light, paper in dark), reserved for primary buttons; text on it is `--on-cta`. Links, ghost buttons and focus rings use `--accent`; accent text on `--accent-soft` uses `--accent-text`.
 - `--ink-300` is **not** for text (fails contrast); use `--ink-400` for labels/tertiary text.
 - No emoji. Gradients only in the token/base/AmbientGround layer. `backdrop-filter` only via `--glass-blur`.
 - Text ≥ 12px (`--fs-label`). Tap targets ≥ 44px (`--tap`).
 - Motion 150–250 ms via `--dur-*` and `--ease`; nothing bounces. Reduced motion is handled globally.
 - Every screen has one dominant number (`AmountDisplay`) or one dominant title (`PageHeader` / `.t-h1`).
-- **Financial figures are monospace**: `--font-numeric` with `tabular-nums` and `--ls-numeric`. `Money`, `AmountDisplay`, `.figures`, `.t-display` and `ListRow` values already carry it. Body copy uses `--font-sans` (SF Pro style system stack).
+- **The typeface is Futura** (`--font-sans`), with the self-hosted geometric stand-in Jost (`src/styles/fonts.css`, `public/fonts/`) wherever Futura is not installed, then Century Gothic. Never add a third-party font request. Financial figures use `--font-numeric` (the same family) with `tabular-nums` so columns still align.
+- Futura's figures are narrow: give short controls an explicit `min-width: var(--tap)` or they fall under 44px.
 - Radii: `--r-card` 24px for cards and panels, `--r-field` 16px for inner elements, `--r-pill` for pills.
 
 ## Architecture
