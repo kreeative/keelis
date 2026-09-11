@@ -4,9 +4,12 @@
   z-index: -1;
   pointer-events: none;
   background-color: var(--surface);
+  /* Four overlapping fields rather than three: the old set left the middle of a tall
+     viewport flat, which is exactly where most of the content sits. */
   background-image:
-    radial-gradient(70vmax 70vmax at 8% -12%, var(--ambient-1), transparent 58%),
-    radial-gradient(60vmax 60vmax at 100% 4%, var(--ambient-2), transparent 56%),
-    radial-gradient(80vmax 80vmax at 46% 112%, var(--ambient-3), transparent 58%);
+    radial-gradient(72vmax 72vmax at 6% -14%, var(--ambient-1), transparent 60%),
+    radial-gradient(64vmax 64vmax at 102% 2%, var(--ambient-2), transparent 58%),
+    radial-gradient(84vmax 84vmax at 48% 114%, var(--ambient-3), transparent 60%),
+    radial-gradient(58vmax 58vmax at 88% 62%, var(--ambient-4), transparent 62%);
   background-repeat: no-repeat;
 }

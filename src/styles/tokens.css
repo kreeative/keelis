@@ -42,11 +42,13 @@
   /* ---- Glass material ----
      Semi-transparent surface + heavy blur + a hairline top highlight where light
      strikes the edge. `-strong` is used where text density is highest. */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-bg-strong: rgba(255, 255, 255, 0.85);
-  --glass-bg-soft: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-blur: blur(16px);
+  --glass-bg: rgba(255, 255, 255, 0.52);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-bg-soft: rgba(255, 255, 255, 0.34);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  /* The hairline that reads as the cut edge of the pane, under the top highlight. */
+  --glass-edge: rgba(0, 0, 0, 0.06);
+  --glass-blur: blur(20px) saturate(1.05);
   /* Opaque stand-ins for browsers without backdrop-filter, and for print. */
   --glass-fallback: oklch(0.995 0 0);
   --glass-fallback-strong: oklch(1 0 0);
@@ -79,10 +81,15 @@
   --lift: translateY(-2px) scale(1.01);
   --press: translateY(0) scale(0.995);
 
-  /* ---- Ambient ground: soft colour fields that give the glass something to blur ---- */
-  --ambient-1: oklch(0.92 0 0 / 0.55);
-  --ambient-2: oklch(0.955 0 0 / 0.60);
-  --ambient-3: oklch(0.90 0 0 / 0.50);
+  /* ---- Ambient ground: the field the glass refracts ----
+     These were within 0.03–0.09 lightness of --surface, so a 72%-opaque pane over them
+     was indistinguishable from an opaque one: the material was there, the thing it was
+     supposed to refract was not. Deeper fields and a lighter pane make the translucency
+     visible — the audit measures composited contrast, so the text stays legible. */
+  --ambient-1: oklch(0.805 0 0 / 0.88);
+  --ambient-2: oklch(0.885 0 0 / 0.80);
+  --ambient-3: oklch(0.765 0 0 / 0.82);
+  --ambient-4: oklch(0.835 0 0 / 0.68);
 
   /* Derived */
   --backdrop: oklch(0.17 0 0 / 0.35);
@@ -216,10 +223,11 @@
   --on-cta: oklch(0.15 0 0);
   --backdrop: oklch(0.08 0 0 / 0.55);
   --sheet-shadow: 0 -1px 40px oklch(0.06 0 0 / 0.35);
-  --glass-bg: rgba(26, 26, 26, 0.72);
-  --glass-bg-strong: rgba(26, 26, 26, 0.85);
-  --glass-bg-soft: rgba(19, 19, 19, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(26, 26, 26, 0.56);
+  --glass-bg-strong: rgba(26, 26, 26, 0.74);
+  --glass-bg-soft: rgba(19, 19, 19, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-edge: rgba(0, 0, 0, 0.5);
   --fill-subtle: oklch(0.97 0 0 / 0.14);
   --glass-fallback: oklch(0.185 0 0);
   --glass-fallback-strong: oklch(0.215 0 0);
@@ -239,9 +247,10 @@
     0 4px 8px rgba(0, 0, 0, 0.32),
     0 16px 32px -6px rgba(0, 0, 0, 0.44),
     0 40px 72px -16px rgba(0, 0, 0, 0.58);
-  --ambient-1: oklch(0.34 0 0 / 0.60);
-  --ambient-2: oklch(0.26 0 0 / 0.50);
-  --ambient-3: oklch(0.36 0 0 / 0.55);
+  --ambient-1: oklch(0.40 0 0 / 0.72);
+  --ambient-2: oklch(0.245 0 0 / 0.62);
+  --ambient-3: oklch(0.43 0 0 / 0.66);
+  --ambient-4: oklch(0.32 0 0 / 0.55);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -266,10 +275,11 @@
     --on-cta: oklch(0.15 0 0);
     --backdrop: oklch(0.08 0 0 / 0.55);
     --sheet-shadow: 0 -1px 40px oklch(0.06 0 0 / 0.35);
-    --glass-bg: rgba(26, 26, 26, 0.72);
-    --glass-bg-strong: rgba(26, 26, 26, 0.85);
-    --glass-bg-soft: rgba(19, 19, 19, 0.65);
-    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-bg: rgba(26, 26, 26, 0.56);
+    --glass-bg-strong: rgba(26, 26, 26, 0.74);
+    --glass-bg-soft: rgba(19, 19, 19, 0.42);
+    --glass-border: rgba(255, 255, 255, 0.16);
+    --glass-edge: rgba(0, 0, 0, 0.5);
     --fill-subtle: oklch(0.97 0 0 / 0.14);
   --glass-fallback: oklch(0.185 0 0);
     --glass-fallback-strong: oklch(0.215 0 0);
@@ -289,9 +299,10 @@
       0 4px 8px rgba(0, 0, 0, 0.32),
       0 16px 32px -6px rgba(0, 0, 0, 0.44),
       0 40px 72px -16px rgba(0, 0, 0, 0.58);
-    --ambient-1: oklch(0.34 0 0 / 0.60);
-    --ambient-2: oklch(0.26 0 0 / 0.50);
-    --ambient-3: oklch(0.36 0 0 / 0.55);
+    --ambient-1: oklch(0.40 0 0 / 0.72);
+    --ambient-2: oklch(0.245 0 0 / 0.62);
+    --ambient-3: oklch(0.43 0 0 / 0.66);
+    --ambient-4: oklch(0.32 0 0 / 0.55);
   }
 }
 
