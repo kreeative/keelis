@@ -1,12 +1,12 @@
-# Kaalis
+# Keelis
 
 Application fintech mobile-first (web app responsive) qui réunit trois produits :
 
 | Produit | Ce que c'est |
 |---|---|
-| **Kaalis Chèque** | compte de dépense avec carte virtuelle, virements, e-Transfer |
-| **Kaalis Épargne** | compte à intérêt élevé (APY 4,00 %) avec objectifs |
-| **Kaalis Crypto** | achat, vente, détention, envoi et réception de 8 actifs, spread affiché avant chaque ordre |
+| **Keelis Chèque** | compte de dépense avec carte virtuelle, virements, e-Transfer |
+| **Keelis Épargne** | compte à intérêt élevé (APY 4,00 %) avec objectifs |
+| **Keelis Crypto** | achat, vente, détention, envoi et réception de 8 actifs, spread affiché avant chaque ordre |
 
 Style : monochrome intégral et Poppins, sur une matière de verre translucide posée sur un champ de dégradés neutres. Le chiffre est le héros — les montants sont en graisse 700, à l'échelle d'affichage. Tout le système visuel est défini par `src/styles/tokens.css`, et `DESIGN.md` en détaille les mesures.
 
@@ -44,7 +44,7 @@ src/
   styles/tokens.css     source unique de vérité (couleurs clair/sombre, typo, espacement, rayons, motion)
   styles/base.css       reset + utilitaires de type (.t-display … .t-label), .page, .num, .sr-only
   lib/format.ts         fr-CA / en-CA : virgule décimale, espace fine, dates, libellés ARIA longs
-  api/types.ts          contrat KaalisApi (typé, isolé) — remplacez le mock par un vrai client
+  api/types.ts          contrat KeelisApi (typé, isolé) — remplacez le mock par un vrai client
   api/mock/             implémentation en mémoire : latence, événements, ticks de prix 10 s, règlement optimiste
   store/                useQuery (cache conservé pendant le refetch), session + verrou NIP, réglages, toasts, marché
   components/           bibliothèque (Button, AmountDisplay, Keypad, ListRow, SegmentedControl, Sheet, Chart, …)

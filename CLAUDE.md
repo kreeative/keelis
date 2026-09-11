@@ -1,6 +1,15 @@
-# Kaalis — conventions for contributors (human or agent)
+# Keelis — conventions for contributors (human or agent)
 
-Kaalis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three products: Crypto, Chèque (spending + card), Épargne (high-interest savings). UI copy is **French (fr-CA)**; number/date formatting is localised via `src/lib/format.ts`.
+Keelis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three products: Crypto, Chèque (spending + card), Épargne (high-interest savings). UI copy is **French (fr-CA)**; number/date formatting is localised via `src/lib/format.ts`.
+
+## Brand
+The wordmark and the K monogram in `src/components/Wordmark.tsx` are traced from the brand
+artwork (`Keel_is.pdf`) — the wordmark from its lettering, the monogram from the K's own
+vector. Both are single paths on `currentColor`, so they invert with the theme and add no
+request. Do not redraw them, and do not set the name as live text: the brand face is
+**EtherealDemo-ExtraBold**, a *demo* release that is not licensed for commercial use. The
+outlines are here as artwork; shipping that font as a webfont, or buying a licence, is a
+decision for the owner.
 
 ## Commands
 - `pnpm dev` — dev server · `pnpm build` — typecheck + build · `pnpm preview` — serve `dist/` on :4173
@@ -51,11 +60,11 @@ Read it with the Figma MCP tools (`get_design_context`, `get_variable_defs`, `ge
 so if `/mcp` does not list Figma, start a fresh session rather than retrying.
 
 Take structure from it — component anatomy, spacing, states, screen composition. Do NOT take
-its wordmark, its cream ground, its accent hues or its typeface: Kaalis is monochrome and
+its wordmark, its cream ground, its accent hues or its typeface: Keelis is monochrome and
 set in Poppins, and those two decisions outrank the kit.
 
 ## Architecture
-- `src/api/types.ts` — the `KaalisApi` contract. `src/api/mock/` implements it (latency, events, price ticks, optimistic settlement). Screens import `api` from `@/api` only.
+- `src/api/types.ts` — the `KeelisApi` contract. `src/api/mock/` implements it (latency, events, price ticks, optimistic settlement). Screens import `api` from `@/api` only.
 - `src/store/` — `useQuery` (cache; data never drops to undefined during refetch), `useMutation`, `QK` query keys, `useSession` (auth + PIN lock), `useSettings` (theme / locale / hidden balances), `useToast`, `useMarket` / `useAsset` (live prices), `useOnline`.
 - `src/components/` — the component library. Import from `@/components`. Do not create parallel primitives; extend these.
 - `src/features/<area>/` — screens. Routes live in `src/shell/routes.tsx` (French paths).

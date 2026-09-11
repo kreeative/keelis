@@ -36,8 +36,11 @@
   justify-content: space-between;
   gap: var(--sp-3);
 }
+/* The disc manages its own two colours; overriding `color` here painted the K in the
+   same ink as the disc and made it vanish. */
 .mark {
-  color: var(--card-ink);
+  width: 28px;
+  height: 28px;
 }
 .kind {
   font-size: var(--fs-label);

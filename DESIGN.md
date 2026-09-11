@@ -1,4 +1,4 @@
-# Kaalis — système de design
+# Keelis — système de design
 
 Tout vit dans `src/styles/tokens.css`. Aucun composant ne contient de valeur codée en dur (`pnpm check:design` l'impose).
 

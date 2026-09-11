@@ -20,8 +20,8 @@ const SettingsContext = createContext<Settings | null>(null)
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeChoice>(() => readTheme())
   const [systemDark, setSystemDark] = useState(() => resolvedTheme('system') === 'dark')
-  const [locale, setLocaleState] = useState<Locale>(() => readJson<Locale>('kaalis.locale', 'fr-CA'))
-  const [hidden, setHidden] = useState(() => readJson<boolean>('kaalis.hidden', false))
+  const [locale, setLocaleState] = useState<Locale>(() => readJson<Locale>('keelis.locale', 'fr-CA'))
+  const [hidden, setHidden] = useState(() => readJson<boolean>('keelis.hidden', false))
   const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
 
   useEffect(() => {
@@ -44,14 +44,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setFormatLocale(locale)
     document.documentElement.lang = locale
-    writeJson('kaalis.locale', locale)
+    writeJson('keelis.locale', locale)
   }, [locale])
 
   const setTheme = useCallback((t: ThemeChoice) => setThemeState(t), [])
   const setLocale = useCallback((l: Locale) => setLocaleState(l), [])
   const toggleHidden = useCallback(() => {
     setHidden((h) => {
-      writeJson('kaalis.hidden', !h)
+      writeJson('keelis.hidden', !h)
       return !h
     })
   }, [])

@@ -1,5 +1,5 @@
 /**
- * Kaalis API contract. The UI only talks to `KaalisApi`.
+ * Keelis API contract. The UI only talks to `KeelisApi`.
  * `src/api/mock` implements it in-memory; a real backend can replace it
  * without touching any screen.
  *
@@ -471,7 +471,7 @@ export class ApiError extends Error {
 
 export type Unsubscribe = () => void
 
-export interface KaalisApi {
+export interface KeelisApi {
   auth: {
     getSession(): Promise<Session | null>
     requestCode(email: string): Promise<{ sent: true; devHint?: string }>

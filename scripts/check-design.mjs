@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Enforces the Kaalis design system statically:
+ * Enforces the Keelis design system statically:
  *  - no hard-coded colours outside tokens.css
  *  - elevation only through the layered --elev-* / --sheet-shadow / focus-ring tokens
  *    (a hand-rolled single-blur shadow is the thing this catches)

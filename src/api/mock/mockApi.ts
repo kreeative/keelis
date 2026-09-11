@@ -1,5 +1,5 @@
 /**
- * In-memory implementation of KaalisApi.
+ * In-memory implementation of KeelisApi.
  * - simulated latency (250–600 ms)
  * - offline + forced-failure controls for testing error states
  * - price ticker every 10 s (random walk)
@@ -18,7 +18,7 @@ import {
   type CryptoAsset,
   type CryptoSendRequest,
   type Holding,
-  type KaalisApi,
+  type KeelisApi,
   type OnboardingState,
   type Order,
   type PriceHistory,
@@ -56,14 +56,14 @@ import {
 } from './seed'
 
 const KEYS = {
-  session: 'kaalis.session',
-  onboarding: 'kaalis.onboarding',
-  pin: 'kaalis.pin',
-  security: 'kaalis.security',
-  prefs: 'kaalis.notifprefs',
-  watched: 'kaalis.watched',
-  frozen: 'kaalis.card.frozen',
-  locale: 'kaalis.locale',
+  session: 'keelis.session',
+  onboarding: 'keelis.onboarding',
+  pin: 'keelis.pin',
+  security: 'keelis.security',
+  prefs: 'keelis.notifprefs',
+  watched: 'keelis.watched',
+  frozen: 'keelis.card.frozen',
+  locale: 'keelis.locale',
 }
 
 export const PRICE_TICK_MS = 10_000
@@ -87,7 +87,7 @@ async function simulate() {
   if (offline) throw new ApiError('Vous êtes hors ligne.', 'offline')
   if (mockControls.failNext > 0) {
     mockControls.failNext -= 1
-    throw new ApiError('Impossible de joindre Kaalis. Réessayez.', 'network')
+    throw new ApiError('Impossible de joindre Keelis. Réessayez.', 'network')
   }
 }
 
@@ -286,7 +286,7 @@ const defaultSecurity: SecuritySettings = { twoFactorEnabled: true, biometricsEn
 
 // ---------- the API ----------
 
-export const mockApi: KaalisApi = {
+export const mockApi: KeelisApi = {
   auth: {
     async getSession() {
       await simulate()

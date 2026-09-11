@@ -2,7 +2,7 @@
 /**
  * Builds the app as ONE self-contained HTML file (hash routing, all JS/CSS inlined):
  *   dist-single/index.html  — standalone page (open directly in a browser)
- *   dist-single/kaalis.html — body-only variant for hosting in an Artifact wrapper
+ *   dist-single/keelis.html — body-only variant for hosting in an Artifact wrapper
  */
 import { execSync } from 'node:child_process'
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
@@ -33,7 +33,7 @@ css = css.replace(/url\((['"]?)(?:\.\.)?\/fonts\/([^'")]+)\1\)/g, (whole, _q, na
 })
 // The theme pre-paint script authored in index.html (first plain <script>)
 const themeScript = (original.match(/<script>([\s\S]*?)<\/script>/) || ['', ''])[1]
-const title = (original.match(/<title>([^<]*)<\/title>/) || [])[1] ?? 'Kaalis'
+const title = (original.match(/<title>([^<]*)<\/title>/) || [])[1] ?? 'Keelis'
 
 const head = `<meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -46,5 +46,5 @@ writeFileSync(join(out, 'index.html'), standalone)
 
 // Body-only variant: the artifact host supplies doctype/html/head/body.
 const body = `<title>${title}</title>\n<meta name="color-scheme" content="light dark">\n<style>${css}</style>\n<script>${themeScript}</script>\n<div id="root"></div>\n<script type="module">${escapeScript(js)}</script>\n`
-writeFileSync(join(out, 'kaalis.html'), body)
-console.log(`single-file build: ${(Buffer.byteLength(standalone) / 1024).toFixed(0)} KB (index.html), ${(Buffer.byteLength(body) / 1024).toFixed(0)} KB (kaalis.html)`)
+writeFileSync(join(out, 'keelis.html'), body)
+console.log(`single-file build: ${(Buffer.byteLength(standalone) / 1024).toFixed(0)} KB (index.html), ${(Buffer.byteLength(body) / 1024).toFixed(0)} KB (keelis.html)`)

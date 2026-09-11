@@ -15,7 +15,7 @@ const ROWS: ReadonlyArray<{ key: PrefKey; title: string; subtitle: string; icon:
   { key: 'security', title: 'Sécurité', subtitle: 'Connexions et changements sensibles', icon: 'shield', locked: true },
   { key: 'market', title: 'Marché', subtitle: 'Variations notables sur vos cryptomonnaies', icon: 'chart-line' },
   { key: 'savings', title: 'Épargne', subtitle: 'Intérêts versés et progression des objectifs', icon: 'piggy-bank' },
-  { key: 'marketing', title: 'Offres', subtitle: 'Nouveautés et propositions de Kaalis', icon: 'star' },
+  { key: 'marketing', title: 'Offres', subtitle: 'Nouveautés et propositions de Keelis', icon: 'star' },
 ]
 
 export default function NotificationPrefsPage() {
@@ -41,7 +41,7 @@ export default function NotificationPrefsPage() {
   return (
     <div className={styles.page}>
       <PageHeader back="/profil" title="Notifications" />
-      <p className={styles.intro}>Choisissez ce que Kaalis vous envoie. Les alertes de sécurité restent toujours actives.</p>
+      <p className={styles.intro}>Choisissez ce que Keelis vous envoie. Les alertes de sécurité restent toujours actives.</p>
 
       <section className={styles.section} aria-label="Préférences de notification">
         {prefs.loading ? (

@@ -17,7 +17,7 @@ export function VirtualCard({ card, className }: { card: Card; className?: strin
     <div className={cn(styles.card, className)}>
       <div className={cn(styles.face, frozen && styles.faded)}>
         <div className={styles.top}>
-          <Wordmark glyphOnly className={styles.mark} />
+          <Wordmark glyphOnly tone="paper" className={styles.mark} />
           <span className={styles.kind}>Virtuelle</span>
         </div>
         <div className={styles.bottom}>

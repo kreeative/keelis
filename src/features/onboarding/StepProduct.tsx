@@ -80,7 +80,7 @@ export function StepProduct() {
       eyebrow={stepEyebrow('produit')}
       title="Par quoi voulez-vous commencer ?"
       description="Les trois produits restent disponibles ; celui-ci s’ouvre en premier."
-      submitLabel="Ouvrir Kaalis"
+      submitLabel="Ouvrir Keelis"
       submitDisabled={!choice}
       submitting={busy}
       onSubmit={() => void submit()}

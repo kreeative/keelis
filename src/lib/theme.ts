@@ -1,6 +1,6 @@
 /** Theme: system (default) | light | dark. Persisted; applied via data-theme on <html>. */
 export type ThemeChoice = 'system' | 'light' | 'dark'
-const KEY = 'kaalis.theme'
+const KEY = 'keelis.theme'
 
 export function readTheme(): ThemeChoice {
   try {

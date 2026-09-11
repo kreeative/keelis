@@ -1,7 +1,23 @@
-.mark { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--ink-900); }
-.glyph { width: 24px; height: 24px; }
-.name { font-size: var(--fs-h2); font-weight: var(--fw-h2); letter-spacing: var(--ls-h2); line-height: 1; }
-.sm .glyph { width: 20px; height: 20px; }
-.sm .name { font-size: var(--fs-body); }
-.lg .glyph { width: 32px; height: 32px; }
-.lg .name { font-size: var(--fs-h1); letter-spacing: var(--ls-h1); }
+/* The wordmark is a single path; its height drives the size and the width follows the
+   art's own aspect ratio (1563 : 471). */
+.mark { display: inline-flex; align-items: center; color: var(--ink-900); }
+.word { height: 22px; width: auto; display: block; }
+.sm .word { height: 17px; }
+.lg .word { height: 30px; }
+
+/* The monogram sits in a disc of ink with the K knocked out, which is how the brand
+   sheet draws it. The disc is CSS so it inverts with the theme. */
+.disc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  flex-shrink: 0;
+}
+.ink { background: var(--ink-900); color: var(--surface); }
+.paper { background: var(--surface); color: var(--ink-900); }
+.monogram { height: 44%; width: auto; display: block; }
+.sm.disc { width: 28px; height: 28px; }
+.lg.disc { width: 44px; height: 44px; }

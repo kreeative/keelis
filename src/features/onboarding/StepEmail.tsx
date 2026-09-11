@@ -42,7 +42,7 @@ export function StepEmail() {
     <StepShell
       eyebrow={connexion ? 'Connexion' : stepEyebrow('courriel')}
       title="Quelle est votre adresse courriel ?"
-      description={connexion ? 'Entrez l’adresse associée à votre compte Kaalis.' : 'Nous vous enverrons un code à six chiffres pour la confirmer.'}
+      description={connexion ? 'Entrez l’adresse associée à votre compte Keelis.' : 'Nous vous enverrons un code à six chiffres pour la confirmer.'}
       submitDisabled={!valid}
       submitting={busy}
       onSubmit={() => void submit()}
