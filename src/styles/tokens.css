@@ -39,6 +39,11 @@
   --warn: oklch(0.17 0 0);            /* attention — stays ink; the glyph carries it */
 
   /* Card (virtual card) — deliberately the same in both modes */
+  /* The ground the home sheet paints, and the one thing it must not share with the cards
+     riding on it: a white sheet under white cards leaves the cards with nothing but their
+     shadow to be seen by. A step down from --surface in light, and *below* --surface in
+     dark too, so the cards sit above the sheet in both themes rather than flipping. */
+  --sheet-ground: oklch(0.955 0 0);
   --card-surface: oklch(0.17 0 0);
   --card-ink: oklch(0.97 0 0);
   --card-ink-muted: oklch(0.72 0 0);
@@ -263,6 +268,7 @@
   --line: oklch(0.28 0 0);
   --surface: oklch(0.15 0 0);
   --surface-alt: oklch(0.21 0 0);
+  --sheet-ground: oklch(0.12 0 0);
   --accent: oklch(0.97 0 0);
   --accent-text: oklch(0.92 0 0);
   --accent-soft: oklch(0.28 0 0);
@@ -328,6 +334,7 @@
     --line: oklch(0.28 0 0);
     --surface: oklch(0.15 0 0);
     --surface-alt: oklch(0.21 0 0);
+    --sheet-ground: oklch(0.12 0 0);
     --accent: oklch(0.97 0 0);
     --accent-text: oklch(0.92 0 0);
     --accent-soft: oklch(0.28 0 0);

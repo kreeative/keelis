@@ -102,15 +102,6 @@ export default function HomePage() {
               <AmountDisplay value={heroValue} delta={heroDelta} deltaPct={heroPct} period={hover ? undefined : period?.period} caption={heroCaption} />
             )}
 
-            <div className={styles.canvasActions}>
-              <Button size="lg" icon={<Icon name="send" size={18} />} onClick={() => navigate('/envoyer')}>
-                Envoyer
-              </Button>
-              <Button size="lg" variant="secondary" icon={<Icon name="plus" size={18} />} onClick={() => navigate('/fonds')}>
-                Ajouter
-              </Button>
-            </div>
-
             <div className={styles.chartBlock} aria-label="Évolution du solde total">
               <Chart
                 points={history.data?.points ?? []}
@@ -122,6 +113,18 @@ export default function HomePage() {
                 formatTime={(t) => (range === '1D' ? formatDateTime(t, { locale }) : formatDate(t, { locale }))}
               />
               <SegmentedControl segments={RANGES.map((r) => ({ value: r.value, label: r.label }))} value={range} onChange={setRange} label="Période du graphique" size="sm" bare />
+            </div>
+
+            {/* The two actions sit at the foot of the canvas, under the curve: the balance
+                and its shape are what the screen is for, and the actions are what you do
+                after reading them. */}
+            <div className={styles.canvasActions}>
+              <Button size="lg" icon={<Icon name="send" size={18} />} onClick={() => navigate('/envoyer')}>
+                Envoyer
+              </Button>
+              <Button size="lg" variant="secondary" icon={<Icon name="plus" size={18} />} onClick={() => navigate('/fonds')}>
+                Ajouter
+              </Button>
             </div>
           </section>
 
