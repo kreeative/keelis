@@ -5,6 +5,7 @@
 }
 .item {
   display: inline-flex;
+  flex-shrink: 0;
   border-radius: var(--r-pill);
   /* The ring is the page surface, so each monogram stays legible where they overlap. */
   box-shadow: 0 0 0 2px var(--surface);
@@ -12,3 +13,5 @@
 .item + .item {
   margin-left: calc(var(--stack-size, 28px) * -0.28);
 }
+
+.mark { width: 100%; height: 100%; }

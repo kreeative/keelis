@@ -17,7 +17,7 @@ export function HoldingsRow() {
   const count = items.length
   return (
     <Card to="/crypto" padding="md" elevation={1} className={styles.row} label={`${count} actifs crypto, voir le détail`}>
-      <AvatarStack items={items.map((h) => h.symbol)} label={`${count} actifs détenus`} />
+      <AvatarStack assets items={items.map((h) => h.symbol)} label={`${count} actifs détenus`} />
       <span className={styles.text}>
         {count} actif{count > 1 ? 's' : ''}
       </span>

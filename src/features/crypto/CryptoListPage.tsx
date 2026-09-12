@@ -3,7 +3,7 @@
  * Prices come from useMarket() (tick every 10 s) and update in place, without animation.
  */
 import { useDeferredValue, useMemo, useState } from 'react'
-import { AmountDisplay, AppBar, Avatar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
+import { AmountDisplay, AppBar, AssetIcon, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
 import type { CryptoAsset, Holding } from '@/api/types'
 import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -35,7 +35,7 @@ function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | u
   return (
     <ListRow
       to={`/crypto/${asset.id}`}
-      leading={<Avatar label={asset.symbol} monogram={asset.symbol} tone="neutral" />}
+      leading={<AssetIcon symbol={asset.symbol} label={asset.name} />}
       title={asset.name}
       subtitle={subtitle}
       value={

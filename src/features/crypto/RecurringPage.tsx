@@ -5,7 +5,7 @@
 import { useMemo, useState } from 'react'
 import { api } from '@/api'
 import type { ApiError, RecurringBuy, RecurringFrequency } from '@/api/types'
-import { AmountDisplay, Avatar, Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SegmentedControl, SelectField, Sheet, SkeletonRow, Switch } from '@/components'
+import { AmountDisplay, AssetIcon, Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SegmentedControl, SelectField, Sheet, SkeletonRow, Switch } from '@/components'
 import { formatDate, formatMoney, parseAmountInput } from '@/lib/format'
 import { QK, useMutation, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
@@ -27,7 +27,7 @@ function RecurringRow({ item, onOpen, onToggle }: { item: RecurringBuy; onOpen: 
   return (
     <div className={styles.row}>
       <button type="button" className={styles.rowMain} onClick={onOpen}>
-        <Avatar label={item.symbol} monogram={item.symbol} />
+        <AssetIcon symbol={item.symbol} />
         <span className={styles.rowText}>
           <span className={cn(styles.rowTitle, !item.active && styles.muted)}>{title}</span>
           <span className={styles.rowSub}>{subtitle}</span>

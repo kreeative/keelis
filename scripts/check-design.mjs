@@ -30,7 +30,10 @@ const colourLiteral = /(#[0-9a-fA-F]{3,8}\b|\b(rgb|rgba|hsl|hsla|oklch|oklab|lab
 const BASE = join(ROOT, 'styles/base.css')
 // The one component whose whole job is to paint the ambient colour field.
 const AMBIENT = join(ROOT, 'components/AmbientGround.module.css')
-const allowedColourFiles = [TOKENS]
+/* The asset marks are the one sanctioned exception: a token's logo is how someone finds
+   Bitcoin in a list without reading, so it keeps its real colours. Nothing else may. */
+const ASSET_ICONS = join(ROOT, 'components/AssetIcon.tsx')
+const allowedColourFiles = [TOKENS, ASSET_ICONS]
 const allowedGradientFiles = [TOKENS, BASE, AMBIENT]
 const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg|surface)\)/
 

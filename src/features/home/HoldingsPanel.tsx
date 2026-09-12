@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '@/api'
 import type { CryptoAsset, Holding } from '@/api/types'
-import { Avatar, Delta, EmptyState, List, ListRow, Money, SegmentedControl, SkeletonRow } from '@/components'
+import { AssetIcon, Delta, EmptyState, List, ListRow, Money, SegmentedControl, SkeletonRow } from '@/components'
 import { formatCrypto } from '@/lib/format'
 import { QK, useMarket, useQuery, useSettings } from '@/store'
 import styles from './HoldingsPanel.module.css'
@@ -41,7 +41,7 @@ export function HoldingsPanel() {
                 <ListRow
                   key={h.assetId}
                   to={`/crypto/${h.assetId}`}
-                  leading={<Avatar label={h.symbol} monogram={h.symbol.slice(0, 3)} />}
+                  leading={<AssetIcon symbol={h.symbol} />}
                   title={assets?.find((a) => a.id === h.assetId)?.name ?? h.symbol}
                   subtitle={formatCrypto(h.quantity, h.symbol, { locale })}
                   value={<Money value={h.value} />}
@@ -58,7 +58,7 @@ export function HoldingsPanel() {
               <ListRow
                 key={a.id}
                 to={`/crypto/${a.id}`}
-                leading={<Avatar label={a.symbol} monogram={a.symbol.slice(0, 3)} />}
+                leading={<AssetIcon symbol={a.symbol} label={a.name} />}
                 title={a.name}
                 subtitle={a.symbol}
                 value={<Money value={a.price} />}

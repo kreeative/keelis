@@ -31,6 +31,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "cryptocurrency-icons": "^0.18.1",
     "jsdom": "^26.1.0",
     "playwright-core": "^1.55.0",
     "typescript": "^5.9.0",

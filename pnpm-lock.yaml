@@ -48,6 +48,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.0.0
         version: 5.2.0(vite@7.3.6(@types/node@22.20.2))
+      cryptocurrency-icons:
+        specifier: ^0.18.1
+        version: 0.18.1
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
@@ -684,6 +687,9 @@ packages:
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
+
+  cryptocurrency-icons@0.18.1:
+    resolution: {integrity: sha512-dvR5O8JOmav3559Yb0Igpkia+3vpt/aeNvMu5ZIVUG2Bzpq9wNcOJRIQas49XJrPjtZ98GAEn3aDQO+w7uhS2w==}
 
   css.escape@1.5.1:
     resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
@@ -1754,6 +1760,8 @@ snapshots:
   convert-source-map@2.0.0: {}
 
   cookie@1.1.1: {}
+
+  cryptocurrency-icons@0.18.1: {}
 
   css.escape@1.5.1: {}
 

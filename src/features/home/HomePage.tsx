@@ -10,7 +10,7 @@ import type { ChartRange, PriceHistory } from '@/api/types'
 import { AmountDisplay, AppBar, Button, Card, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SectionHeader, SegmentedControl, SkeletonRow } from '@/components'
 import { TransactionRow, useAccounts, useTransactions } from '@/features/shared'
 import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
-import { QK, useQuery, useSettings } from '@/store'
+import { QK, useDesktop, useQuery, useSettings } from '@/store'
 import { useSession } from '@/store/session'
 import { AccountCards } from './AccountCards'
 import { HoldingsPanel } from './HoldingsPanel'
@@ -63,6 +63,7 @@ export default function HomePage() {
 
   const recentItems = recent.data?.slice(0, RECENT_COUNT)
   const hello = `${greeting()}${user ? `, ${user.firstName}` : ''}`
+  const wide = useDesktop()
 
   return (
     <div className={styles.page}>
@@ -102,7 +103,7 @@ export default function HomePage() {
           <section className={styles.chartBlock} aria-label="Évolution du solde total">
             <Chart
               points={history.data?.points ?? []}
-              height={200}
+              height={wide ? 220 : 148}
               label={`Solde total, ${period?.period.toLowerCase() ?? range}`}
               loading={history.loading && !history.data}
               onHover={setHover}
