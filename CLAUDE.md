@@ -1,6 +1,6 @@
-# Keelis — conventions for contributors (human or agent)
+# Keewal Meere — conventions for contributors (human or agent)
 
-Keelis is a mobile-first fintech web app for **Africa** (React 19 + TypeScript + Vite). Products: Marchés (African equities + crypto), Chèque (spending + card), Épargne, and Change. UI copy is **French (fr-SN)**, with **en-NG** as the second locale; number/date formatting is localised via `src/lib/format.ts`.
+Keewal Meere is a mobile-first fintech web app for **Africa** (React 19 + TypeScript + Vite). Products: Marchés (African equities + crypto), Chèque (spending + card), Épargne, and Change. UI copy is **French (fr-SN)**, with **en-NG** as the second locale; number/date formatting is localised via `src/lib/format.ts`.
 
 ## Money is multi-currency, and the currency decides its own punctuation
 - **`src/lib/currency.ts` is the registry** — sixteen currencies: the two CFA francs, the major African units, plus EUR and USD as anchors. `Currency` is that union; `src/api/types.ts` re-exports it. It was `'CAD'`, a one-member union, and every African ambition in the roadmap was blocked behind it.
@@ -14,11 +14,16 @@ Keelis is a mobile-first fintech web app for **Africa** (React 19 + TypeScript +
 - **The rates in `lib/fx.ts` are demonstration rates**, anchored to real orders of magnitude but not a feed. Every surface that shows one says so. The two pegged numbers are the exception and are exact.
 
 ## Brand
-The marks live in `src/components/Wordmark.tsx` and come from the brand artwork
-(`Keel_is.pdf`), not from a redraw.
+The marks live in `src/components/Wordmark.tsx`.
 
-- **The wordmark** is a raster in the PDF, traced to one bezier path on `currentColor`, so
-  it inverts with the theme and costs no request.
+**The product was renamed from Keelis to Keewal Meere, and the wordmark artwork did not
+survive it.** The old wordmark was a bezier path traced from the brand sheet — and that
+path spelled *Keelis*. Artwork cannot be re-traced for a name it was never drawn for, so
+the name is **typeset in Poppins as a stopgap** until new artwork exists. It is
+deliberately not set in the brand face: EtherealDemo-ExtraBold has no commercial licence,
+and the old wordmark only escaped that by shipping as outlines rather than as type.
+**The monogram survives**, because the new name also starts with K.
+
 - **The monogram is an image on purpose.** The sheet draws the K disc *embossed* — a raised
   letter, a lit rim, a soft shadow — and tracing it to a flat vector throws all of that
   away. `public/brand/mark-ink.png` and `mark-paper.png` are the sheet's own two versions;
@@ -97,11 +102,11 @@ Read it with the Figma MCP tools (`get_design_context`, `get_variable_defs`, `ge
 so if `/mcp` does not list Figma, start a fresh session rather than retrying.
 
 Take structure from it — component anatomy, spacing, states, screen composition. Do NOT take
-its wordmark, its cream ground, its accent hues or its typeface: Keelis is monochrome and
+its wordmark, its cream ground, its accent hues or its typeface: Keewal Meere is monochrome and
 set in Poppins, and those two decisions outrank the kit.
 
 ## Architecture
-- `src/api/types.ts` — the `KeelisApi` contract. `src/api/mock/` implements it (latency, events, price ticks, optimistic settlement). Screens import `api` from `@/api` only.
+- `src/api/types.ts` — the `KeewalApi` contract. `src/api/mock/` implements it (latency, events, price ticks, optimistic settlement). Screens import `api` from `@/api` only.
 - `src/store/` — `useQuery` (cache; data never drops to undefined during refetch), `useMutation`, `QK` query keys, `useSession` (auth + PIN lock), `useSettings` (theme / locale / hidden balances), `useToast`, `useMarket` / `useAsset` (live prices), `useOnline`.
 - `src/components/` — the component library. Import from `@/components`. Do not create parallel primitives; extend these.
 - `src/features/<area>/` — screens. Routes live in `src/shell/routes.tsx` (French paths).

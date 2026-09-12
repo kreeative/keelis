@@ -28,7 +28,7 @@ const LOCALES: readonly Locale[] = ['fr-SN', 'en-NG']
  * "F CFA", so the app looks Canadian to exactly the people who have used it longest.
  */
 function readLocale(): Locale {
-  const stored = readJson<string>('keelis.locale', 'fr-SN')
+  const stored = readJson<string>('keewal.locale', 'fr-SN')
   return (LOCALES as readonly string[]).includes(stored) ? (stored as Locale) : 'fr-SN'
 }
 
@@ -36,7 +36,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeChoice>(() => readTheme())
   const [systemDark, setSystemDark] = useState(() => resolvedTheme('system') === 'dark')
   const [locale, setLocaleState] = useState<Locale>(() => readLocale())
-  const [hidden, setHidden] = useState(() => readJson<boolean>('keelis.hidden', false))
+  const [hidden, setHidden] = useState(() => readJson<boolean>('keewal.hidden', false))
   const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
 
   useEffect(() => {
@@ -59,14 +59,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setFormatLocale(locale)
     document.documentElement.lang = locale
-    writeJson('keelis.locale', locale)
+    writeJson('keewal.locale', locale)
   }, [locale])
 
   const setTheme = useCallback((t: ThemeChoice) => setThemeState(t), [])
   const setLocale = useCallback((l: Locale) => setLocaleState(l), [])
   const toggleHidden = useCallback(() => {
     setHidden((h) => {
-      writeJson('keelis.hidden', !h)
+      writeJson('keewal.hidden', !h)
       return !h
     })
   }, [])

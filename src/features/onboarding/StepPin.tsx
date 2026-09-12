@@ -82,7 +82,7 @@ export function StepPin() {
     <StepShell
       eyebrow={stepEyebrow('nip')}
       title={phase === 'choose' ? 'Choisissez un NIP à 4 chiffres' : 'Confirmez votre NIP'}
-      description={phase === 'choose' ? 'Il déverrouille Keelis et confirme vos paiements.' : 'Entrez les mêmes quatre chiffres une seconde fois.'}
+      description={phase === 'choose' ? 'Il déverrouille Keewal Meere et confirme vos paiements.' : 'Entrez les mêmes quatre chiffres une seconde fois.'}
       hideSubmit
       footer={
         phase === 'confirm' ? (

@@ -52,7 +52,7 @@ export default function WelcomePage() {
           Explorer la démo
         </Button>
       </div>
-      <p className={`t-label ${styles.footer}`}>Keelis Technologies · Montréal</p>
+      <p className={`t-label ${styles.footer}`}>Keewal Meere Technologies · Montréal</p>
       <div className={styles.toasts}>
       </div>
     </div>

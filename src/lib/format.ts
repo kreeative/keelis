@@ -9,7 +9,7 @@ import { CURRENCIES, type Currency } from './currency'
 export type Locale = 'fr-SN' | 'en-NG'
 
 /**
- * The currency an amount is in when nothing says otherwise. Keelis is West-Africa-first,
+ * The currency an amount is in when nothing says otherwise. Keewal Meere is West-Africa-first,
  * so that is the CFA franc — and because XOF has no centimes, this default alone changes
  * how every bare amount in the app is punctuated.
  */

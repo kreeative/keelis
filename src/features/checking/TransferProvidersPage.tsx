@@ -1,5 +1,5 @@
 /**
- * /envoyer/operateurs — every rail money can leave Keelis through.
+ * /envoyer/operateurs — every rail money can leave Keewal Meere through.
  *
  * This exists as its own page because "e-Transfer" was one segment of a three-way control,
  * and behind that one word sit fifteen operators that work nothing alike: a phone number

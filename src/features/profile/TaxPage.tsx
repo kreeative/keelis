@@ -73,7 +73,7 @@ export default function TaxPage() {
         <aside className={styles.side}>
           <h2 className="t-section">Cryptomonnaies</h2>
           <p className={styles.note}>
-            Les gains et les pertes en cryptomonnaie se déclarent vous-même. Keelis fournit l’historique complet de vos transactions, sans remplacer un conseil fiscal.
+            Les gains et les pertes en cryptomonnaie se déclarent vous-même. Keewal Meere fournit l’historique complet de vos transactions, sans remplacer un conseil fiscal.
           </p>
           <List>
             <ListRow to="/profil/documents" leading={<RowIcon name="file-text" />} title="Documents et relevés" subtitle="Relevés mensuels en PDF" chevron />

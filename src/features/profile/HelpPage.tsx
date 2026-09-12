@@ -18,7 +18,7 @@ const FAQ: ReadonlyArray<Faq> = [
   {
     id: 'frais',
     q: 'Quels frais s’appliquent à un achat de cryptomonnaie ?',
-    a: 'Keelis applique un écart (spread) sur le prix du marché, indiqué en pourcentage et en dollars avant chaque confirmation. Aucun frais fixe ne s’ajoute : le montant total affiché sur l’écran de confirmation est celui qui sera débité.',
+    a: 'Keewal Meere applique un écart (spread) sur le prix du marché, indiqué en pourcentage et en dollars avant chaque confirmation. Aucun frais fixe ne s’ajoute : le montant total affiché sur l’écran de confirmation est celui qui sera débité.',
   },
   {
     id: 'depots',
@@ -33,7 +33,7 @@ const FAQ: ReadonlyArray<Faq> = [
   {
     id: 'nip',
     q: 'Mon NIP est-il sécurisé ?',
-    a: 'Le NIP déverrouille l’application sur cet appareil seulement. Il n’est jamais envoyé par courriel et aucun employé de Keelis ne vous le demandera. Vous pouvez le changer dans Profil, puis Sécurité.',
+    a: 'Le NIP déverrouille l’application sur cet appareil seulement. Il n’est jamais envoyé par courriel et aucun employé de Keewal Meere ne vous le demandera. Vous pouvez le changer dans Profil, puis Sécurité.',
   },
   {
     id: 'objectifs',
@@ -48,7 +48,7 @@ const FAQ: ReadonlyArray<Faq> = [
   {
     id: 'envoi-crypto',
     q: 'Puis-je annuler un envoi de cryptomonnaie ?',
-    a: 'Non. Une fois diffusée sur le réseau, une transaction est irréversible et Keelis ne peut pas la rappeler. Vérifiez l’adresse et le réseau avant de confirmer : les deux sont affichés une dernière fois sur l’écran de confirmation.',
+    a: 'Non. Une fois diffusée sur le réseau, une transaction est irréversible et Keewal Meere ne peut pas la rappeler. Vérifiez l’adresse et le réseau avant de confirmer : les deux sont affichés une dernière fois sur l’écran de confirmation.',
   },
   {
     id: 'releves',
@@ -146,11 +146,11 @@ export default function HelpPage() {
               </span>
               <Icon name="chevron-right" className={styles.contactChevron} />
             </button>
-            <a className={styles.contact} href="mailto:aide@keelis.ca">
+            <a className={styles.contact} href="mailto:aide@keewal.ca">
               <RowIcon name="mail" />
               <span className={styles.contactText}>
                 <span className={styles.contactTitle}>Courriel</span>
-                <span className={styles.contactSub}>aide@keelis.ca</span>
+                <span className={styles.contactSub}>aide@keewal.ca</span>
               </span>
               <Icon name="chevron-right" className={styles.contactChevron} />
             </a>

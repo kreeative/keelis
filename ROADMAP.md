@@ -1,4 +1,4 @@
-# Keelis — feuille de route
+# Keewal Meere — feuille de route
 
 Ce document est la checklist du propriétaire, conservée telle qu'elle a été formulée.
 **Rien ici n'est requis pour aujourd'hui.** Il sert de référence pour savoir ce qui reste
@@ -54,6 +54,6 @@ actions africaines et de la pédagogie contextuelle (IPO à venir, comment lire 
 
 ## État actuel de la démo
 
-L'API est simulée (`src/api/mock/`) derrière le contrat `KeelisApi`. Aucun écran ne connaît
+L'API est simulée (`src/api/mock/`) derrière le contrat `KeewalApi`. Aucun écran ne connaît
 la différence : brancher un vrai back-end veut dire implémenter cette interface, pas
 retoucher l'interface utilisateur.

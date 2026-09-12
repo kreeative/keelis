@@ -58,7 +58,7 @@ export default function ProfilePage() {
     <div className={styles.page}>
       <div className={styles.layout}>
         <header className={styles.identity}>
-          <Avatar label={fullName || 'Keelis'} size={56} tone="accent" />
+          <Avatar label={fullName || 'Keewal Meere'} size={56} tone="accent" />
           <h1 className={`t-h1 ${styles.name}`}>{fullName || 'Votre profil'}</h1>
           <p className={`t-small ${styles.email}`}>{user?.email}</p>
           <div className={styles.meta}>
@@ -122,7 +122,7 @@ export default function ProfilePage() {
                 <RowIcon name="info" />
                 <span className={styles.aboutText}>
                   <span className={styles.aboutTitle}>À propos</span>
-                  <span className={styles.about}>Keelis 0.1.0 · Conditions · Confidentialité</span>
+                  <span className={styles.about}>Keewal Meere 0.1.0 · Conditions · Confidentialité</span>
                 </span>
               </div>
             </List>

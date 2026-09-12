@@ -1,10 +1,10 @@
 /** Theme: system (default) | light | dark. Persisted; applied via data-theme on <html>. */
 export type ThemeChoice = 'system' | 'light' | 'dark'
-const KEY = 'keelis.theme'
+const KEY = 'keewal.theme'
 
 export function readTheme(): ThemeChoice {
   try {
-    const v = localStorage.getItem(KEY)
+    const v = localStorage.getItem(KEY) ?? localStorage.getItem('keelis.theme')
     if (v === 'light' || v === 'dark') return v
   } catch {
     /* ignore */

@@ -7,7 +7,7 @@
  *
  * There is no `=` key and no operator precedence. Precedence on a two-line display is how
  * calculators trick people — `100 + 20 × 3` is 160 to a mathematician and 360 to everyone
- * typing it into a till. Keelis does neither: pressing a second operator settles the first
+ * typing it into a till. Keewal Meere does neither: pressing a second operator settles the first
  * one immediately, so what you see is always what has already been worked out.
  *
  * The value is resolved on every keystroke rather than when a key says so, so the figure

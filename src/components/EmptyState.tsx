@@ -21,11 +21,11 @@ export function EmptyState({ message, action, placeholderCaption, className, com
         <figure className={styles.figure}>
           <svg className={styles.placeholder} viewBox="0 0 160 100" role="img" aria-label={placeholderCaption ?? 'Espace réservé pour un visuel'}>
             <defs>
-              <pattern id="keelis-stripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <pattern id="keewal-stripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                 <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" strokeWidth="1" />
               </pattern>
             </defs>
-            <rect x="0.5" y="0.5" width="159" height="99" rx="12" fill="url(#keelis-stripes)" stroke="currentColor" strokeWidth="1" />
+            <rect x="0.5" y="0.5" width="159" height="99" rx="12" fill="url(#keewal-stripes)" stroke="currentColor" strokeWidth="1" />
           </svg>
           {placeholderCaption ? <figcaption className={styles.caption}>{placeholderCaption}</figcaption> : null}
         </figure>

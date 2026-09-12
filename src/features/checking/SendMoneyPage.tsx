@@ -18,7 +18,7 @@ type Mode = 'etransfer' | 'interne' | 'bancaire'
 
 const MODES: ReadonlyArray<{ value: Mode; label: string; title: string; eta: string; description: string }> = [
   { value: 'etransfer', label: 'Transfert', title: 'Transfert', eta: 'Quelques minutes', description: 'Vers Wave, Orange Money, MoneyGram, Interac et une douzaine d’autres.' },
-  { value: 'interne', label: 'Interne', title: 'Virement interne', eta: 'Instantané', description: 'Instantané, entre vos comptes Keelis.' },
+  { value: 'interne', label: 'Interne', title: 'Virement interne', eta: 'Instantané', description: 'Instantané, entre vos comptes Keewal Meere.' },
   { value: 'bancaire', label: 'Bancaire', title: 'Virement bancaire', eta: '1 à 2 jours ouvrables', description: '1 à 2 jours ouvrables, vers une autre institution.' },
 ]
 
@@ -226,7 +226,7 @@ export default function SendMoneyPage() {
               </span>
             }
             title="Vers Épargne"
-            subtitle="Votre compte d’épargne Keelis"
+            subtitle="Votre compte d’épargne Keewal Meere"
           />
         ) : (
           <div className={styles.fields}>
@@ -368,7 +368,7 @@ export default function SendMoneyPage() {
             ? 'Rien n’a été débité. Vos informations restent saisies : réessayez une fois la connexion rétablie.'
             : internal
               ? 'Le virement interne est immédiat et sans frais.'
-              : 'Aucuns frais ne sont prélevés par Keelis pour cet envoi.'
+              : 'Aucuns frais ne sont prélevés par Keewal Meere pour cet envoi.'
         }
         confirmLabel="Envoyer"
         onConfirm={() => void submit()}

@@ -362,7 +362,7 @@ export function makeTransactions(): Transaction[] {
     add({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -650, counterparty: 'Vers Épargne', category: 'savings', date: daysAgo(day, 6, 30), postedAt: daysAgo(day, 6, 30), channel: 'app' })
   }
   for (const [day, amt] of [[10, 41.88], [41, 39.72], [71, 37.15]] as const) {
-    add({ accountId: IDS.savings, type: 'interest', status: 'posted', amount: amt, counterparty: 'Intérêts Keelis Épargne', category: 'income', date: daysAgo(day, 0, 5), postedAt: daysAgo(day, 0, 5), channel: 'app' })
+    add({ accountId: IDS.savings, type: 'interest', status: 'posted', amount: amt, counterparty: 'Intérêts Keewal Meere Épargne', category: 'income', date: daysAgo(day, 0, 5), postedAt: daysAgo(day, 0, 5), channel: 'app' })
   }
   add({ accountId: IDS.savings, type: 'withdrawal', status: 'posted', amount: -400, counterparty: 'Vers Chèque', category: 'savings', date: daysAgo(19, 11), postedAt: daysAgo(19, 11), channel: 'app' })
   add({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: 400, counterparty: 'Depuis Épargne', category: 'savings', date: daysAgo(19, 11), postedAt: daysAgo(19, 11), channel: 'app' })
@@ -490,7 +490,7 @@ export const seedTaxDocuments: TaxDocument[] = [
 // ---------- Transfer operators ----------
 
 /**
- * Everywhere money can be sent from Keelis.
+ * Everywhere money can be sent from Keewal Meere.
  *
  * **The fees and limits here are demonstration values.** They are anchored to the orders
  * of magnitude these operators actually charge so the screen behaves plausibly, but they

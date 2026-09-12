@@ -42,7 +42,7 @@ export function StepBirth() {
     <StepShell
       eyebrow={stepEyebrow('naissance')}
       title="Quelle est votre date de naissance ?"
-      description={`Keelis est offert aux personnes de ${MIN_AGE} ans et plus.`}
+      description={`Keewal Meere est offert aux personnes de ${MIN_AGE} ans et plus.`}
       submitDisabled={value.length === 0}
       submitting={busy}
       onSubmit={() => void submit()}

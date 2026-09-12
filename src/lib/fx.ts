@@ -1,5 +1,5 @@
 /**
- * Conversion between the currencies Keelis holds, and the spread Keelis earns on it.
+ * Conversion between the currencies Keewal Meere holds, and the spread Keewal Meere earns on it.
  *
  * **The rates here are demonstration rates.** They are anchored to real orders of
  * magnitude so the app behaves plausibly, but they are not a market feed and no screen may
@@ -8,7 +8,7 @@
  * treaty, so those two numbers are facts, not estimates.
  *
  * The spread is how the product makes money on a conversion, and it is quoted *explicitly*
- * — never buried in a worse rate with no mention. Keelis's money rule is that fees are
+ * — never buried in a worse rate with no mention. Keewal Meere's money rule is that fees are
  * stated before the user commits, and an FX spread is a fee wearing a rate's clothes.
  */
 import { CURRENCIES, roundTo, type Currency } from './currency'

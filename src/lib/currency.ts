@@ -1,5 +1,5 @@
 /**
- * The currencies Keelis holds, quotes and converts.
+ * The currencies Keewal Meere holds, quotes and converts.
  *
  * Two facts drive everything in this file, and both are law rather than opinion:
  *

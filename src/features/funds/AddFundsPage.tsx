@@ -321,7 +321,7 @@ export default function AddFundsPage() {
                     {account ? <Money value={account.balance} className={styles.balanceValue} /> : <Skeleton width="60%" height="var(--fs-h2)" />}
                     <p className={styles.balanceCaption}>Solde actuel</p>
                   </div>
-                  <p className={styles.asideNote}>Les fonds arrivent dans ce compte, puis se déplacent librement entre vos comptes Keelis, sans frais.</p>
+                  <p className={styles.asideNote}>Les fonds arrivent dans ce compte, puis se déplacent librement entre vos comptes Keewal Meere, sans frais.</p>
                 </>
               )}
             </>
@@ -348,7 +348,7 @@ export default function AddFundsPage() {
           note={
             fee > 0
               ? `Les frais de ${formatMoney(fee, { locale })} sont prélevés par ${source.label} et inclus dans le total débité.`
-              : 'Keelis ne prélève aucuns frais sur les dépôts et n’applique aucun écart de change : le montant est déposé en dollars canadiens.'
+              : 'Keewal Meere ne prélève aucuns frais sur les dépôts et n’applique aucun écart de change : le montant est déposé en dollars canadiens.'
           }
           confirmLabel="Déposer"
           onConfirm={() => void submit()}

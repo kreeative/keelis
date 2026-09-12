@@ -49,7 +49,7 @@ export function LockScreen() {
         <div className={styles.center}>
           <Icon name="lock-keyhole" className={styles.lockIcon} />
           <h1 id="lock-title" className="t-h2">
-            {user ? `Bonjour ${user.firstName}` : 'Keelis verrouillé'}
+            {user ? `Bonjour ${user.firstName}` : 'Keewal Meere verrouillé'}
           </h1>
           <p className="t-small t-muted">{security?.biometricsEnabled ? 'Entrez votre NIP ou utilisez la biométrie' : 'Entrez votre NIP pour continuer'}</p>
           <div className={styles.dots} aria-label={`${pin.length} chiffres saisis sur 4`} role="status">

@@ -156,11 +156,11 @@ try {
     await ctx.addInitScript((session) => {
       try {
         if (session) {
-          localStorage.setItem('keelis.session', JSON.stringify(session))
-          localStorage.setItem('keelis.pin', '"1234"')
+          localStorage.setItem('keewal.session', JSON.stringify(session))
+          localStorage.setItem('keewal.pin', '"1234"')
         } else {
-          localStorage.removeItem('keelis.session')
-          localStorage.removeItem('keelis.onboarding')
+          localStorage.removeItem('keewal.session')
+          localStorage.removeItem('keewal.onboarding')
         }
       } catch {}
     }, ANON ? null : DEMO_SESSION)

@@ -701,7 +701,7 @@ export default function ComponentsGallery() {
             <div className={styles.row}>
               <Avatar label="Aïssatou Ndiaye" />
               <Avatar label="Bitcoin" monogram="BTC" tone="accent" />
-              <Avatar label="Keelis" tone="ink" />
+              <Avatar label="Keewal Meere" tone="ink" />
               <Avatar label="Aïssatou Ndiaye" size={56} tone="accent" />
             </div>
           </Example>

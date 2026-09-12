@@ -9,7 +9,7 @@
          background. The canvas follows the theme now, so #fcfcfc / #0f0f0f are its two
          measured values and the browser's own bar stops showing a seam above the app. -->
     <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)" />
-    <title>Keelis</title>
+    <title>Keewal Meere</title>
     <!-- Poppins, self-hosted. Preload the two faces that paint first: body and bold. -->
     <link rel="preload" href="/fonts/poppins-400-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -18,7 +18,7 @@
     <script>
       // Apply the stored theme before first paint to avoid a flash.
       try {
-        var t = localStorage.getItem('keelis.theme');
+        var t = localStorage.getItem('keewal.theme');
         if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
       } catch (e) {}
     </script>

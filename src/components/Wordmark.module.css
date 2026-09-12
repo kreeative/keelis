@@ -1,9 +1,17 @@
-/* The wordmark is a single path; its height drives the size and the width follows the
-   art's own aspect ratio (1563 : 471). */
+/* Typeset, not traced — see the component. Tight tracking and the heaviest weight the app
+   ships, so it reads as a mark rather than as a line of running text. */
 .mark { display: inline-flex; align-items: center; color: var(--ink-900); }
-.word { height: 22px; width: auto; display: block; }
-.sm .word { height: 17px; }
-.lg .word { height: 30px; }
+.word {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.sm .word { font-size: var(--fs-body); }
+.lg .word { font-size: var(--fs-h1); }
 
 /* The embossed disc from the brand sheet, as an image: the raised K and the lit rim are
    in the artwork, and a flat vector would throw them away. --mark-disc follows the theme;

@@ -1,5 +1,5 @@
 /**
- * Keelis API contract. The UI only talks to `KeelisApi`.
+ * Keewal Meere API contract. The UI only talks to `KeewalApi`.
  * `src/api/mock` implements it in-memory; a real backend can replace it
  * without touching any screen.
  *
@@ -7,7 +7,7 @@
  * Dates: ISO 8601 strings.
  */
 
-// The currencies Keelis holds and converts between live in one registry, because the set
+// The currencies Keewal Meere holds and converts between live in one registry, because the set
 // is domain knowledge — minor units, the euro peg — not an API detail. See lib/currency.
 export type { Currency } from '@/lib/currency'
 import type { Currency } from '@/lib/currency'
@@ -515,7 +515,7 @@ export class ApiError extends Error {
 
 export type Unsubscribe = () => void
 
-export interface KeelisApi {
+export interface KeewalApi {
   auth: {
     getSession(): Promise<Session | null>
     requestCode(email: string): Promise<{ sent: true; devHint?: string }>

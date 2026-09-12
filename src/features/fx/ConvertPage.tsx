@@ -4,7 +4,7 @@
  *
  * The screen shows three numbers that a conversion screen usually shows only one of: the
  * unmarked rate, the rate actually applied, and the spread as money in the currency being
- * sold. Someone comparing Keelis against a bureau de change on the corner can only do it
+ * sold. Someone comparing Keewal Meere against a bureau de change on the corner can only do it
  * if all three are on screen.
  */
 import { useMemo, useState } from 'react'
