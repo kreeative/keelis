@@ -136,7 +136,7 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
           onChange={onChange}
           secondary={secondary}
           error={entryError}
-          presets={[50, 100, 250, 500]}
+          presets={[10_000, 25_000, 50_000, 100_000]}
           onMax={source !== undefined ? onMax : undefined}
           disabled={move.pending}
         />

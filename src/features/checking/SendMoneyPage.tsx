@@ -9,6 +9,7 @@ import { ApiError, type MoneyMovementResult } from '@/api/types'
 import { Button, Field, Icon, ListRow, Money, PageHeader, SegmentedControl } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
+import { bicMatchesIban, checkIban, formatIban, isValidBic, normalizeIban, type IbanError } from '@/lib/iban'
 import { useSettings } from '@/store'
 import styles from './SendMoneyPage.module.css'
 
@@ -21,6 +22,16 @@ const MODES: ReadonlyArray<{ value: Mode; label: string; title: string; eta: str
 ]
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
+
+/* Each IBAN failure gets its own sentence. "IBAN invalide" on a number someone has copied
+   off a statement tells them nothing about where to look. */
+const IBAN_MESSAGE: Readonly<Record<IbanError, string>> = {
+  empty: 'Entrez l’IBAN du destinataire.',
+  shape: 'Un IBAN commence par deux lettres de pays et deux chiffres, par exemple SN08…',
+  country: 'Ce pays n’est pas encore pris en charge pour les virements.',
+  length: 'Cet IBAN n’a pas la longueur attendue pour son pays.',
+  checksum: 'La clé de contrôle ne correspond pas — vérifiez un chiffre.',
+}
 
 function isMode(v: string | null): v is Mode {
   return v === 'etransfer' || v === 'interne' || v === 'bancaire'
@@ -50,10 +61,16 @@ export default function SendMoneyPage() {
   const mode: Mode = isMode(modeParam) ? modeParam : 'etransfer'
   const config = MODES.find((m) => m.value === mode)!
   const internal = mode === 'interne'
+  const wire = mode === 'bancaire'
 
   const [name, setName] = useState(params.get('name') ?? '')
   const [email, setEmail] = useState(params.get('to') ?? '')
   const [note, setNote] = useState('')
+  // Bank coordinates, for the wire branch only.
+  const [iban, setIban] = useState('')
+  const [bic, setBic] = useState('')
+  const [ibanError, setIbanError] = useState<string | null>(null)
+  const [bicError, setBicError] = useState<string | null>(null)
   const [amount, setAmount] = useState(() => toKeypadValue(params.get('montant') ?? ''))
 
   const [nameError, setNameError] = useState<string | null>(null)
@@ -67,7 +84,7 @@ export default function SendMoneyPage() {
   const [result, setResult] = useState<{ movement: MoneyMovementResult; recipient: string; amount: number } | null>(null)
 
   const value = useMemo(() => parseAmountInput(amount), [amount])
-  const recipientLabel = internal ? 'Compte Épargne' : name.trim() || email.trim()
+  const recipientLabel = internal ? 'Compte Épargne' : name.trim() || (wire ? formatIban(iban) : email.trim())
 
   const setMode = (next: Mode) => {
     setParams(
@@ -88,9 +105,29 @@ export default function SendMoneyPage() {
     setNeedsFunds(false)
     if (!internal) {
       if (!name.trim()) {
-        setNameError('Entrez le nom du destinataire.')
+        setNameError(wire ? 'Entrez le nom du titulaire du compte.' : 'Entrez le nom du destinataire.')
         ok = false
       } else setNameError(null)
+    }
+    if (wire) {
+      /* An IBAN carries its own checksum, so a transposed digit is catchable here rather
+         than after the money has left. Each failure says which one it is: "invalid" on a
+         field someone has typed carefully is the least useful error a form can give. */
+      const problem = checkIban(iban)
+      setIbanError(problem ? IBAN_MESSAGE[problem] : null)
+      if (problem) ok = false
+      const b = bic.trim()
+      if (!b) {
+        setBicError('Entrez le BIC / SWIFT de la banque.')
+        ok = false
+      } else if (!isValidBic(b)) {
+        setBicError('Un BIC compte 8 ou 11 caractères, par exemple CBAOSNDA.')
+        ok = false
+      } else if (!problem && !bicMatchesIban(b, iban)) {
+        setBicError('Ce BIC désigne un autre pays que l’IBAN.')
+        ok = false
+      } else setBicError(null)
+    } else if (!internal) {
       if (!EMAIL_RE.test(email.trim())) {
         setEmailError('Entrez une adresse courriel valide.')
         ok = false
@@ -114,7 +151,7 @@ export default function SendMoneyPage() {
       const movement = await api.transfers.send({
         fromAccountId: IDS.checking,
         toAccountId: internal ? IDS.savings : undefined,
-        recipient: internal ? undefined : { name: name.trim(), email: email.trim() },
+        recipient: internal ? undefined : { name: name.trim(), email: wire ? undefined : email.trim(), iban: wire ? normalizeIban(iban) : undefined, bic: wire ? bic.trim().toUpperCase() : undefined },
         amount: value,
         note: note.trim() || undefined,
         method: internal ? 'internal' : mode === 'bancaire' ? 'wire' : 'etransfer',
@@ -189,7 +226,7 @@ export default function SendMoneyPage() {
         ) : (
           <div className={styles.fields}>
             <Field
-              label="Nom du destinataire"
+              label={wire ? 'Titulaire du compte' : 'Nom du destinataire'}
               autoComplete="name"
               value={name}
               error={nameError ?? undefined}
@@ -198,21 +235,56 @@ export default function SendMoneyPage() {
                 setNameError(null)
               }}
             />
-            <Field
-              label="Courriel"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              spellCheck={false}
-              placeholder="nom@exemple.ca"
-              value={email}
-              error={emailError ?? undefined}
-              onChange={(e) => {
-                setEmail(e.target.value)
-                setEmailError(null)
-              }}
-            />
-            <Field label="Message" hint="Facultatif" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} />
+            {wire ? (
+              <>
+                <Field
+                  label="IBAN"
+                  inputMode="text"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="SN08 SN01 0015 2000 0485 0000 3035"
+                  hint="Le numéro de compte international, tel qu’il figure sur le relevé."
+                  value={iban}
+                  error={ibanError ?? undefined}
+                  /* Grouped in fours as it is typed, the way a bank prints it — a 28-character
+                     run of digits is unreadable and impossible to check against a statement. */
+                  onChange={(e) => {
+                    setIban(formatIban(e.target.value))
+                    setIbanError(null)
+                  }}
+                />
+                <Field
+                  label="BIC / SWIFT"
+                  inputMode="text"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="CBAOSNDA"
+                  hint="8 ou 11 caractères, identifiant la banque du destinataire."
+                  value={bic}
+                  error={bicError ?? undefined}
+                  onChange={(e) => {
+                    setBic(e.target.value.toUpperCase())
+                    setBicError(null)
+                  }}
+                />
+              </>
+            ) : (
+              <Field
+                label="Courriel"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                spellCheck={false}
+                placeholder="nom@exemple.ca"
+                value={email}
+                error={emailError ?? undefined}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setEmailError(null)
+                }}
+              />
+            )}
+            <Field label={wire ? 'Motif du virement' : 'Message'} hint="Facultatif" maxLength={80} value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
         )}
       </section>
@@ -229,7 +301,7 @@ export default function SendMoneyPage() {
             setAmountError(null)
             setNeedsFunds(false)
           }}
-          presets={[20, 50, 100, 500]}
+          presets={[5_000, 10_000, 25_000, 50_000]}
           onMax={balance !== undefined ? () => setAmount(toKeypadValue(balance)) : undefined}
           secondary={balance !== undefined ? `Disponible : ${formatMoney(balance, { locale })}` : undefined}
           error={amountError}
@@ -260,7 +332,11 @@ export default function SendMoneyPage() {
         hero={<Money value={value} unmasked />}
         heroCaption={`À ${recipientLabel}`}
         lines={[
-          { label: internal ? 'Vers' : 'Destinataire', value: recipientLabel, hint: internal ? undefined : email.trim() },
+          /* On a wire the line under the name is the IBAN, not an email: it is the one thing
+             worth re-reading before the money leaves, and it is what the recipient's bank
+             will act on if the name and the account disagree. */
+          { label: internal ? 'Vers' : 'Destinataire', value: recipientLabel, hint: internal ? undefined : wire ? formatIban(iban) : email.trim() },
+          ...(wire ? [{ label: 'BIC / SWIFT', value: bic.trim().toUpperCase() }] : []),
           { label: 'Méthode', value: config.title },
           { label: 'Montant', value: <Money value={value} unmasked /> },
           { label: 'Frais', value: <Money value={0} unmasked /> },

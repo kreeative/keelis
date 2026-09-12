@@ -396,7 +396,8 @@ export interface AddFundsRequest {
 export interface TransferRequest {
   fromAccountId: string
   toAccountId?: string
-  recipient?: { name: string; email: string }
+  /** An e-Transfer reaches an email; a wire reaches bank coordinates. Both carry a name. */
+  recipient?: { name: string; email?: string; iban?: string; bic?: string }
   amount: number
   note?: string
   method: 'internal' | 'etransfer' | 'wire'

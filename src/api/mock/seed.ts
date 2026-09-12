@@ -238,16 +238,19 @@ export const seedAssets: CryptoAsset[] = assetSeeds.map((a, i) => {
   }
 })
 
+/* An average cost is a price, so it crosses the peg with the prices — it was authored on
+   the same ~1:1 scale. Leaving it behind while `price` moved made every holding show a
+   five-figure percentage gain: the cost basis was 656 times too small. */
 export const seedHoldingsRaw: Array<Pick<Holding, 'assetId' | 'quantity' | 'avgCost'>> = [
-  { assetId: 'btc', quantity: 0.0428, avgCost: 131_200 },
-  { assetId: 'eth', quantity: 0.85, avgCost: 5_980 },
-  { assetId: 'sol', quantity: 12.5, avgCost: 310.5 },
-  { assetId: 'link', quantity: 40, avgCost: 28.9 },
+  { assetId: 'btc', quantity: 0.0428, avgCost: 131_200 * XOF_PER_EUR },
+  { assetId: 'eth', quantity: 0.85, avgCost: 5_980 * XOF_PER_EUR },
+  { assetId: 'sol', quantity: 12.5, avgCost: 310.5 * XOF_PER_EUR },
+  { assetId: 'link', quantity: 40, avgCost: 28.9 * XOF_PER_EUR },
 ]
 
 export const seedRecurring: RecurringBuy[] = [
-  { id: 'rec_01', assetId: 'btc', symbol: 'BTC', amount: 50, frequency: 'weekly', nextRun: daysAhead(3), active: true, createdAt: daysAgo(70) },
-  { id: 'rec_02', assetId: 'eth', symbol: 'ETH', amount: 100, frequency: 'monthly', nextRun: daysAhead(12), active: true, createdAt: daysAgo(45) },
+  { id: 'rec_01', assetId: 'btc', symbol: 'BTC', amount: Math.round(50 * XOF_PER_EUR), frequency: 'weekly', nextRun: daysAhead(3), active: true, createdAt: daysAgo(70) },
+  { id: 'rec_02', assetId: 'eth', symbol: 'ETH', amount: Math.round(100 * XOF_PER_EUR), frequency: 'monthly', nextRun: daysAhead(12), active: true, createdAt: daysAgo(45) },
 ]
 
 // ---------- Accounts ----------
