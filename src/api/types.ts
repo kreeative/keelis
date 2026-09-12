@@ -254,9 +254,9 @@ export interface Holding {
   assetId: string
   symbol: string
   quantity: number
-  /** Average cost per unit in CAD */
+  /** Average cost per unit, in the account currency */
   avgCost: number
-  /** Market value in CAD */
+  /** Market value, in the account currency */
   value: number
   /** Unrealised P&L */
   pnl: number
@@ -521,6 +521,8 @@ export interface KeelisApi {
     getAsset(id: string): Promise<CryptoAsset>
     setWatched(id: string, watched: boolean): Promise<CryptoAsset>
     history(id: string, range: ChartRange): Promise<PriceHistory>
+    /** The book's own curve: each holding's series times the quantity held, summed. */
+    portfolioHistory(range: ChartRange): Promise<PriceHistory>
     holdings(): Promise<Holding[]>
     quote(req: QuoteRequest): Promise<Quote>
     placeOrder(quoteId: string): Promise<Order>

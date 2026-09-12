@@ -4,6 +4,26 @@
   gap: var(--sp-3);
   min-height: var(--row-height);
 }
-.text { font-size: var(--fs-body); flex: 1; min-width: 0; }
+/* "4 actifs" is two words and must never become two lines: it is a label, and wrapping it
+   is what let the figures column climb into it. */
+.text {
+  font-size: var(--fs-body);
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
 .value { font-size: var(--fs-body); }
 .chevron { color: var(--ink-300); flex-shrink: 0; }
+
+/* The figures take the slack and sit right-aligned in their own column: value over its
+   P&L. `flex: 1` on this rather than on the label, because a six-digit sum in francs plus
+   its gain is the widest thing in the row and needs the room more than the label does. */
+.figures {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+}
+.delta { font-size: var(--fs-small); white-space: nowrap; }

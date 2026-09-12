@@ -3,12 +3,13 @@
  * Prices come from useMarket() (tick every 10 s) and update in place, without animation.
  */
 import { useDeferredValue, useMemo, useState } from 'react'
-import { AmountDisplay, AppBar, AssetIcon, Badge, Button, Card, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SkeletonRow, Sparkline } from '@/components'
-import type { CryptoAsset, Holding } from '@/api/types'
+import { AmountDisplay, AppBar, AssetIcon, Badge, Button, Card, Chart, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
+import { api } from '@/api'
+import type { ChartRange, CryptoAsset, Holding, PriceHistory } from '@/api/types'
 import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
-import { useSettings } from '@/store'
+import { QK, useQuery, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
-import { monthlyTotal } from './cryptoFormat'
+import { RANGES, monthlyTotal, rangePeriod } from './cryptoFormat'
 import { useLiveAccount, useLiveAssets, useLiveHoldings, useLiveRecurring } from './hooks'
 import styles from './CryptoListPage.module.css'
 
@@ -62,6 +63,8 @@ export default function CryptoListPage() {
   const { locale } = useSettings()
   const market = useLiveAssets()
   const account = useLiveAccount('crypto')
+  const [bookRange, setBookRange] = useState<ChartRange>('1M')
+  const bookHistory = useQuery<PriceHistory>(QK.cryptoPortfolioHistory(bookRange), () => api.crypto.portfolioHistory(bookRange), { staleTime: 30_000 })
   const holdings = useLiveHoldings()
   const recurring = useLiveRecurring()
   const [filter, setFilter] = useState<Filter>('all')
@@ -115,6 +118,18 @@ export default function CryptoListPage() {
           ) : (
             <AmountDisplay value={account.data?.balance} delta={account.data?.change24h} deltaPct={account.data?.change24hPct} period="24 h" loading={account.data === undefined} />
           )}
+          {/* This section's own curve. The one on Accueil summarises the whole wealth; this
+              one is the book alone, computed from the holdings' real series so the two
+              cannot disagree about what they are drawing. */}
+          <div className={styles.bookChart}>
+            <Chart
+              points={bookHistory.data?.points ?? []}
+              loading={bookHistory.loading && !bookHistory.data}
+              height={140}
+              label={`Valeur du portefeuille crypto sur ${rangePeriod(bookRange)}`}
+            />
+            <SegmentedControl segments={RANGES} value={bookRange} onChange={setBookRange} label="Période du portefeuille" size="sm" bare />
+          </div>
         </section>
       </Card>
 

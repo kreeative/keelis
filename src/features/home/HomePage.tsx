@@ -135,10 +135,9 @@ export default function HomePage() {
             <span className={styles.grab} aria-hidden="true" />
 
             <div className={styles.asideMobile}>
-              <AccountCards accounts={accounts.data} loading={accounts.loading} />
-              <div className={styles.holdings}>
-                <HoldingsRow />
-              </div>
+              {/* Actifs sits between Épargne and Crypto, not after it: the holdings are what
+                  this app is principally about. */}
+              <AccountCards accounts={accounts.data} loading={accounts.loading} beforeCrypto={<HoldingsRow />} />
             </div>
 
             <section className={styles.section} aria-busy={recent.loading || undefined}>

@@ -258,6 +258,22 @@ function generateHistory(seedKey: number, endPrice: number, range: ChartRange, d
   return pts
 }
 
+/** One asset's price series for a range. Shared by the asset chart and the book's chart. */
+function assetSeries(id: string, range: ChartRange): PricePoint[] {
+  const a = state.asset(id)
+  const idx = state.assets.indexOf(a)
+  const driftByRange: Record<ChartRange, number> = { '1D': a.change24hPct / 100, '1W': 0.04, '1M': 0.11, '1Y': 0.9, MAX: 6 }
+  const pts = generateHistory(7000 + idx * 31 + range.length, a.price, range, driftByRange[range])
+  if (range === '1D') {
+    // Keep 1D consistent with the 24h change the asset advertises.
+    const first = a.price / (1 + a.change24hPct / 100)
+    const f0 = pts[0]!.p
+    const k = (a.price - first) / (a.price - f0 || 1)
+    for (const p of pts) p.p = a.price - (a.price - p.p) * k
+  }
+  return pts
+}
+
 function withChange(assetId: string, range: ChartRange, points: PricePoint[]): PriceHistory {
   const first = points[0]?.p ?? 0
   const last = points[points.length - 1]?.p ?? 0
@@ -506,18 +522,27 @@ export const mockApi: KeelisApi = {
     },
     async history(id, range) {
       await simulate()
-      const a = state.asset(id)
-      const idx = state.assets.indexOf(a)
-      const driftByRange: Record<ChartRange, number> = { '1D': a.change24hPct / 100, '1W': 0.04, '1M': 0.11, '1Y': 0.9, MAX: 6 }
-      const pts = generateHistory(7000 + idx * 31 + range.length, a.price, range, driftByRange[range])
-      if (range === '1D') {
-        // Keep 1D consistent with 24h change
-        const first = a.price / (1 + a.change24hPct / 100)
-        const f0 = pts[0]!.p
-        const k = (a.price - first) / (a.price - f0 || 1)
-        for (const p of pts) p.p = a.price - (a.price - p.p) * k
+      return withChange(id, range, assetSeries(id, range))
+    },
+    /**
+     * The crypto book's own curve, **computed** rather than generated: each holding's real
+     * price series multiplied by the quantity actually held, summed point for point. A
+     * portfolio chart drawn from its own random walk would disagree with the assets under
+     * it, and the first person to notice would be right.
+     */
+    async portfolioHistory(range) {
+      await simulate()
+      const held = state.holdingsView()
+      if (held.length === 0) return withChange('portefeuille', range, [])
+      const series = held.map((h) => ({ q: h.quantity, pts: assetSeries(h.assetId, range) }))
+      const n = Math.min(...series.map((s) => s.pts.length))
+      const out: PricePoint[] = []
+      for (let i = 0; i < n; i++) {
+        let sum = 0
+        for (const s of series) sum += s.q * s.pts[i]!.p
+        out.push({ t: series[0]!.pts[i]!.t, p: sum })
       }
-      return withChange(id, range, pts)
+      return withChange('portefeuille', range, out)
     },
     async holdings() {
       await simulate()

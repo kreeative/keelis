@@ -1,10 +1,17 @@
 /**
- * Three account cards (Chèque, Épargne, Crypto) in a fixed order.
- * Each card: label, balance in h2, one quiet line of context.
+ * The account cards on Accueil: label, balance, one quiet line of context — and **no
+ * chart**. The curve at the top of the screen is the one that summarises the whole
+ * wealth; a second, smaller curve on a tile it does not belong to competes with it and
+ * says less. Direction on a card is carried by the signed figure alone.
+ *
+ * The order is fixed, and `Actifs` sits between Épargne and Crypto: the holdings are what
+ * this app is principally about, so they come before the wallet that happens to hold some
+ * of them.
  */
+import { Fragment, type ReactNode } from 'react'
 import type { Account } from '@/api/types'
 import { IDS } from '@/api'
-import { Badge, Card, Delta, Money, MoneyDelta, Skeleton, Sparkline } from '@/components'
+import { Badge, Card, Delta, Money, MoneyDelta, Skeleton } from '@/components'
 import { formatPercent } from '@/lib/format'
 import { useSettings } from '@/store'
 import styles from './AccountCards.module.css'
@@ -27,20 +34,22 @@ function AccountCard({ account, to }: { account: Account; to: string }) {
         <span className={styles.head}>
           <span className="t-name">{account.name}</span>
           {isSavings && account.apy !== undefined ? <Badge>APY {formatPercent(account.apy, { locale, signed: false })}</Badge> : null}
-          {isCrypto && account.sparkline ? <Sparkline values={account.sparkline} width={72} height={24} /> : null}
+
         </span>
         <span className={styles.balance}>
           <Money value={account.balance} currency={account.currency} />
         </span>
         <span className={styles.sub}>
-          {isCrypto ? <Delta value={account.change24hPct} suffix="24 h" variant="pill" /> : <MoneyDelta value={account.change24h} suffix="aujourd'hui" />}
+          {/* Money *and* percent: a percentage on its own does not say whether the move was
+              worth 4 000 F CFA or 400 000. */}
+          {isCrypto ? <Delta value={account.change24hPct} amount={account.change24h} suffix="24 h" variant="pill" /> : <MoneyDelta value={account.change24h} suffix="aujourd'hui" />}
         </span>
       </span>
     </Card>
   )
 }
 
-export function AccountCards({ accounts, loading }: { accounts: Account[] | undefined; loading: boolean }) {
+export function AccountCards({ accounts, loading, beforeCrypto }: { accounts: Account[] | undefined; loading: boolean; beforeCrypto?: ReactNode }) {
   if (!accounts) {
     return (
       <section className={styles.grid} aria-busy={loading || undefined} aria-label="Comptes">
@@ -54,7 +63,13 @@ export function AccountCards({ accounts, loading }: { accounts: Account[] | unde
     <section className={styles.grid} aria-label="Comptes">
       {ORDER.map((o) => {
         const account = accounts.find((a) => a.id === o.id)
-        return account ? <AccountCard key={o.id} account={account} to={o.to} /> : null
+        if (!account) return null
+        return (
+          <Fragment key={o.id}>
+            {o.id === IDS.crypto ? beforeCrypto : null}
+            <AccountCard account={account} to={o.to} />
+          </Fragment>
+        )
       })}
     </section>
   )
