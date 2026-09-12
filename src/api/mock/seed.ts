@@ -12,6 +12,7 @@ import type {
   CryptoAsset,
   Device,
   FundingSource,
+  TransferProvider,
   Holding,
   RecurringBuy,
   SavingsGoal,
@@ -485,3 +486,56 @@ export const seedTaxDocuments: TaxDocument[] = [
   { id: 'tax_r3_prev', name: 'Relevé 3 (Québec)', year: NOW.getFullYear() - 1, available: true, url: '#' },
   { id: 'tax_crypto', name: 'Rapport de transactions crypto', year: NOW.getFullYear(), available: false },
 ]
+
+// ---------- Transfer operators ----------
+
+/**
+ * Everywhere money can be sent from Keelis.
+ *
+ * **The fees and limits here are demonstration values.** They are anchored to the orders
+ * of magnitude these operators actually charge so the screen behaves plausibly, but they
+ * are not a price list and no screen presents them as one — the picker says so.
+ *
+ * The list is deliberately West-Africa-first and mixes three different things people lump
+ * together as "transfer": mobile money (a phone number is the account), remittance (cash
+ * at a counter, the diaspora's rail), and online wallets. They are grouped rather than
+ * ranked, because which one is right depends entirely on where the recipient is standing.
+ */
+export const seedTransferProviders: TransferProvider[] = [
+  // Mobile money — the phone number is the account.
+  { id: 'wave', mark: 'WAV', name: 'Wave', family: 'mobile_money', handle: 'phone', reach: 'Sénégal, Côte d’Ivoire, Mali, Burkina Faso, Ouganda', currency: 'XOF', feePct: 0.01, eta: 'Instantané', etaMinutes: 1, limitPerDay: 2_000_000, available: true },
+  { id: 'orange', mark: 'OM', name: 'Orange Money', family: 'mobile_money', handle: 'phone', reach: 'Sénégal, Côte d’Ivoire, Mali, Cameroun, Guinée', currency: 'XOF', feePct: 0.015, eta: 'Instantané', etaMinutes: 1, limitPerDay: 1_500_000, available: true },
+  { id: 'mtn', mark: 'MTN', name: 'MTN MoMo', family: 'mobile_money', handle: 'phone', reach: 'Côte d’Ivoire, Ghana, Cameroun, Nigeria, Ouganda', currency: 'XOF', feePct: 0.015, eta: 'Instantané', etaMinutes: 2, limitPerDay: 1_500_000, available: true },
+  { id: 'moov', mark: 'MOO', name: 'Moov Money', family: 'mobile_money', handle: 'phone', reach: 'Côte d’Ivoire, Bénin, Togo, Burkina Faso', currency: 'XOF', feePct: 0.015, eta: 'Instantané', etaMinutes: 2, limitPerDay: 1_000_000, available: true },
+  { id: 'freemoney', mark: 'FM', name: 'Free Money', family: 'mobile_money', handle: 'phone', reach: 'Sénégal', currency: 'XOF', feePct: 0.012, eta: 'Instantané', etaMinutes: 2, limitPerDay: 1_000_000, available: true },
+  { id: 'mpesa', mark: 'MP', name: 'M-Pesa', family: 'mobile_money', handle: 'phone', reach: 'Kenya, Tanzanie, RDC', currency: 'KES', feePct: 0.012, eta: 'Instantané', etaMinutes: 2, limitPerDay: 500_000, available: false, note: 'Connexion en cours' },
+
+  // Wallets and neobanks — an account, a tag or an email.
+  { id: 'djamo', mark: 'DJ', name: 'Djamo', family: 'wallet', handle: 'phone', reach: 'Côte d’Ivoire, Sénégal', currency: 'XOF', feePct: 0.008, eta: 'Instantané', etaMinutes: 1, limitPerDay: 1_000_000, available: true },
+  { id: 'revolut', mark: 'REV', name: 'Revolut', family: 'wallet', handle: 'tag', reach: 'Europe, Royaume-Uni, États-Unis', currency: 'EUR', feePct: 0.005, eta: 'Quelques minutes', etaMinutes: 10, limitPerDay: 5_000, available: true },
+  { id: 'wise', mark: 'WIS', name: 'Wise', family: 'wallet', handle: 'email', reach: 'International', currency: 'EUR', feePct: 0.006, eta: '1 jour ouvrable', etaMinutes: 1_440, limitPerDay: 10_000, available: true },
+  { id: 'paypal', mark: 'PP', name: 'PayPal', family: 'wallet', handle: 'email', reach: 'International', currency: 'EUR', feePct: 0.019, eta: 'Instantané', etaMinutes: 5, limitPerDay: 3_000, available: false, note: 'Connexion en cours' },
+
+  // Remittance — the recipient collects cash at a counter.
+  { id: 'moneygram', mark: 'MG', name: 'MoneyGram', family: 'remittance', handle: 'account', reach: 'Retrait en espèces, plus de 200 pays', currency: 'XOF', feePct: 0.025, feeFixed: 500, eta: 'Quelques minutes', etaMinutes: 15, limitPerDay: 3_000_000, available: true },
+  { id: 'westernunion', mark: 'WU', name: 'Western Union', family: 'remittance', handle: 'account', reach: 'Retrait en espèces, plus de 200 pays', currency: 'XOF', feePct: 0.028, feeFixed: 500, eta: 'Quelques minutes', etaMinutes: 15, limitPerDay: 3_000_000, available: true },
+  { id: 'ria', mark: 'RIA', name: 'Ria', family: 'remittance', handle: 'account', reach: 'Retrait en espèces, Afrique de l’Ouest', currency: 'XOF', feePct: 0.022, feeFixed: 400, eta: '30 minutes', etaMinutes: 30, limitPerDay: 2_000_000, available: true },
+
+  // Bank rails.
+  { id: 'interac', mark: 'INT', name: 'Interac e-Transfer', family: 'bank', handle: 'email', reach: 'Canada', currency: 'EUR', feePct: 0, eta: 'Quelques minutes', etaMinutes: 15, limitPerDay: 3_000, available: true, note: 'Pour la diaspora au Canada' },
+  { id: 'sepa', mark: 'SEP', name: 'Virement SEPA', family: 'bank', handle: 'account', reach: 'Zone euro', currency: 'EUR', feePct: 0, eta: '1 à 2 jours ouvrables', etaMinutes: 1_440, limitPerDay: 20_000, available: true },
+]
+
+export const TRANSFER_FAMILY_LABEL: Readonly<Record<TransferProvider['family'], string>> = {
+  mobile_money: 'Mobile Money',
+  wallet: 'Portefeuilles et néobanques',
+  remittance: 'Espèces à retirer',
+  bank: 'Virements bancaires',
+}
+
+export const TRANSFER_HANDLE_LABEL: Readonly<Record<TransferProvider['handle'], string>> = {
+  phone: 'Numéro de téléphone',
+  email: 'Adresse courriel',
+  tag: 'Identifiant',
+  account: 'Coordonnées du destinataire',
+}

@@ -5,18 +5,19 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api, IDS } from '@/api'
-import { ApiError, type MoneyMovementResult } from '@/api/types'
+import { TRANSFER_HANDLE_LABEL } from '@/api/mock/seed'
+import { ApiError, type MoneyMovementResult, type TransferProvider } from '@/api/types'
 import { Button, Field, Icon, ListRow, Money, PageHeader, SegmentedControl } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
 import { bicMatchesIban, checkIban, formatIban, isValidBic, normalizeIban, type IbanError } from '@/lib/iban'
-import { useSettings } from '@/store'
+import { QK, useQuery, useSettings } from '@/store'
 import styles from './SendMoneyPage.module.css'
 
 type Mode = 'etransfer' | 'interne' | 'bancaire'
 
 const MODES: ReadonlyArray<{ value: Mode; label: string; title: string; eta: string; description: string }> = [
-  { value: 'etransfer', label: 'e-Transfer', title: 'e-Transfer', eta: 'Quelques minutes', description: 'Quelques minutes, vers une adresse courriel.' },
+  { value: 'etransfer', label: 'Transfert', title: 'Transfert', eta: 'Quelques minutes', description: 'Vers Wave, Orange Money, MoneyGram, Interac et une douzaine d’autres.' },
   { value: 'interne', label: 'Interne', title: 'Virement interne', eta: 'Instantané', description: 'Instantané, entre vos comptes Keelis.' },
   { value: 'bancaire', label: 'Bancaire', title: 'Virement bancaire', eta: '1 à 2 jours ouvrables', description: '1 à 2 jours ouvrables, vers une autre institution.' },
 ]
@@ -62,6 +63,10 @@ export default function SendMoneyPage() {
   const config = MODES.find((m) => m.value === mode)!
   const internal = mode === 'interne'
   const wire = mode === 'bancaire'
+  /* The chosen rail comes back from /envoyer/operateurs as a query param, so the picker can
+     be a page of its own without this form having to hold its state. */
+  const providers = useQuery<TransferProvider[]>(QK.transferProviders, () => api.transfers.providers())
+  const operator = providers.data?.find((p) => p.id === params.get('operateur')) ?? null
 
   const [name, setName] = useState(params.get('name') ?? '')
   const [email, setEmail] = useState(params.get('to') ?? '')
@@ -235,6 +240,21 @@ export default function SendMoneyPage() {
                 setNameError(null)
               }}
             />
+            {!wire ? (
+              /* One row, not fifteen: the operator list is long enough to be its own page,
+                 and it does not belong inside a form someone is already filling in. */
+              <ListRow
+                to="/envoyer/operateurs"
+                leading={
+                  <span className={styles.icon} aria-hidden="true">
+                    <Icon name={operator ? 'transfer' : 'search'} size={20} />
+                  </span>
+                }
+                title={operator ? operator.name : 'Choisir un opérateur'}
+                subtitle={operator ? `${operator.reach} · ${operator.eta}` : 'Wave, Orange Money, MoneyGram, Interac…'}
+                chevron
+              />
+            ) : null}
             {wire ? (
               <>
                 <Field
@@ -270,7 +290,7 @@ export default function SendMoneyPage() {
               </>
             ) : (
               <Field
-                label="Courriel"
+                label={operator ? TRANSFER_HANDLE_LABEL[operator.handle] : 'Courriel'}
                 type="email"
                 inputMode="email"
                 autoComplete="email"

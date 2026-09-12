@@ -1,0 +1,12 @@
+.intro {
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+  max-width: 56ch;
+  margin-bottom: var(--space-block);
+}
+.search { margin-bottom: var(--sp-3); }
+/* The chip bar scrolls past the gutter on a phone — that overflowing chip is the
+   affordance saying there are more families than fit. */
+.filters { margin-bottom: var(--space-block); }
+.group + .group { margin-top: var(--space-section); }
+.group > .t-section { margin-bottom: var(--space-block); }

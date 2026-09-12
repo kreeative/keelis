@@ -53,6 +53,7 @@ import {
   seedStatements,
   seedTaxDocuments,
   seedUser,
+  seedTransferProviders,
 } from './seed'
 
 const KEYS = {
@@ -867,6 +868,10 @@ export const mockApi: KeelisApi = {
   },
 
   transfers: {
+    async providers() {
+      await simulate()
+      return seedTransferProviders.map((p) => ({ ...p }))
+    },
     async send(req) {
       await simulate()
       if (!(req.amount > 0)) throw new ApiError('Entrez un montant.', 'validation')

@@ -374,6 +374,37 @@ export interface GoalInput {
 
 export type FundingKind = 'bank' | 'wire' | 'etransfer' | 'card'
 
+/** How a transfer operator identifies the person receiving the money. */
+export type TransferHandle = 'phone' | 'email' | 'tag' | 'account'
+
+/** The families a transfer operator falls into, which is how the picker groups them. */
+export type TransferFamily = 'mobile_money' | 'remittance' | 'wallet' | 'bank'
+
+export interface TransferProvider {
+  id: string
+  name: string
+  /** Short mark, at most 3 characters. Explicit because initials collide — "MTN MoMo" and
+      "Moov Money" both reduce to MM, and two operators that look the same in a picker is
+      the one thing a picker must not do. */
+  mark: string
+  family: TransferFamily
+  handle: TransferHandle
+  /** Where it reaches, in plain words — "Sénégal, Côte d'Ivoire, Mali…" */
+  reach: string
+  /** The currency the recipient is paid in. */
+  currency: Currency
+  feePct: number
+  /** A flat fee on top, in `currency`. */
+  feeFixed?: number
+  eta: string
+  etaMinutes: number
+  limitPerDay: number
+  /** False when the operator is listed but not yet connected. */
+  available: boolean
+  /** Why it is unavailable, when it is. */
+  note?: string
+}
+
 export interface FundingSource {
   id: string
   kind: FundingKind
@@ -557,6 +588,8 @@ export interface KeelisApi {
   }
   transfers: {
     send(req: TransferRequest): Promise<MoneyMovementResult>
+    /** Every operator money can be sent through, connected or not. */
+    providers(): Promise<TransferProvider[]>
   }
   notifications: {
     list(): Promise<AppNotification[]>

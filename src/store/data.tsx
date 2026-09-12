@@ -14,6 +14,7 @@ export const QK = {
   accountDetails: (id: string) => `accounts/${id}/details`,
   accountsHistory: (range: string) => `accounts:history/${range}`,
   cryptoPortfolioHistory: (range: string) => `crypto:portfolio-history/${range}`,
+  transferProviders: 'transfers:providers',
   transactions: (scope = 'all') => `transactions:${scope}`,
   transaction: (id: string) => `transactions/${id}`,
   card: 'card',
