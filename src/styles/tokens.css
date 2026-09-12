@@ -78,17 +78,17 @@
     0 4px 8px -2px rgba(0, 0, 0, 0.05),
     0 10px 20px -8px rgba(0, 0, 0, 0.08);
   --elev-2:
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 10px 20px -4px rgba(0, 0, 0, 0.08),
-    0 24px 48px -12px rgba(0, 0, 0, 0.12);
-  --elev-2-hover:
-    0 2px 6px rgba(0, 0, 0, 0.03),
-    0 14px 28px -4px rgba(0, 0, 0, 0.11),
+    0 2px 6px rgba(0, 0, 0, 0.04),
+    0 12px 24px -4px rgba(0, 0, 0, 0.12),
     0 32px 64px -12px rgba(0, 0, 0, 0.18);
+  --elev-2-hover:
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    0 18px 36px -4px rgba(0, 0, 0, 0.16),
+    0 44px 84px -12px rgba(0, 0, 0, 0.24);
   --elev-3:
-    0 4px 8px rgba(0, 0, 0, 0.03),
-    0 16px 32px -6px rgba(0, 0, 0, 0.10),
-    0 40px 72px -16px rgba(0, 0, 0, 0.16);
+    0 4px 10px rgba(0, 0, 0, 0.05),
+    0 20px 40px -6px rgba(0, 0, 0, 0.15),
+    0 52px 96px -16px rgba(0, 0, 0, 0.22);
 
   /* The kit's item-shadow-light, lifting a small control off its track. */
   --elev-item: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
@@ -269,9 +269,9 @@
     0 4px 8px -2px rgba(0, 0, 0, 0.32),
     0 10px 20px -8px rgba(0, 0, 0, 0.40);
   --elev-2:
-    0 2px 4px rgba(0, 0, 0, 0.28),
-    0 10px 20px -4px rgba(0, 0, 0, 0.40),
-    0 24px 48px -12px rgba(0, 0, 0, 0.52);
+    0 2px 6px rgba(0, 0, 0, 0.30),
+    0 12px 24px -4px rgba(0, 0, 0, 0.44),
+    0 32px 64px -12px rgba(0, 0, 0, 0.58);
   --elev-2-hover:
     0 2px 6px rgba(0, 0, 0, 0.32),
     0 14px 28px -4px rgba(0, 0, 0, 0.46),

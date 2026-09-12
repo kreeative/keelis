@@ -53,23 +53,38 @@
 @media (min-width: 768px) {
   .bar { display: none; }
 
+  /* The desktop rail is the mobile pill stood on its end: detached from every edge, glass,
+     rounded, and lifted off the page. Flattening it against the viewport edge was what
+     made this screen stop looking like glass at all. */
   .rail {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
+    top: var(--sp-4);
+    bottom: var(--sp-4);
+    left: var(--sp-4);
     z-index: var(--z-nav);
-    width: var(--rail-width);
+    width: calc(var(--rail-width) - var(--sp-4));
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--sp-5);
     padding-block: var(--sp-4);
-    /* No panel and no divider: the reference's rail is the page, with only the icons on
-       it. A tinted glass column turned the active item into a bright card floating on a
-       darker strip — the inverse of what it should read as. */
-    background: none;
+    border-radius: var(--r-pill);
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
+    border-top-color: var(--glass-border);
+    box-shadow: var(--elev-2);
     overflow: visible;
+  }
+  /* The same lit rim every other pane carries. */
+  .rail::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: var(--glass-rim);
   }
 
   .brand {
