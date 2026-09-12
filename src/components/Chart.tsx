@@ -1,5 +1,5 @@
 /**
- * Price line with a stippled area under it, the period's opening value as a dashed
+ * Price line with a stippled area under it that fades out with depth, the period's opening value as a dashed
  * baseline, and a dot on the last point. The stipple is the interesting part: in a palette
  * with no hue, a tinted area fill has nothing to tint, so the area is carried by *texture*
  * instead — a lattice of 1px dots, which reads as filled without needing colour.
@@ -136,8 +136,21 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
           <pattern id={`${id}-stipple`} width="4" height="4" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="0.85" className={styles.stipple} />
           </pattern>
+          {/* The stipple thins out with depth and is gone before the floor, so the texture
+              reads as something the line casts rather than a block sitting under it. The
+              fade runs down the plot box, not down from the line: measured on the
+              reference, ink at a given height is the same whether the line is 17px or
+              527px above it. `white` here is a mask value — keep — not a palette colour. */}
+          <linearGradient id={`${id}-fade`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="white" stopOpacity="1" />
+            <stop offset="0.45" stopColor="white" stopOpacity="0.62" />
+            <stop offset="0.8" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+          <mask id={`${id}-fademask`}>
+            <rect x="0" y="0" width={W} height={H} fill={`url(#${id}-fade)`} />
+          </mask>
         </defs>
-        <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" />
+        <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" mask={`url(#${id}-fademask)`} />
         <line x1={0} x2={W} y1={baseY} y2={baseY} className={styles.baseline} />
         <path d={path} className={styles.line} />
         <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={4} className={styles.nowDot} />

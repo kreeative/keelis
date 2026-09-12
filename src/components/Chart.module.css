@@ -21,8 +21,8 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-/* The area, as texture. Low opacity so the line stays the subject. */
-.stipple { fill: var(--chart-color); opacity: 0.22; }
+/* The area, as texture. This is the density at the top; the mask thins it with depth. */
+.stipple { fill: var(--chart-color); opacity: 0.3; }
 
 /* The period's opening value. */
 .baseline {
