@@ -55,7 +55,7 @@ export const seedUser: User = {
   twoFactorEnabled: true,
   biometricsEnabled: false,
   pinSet: true,
-  locale: 'fr-CA',
+  locale: 'fr-SN',
   createdAt: daysAgo(112),
 }
 
@@ -243,18 +243,21 @@ export const seedRecurring: RecurringBuy[] = [
 
 // ---------- Accounts ----------
 
+/** The CFA franc's treaty peg to the euro. Fixed, not quoted — see lib/currency. */
+const XOF_PER_EUR = 655.957
+
 export const seedBalances = {
-  checking: 4_218.37,
-  savings: 12_640.15,
+  checking: Math.round(4_218.37 * XOF_PER_EUR),
+  savings: Math.round(12_640.15 * XOF_PER_EUR),
 }
 
 export const SAVINGS_APY = 4.0
 
 export function makeAccounts(cryptoValue: number, cryptoChange: number, cryptoChangePct: number, cryptoSparkline: number[], balances = seedBalances): Account[] {
   return [
-    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'CAD', balance: balances.checking, change24h: -86.4, change24hPct: -2.0, openedAt: daysAgo(112) },
-    { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'CAD', balance: balances.savings, change24h: 1.39, change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
-    { id: IDS.crypto, kind: 'crypto', name: 'Crypto', currency: 'CAD', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
+    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, change24h: -86.4, change24hPct: -2.0, openedAt: daysAgo(112) },
+    { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: 1.39, change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
+    { id: IDS.crypto, kind: 'crypto', name: 'Crypto', currency: 'XOF', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
   ]
 }
 
@@ -292,7 +295,14 @@ export function makeTransactions(): Transaction[] {
   let n = 0
   const id = () => `tx_${String(++n).padStart(4, '0')}`
 
-  const add = (t: Omit<Transaction, 'id' | 'currency'>) => txs.push({ id: id(), currency: 'CAD', ...t })
+  /* Every figure below was authored on a ~1:1 "one unit ≈ one euro" scale, back when the
+     demo account was Canadian. The account is West African now, so each amount is carried
+     across the peg once, here, and rounded to whole francs — XOF has no centimes, and a
+     transaction that cannot be paid in cash should not be shown. Scaling at this one
+     boundary keeps the authored figures readable in the source instead of scattering
+     six-digit literals through it. */
+  const add = (t: Omit<Transaction, 'id' | 'currency'>) =>
+    txs.push({ id: id(), currency: 'XOF', ...t, amount: Math.round(t.amount * XOF_PER_EUR) })
 
   // Card spend: ~40 over 90 days
   for (let i = 0; i < 40; i++) {
@@ -449,7 +459,7 @@ export const seedDevices: Device[] = [
 function monthKey(offset: number): { key: string; label: string } {
   const d = new Date(NOW.getFullYear(), NOW.getMonth() - offset, 1)
   const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-  const label = new Intl.DateTimeFormat('fr-CA', { month: 'long', year: 'numeric' }).format(d)
+  const label = new Intl.DateTimeFormat('fr-SN', { month: 'long', year: 'numeric' }).format(d)
   return { key, label: label.charAt(0).toUpperCase() + label.slice(1) }
 }
 

@@ -26,7 +26,7 @@
    This is the screen where the figure is being typed; shrinking the $ here would undo on
    entry exactly what AmountDisplay does everywhere the figure is read back. */
 .symbol { margin-left: 0.18em; }
-/* en-CA sets the symbol first and tight against the figure — "$1,234.56", no space. */
+/* en-NG sets the symbol first and tight against the figure — "$1,234.56", no space. */
 .symbol:first-child { margin-left: 0; }
 /* A unit is a word — « BTC », « ETH ». That one does recede. */
 .unit {

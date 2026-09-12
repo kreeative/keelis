@@ -205,7 +205,7 @@ class MockState {
   }
 
   addTransaction(t: Omit<Transaction, 'id' | 'currency'>): Transaction {
-    const tx: Transaction = { id: uid('tx'), currency: 'CAD', ...t }
+    const tx: Transaction = { id: uid('tx'), currency: 'XOF', ...t }
     this.transactions.unshift(tx)
     this.emit({ type: 'transaction', transaction: tx })
     return tx

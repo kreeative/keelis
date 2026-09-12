@@ -25,6 +25,8 @@ const CheckingPage = L(() => import('@/features/checking/CheckingPage'))
 const TransactionDetailPage = L(() => import('@/features/checking/TransactionDetailPage'))
 const AccountDetailsPage = L(() => import('@/features/checking/AccountDetailsPage'))
 const SendMoneyPage = L(() => import('@/features/checking/SendMoneyPage'))
+// Change
+const ConvertPage = L(() => import('@/features/fx/ConvertPage'))
 // Savings
 const SavingsPage = L(() => import('@/features/savings/SavingsPage'))
 const SavingsMovePage = lazy(() => import('@/features/savings/SavingsMovePage'))
@@ -79,6 +81,7 @@ export function AppRoutes() {
             <Route path="/carte/transactions/:id" element={<TransactionDetailPage />} />
             <Route path="/transactions/:id" element={<TransactionDetailPage />} />
             <Route path="/envoyer" element={<SendMoneyPage />} />
+<Route path="/convertir" element={<ConvertPage />} />
 
             <Route path="/epargne" element={<SavingsPage />} />
             <Route path="/epargne/deposer" element={<SavingsMovePage direction="deposit" />} />

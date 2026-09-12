@@ -44,7 +44,7 @@ const head = `<meta charset="UTF-8" />
     <title>${title}</title>
     <script>${themeScript}</script>
     <style>${css}</style>`
-const standalone = `<!doctype html>\n<html lang="fr-CA">\n  <head>\n    ${head}\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module">${escapeScript(js)}</script>\n  </body>\n</html>\n`
+const standalone = `<!doctype html>\n<html lang="fr-SN">\n  <head>\n    ${head}\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module">${escapeScript(js)}</script>\n  </body>\n</html>\n`
 writeFileSync(join(out, 'index.html'), standalone)
 
 // Body-only variant: the artifact host supplies doctype/html/head/body.

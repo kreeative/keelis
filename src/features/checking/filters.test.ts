@@ -11,7 +11,7 @@ function tx(patch: Partial<Transaction>): Transaction {
     type: 'card',
     status: 'posted',
     amount: -10,
-    currency: 'CAD',
+    currency: 'XOF',
     counterparty: 'Test',
     category: 'other',
     date: NOW.toISOString(),

@@ -57,3 +57,5 @@
   font-size: var(--fs-small);
   color: var(--ink-400);
 }
+/* en-NG and a few others set the symbol before the digits, tight against them. */
+.symbolFirst { margin-right: 0.04em; }

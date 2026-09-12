@@ -69,7 +69,7 @@ export function StepAddress() {
     <StepShell
       eyebrow={stepEyebrow('adresse')}
       title="Où habitez-vous ?"
-      description="Votre adresse résidentielle au Canada, pas une case postale."
+      description="Votre adresse résidentielle, pas une boîte postale."
       submitDisabled={!valid}
       submitting={busy}
       onSubmit={() => void submit()}

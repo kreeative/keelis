@@ -21,8 +21,8 @@ const THEME_SEGMENTS: ReadonlyArray<{ value: ThemeChoice; label: string }> = [
 ]
 
 const LOCALE_SEGMENTS: ReadonlyArray<{ value: Locale; label: string }> = [
-  { value: 'fr-CA', label: 'Français' },
-  { value: 'en-CA', label: 'English' },
+  { value: 'fr-SN', label: 'Français' },
+  { value: 'en-NG', label: 'English' },
 ]
 
 export default function ProfilePage() {

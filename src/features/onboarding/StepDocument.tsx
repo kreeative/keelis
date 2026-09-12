@@ -19,7 +19,7 @@ interface Picked {
 }
 
 /** « 840 Ko », « 2,4 Mo » — the unit that keeps the number readable. */
-function formatSize(bytes: number, locale: 'fr-CA' | 'en-CA'): string {
+function formatSize(bytes: number, locale: 'fr-SN' | 'en-NG'): string {
   if (bytes < 1024 * 1024) return `${formatNumber(Math.max(1, Math.round(bytes / 1024)), { locale, maxFraction: 0 })} Ko`
   return `${formatNumber(bytes / 1024 / 1024, { locale, maxFraction: 1, minFraction: 1 })} Mo`
 }

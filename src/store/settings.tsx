@@ -20,7 +20,7 @@ const SettingsContext = createContext<Settings | null>(null)
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeChoice>(() => readTheme())
   const [systemDark, setSystemDark] = useState(() => resolvedTheme('system') === 'dark')
-  const [locale, setLocaleState] = useState<Locale>(() => readJson<Locale>('keelis.locale', 'fr-CA'))
+  const [locale, setLocaleState] = useState<Locale>(() => readJson<Locale>('keelis.locale', 'fr-SN'))
   const [hidden, setHidden] = useState(() => readJson<boolean>('keelis.hidden', false))
   const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
 

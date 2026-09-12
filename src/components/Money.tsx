@@ -1,6 +1,6 @@
 /**
  * Inline fiat amount with:
- * - localised formatting (fr-CA / en-CA)
+ * - localised formatting (fr-SN / en-NG)
  * - tabular numerals
  * - long-form aria-label for screen readers
  * - privacy masking when balances are hidden

@@ -9,7 +9,7 @@ import { api } from '@/api'
 import type { AmountMode, ApiError, Order, QuoteRequest, Quote } from '@/api/types'
 import { Button, ErrorState, Money, PageHeader, SkeletonAmount } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
-import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
+import { DEFAULT_CURRENCY, formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import { floorTo, formatRate, toKeypadRaw } from './cryptoFormat'
@@ -210,7 +210,7 @@ export default function TradePage({ side }: { side: Side }) {
           value={raw}
           onChange={onChange}
           mode={mode}
-          unit={mode === 'fiat' ? 'CAD' : asset.symbol}
+          unit={mode === 'fiat' ? DEFAULT_CURRENCY : asset.symbol}
           secondary={secondary}
           onToggleMode={toggleMode}
           error={entryError}

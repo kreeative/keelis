@@ -31,7 +31,7 @@ function monthsLabel(months: number): string {
   return months <= 1 ? '1 mois' : `${months} mois`
 }
 
-/** Localised money field: symbol leads in en-CA, trails in fr-CA. */
+/** Localised money field: symbol leads in en-NG, trails in fr-SN. */
 function AmountField({
   label,
   value,
@@ -61,8 +61,8 @@ function AmountField({
       onBlur={onBlur}
       inputMode="decimal"
       placeholder="0"
-      leading={locale === 'en-CA' ? symbol : undefined}
-      trailing={locale === 'fr-CA' ? symbol : undefined}
+      leading={locale === 'en-NG' ? symbol : undefined}
+      trailing={locale === 'fr-SN' ? symbol : undefined}
       hint={hint}
       error={error}
     />

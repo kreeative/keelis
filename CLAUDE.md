@@ -1,6 +1,16 @@
 # Keelis — conventions for contributors (human or agent)
 
-Keelis is a mobile-first fintech web app (React 19 + TypeScript + Vite). Three products: Crypto, Chèque (spending + card), Épargne (high-interest savings). UI copy is **French (fr-CA)**; number/date formatting is localised via `src/lib/format.ts`.
+Keelis is a mobile-first fintech web app for **Africa** (React 19 + TypeScript + Vite). Products: Marchés (African equities + crypto), Chèque (spending + card), Épargne, and Change. UI copy is **French (fr-SN)**, with **en-NG** as the second locale; number/date formatting is localised via `src/lib/format.ts`.
+
+## Money is multi-currency, and the currency decides its own punctuation
+- **`src/lib/currency.ts` is the registry** — sixteen currencies: the two CFA francs, the major African units, plus EUR and USD as anchors. `Currency` is that union; `src/api/types.ts` re-exports it. It was `'CAD'`, a one-member union, and every African ambition in the roadmap was blocked behind it.
+- **Not every currency has cents.** XOF, XAF, UGX and RWF are quoted in whole units; TND is quoted in *three* decimals (millimes). `formatMoney` asks the currency rather than forcing two, and the registry's `decimals` is pinned to `Intl`'s own answer by a test, so arithmetic and display cannot drift apart. Rounding happens **once, at the end** of a conversion (`roundTo`) — rounding to whole francs mid-calculation compounds across a two-leg cross.
+- **The locale matters for more than commas.** `fr-CA` renders XOF as "XOF"; `fr-SN` renders it "F CFA", which is what it is called where it is spent. That one substitution is most of what makes the app read as African rather than Canadian.
+- **A symbol is never inferred from the currency code.** `splitMoney` pulls it out of `Intl.formatToParts` — "F CFA", "₦", "GH₵", "€" — and reports which side the locale puts it on. Code that compared the code to `'CAD'` and assumed `'$'` is exactly what broke when the app moved.
+- **The CFA peg is a treaty, not a quote.** XOF and XAF are fixed to the euro at **exactly 655.957**, so `lib/fx.ts` treats that pair as a constant: the rate does not move and the spread is the only variable. They are 1:1 with each other and still charged, because two central banks settle them.
+- **The spread is stated, never buried in a worse rate.** `quote()` returns the mid rate, the applied rate, the tier and the fee *as money in the currency being sold*; `/convertir` shows all of them before the user commits. Tiers price legs, not sentiment: anchor 0.5 %, one African leg 1.2 %, African cross 1.8 %, pegged 1.0 %.
+- **Quote a pair in the direction that reads.** XOF→EUR is 0,0015244 before the spread and 0,0015061 after — rounded for display both read "0,0015" and the margin looks like zero. Inverted (655,96 against 663,92 francs to the euro) the same spread is plainly visible. That is how a bureau de change writes it on the board.
+- **The rates in `lib/fx.ts` are demonstration rates**, anchored to real orders of magnitude but not a feed. Every surface that shows one says so. The two pegged numbers are the exception and are exact.
 
 ## Brand
 The marks live in `src/components/Wordmark.tsx` and come from the brand artwork

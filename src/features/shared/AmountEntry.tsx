@@ -4,7 +4,8 @@
  */
 import { useMemo } from 'react'
 import { Button, Icon, Keypad } from '@/components'
-import { formatAmountInput, formatCrypto, formatMoney, moneyAriaLabel, parseAmountInput } from '@/lib/format'
+import { DEFAULT_CURRENCY, formatAmountInput, formatCrypto, formatMoney, moneyAriaLabel, parseAmountInput, splitMoney } from '@/lib/format'
+import { isCurrency } from '@/lib/currency'
 import { useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import styles from './AmountEntry.module.css'
@@ -31,16 +32,20 @@ export interface AmountEntryProps {
   label: string
 }
 
-export function AmountEntry({ value, onChange, mode = 'fiat', unit = 'CAD', secondary, onToggleMode, error, presets, onMax, maxDecimals, disabled, label }: AmountEntryProps) {
+export function AmountEntry({ value, onChange, mode = 'fiat', unit = DEFAULT_CURRENCY, secondary, onToggleMode, error, presets, onMax, maxDecimals, disabled, label }: AmountEntryProps) {
   const { locale } = useSettings()
   const numeric = parseAmountInput(value)
   const display = useMemo(() => formatAmountInput(value, locale), [value, locale])
   const empty = value === '' || numeric === 0
-  const aria = mode === 'fiat' ? moneyAriaLabel(numeric, { locale }) : `${formatCrypto(numeric, unit, { locale })}`
-  const symbol = unit === 'CAD' ? '$' : unit
-  const symbolFirst = mode === 'fiat' && locale === 'en-CA'
-  // '$' is a symbol and belongs to the figure at full size; 'BTC' is a word and recedes.
-  const symbolClass = unit === 'CAD' ? styles.symbol : styles.unit
+  const aria = mode === 'fiat' ? moneyAriaLabel(numeric, { locale, currency: isCurrency(unit) ? unit : undefined }) : `${formatCrypto(numeric, unit, { locale })}`
+  /* A currency gets its real symbol at full size — "F CFA", "€", "₦" — because it is part
+     of the figure. A crypto ticker stays a word and recedes. The old code compared the
+     unit to 'CAD' and assumed "$", which silently printed the bare code for everything
+     else the moment the app stopped being Canadian. */
+  const money = isCurrency(unit) ? splitMoney(0, { locale, currency: unit }) : undefined
+  const symbol = money?.symbol ?? unit
+  const symbolFirst = money?.prefix ?? false
+  const symbolClass = money ? styles.symbol : styles.unit
 
   return (
     <div className={styles.wrap}>

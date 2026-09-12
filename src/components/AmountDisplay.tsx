@@ -2,7 +2,7 @@
  * The hero number. Amount in `display`, currency in `h2` on the same baseline,
  * optional delta line below ("+12,40 $ · +1,4 % · 24 h").
  */
-import { MASKED, formatMoney, formatNumber, formatPercent, moneyAriaLabel, percentAriaLabel } from '@/lib/format'
+import { DEFAULT_CURRENCY, MASKED, formatMoney, formatNumber, formatPercent, moneyAriaLabel, percentAriaLabel, splitMoney } from '@/lib/format'
 import { useSettings } from '@/store/settings'
 import { cn } from '@/lib/cn'
 import { SkeletonAmount } from './Skeleton'
@@ -35,17 +35,16 @@ export interface AmountDisplayProps {
   unmasked?: boolean
 }
 
-export function AmountDisplay({ value, currency = 'CAD', delta, deltaPct, period, caption, unit, maxFraction, signed = false, tone = false, size = 'display', loading, align = 'start', className, unmasked }: AmountDisplayProps) {
+export function AmountDisplay({ value, currency = DEFAULT_CURRENCY, delta, deltaPct, period, caption, unit, maxFraction, signed = false, tone = false, size = 'display', loading, align = 'start', className, unmasked }: AmountDisplayProps) {
   const { hidden, locale } = useSettings()
   if (loading || value === undefined) return <SkeletonAmount />
   const masked = hidden && !unmasked
 
-  // Split "1 234,56 $" into number + symbol so the symbol can sit in h2.
-  // With `unit` the value is a quantity, not money: format it as a plain number.
-  const symbol = currency === 'CAD' ? '$' : currency
-  const number = unit
-    ? formatNumber(value, { locale, maxFraction: maxFraction ?? 8, signed })
-    : formatMoney(value, { locale, currency, signed }).replace(symbol, '').trim()
+  // The symbol is set as part of the figure, so it is split off rather than stripped:
+  // "F CFA", "₦" and "€" are not "$", and some locales put the symbol first.
+  const money = unit ? undefined : splitMoney(value, { locale, currency, signed })
+  const symbol = money?.symbol ?? ''
+  const number = unit ? formatNumber(value, { locale, maxFraction: maxFraction ?? 8, signed }) : money!.number
 
   const hasDelta = delta !== undefined || deltaPct !== undefined
   const deltaTone = (deltaPct ?? delta ?? 0) > 0 ? styles.pos : (deltaPct ?? delta ?? 0) < 0 ? styles.neg : styles.flat
@@ -57,12 +56,13 @@ export function AmountDisplay({ value, currency = 'CAD', delta, deltaPct, period
         aria-label={masked ? 'Montant masqué' : unit ? `${number} ${unit}` : moneyAriaLabel(value, { locale, currency })}
         role="text"
       >
+        {money?.prefix && !masked ? <span className={styles.symbolFirst}>{symbol}</span> : null}
         {masked ? (
           <span className={styles.number}>{MASKED}</span>
         ) : (
           <span className={styles.number}>{number}</span>
         )}
-        {!unit && locale === 'fr-CA' ? <span className={styles.symbol}>{symbol}</span> : null}
+        {money && !money.prefix ? <span className={styles.symbol}>{symbol}</span> : null}
         {unit ? <span className={styles.unit}>{unit}</span> : null}
       </div>
       {hasDelta ? (

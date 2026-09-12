@@ -22,7 +22,11 @@ describe('crypto quotes', () => {
     expect(q.quantity * q.executionPrice).toBeCloseTo(100, 6)
   })
   it('rejects buys above the checking balance', async () => {
-    await expect(mockApi.crypto.quote({ assetId: 'btc', side: 'buy', mode: 'fiat', amount: 1_000_000 })).rejects.toMatchObject({ code: 'insufficient_funds' })
+    // Derived from the balance, not a literal: "more than the account holds" is the thing
+    // under test, and a hardcoded figure silently stopped being one when the demo moved
+    // from dollars to CFA francs.
+    const balance = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!.balance
+    await expect(mockApi.crypto.quote({ assetId: 'btc', side: 'buy', mode: 'fiat', amount: balance * 2 })).rejects.toMatchObject({ code: 'insufficient_funds' })
   })
   it('rejects sells above holdings', async () => {
     await expect(mockApi.crypto.quote({ assetId: 'btc', side: 'sell', mode: 'crypto', amount: 10 })).rejects.toMatchObject({ code: 'insufficient_funds' })
@@ -56,10 +60,11 @@ describe('savings', () => {
     await mockApi.savings.deposit(100, IDS.checking)
     const s1 = await mockApi.savings.summary()
     expect(s1.balance).toBeCloseTo(s0.balance + 100, 2)
-    await expect(mockApi.savings.withdraw(1_000_000, IDS.checking)).rejects.toMatchObject({ code: 'insufficient_funds' })
+    await expect(mockApi.savings.withdraw(s1.balance * 2, IDS.checking)).rejects.toMatchObject({ code: 'insufficient_funds' })
   })
   it('caps goal allocations to the savings balance', async () => {
-    await expect(mockApi.savings.goals.create({ name: 'Trop', target: 1000, monthlyContribution: 10, initialDeposit: 1_000_000 })).rejects.toMatchObject({ code: 'insufficient_funds' })
+    const savings = (await mockApi.savings.summary()).balance
+    await expect(mockApi.savings.goals.create({ name: 'Trop', target: 1000, monthlyContribution: 10, initialDeposit: savings * 2 })).rejects.toMatchObject({ code: 'insufficient_funds' })
     const g = await mockApi.savings.goals.create({ name: 'Vélo', target: 800, monthlyContribution: 100, initialDeposit: 50 })
     expect(g.current).toBe(50)
     expect((await mockApi.savings.goals.list()).length).toBe(3)

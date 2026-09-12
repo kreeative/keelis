@@ -48,7 +48,7 @@ export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integ
     },
     [value, onChange, maxDecimals, maxLength, integerOnly, disabled],
   )
-  const decimal = locale === 'fr-CA' ? ',' : '.'
+  const decimal = locale === 'fr-SN' ? ',' : '.'
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', integerOnly ? '' : ',', '0', 'back']
 
   return (

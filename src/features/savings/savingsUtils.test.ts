@@ -40,14 +40,14 @@ describe('interest projection', () => {
 
 describe('formatting', () => {
   it('writes the APY with two decimals and the month in French', () => {
-    expect(formatApy(4, 'fr-CA')).toBe('4,00 %')
-    expect(formatWholePercent(52.86, 'fr-CA')).toBe('53 %')
-    expect(formatMonthYear(new Date(2027, 3, 1), 'fr-CA')).toBe('avril 2027')
+    expect(formatApy(4, 'fr-SN')).toBe('4,00 %')
+    expect(formatWholePercent(52.86, 'fr-SN')).toBe('53 %')
+    expect(formatMonthYear(new Date(2027, 3, 1), 'fr-SN')).toBe('avril 2027')
   })
 
   it('masks an amount written inside a sentence when balances are hidden', () => {
-    expect(inlineMoney(3_500, false, { locale: 'fr-CA' })).toBe(formatMoney(3_500, { locale: 'fr-CA' }))
-    expect(inlineMoney(3_500, true, { locale: 'fr-CA' })).toBe(MASKED)
+    expect(inlineMoney(3_500, false, { locale: 'fr-SN' })).toBe(formatMoney(3_500, { locale: 'fr-SN' }))
+    expect(inlineMoney(3_500, true, { locale: 'fr-SN' })).toBe(MASKED)
   })
 })
 

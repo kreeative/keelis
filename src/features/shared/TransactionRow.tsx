@@ -39,7 +39,7 @@ export function transactionIcon(t: Transaction): { name: IconName; tone: 'neutra
   }
 }
 
-export function transactionSubtitle(t: Transaction, locale: 'fr-CA' | 'en-CA'): string {
+export function transactionSubtitle(t: Transaction, locale: 'fr-SN' | 'en-NG'): string {
   const parts: string[] = []
   if (t.asset) parts.push(formatCrypto(t.asset.quantity, t.asset.symbol, { locale }))
   else parts.push(TYPE_LABELS[t.type])

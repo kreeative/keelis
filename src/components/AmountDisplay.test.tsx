@@ -15,11 +15,11 @@ describe('AmountDisplay', () => {
 
   it('prefixes an explicit sign when asked', () => {
     wrap(<AmountDisplay value={2184.5} signed />)
-    expect(norm(screen.getByRole('text').textContent ?? '')).toContain('+2 184,50')
+    expect(norm(screen.getByRole('text').textContent ?? '')).toContain('+2 185')
   })
 
   it('labels the amount in long form for screen readers', () => {
     wrap(<AmountDisplay value={1234.56} />)
-    expect(screen.getByRole('text').getAttribute('aria-label')).toMatch(/dollars canadiens/)
+    expect(screen.getByRole('text').getAttribute('aria-label')).toMatch(/francs CFA/)
   })
 })

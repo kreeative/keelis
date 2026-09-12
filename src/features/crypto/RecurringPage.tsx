@@ -16,7 +16,7 @@ import styles from './RecurringPage.module.css'
 const MIN_AMOUNT = 5
 const FREQUENCY_SEGMENTS = FREQUENCY_ORDER.map((f) => ({ value: f, label: FREQUENCIES[f].short }))
 
-function rowTitle(item: RecurringBuy, locale: 'fr-CA' | 'en-CA'): string {
+function rowTitle(item: RecurringBuy, locale: 'fr-SN' | 'en-NG'): string {
   return `${formatMoney(item.amount, { locale })} de ${item.symbol}`
 }
 

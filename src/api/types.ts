@@ -7,9 +7,12 @@
  * Dates: ISO 8601 strings.
  */
 
-export type Currency = 'CAD'
+// The currencies Keelis holds and converts between live in one registry, because the set
+// is domain knowledge — minor units, the euro peg — not an API detail. See lib/currency.
+export type { Currency } from '@/lib/currency'
+import type { Currency } from '@/lib/currency'
 export type AccountKind = 'checking' | 'savings' | 'crypto'
-export type Locale = 'fr-CA' | 'en-CA'
+export type Locale = 'fr-SN' | 'en-NG'
 
 // ---------- Session / user ----------
 

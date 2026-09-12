@@ -4,33 +4,33 @@ import { abbreviateAddress, formatCompactMoney, formatCompactQuantity, formatRat
 const norm = (s: string) => s.replace(/[  ]/g, ' ')
 
 describe('formatCompactMoney', () => {
-  it('uses T / G / M / k in fr-CA', () => {
-    expect(norm(formatCompactMoney(2_830_000_000_000, 'fr-CA'))).toBe('2,83 T$')
-    expect(norm(formatCompactMoney(48_000_000_000, 'fr-CA'))).toBe('48,0 G$')
-    expect(norm(formatCompactMoney(156_000_000_000, 'fr-CA'))).toBe('156 G$')
-    expect(norm(formatCompactMoney(900_000_000, 'fr-CA'))).toBe('900 M$')
-    expect(norm(formatCompactMoney(12_500, 'fr-CA'))).toBe('12,5 k$')
+  it('uses T / G / M / k in fr-SN', () => {
+    expect(norm(formatCompactMoney(2_830_000_000_000, 'fr-SN'))).toBe('2,83 T$')
+    expect(norm(formatCompactMoney(48_000_000_000, 'fr-SN'))).toBe('48,0 G$')
+    expect(norm(formatCompactMoney(156_000_000_000, 'fr-SN'))).toBe('156 G$')
+    expect(norm(formatCompactMoney(900_000_000, 'fr-SN'))).toBe('900 M$')
+    expect(norm(formatCompactMoney(12_500, 'fr-SN'))).toBe('12,5 k$')
   })
-  it('uses T / B / M / K in en-CA', () => {
-    expect(norm(formatCompactMoney(2_830_000_000_000, 'en-CA'))).toBe('$2.83T')
-    expect(norm(formatCompactMoney(48_000_000_000, 'en-CA'))).toBe('$48.0B')
+  it('uses T / B / M / K in en-NG', () => {
+    expect(norm(formatCompactMoney(2_830_000_000_000, 'en-NG'))).toBe('$2.83T')
+    expect(norm(formatCompactMoney(48_000_000_000, 'en-NG'))).toBe('$48.0B')
   })
   it('falls back to a plain amount under 1 000', () => {
-    expect(norm(formatCompactMoney(842.5, 'fr-CA'))).toBe('842,50 $')
+    expect(norm(formatCompactMoney(842.5, 'fr-SN'))).toBe('843 F CFA')
   })
 })
 
 describe('formatCompactQuantity', () => {
   it('keeps the symbol', () => {
-    expect(norm(formatCompactQuantity(19_820_000, 'BTC', 'fr-CA'))).toBe('19,8 M BTC')
-    expect(norm(formatCompactQuantity(57_000_000_000, 'XRP', 'en-CA'))).toBe('57.0B XRP')
+    expect(norm(formatCompactQuantity(19_820_000, 'BTC', 'fr-SN'))).toBe('19,8 M BTC')
+    expect(norm(formatCompactQuantity(57_000_000_000, 'XRP', 'en-NG'))).toBe('57.0B XRP')
   })
 })
 
 describe('formatRate', () => {
   it('shows a fraction as a percent with two decimals', () => {
-    expect(norm(formatRate(0.015, 'fr-CA'))).toBe('1,50 %')
-    expect(norm(formatRate(0.02, 'en-CA'))).toBe('2.00 %')
+    expect(norm(formatRate(0.015, 'fr-SN'))).toBe('1,50 %')
+    expect(norm(formatRate(0.02, 'en-NG'))).toBe('2.00 %')
   })
 })
 

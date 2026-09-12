@@ -83,7 +83,7 @@ export default function FundsStatusPage() {
   )
 }
 
-function Status({ tx, locale }: { tx: Transaction; locale: 'fr-CA' | 'en-CA' }) {
+function Status({ tx, locale }: { tx: Transaction; locale: 'fr-SN' | 'en-NG' }) {
   const navigate = useNavigate()
   const incoming = tx.amount >= 0
   const account = accountName(tx.accountId)

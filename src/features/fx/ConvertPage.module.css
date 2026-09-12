@@ -1,0 +1,37 @@
+/* The two pickers and the swap button read as one control: a pair, not two fields that
+   happen to sit near each other. Below 520px the swap drops between them on its own row,
+   where it still points from one to the other. */
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--sp-3);
+  margin-bottom: var(--space-block);
+}
+.swap { margin-bottom: var(--sp-1); }
+
+@media (max-width: 520px) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+  }
+  .swap {
+    justify-self: center;
+    margin-bottom: 0;
+  }
+}
+
+.detail { margin-top: var(--space-block); }
+
+.actions {
+  display: flex;
+  margin-top: var(--space-block);
+}
+.actions > * { flex: 1; }
+
+.intro {
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+  margin-bottom: var(--space-block);
+  max-width: 52ch;
+}

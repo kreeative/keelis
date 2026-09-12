@@ -23,7 +23,7 @@ const args = Object.fromEntries(process.argv.slice(2).map((a) => {
 const BASE = process.env.BASE_URL ?? 'http://localhost:4173'
 const ROUTES = (args.routes ? String(args.routes).split(',') : [
   '/', '/activite', '/crypto', '/crypto/btc', '/crypto/btc/acheter', '/crypto/btc/vendre', '/crypto/btc/envoyer', '/crypto/btc/recevoir', '/crypto/recurrents',
-  '/carte', '/carte/details', '/envoyer', '/epargne', '/epargne/deposer', '/epargne/retirer', '/epargne/objectifs/nouveau', '/epargne/objectifs/goal_01',
+  '/carte', '/carte/details', '/envoyer', '/convertir', '/epargne', '/epargne/deposer', '/epargne/retirer', '/epargne/objectifs/nouveau', '/epargne/objectifs/goal_01',
   '/fonds', '/profil', '/profil/securite', '/profil/notifications', '/profil/documents', '/profil/fiscalite', '/profil/aide', '/notifications', '/composants',
 ])
 const WIDTHS = (args.widths ? String(args.widths).split(',').map(Number) : [320, 390, 768, 1440])
@@ -47,7 +47,7 @@ function findChromium() {
 }
 
 const DEMO_SESSION = {
-  user: { id: 'usr_01', firstName: 'Aïssatou', lastName: 'Ndiaye', email: 'aissatou.ndiaye@exemple.ca', verified: true, twoFactorEnabled: true, biometricsEnabled: false, pinSet: true, locale: 'fr-CA', createdAt: new Date(Date.now() - 100 * 86400000).toISOString() },
+  user: { id: 'usr_01', firstName: 'Aïssatou', lastName: 'Ndiaye', email: 'aissatou.ndiaye@exemple.ca', verified: true, twoFactorEnabled: true, biometricsEnabled: false, pinSet: true, locale: 'fr-SN', createdAt: new Date(Date.now() - 100 * 86400000).toISOString() },
   token: 'e2e',
   expiresAt: new Date(Date.now() + 86400000).toISOString(),
 }
@@ -152,7 +152,7 @@ const summary = []
 let total = 0
 try {
   for (const theme of THEMES) {
-    const ctx = await browser.newContext({ colorScheme: theme, locale: 'fr-CA', deviceScaleFactor: 1 })
+    const ctx = await browser.newContext({ colorScheme: theme, locale: 'fr-SN', deviceScaleFactor: 1 })
     await ctx.addInitScript((session) => {
       try {
         if (session) {

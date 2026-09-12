@@ -9,13 +9,13 @@ import { formatMoney, formatNumber, type Locale } from '@/lib/format'
 const NBSP = ' '
 
 const UNITS: Record<Locale, ReadonlyArray<readonly [number, string]>> = {
-  'fr-CA': [
+  'fr-SN': [
     [1e12, 'T'],
     [1e9, 'G'],
     [1e6, 'M'],
     [1e3, 'k'],
   ],
-  'en-CA': [
+  'en-NG': [
     [1e12, 'T'],
     [1e9, 'B'],
     [1e6, 'M'],
@@ -32,18 +32,18 @@ function scale(value: number, locale: Locale): { n: string; unit: string } | nul
   return { n: formatNumber(scaled, { locale, minFraction: digits, maxFraction: digits }), unit: hit[1] }
 }
 
-/** 2 830 000 000 000 → « 2,83 T$ » (fr-CA) / « $2.83T » (en-CA). Below 1 000 falls back to formatMoney. */
+/** 2 830 000 000 000 → « 2,83 T$ » (fr-SN) / « $2.83T » (en-NG). Below 1 000 falls back to formatMoney. */
 export function formatCompactMoney(value: number, locale: Locale): string {
   const s = scale(value, locale)
   if (!s) return formatMoney(value, { locale })
-  return locale === 'fr-CA' ? `${s.n}${NBSP}${s.unit}$` : `$${s.n}${s.unit}`
+  return locale === 'fr-SN' ? `${s.n}${NBSP}${s.unit}$` : `$${s.n}${s.unit}`
 }
 
-/** 19 820 000 + BTC → « 19,82 M BTC » (fr-CA) / « 19.82M BTC » (en-CA). */
+/** 19 820 000 + BTC → « 19,82 M BTC » (fr-SN) / « 19.82M BTC » (en-NG). */
 export function formatCompactQuantity(value: number, symbol: string, locale: Locale): string {
   const s = scale(value, locale)
   if (!s) return `${formatNumber(value, { locale, maxFraction: 0 })}${NBSP}${symbol}`
-  return locale === 'fr-CA' ? `${s.n}${NBSP}${s.unit}${NBSP}${symbol}` : `${s.n}${s.unit}${NBSP}${symbol}`
+  return locale === 'fr-SN' ? `${s.n}${NBSP}${s.unit}${NBSP}${symbol}` : `${s.n}${s.unit}${NBSP}${symbol}`
 }
 
 /** Percent shown as a rate (« 1,50 % »), from a fraction (0.015). */

@@ -4,7 +4,7 @@
  */
 import { MASKED, formatMoney, formatNumber, type Locale, type MoneyOptions } from '@/lib/format'
 
-/** « avril 2027 » (fr-CA) — used for goal completion estimates. */
+/** « avril 2027 » (fr-SN) — used for goal completion estimates. */
 export function formatMonthYear(d: Date | string | number, locale: Locale): string {
   const date = d instanceof Date ? d : new Date(d)
   return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(date)
