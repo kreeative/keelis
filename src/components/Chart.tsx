@@ -28,6 +28,58 @@ export interface ChartProps {
   loading?: boolean
 }
 
+/**
+ * Smooths a series into cubic beziers using monotone (Fritsch–Carlson) interpolation.
+ *
+ * The choice matters here. A Catmull-Rom or plain cardinal spline curves prettily but
+ * *overshoots*: between two points it can swing past both, drawing a peak higher than the
+ * highest price in the data. On a price chart that is a lie. Monotone interpolation
+ * clamps the tangents so the curve never leaves the interval its two endpoints define —
+ * the line rounds off, and every high and low on screen is one that actually happened.
+ */
+export function smoothPath(xs: number[], ys: number[]): string {
+  const n = xs.length
+  if (n < 2) return ''
+  if (n === 2) return `M${xs[0]!.toFixed(1)} ${ys[0]!.toFixed(1)}L${xs[1]!.toFixed(1)} ${ys[1]!.toFixed(1)}`
+
+  const dx: number[] = new Array(n - 1)
+  const slope: number[] = new Array(n - 1)
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = xs[i + 1]! - xs[i]!
+    slope[i] = dx[i]! === 0 ? 0 : (ys[i + 1]! - ys[i]!) / dx[i]!
+  }
+
+  const m: number[] = new Array(n)
+  m[0] = slope[0]!
+  m[n - 1] = slope[n - 2]!
+  for (let i = 1; i < n - 1; i++) {
+    // a flat spot or a turning point gets a flat tangent, which is what stops the overshoot
+    m[i] = slope[i - 1]! * slope[i]! <= 0 ? 0 : (slope[i - 1]! + slope[i]!) / 2
+  }
+  for (let i = 0; i < n - 1; i++) {
+    if (slope[i] === 0) {
+      m[i] = 0
+      m[i + 1] = 0
+      continue
+    }
+    const a = m[i]! / slope[i]!
+    const b = m[i + 1]! / slope[i]!
+    const h = a * a + b * b
+    if (h > 9) {
+      const t = 3 / Math.sqrt(h)
+      m[i] = t * a * slope[i]!
+      m[i + 1] = t * b * slope[i]!
+    }
+  }
+
+  let d = `M${xs[0]!.toFixed(1)} ${ys[0]!.toFixed(1)}`
+  for (let i = 0; i < n - 1; i++) {
+    const t = dx[i]! / 3
+    d += `C${(xs[i]! + t).toFixed(1)} ${(ys[i]! + m[i]! * t).toFixed(1)} ${(xs[i + 1]! - t).toFixed(1)} ${(ys[i + 1]! - m[i + 1]! * t).toFixed(1)} ${xs[i + 1]!.toFixed(1)} ${ys[i + 1]!.toFixed(1)}`
+  }
+  return d
+}
+
 export function Chart({ points, height = 200, tone, formatValue, formatTime, onHover, label, className, loading }: ChartProps) {
   const id = useId()
   const { locale } = useSettings()
@@ -66,15 +118,11 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
     if (hi === lo) hi = lo + 1
     const xs: number[] = new Array(n)
     const ys: number[] = new Array(n)
-    let d = ''
     for (let i = 0; i < n; i++) {
-      const x = (i / (n - 1)) * W
-      const y = PAD + (1 - (points[i]!.p - lo) / (hi - lo)) * (H - PAD * 2)
-      xs[i] = x
-      ys[i] = y
-      d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1)
+      xs[i] = (i / (n - 1)) * W
+      ys[i] = PAD + (1 - (points[i]!.p - lo) / (hi - lo)) * (H - PAD * 2)
     }
-    return { path: d, xs, ys, min: lo, max: hi }
+    return { path: smoothPath(xs, ys), xs, ys, min: lo, max: hi }
   }, [points, H, W])
 
   const first = points[0]?.p ?? 0
@@ -180,13 +228,13 @@ export function Sparkline({ values, width = 72, height = 24, className, tone }: 
       if (v > hi) hi = v
     }
     if (hi === lo) hi = lo + 1
-    let s = ''
+    const xs: number[] = new Array(n)
+    const ys: number[] = new Array(n)
     for (let i = 0; i < n; i++) {
-      const x = (i / (n - 1)) * width
-      const y = 1.5 + (1 - (values[i]! - lo) / (hi - lo)) * (height - 3)
-      s += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1)
+      xs[i] = (i / (n - 1)) * width
+      ys[i] = 1.5 + (1 - (values[i]! - lo) / (hi - lo)) * (height - 3)
     }
-    return s
+    return smoothPath(xs, ys)
   }, [values, width, height])
   const first = values[0] ?? 0
   const last = values[values.length - 1] ?? 0
