@@ -87,6 +87,7 @@ set in Poppins, and those two decisions outrank the kit.
 - `src/components/` — the component library. Import from `@/components`. Do not create parallel primitives; extend these.
 - `src/features/<area>/` — screens. Routes live in `src/shell/routes.tsx` (French paths).
 - **Mobile navigation is a floating pill**, not a bar welded to the edge: centred, glass, `--elev-2`, with the active destination in a filled capsule and icons only (each link carries its name as an `aria-label`). Anything sticky at the bottom of a screen must clear it — `calc(var(--navbar-height) + var(--navbar-gap) * 2 + var(--safe-bottom) + …)`.
+- **Every section sits on a surface.** Balance, chart and period control are one statement, so they share one `Card`; a list goes in a card; interest figures go in a card. Content floating loose on the page ground is the exception, not the default — the page ground is what the glass refracts, not a place to set text. Section headers stay *outside* the card they introduce.
 - Layout: wrap page content in `<div className="page">` (gutter + max-width). Type utilities: `.t-display .t-h1 .t-h2 .t-body .t-small .t-label .t-muted .t-faint .num`.
 
 ## Money flows

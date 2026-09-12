@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IDS } from '@/api'
 import type { Transaction } from '@/api/types'
-import { AmountDisplay, AppBar, Badge, Button, EmptyState, ErrorState, Field, Icon, List, QuickActions, Refreshing, SkeletonRow } from '@/components'
+import { AmountDisplay, AppBar, Badge, Button, Card, EmptyState, ErrorState, Field, Icon, List, QuickActions, Refreshing, SkeletonRow } from '@/components'
 import { TransactionRow, groupByDay, useAccount, useTransactions } from '@/features/shared'
 import { formatDayHeading, formatMoney, formatNumber } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -125,19 +125,21 @@ export default function CheckingPage() {
     <div className={styles.page}>
       <AppBar title="Chèque" />
       <div className={styles.layout}>
-        <section className={styles.hero} aria-label="Solde du compte Chèque" aria-busy={account.loading || undefined}>
-          <div className={styles.heroTop}>
-            <p className="t-name">Disponible</p>
-            <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
-              <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
-            </Button>
-          </div>
-          {account.error && !account.data ? (
-            <ErrorState compact error={account.error} onRetry={() => void account.refetch()} />
-          ) : (
-            <AmountDisplay value={account.data?.balance} caption="Disponible maintenant" />
-          )}
-        </section>
+        <Card padding="lg" className={styles.balanceCard}>
+          <section className={styles.hero} aria-label="Solde du compte Chèque" aria-busy={account.loading || undefined}>
+            <div className={styles.heroTop}>
+              <p className="t-name">Disponible</p>
+              <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
+                <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
+              </Button>
+            </div>
+            {account.error && !account.data ? (
+              <ErrorState compact error={account.error} onRetry={() => void account.refetch()} />
+            ) : (
+              <AmountDisplay value={account.data?.balance} caption="Disponible maintenant" />
+            )}
+          </section>
+        </Card>
 
         <aside className={styles.side}>
           <CardPanel />
@@ -209,7 +211,9 @@ export default function CheckingPage() {
             {status}
           </p>
 
-          <div className={styles.results}>{body}</div>
+          <Card padding="md" elevation={1} className={styles.resultsCard}>
+            <div className={styles.results}>{body}</div>
+          </Card>
         </section>
       </div>
 

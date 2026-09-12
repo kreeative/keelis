@@ -41,7 +41,7 @@ function StatCell({ label, value, tone = false, failed }: { label: string; value
 
 function StatsPanel({ thisMonth, allTime, failed }: { thisMonth: number | undefined; allTime: number | undefined; failed: boolean }) {
   return (
-    <section className={styles.stats} aria-label="Intérêts">
+    <section className={`glass elev-1 ${styles.stats}`} aria-label="Intérêts">
       <StatCell label="Ce mois-ci" value={thisMonth} tone failed={failed} />
       <StatCell label="Depuis toujours" value={allTime} failed={failed} />
     </section>
@@ -147,45 +147,48 @@ export default function SavingsPage() {
         <div className={styles.main}>
           <AppBar title="Épargne" />
 
-          <section className={styles.hero} aria-busy={savings.loading || undefined}>
-            <div className={styles.heroTop}>
-              <p className="t-name">Solde</p>
-              {apy !== undefined ? <Badge tone="accent">{`APY ${formatApy(apy, locale)}`}</Badge> : null}
-              <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
-                <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
-              </Button>
-            </div>
-            {savings.error && balance === undefined ? (
-              <ErrorState compact error={savings.error} onRetry={() => void savings.refetch()} />
-            ) : (
-              <AmountDisplay value={heroValue} caption={heroCaption} />
-            )}
-          </section>
+          {/* Balance, curve and period are one statement — one surface. */}
+          <Card padding="lg" className={styles.balanceCard}>
+            <section className={styles.hero} aria-busy={savings.loading || undefined}>
+              <div className={styles.heroTop}>
+                <p className="t-name">Solde</p>
+                {apy !== undefined ? <Badge tone="accent">{`APY ${formatApy(apy, locale)}`}</Badge> : null}
+                <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
+                  <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
+                </Button>
+              </div>
+              {savings.error && balance === undefined ? (
+                <ErrorState compact error={savings.error} onRetry={() => void savings.refetch()} />
+              ) : (
+                <AmountDisplay value={heroValue} caption={heroCaption} />
+              )}
+            </section>
 
-          <section className={styles.chartBlock} aria-label="Croissance du solde Épargne">
-            {history.error && !history.data ? (
-              <ErrorState compact className={styles.chartError} error={history.error} onRetry={() => void history.refetch()} />
-            ) : (
-              <Chart
-                className={styles.chart}
-                points={history.data?.points ?? []}
-                height={wide ? 260 : 200}
-                tone="ink"
-                label={`Solde Épargne, ${period?.period.toLowerCase() ?? range}`}
-                loading={history.loading && !history.data}
-                onHover={setHover}
-                formatValue={(v) => (hidden ? MASKED : formatMoney(v, { locale }))}
-                formatTime={(t) => formatDate(t, { locale })}
+            <section className={styles.chartBlock} aria-label="Croissance du solde Épargne">
+              {history.error && !history.data ? (
+                <ErrorState compact className={styles.chartError} error={history.error} onRetry={() => void history.refetch()} />
+              ) : (
+                <Chart
+                  className={styles.chart}
+                  points={history.data?.points ?? []}
+                  height={wide ? 260 : 200}
+                  tone="ink"
+                  label={`Solde Épargne, ${period?.period.toLowerCase() ?? range}`}
+                  loading={history.loading && !history.data}
+                  onHover={setHover}
+                  formatValue={(v) => (hidden ? MASKED : formatMoney(v, { locale }))}
+                  formatTime={(t) => formatDate(t, { locale })}
+                />
+              )}
+              <SegmentedControl
+                segments={RANGES.map((r) => ({ value: r.value, label: r.label }))}
+                value={range}
+                onChange={setRange}
+                label="Période du graphique"
+                size="sm"
               />
-            )}
-            <SegmentedControl
-              segments={RANGES.map((r) => ({ value: r.value, label: r.label }))}
-              value={range}
-              onChange={setRange}
-              label="Période du graphique"
-              size="sm"
-            />
-          </section>
+            </section>
+          </Card>
 
           <QuickActions
             className={styles.actions}

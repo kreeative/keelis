@@ -86,32 +86,36 @@ export default function HomePage() {
             </div>
           </header>
 
-          <section className={styles.hero} aria-busy={accounts.loading || undefined}>
-            <div className={styles.heroTop}>
-              <p className="t-name">Solde total</p>
-              <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
-                <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
-              </Button>
-            </div>
-            {accounts.error && !accounts.data ? (
-              <ErrorState compact error={accounts.error} onRetry={() => void accounts.refetch()} />
-            ) : (
-              <AmountDisplay value={heroValue} delta={heroDelta} deltaPct={heroPct} period={hover ? undefined : period?.period} caption={heroCaption} />
-            )}
-          </section>
+          {/* Balance, movement and the period control are one thing, so they sit on one
+              surface rather than floating loose on the page. */}
+          <Card padding="lg" className={styles.balanceCard}>
+            <section className={styles.hero} aria-busy={accounts.loading || undefined}>
+              <div className={styles.heroTop}>
+                <p className="t-name">Solde total</p>
+                <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
+                  <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
+                </Button>
+              </div>
+              {accounts.error && !accounts.data ? (
+                <ErrorState compact error={accounts.error} onRetry={() => void accounts.refetch()} />
+              ) : (
+                <AmountDisplay value={heroValue} delta={heroDelta} deltaPct={heroPct} period={hover ? undefined : period?.period} caption={heroCaption} />
+              )}
+            </section>
 
-          <section className={styles.chartBlock} aria-label="Évolution du solde total">
-            <Chart
-              points={history.data?.points ?? []}
-              height={wide ? 220 : 148}
-              label={`Solde total, ${period?.period.toLowerCase() ?? range}`}
-              loading={history.loading && !history.data}
-              onHover={setHover}
-              formatValue={(v) => (hidden ? '••••' : formatMoney(v, { locale }))}
-              formatTime={(t) => (range === '1D' ? formatDateTime(t, { locale }) : formatDate(t, { locale }))}
-            />
-            <SegmentedControl segments={RANGES.map((r) => ({ value: r.value, label: r.label }))} value={range} onChange={setRange} label="Période du graphique" size="sm" />
-          </section>
+            <section className={styles.chartBlock} aria-label="Évolution du solde total">
+              <Chart
+                points={history.data?.points ?? []}
+                height={wide ? 220 : 148}
+                label={`Solde total, ${period?.period.toLowerCase() ?? range}`}
+                loading={history.loading && !history.data}
+                onHover={setHover}
+                formatValue={(v) => (hidden ? '••••' : formatMoney(v, { locale }))}
+                formatTime={(t) => (range === '1D' ? formatDateTime(t, { locale }) : formatDate(t, { locale }))}
+              />
+              <SegmentedControl segments={RANGES.map((r) => ({ value: r.value, label: r.label }))} value={range} onChange={setRange} label="Période du graphique" size="sm" />
+            </section>
+          </Card>
 
           <div className={styles.asideMobile}>
             <AccountCards accounts={accounts.data} loading={accounts.loading} />

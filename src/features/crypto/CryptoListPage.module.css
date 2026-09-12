@@ -3,11 +3,11 @@
 .hero {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
-  padding-block: var(--sp-2) var(--sp-5);
+  gap: var(--sp-1);
 }
 
-.recurring { margin-top: var(--sp-2); }
+.recurringCard { margin-top: var(--sp-3); }
+.recurring { padding-inline: var(--sp-4); }
 .recurringIcon {
   display: inline-flex;
   align-items: center;
@@ -28,7 +28,8 @@
 /* SegmentedControl tabs stretch to the control height; 52px makes each tab a 44px target. */
 .tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
 
-.listSection { margin-top: var(--sp-4); }
+.listCard { margin-top: var(--sp-4); }
+.listSection { min-width: 0; }
 
 .valueLine {
   display: inline-flex;

@@ -3,7 +3,7 @@
  * Prices come from useMarket() (tick every 10 s) and update in place, without animation.
  */
 import { useDeferredValue, useMemo, useState } from 'react'
-import { AmountDisplay, AppBar, AssetIcon, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SkeletonRow, Sparkline } from '@/components'
+import { AmountDisplay, AppBar, AssetIcon, Card, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SkeletonRow, Sparkline } from '@/components'
 import type { CryptoAsset, Holding } from '@/api/types'
 import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -101,28 +101,32 @@ export default function CryptoListPage() {
   return (
     <div className={cn('page', styles.page)}>
       <AppBar title="Crypto" />
-      <section className={styles.hero} aria-label="Solde du compte Crypto">
-        <p className="t-name">Valeur du portefeuille</p>
-        {account.error && account.data === undefined ? (
-          <ErrorState error={account.error} onRetry={() => void account.refetch()} compact />
-        ) : (
-          <AmountDisplay value={account.data?.balance} delta={account.data?.change24h} deltaPct={account.data?.change24hPct} period="24 h" loading={account.data === undefined} />
-        )}
-      </section>
+      <Card padding="lg" className={styles.heroCard}>
+        <section className={styles.hero} aria-label="Solde du compte Crypto">
+          <p className="t-name">Valeur du portefeuille</p>
+          {account.error && account.data === undefined ? (
+            <ErrorState error={account.error} onRetry={() => void account.refetch()} compact />
+          ) : (
+            <AmountDisplay value={account.data?.balance} delta={account.data?.change24h} deltaPct={account.data?.change24hPct} period="24 h" loading={account.data === undefined} />
+          )}
+        </section>
+      </Card>
 
-      <List className={styles.recurring}>
-        <ListRow
-          to="/crypto/recurrents"
-          leading={
-            <span className={styles.recurringIcon} aria-hidden="true">
-              <Icon name="recurring" size={20} />
-            </span>
-          }
-          title="Achats récurrents"
-          subtitle={recurringSubtitle}
-          chevron
-        />
-      </List>
+      <Card padding="none" elevation={1} className={styles.recurringCard}>
+        <List className={styles.recurring}>
+            <ListRow
+            to="/crypto/recurrents"
+            leading={
+              <span className={styles.recurringIcon} aria-hidden="true">
+                <Icon name="recurring" size={20} />
+              </span>
+            }
+            title="Achats récurrents"
+            subtitle={recurringSubtitle}
+            chevron
+          />
+        </List>
+      </Card>
 
       <div className={styles.controls}>
         <Field
@@ -140,21 +144,23 @@ export default function CryptoListPage() {
         <ChipBar chips={FILTERS} value={filter} onChange={setFilter} label="Filtrer les actifs" />
       </div>
 
-      <section className={styles.listSection} aria-label="Actifs" aria-busy={firstLoad || undefined}>
-        {firstLoad ? (
-          <SkeletonRow count={6} />
-        ) : marketFailed ? (
-          <ErrorState error={market.error} onRetry={() => void market.refetch()} />
-        ) : rows.length === 0 ? (
-          <EmptyState message="Aucun actif ne correspond." compact />
-        ) : (
-          <List label="Actifs">
-            {rows.map((a) => (
-              <AssetRow key={a.id} asset={a} holding={holdingById.get(a.id)} />
-            ))}
-          </List>
-        )}
-      </section>
+      <Card padding="md" elevation={1} className={styles.listCard}>
+        <section className={styles.listSection} aria-label="Actifs" aria-busy={firstLoad || undefined}>
+          {firstLoad ? (
+            <SkeletonRow count={6} />
+          ) : marketFailed ? (
+            <ErrorState error={market.error} onRetry={() => void market.refetch()} />
+          ) : rows.length === 0 ? (
+            <EmptyState message="Aucun actif ne correspond." compact />
+          ) : (
+            <List label="Actifs">
+              {rows.map((a) => (
+                <AssetRow key={a.id} asset={a} holding={holdingById.get(a.id)} />
+              ))}
+            </List>
+          )}
+        </section>
+      </Card>
     </div>
   )
 }
