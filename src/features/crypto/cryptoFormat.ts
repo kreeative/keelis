@@ -65,7 +65,7 @@ export const RANGES: ReadonlyArray<{ value: ChartRange; label: string; period: s
   { value: '1W', label: '1S', period: '1 S' },
   { value: '1M', label: '1M', period: '1 M' },
   { value: '1Y', label: '1A', period: '1 A' },
-  { value: 'MAX', label: 'Max', period: 'Max' },
+  { value: 'MAX', label: 'All', period: 'All' },
 ]
 
 export function rangePeriod(range: ChartRange): string {

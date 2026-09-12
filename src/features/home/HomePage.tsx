@@ -24,7 +24,7 @@ const RANGES: ReadonlyArray<{ value: ChartRange; label: string; period: string }
   { value: '1W', label: '1S', period: '1 semaine' },
   { value: '1M', label: '1M', period: '1 mois' },
   { value: '1Y', label: '1A', period: '1 an' },
-  { value: 'MAX', label: 'Max', period: 'Depuis le début' },
+  { value: 'MAX', label: 'All', period: 'Depuis le début' },
 ]
 
 function greeting(now = new Date()): string {

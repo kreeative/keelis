@@ -19,7 +19,7 @@ const RECENT_COUNT = 5
 const RANGES: ReadonlyArray<{ value: ChartRange; label: string; period: string }> = [
   { value: '1M', label: '1 M', period: '1 mois' },
   { value: '1Y', label: '1 A', period: '1 an' },
-  { value: 'MAX', label: 'Max', period: 'Depuis le début' },
+  { value: 'MAX', label: 'All', period: 'Depuis le début' },
 ]
 
 function StatCell({ label, value, tone = false, failed }: { label: string; value: number | undefined; tone?: boolean; failed: boolean }) {
