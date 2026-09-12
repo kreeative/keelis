@@ -107,10 +107,14 @@ const eth = (prefix = '0x') => ({ addressPrefix: prefix })
 /** An equity does not settle on a chain, so it carries no network. */
 const NO_NETWORK: CryptoAsset['networks'] = []
 
+/** The CFA franc's treaty peg to the euro. Fixed, not quoted — see lib/currency. */
+const XOF_PER_EUR = 655.957
+
 const assetSeeds: AssetSeed[] = [
   /* ---- Actions africaines ----
-     BRVM (Abidjan, zone UEMOA), NGX (Lagos), JSE (Johannesburg). Prices in CAD, as every
-     figure in the app is: the conversion belongs to the ledger, not to the display. */
+     BRVM (Abidjan, zone UEMOA), NGX (Lagos), JSE (Johannesburg). Prices are authored on a
+     ~1:1 "one unit ≈ one euro" scale and carried across the peg once, in the map below —
+     so Sonatel reads around 29 000 F CFA, which is where it actually trades on the BRVM. */
   {
     id: 'dangcem', symbol: 'DANGCEM', name: 'Dangote Cement', price: 0.62, change24hPct: 2.14, marketCap: 10_600_000_000, volume24h: 4_200_000, circulatingSupply: 17_040_000_000, decimals: 0, minTrade: 1, spreadPct: 0.008, watched: true, rank: 1,
     assetClass: 'equity', market: 'NGX', sector: 'Matériaux',
@@ -219,13 +223,18 @@ export function makeSparkline(seed: number, price: number, changePct: number, n 
 }
 
 export const seedAssets: CryptoAsset[] = assetSeeds.map((a, i) => {
-  const change24h = a.price - a.price / (1 + a.change24hPct / 100)
+  // One crossing of the peg, here — the same boundary the balances and transactions use.
+  const price = a.price * XOF_PER_EUR
+  const change24h = price - price / (1 + a.change24hPct / 100)
   return {
     ...a,
+    price,
+    marketCap: a.marketCap * XOF_PER_EUR,
+    volume24h: a.volume24h * XOF_PER_EUR,
     assetClass: a.assetClass ?? 'crypto',
     market: a.market ?? a.networks[0]?.name ?? 'Crypto',
     change24h,
-    sparkline: makeSparkline(1000 + i, a.price, a.change24hPct),
+    sparkline: makeSparkline(1000 + i, price, a.change24hPct),
   }
 })
 
@@ -243,9 +252,6 @@ export const seedRecurring: RecurringBuy[] = [
 
 // ---------- Accounts ----------
 
-/** The CFA franc's treaty peg to the euro. Fixed, not quoted — see lib/currency. */
-const XOF_PER_EUR = 655.957
-
 export const seedBalances = {
   checking: Math.round(4_218.37 * XOF_PER_EUR),
   savings: Math.round(12_640.15 * XOF_PER_EUR),
@@ -255,8 +261,8 @@ export const SAVINGS_APY = 4.0
 
 export function makeAccounts(cryptoValue: number, cryptoChange: number, cryptoChangePct: number, cryptoSparkline: number[], balances = seedBalances): Account[] {
   return [
-    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, change24h: -86.4, change24hPct: -2.0, openedAt: daysAgo(112) },
-    { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: 1.39, change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
+    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, change24h: Math.round(-86.4 * XOF_PER_EUR), change24hPct: -2.0, openedAt: daysAgo(112) },
+    { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: Math.round(1.39 * XOF_PER_EUR), change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
     { id: IDS.crypto, kind: 'crypto', name: 'Crypto', currency: 'XOF', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
   ]
 }

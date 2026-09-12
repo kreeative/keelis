@@ -72,6 +72,10 @@ export function TransactionRow({ tx, to }: { tx: Transaction; to?: string }) {
       valueSub={pending ? <Badge tone="neutral">En attente</Badge> : failed ? <Badge tone="neg" icon>{tx.status === 'reversed' ? 'Annulée' : 'Échouée'}</Badge> : undefined}
       muted={pending}
       chevron={false}
+      /* An amount in francs is six digits where it used to be four, and it was squeezing
+         the merchant and the time into an ellipsis. `stack` is this project's own answer:
+         below 768px the value drops under the text instead of competing with it for width. */
+      stack
     />
   )
 }

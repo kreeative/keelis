@@ -25,7 +25,6 @@ function minorUnits(code: string): number {
   return CURRENCIES[code as Currency]?.decimals ?? 2
 }
 
-const NNBSP = ' '
 const NBSP = ' '
 
 let currentLocale: Locale = 'fr-SN'
@@ -47,11 +46,21 @@ function numberFormat(locale: Locale, options: Intl.NumberFormatOptions) {
   return f
 }
 
-/** Join formatted parts, normalising group separators to a thin space in French. */
-function joinParts(parts: Intl.NumberFormatPart[], locale: Locale): string {
+/**
+ * Join formatted parts with **one** number punctuation for the whole app: comma for
+ * thousands, point for decimals — "107,223.11" — whichever language the interface is in.
+ *
+ * This deliberately overrides French typography, which would group with a thin space and
+ * decimate with a comma. It is the owner's call, and it is the convention most African
+ * fintech apps and every price feed already use, so a figure reads the same on the screen
+ * as in the statement someone compares it against. The *words* stay French; only the
+ * punctuation of the digits is fixed.
+ */
+function joinParts(parts: Intl.NumberFormatPart[], _locale: Locale): string {
   return parts
     .map((p) => {
-      if (p.type === 'group') return locale === 'fr-SN' ? NNBSP : ','
+      if (p.type === 'group') return ','
+      if (p.type === 'decimal') return '.'
       if (p.type === 'literal' && (p.value === ' ' || p.value === NBSP)) return NBSP
       return p.value
     })
@@ -315,6 +324,6 @@ export function formatAmountInput(raw: string, locale: Locale = currentLocale): 
   const [intPart = '', fracPart] = raw.replace('.', ',').split(',')
   const intNum = intPart === '' ? '0' : intPart
   const grouped = joinParts(numberFormat(locale, { maximumFractionDigits: 0, useGrouping: true }).formatToParts(Number(intNum)), locale)
-  const sep = locale === 'fr-SN' ? ',' : '.'
-  return fracPart === undefined ? grouped : `${grouped}${sep}${fracPart}`
+  // One decimal mark app-wide, same as joinParts.
+  return fracPart === undefined ? grouped : `${grouped}.${fracPart}`
 }

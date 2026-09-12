@@ -4,7 +4,7 @@
  * Every number still goes through @/lib/format (Intl) — nothing is formatted by hand.
  */
 import type { ChartRange, RecurringFrequency } from '@/api/types'
-import { formatMoney, formatNumber, type Locale } from '@/lib/format'
+import { formatMoney, formatNumber, splitMoney, type Locale } from '@/lib/format'
 
 const NBSP = ' '
 
@@ -36,7 +36,10 @@ function scale(value: number, locale: Locale): { n: string; unit: string } | nul
 export function formatCompactMoney(value: number, locale: Locale): string {
   const s = scale(value, locale)
   if (!s) return formatMoney(value, { locale })
-  return locale === 'fr-SN' ? `${s.n}${NBSP}${s.unit}$` : `$${s.n}${s.unit}`
+  // The symbol comes from the currency, not from a hardcoded '$' — a leftover from when
+  // this app was Canadian, which printed "2.83 T$" for a sum in CFA francs.
+  const { symbol, prefix } = splitMoney(0, { locale })
+  return prefix ? `${symbol}${NBSP}${s.n}${s.unit}` : `${s.n}${NBSP}${s.unit}${NBSP}${symbol}`
 }
 
 /** 19 820 000 + BTC → « 19,82 M BTC » (fr-SN) / « 19.82M BTC » (en-NG). */

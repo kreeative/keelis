@@ -7,11 +7,12 @@ const NNBSP = ' '
 const NBSP = ' '
 
 describe('formatMoney', () => {
-  it('formats fr-SN with comma decimal and thin-space grouping', () => {
-    // The default currency is the CFA franc, which has no centimes — so the amount rounds
-    // to whole francs rather than carrying two decimals it cannot pay.
-    expect(formatMoney(1234567.89, { locale: 'fr-SN' })).toBe(`1${NNBSP}234${NNBSP}568${NBSP}F${NNBSP}CFA`)
-    expect(formatMoney(1234567.89, { locale: 'fr-SN', currency: 'EUR' })).toBe(`1${NNBSP}234${NNBSP}567,89${NBSP}€`)
+  it('punctuates digits the same way in every locale: comma groups, point decimates', () => {
+    // Deliberately not French typography. One punctuation app-wide, so a figure reads the
+    // same here as on the statement someone compares it against.
+    expect(formatMoney(1234567.89, { locale: 'fr-SN' })).toBe(`1,234,568${NBSP}F${NNBSP}CFA`)
+    expect(formatMoney(1234567.89, { locale: 'fr-SN', currency: 'EUR' })).toBe(`1,234,567.89${NBSP}€`)
+    // The CFA franc has no centimes, so the amount rounds to whole francs above.
   })
   it('formats en-NG, which puts the symbol first', () => {
     expect(formatMoney(1234.5, { locale: 'en-NG' })).toBe(`F${NNBSP}CFA${NBSP}1,235`)
@@ -19,7 +20,7 @@ describe('formatMoney', () => {
   })
   it('adds explicit sign when requested', () => {
     expect(formatMoney(12.4, { locale: 'fr-SN', signed: true })).toBe(`+12${NBSP}F${NNBSP}CFA`)
-    expect(formatMoney(-12.4, { locale: 'fr-SN', currency: 'EUR', signed: true })).toBe(`-12,40${NBSP}€`)
+    expect(formatMoney(-12.4, { locale: 'fr-SN', currency: 'EUR', signed: true })).toBe(`-12.40${NBSP}€`)
   })
   it('never renders negative zero', () => {
     expect(formatMoney(-0.001, { locale: 'fr-SN' })).toBe(`0${NBSP}F${NNBSP}CFA`)
@@ -27,24 +28,24 @@ describe('formatMoney', () => {
   it('asks each currency how many decimals it is quoted in', () => {
     // XOF has none, TND is quoted in millimes, most have two. Getting this from Intl per
     // currency rather than hardcoding 2 is the whole point.
-    expect(formatMoney(1500, { locale: 'fr-SN' })).not.toContain(',')
-    expect(formatMoney(1500.5, { locale: 'fr-SN', currency: 'TND' })).toContain('1 500,500'.slice(-4))
-    expect(formatMoney(1500.5, { locale: 'fr-SN', currency: 'EUR' })).toContain(',50')
+    expect(formatMoney(1500, { locale: 'fr-SN' })).not.toContain('.')
+    expect(formatMoney(1500.5, { locale: 'fr-SN', currency: 'TND' })).toContain('.500')
+    expect(formatMoney(1500.5, { locale: 'fr-SN', currency: 'EUR' })).toContain('.50')
   })
 })
 
 describe('formatPercent', () => {
-  it('signs and uses comma', () => {
-    expect(formatPercent(1.4, { locale: 'fr-SN' })).toBe(`+1,4${NBSP}%`)
-    expect(formatPercent(-0.86, { locale: 'fr-SN' })).toBe(`-0,86${NBSP}%`)
+  it('signs, and decimates with a point like every other figure', () => {
+    expect(formatPercent(1.4, { locale: 'fr-SN' })).toBe(`+1.4${NBSP}%`)
+    expect(formatPercent(-0.86, { locale: 'fr-SN' })).toBe(`-0.86${NBSP}%`)
   })
 })
 
 describe('formatCrypto', () => {
   it('trims to sensible decimals', () => {
-    expect(formatCrypto(0.0428, 'BTC', { locale: 'fr-SN' })).toBe(`0,0428${NBSP}BTC`)
-    expect(formatCrypto(12.5, 'SOL', { locale: 'fr-SN' })).toBe(`12,5${NBSP}SOL`)
-    expect(formatCrypto(1234.5678, undefined, { locale: 'fr-SN' })).toBe(`1${NNBSP}234,57`)
+    expect(formatCrypto(0.0428, 'BTC', { locale: 'fr-SN' })).toBe(`0.0428${NBSP}BTC`)
+    expect(formatCrypto(12.5, 'SOL', { locale: 'fr-SN' })).toBe(`12.5${NBSP}SOL`)
+    expect(formatCrypto(1234.5678, undefined, { locale: 'fr-SN' })).toBe('1,234.57')
   })
 })
 
@@ -56,9 +57,11 @@ describe('amount input', () => {
   })
   it('formats while typing', () => {
     expect(formatAmountInput('', 'fr-SN')).toBe('0')
-    expect(formatAmountInput('1234', 'fr-SN')).toBe(`1${NNBSP}234`)
-    expect(formatAmountInput('1234,5', 'fr-SN')).toBe(`1${NNBSP}234,5`)
-    expect(formatAmountInput('0,', 'fr-SN')).toBe('0,')
+    expect(formatAmountInput('1234', 'fr-SN')).toBe('1,234')
+    expect(formatAmountInput('1234,5', 'fr-SN')).toBe('1,234.5')
+    // A trailing separator has to survive: it is the state between pressing the decimal
+    // key and typing the first decimal digit.
+    expect(formatAmountInput('0,', 'fr-SN')).toBe('0.')
     expect(formatAmountInput('1234,5', 'en-NG')).toBe('1,234.5')
   })
 })

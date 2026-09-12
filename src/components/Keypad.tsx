@@ -4,7 +4,6 @@
  */
 import { useCallback } from 'react'
 import { tick } from '@/lib/haptics'
-import { useSettings } from '@/store/settings'
 import { Icon } from './Icon'
 import styles from './Keypad.module.css'
 
@@ -39,7 +38,6 @@ export function keypadReduce(rawValue: string, key: string, opts: { maxDecimals?
 }
 
 export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integerOnly = false, disabled = false }: KeypadProps) {
-  const { locale } = useSettings()
   const press = useCallback(
     (key: string) => {
       if (disabled) return
@@ -48,7 +46,10 @@ export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integ
     },
     [value, onChange, maxDecimals, maxLength, integerOnly, disabled],
   )
-  const decimal = locale === 'fr-SN' ? ',' : '.'
+  /* One decimal mark app-wide — a point, matching how every figure is punctuated. The
+     value is still carried internally with a comma, so the reducer and its tests are
+     untouched; only the key's face and its label change. */
+  const decimal = '.'
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', integerOnly ? '' : ',', '0', 'back']
 
   return (
@@ -63,7 +64,7 @@ export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integ
             className={styles.key}
             onClick={() => press(k)}
             disabled={disabled}
-            aria-label={k === 'back' ? 'Effacer' : k === ',' ? 'Virgule décimale' : k}
+            aria-label={k === 'back' ? 'Effacer' : k === ',' ? 'Point décimal' : k}
           >
             {k === 'back' ? <Icon name="delete" /> : k === ',' ? decimal : k}
           </button>

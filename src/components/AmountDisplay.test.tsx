@@ -9,13 +9,13 @@ const norm = (s: string) => s.replace(/[  ]/g, ' ')
 describe('AmountDisplay', () => {
   it('renders a quantity with its unit, not a currency', () => {
     wrap(<AmountDisplay value={0.0428} unit="BTC" />)
-    expect(norm(screen.getByRole('text').textContent ?? '')).toBe('0,0428BTC')
+    expect(norm(screen.getByRole('text').textContent ?? '')).toBe('0.0428BTC')
     expect(screen.queryByText('$')).toBeNull()
   })
 
   it('prefixes an explicit sign when asked', () => {
     wrap(<AmountDisplay value={2184.5} signed />)
-    expect(norm(screen.getByRole('text').textContent ?? '')).toContain('+2 185')
+    expect(norm(screen.getByRole('text').textContent ?? '')).toContain('+2,185')
   })
 
   it('labels the amount in long form for screen readers', () => {

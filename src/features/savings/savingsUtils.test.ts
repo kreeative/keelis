@@ -40,7 +40,7 @@ describe('interest projection', () => {
 
 describe('formatting', () => {
   it('writes the APY with two decimals and the month in French', () => {
-    expect(formatApy(4, 'fr-SN')).toBe('4,00 %')
+    expect(formatApy(4, 'fr-SN')).toBe('4.00 %')
     expect(formatWholePercent(52.86, 'fr-SN')).toBe('53 %')
     expect(formatMonthYear(new Date(2027, 3, 1), 'fr-SN')).toBe('avril 2027')
   })
@@ -59,7 +59,7 @@ describe('keypad + field input', () => {
   })
 
   it('keeps digits and a single separator', () => {
-    expect(sanitizeAmountInput('1a2.3')).toBe('12,3')
+    expect(sanitizeAmountInput('1a2,3')).toBe('12,3')
     expect(sanitizeAmountInput('1,2,3')).toBe('1,23')
     expect(sanitizeAmountInput('12,345')).toBe('12,34')
   })
