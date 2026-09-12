@@ -1,0 +1,86 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  touch-action: pan-y;
+}
+.svg {
+  width: 100%;
+  display: block;
+  overflow: visible;
+  cursor: crosshair;
+}
+
+/* The readout replaces a floating tooltip. Reserving its height keeps the plot from
+   jumping the moment the pointer enters. */
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-3);
+  min-height: 22px;
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+  font-variant-numeric: tabular-nums;
+}
+.when { color: var(--ink-900); }
+.ohlc { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); }
+.ohlc abbr {
+  color: var(--ink-400);
+  text-decoration: none;
+  margin-right: 2px;
+}
+.hint { color: var(--ink-400); }
+.pos { color: var(--pos); }
+.neg { color: var(--neg); }
+
+.grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.scale {
+  fill: var(--ink-400);
+  font-size: var(--fs-label);
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Direction is the palette's sanctioned exception, and it is not carried by hue alone:
+   the body is filled when the candle closed up and hollow when it closed down, so the
+   chart survives a greyscale screenshot the way every other state does. */
+.up { color: var(--pos); }
+.down { color: var(--neg); }
+.wick {
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.up .body { fill: currentColor; stroke: none; }
+.down .body {
+  fill: var(--surface);
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.sma {
+  fill: none;
+  stroke: var(--ink-400);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 5 4;
+}
+.cross {
+  stroke: var(--ink-400);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.skeleton {
+  width: 100%;
+  border-radius: var(--r-card);
+  background: var(--surface-alt);
+  animation: pulse var(--skeleton-pulse) ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }

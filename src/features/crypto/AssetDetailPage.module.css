@@ -41,6 +41,17 @@
   margin-top: var(--sp-6);
 }
 .chart { width: 100%; }
+/* The period control and the pro toggle share a row; the toggle only exists from 1024px,
+   so below that the row is just the control and nothing reserves space for it. */
+.chartControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.chartControls > .tabs { flex: 1; min-width: 0; }
+.proToggle { flex-shrink: 0; }
 .tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
 
 .actions { margin-top: var(--space-section); }

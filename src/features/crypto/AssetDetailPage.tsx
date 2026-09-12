@@ -7,12 +7,13 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, CryptoAsset, Holding, PriceHistory, PricePoint } from '@/api/types'
 import type { Stat } from '@/components'
-import { AmountDisplay, Button, Chart, Delta, ErrorState, Icon, Money, QuickActions, SegmentedControl, Skeleton, SkeletonAmount, StatGrid } from '@/components'
+import { AmountDisplay, Button, CandleChart, Chart, Delta, ErrorState, Icon, Money, QuickActions, SegmentedControl, Skeleton, SkeletonAmount, StatGrid } from '@/components'
 import { MASKED, formatCrypto, formatDateTime } from '@/lib/format'
 import { QK, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { RANGES, formatCompactMoney, formatCompactQuantity, rangePeriod } from './cryptoFormat'
 import { patchQuery, useDesktop, useLiveAsset, useLiveHistory, useLiveHoldings } from './hooks'
+import { useLargeScreen } from '@/store'
 import styles from './AssetDetailPage.module.css'
 
 function toneOf(n: number): 'pos' | 'neg' | 'ink' {
@@ -90,6 +91,11 @@ export default function AssetDetailPage() {
   const { locale } = useSettings()
   const { toast } = useToast()
   const desktop = useDesktop()
+  // The pro view is offered from 1024px only: a candle packs four numbers into one mark,
+  // and below a laptop there is neither the width to separate the bodies nor a pointer
+  // precise enough to read them. The phone keeps the line, which is the right chart there.
+  const pro = useLargeScreen()
+  const [advanced, setAdvanced] = useState(false)
   const assetQ = useLiveAsset(id)
   const asset = assetQ.data
   const holdings = useLiveHoldings()
@@ -178,16 +184,39 @@ export default function AssetDetailPage() {
       </section>
 
       <div className={styles.chartBlock}>
-        <Chart
-          points={chartHistory?.points ?? []}
-          loading={!chartHistory}
-          height={desktop ? 280 : 220}
-          tone={chartTone}
-          onHover={onHover}
-          label={`Évolution du prix de ${asset.name} sur ${rangePeriod(range)}`}
-          className={styles.chart}
-        />
-        <SegmentedControl segments={RANGES} value={range} onChange={setRange} label="Période du graphique" bare className={styles.tabs} />
+        {pro && advanced ? (
+          <CandleChart
+            points={chartHistory?.points ?? []}
+            loading={!chartHistory}
+            height={320}
+            label={`Chandeliers du prix de ${asset.name} sur ${rangePeriod(range)}`}
+            className={styles.chart}
+          />
+        ) : (
+          <Chart
+            points={chartHistory?.points ?? []}
+            loading={!chartHistory}
+            height={desktop ? 280 : 220}
+            tone={chartTone}
+            onHover={onHover}
+            label={`Évolution du prix de ${asset.name} sur ${rangePeriod(range)}`}
+            className={styles.chart}
+          />
+        )}
+        <div className={styles.chartControls}>
+          <SegmentedControl segments={RANGES} value={range} onChange={setRange} label="Période du graphique" bare className={styles.tabs} />
+          {pro ? (
+            <Button
+              variant="secondary"
+              aria-pressed={advanced}
+              onClick={() => setAdvanced((v) => !v)}
+              icon={<Icon name={advanced ? 'chart-line' : 'chart-candle'} size={18} />}
+              className={styles.proToggle}
+            >
+              {advanced ? 'Vue ligne' : 'Vue avancée'}
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       <div className={styles.actions}>
