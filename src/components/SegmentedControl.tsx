@@ -18,10 +18,13 @@ export interface SegmentedControlProps<T extends string> {
   label: string
   size?: 'sm' | 'md'
   block?: boolean
+  /** No track, spread across the full width, only the selection in a pill — for a range
+      selector, where a filled bar competes with the chart it belongs to. */
+  bare?: boolean
   className?: string
 }
 
-export function SegmentedControl<T extends string>({ segments, value, onChange, label, size = 'md', block = false, className }: SegmentedControlProps<T>) {
+export function SegmentedControl<T extends string>({ segments, value, onChange, label, size = 'md', block = false, bare = false, className }: SegmentedControlProps<T>) {
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
   const [pill, setPill] = useState<{ x: number; w: number } | null>(null)
@@ -56,7 +59,7 @@ export function SegmentedControl<T extends string>({ segments, value, onChange, 
   }
 
   return (
-    <div ref={ref} role="tablist" aria-label={label} className={cn(styles.control, styles[size], block && styles.block, className)} onKeyDown={onKeyDown}>
+    <div ref={ref} role="tablist" aria-label={label} className={cn(styles.control, styles[size], (block || bare) && styles.block, bare && styles.bare, className)} onKeyDown={onKeyDown}>
       {pill ? <span className={styles.pill} style={{ transform: `translateX(${pill.x}px)`, width: pill.w }} aria-hidden="true" /> : null}
       {segments.map((s) => {
         const selected = s.value === value

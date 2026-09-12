@@ -1,11 +1,11 @@
 /**
- * Price line with a stippled area under it that fades out with depth, the period's opening value as a dashed
- * baseline, and a dot on the last point. The stipple is the interesting part: in a palette
- * with no hue, a tinted area fill has nothing to tint, so the area is carried by *texture*
- * instead — a lattice of 1px dots, which reads as filled without needing colour.
+ * Price line with a stippled area under it that fades out with depth, and a small dot on
+ * the last point. The stipple is the interesting part: in a palette with no hue a tinted
+ * area fill has nothing to tint, so the area is carried by *texture* instead — a lattice
+ * of 1px dots, masked by a vertical fade so it thins out with depth.
  *
  * The viewBox tracks the measured width rather than a fixed 1000, so the SVG is 1:1 with
- * CSS pixels: dots stay round, dashes keep their length, and nothing is stretched.
+ * CSS pixels and nothing is stretched — without that the dots render as dashes.
  */
 import { useCallback, useId, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { formatDateTime, formatMoney } from '@/lib/format'
@@ -105,10 +105,6 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
     return <div className={cn(styles.skeleton, className)} style={{ height }} aria-hidden="true" />
   }
 
-  /* The dashed rule sits at the period's opening value, so above or below it is the whole
-     story of the period at a glance. */
-  const baseY = ys[0] ?? 0
-
   const ai = active
   const ax = ai !== null ? xs[ai]! : 0
   const ay = ai !== null ? ys[ai]! : 0
@@ -151,9 +147,8 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
           </mask>
         </defs>
         <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" mask={`url(#${id}-fademask)`} />
-        <line x1={0} x2={W} y1={baseY} y2={baseY} className={styles.baseline} />
         <path d={path} className={styles.line} />
-        <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={4} className={styles.nowDot} />
+        <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={3} className={styles.nowDot} />
         {ai !== null ? (
           <>
             <line x1={ax} x2={ax} y1={0} y2={H} className={styles.cursor} />

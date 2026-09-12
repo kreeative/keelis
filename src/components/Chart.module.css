@@ -17,27 +17,16 @@
 .line {
   fill: none;
   stroke: var(--chart-color);
-  stroke-width: 1.5;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 /* The area, as texture. This is the density at the top; the mask thins it with depth. */
 .stipple { fill: var(--chart-color); opacity: 0.3; }
 
-/* The period's opening value. */
-.baseline {
-  stroke: var(--ink-400);
-  stroke-width: 1;
-  stroke-dasharray: 2 5;
-  opacity: 0.7;
-}
-
-/* Where the line ends is where the price is now — worth a mark of its own. */
-.nowDot {
-  fill: var(--chart-color);
-  stroke: var(--surface);
-  stroke-width: 2;
-}
+/* Where the line ends is where the price is now. 6px across on the reference — three
+   times the line, not five. No ring: it sits on the line, not on top of it. */
+.nowDot { fill: var(--chart-color); }
 
 .cursor {
   stroke: var(--line);

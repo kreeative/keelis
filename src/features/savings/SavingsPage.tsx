@@ -186,6 +186,7 @@ export default function SavingsPage() {
                 onChange={setRange}
                 label="Période du graphique"
                 size="sm"
+                bare
               />
             </section>
           </Card>

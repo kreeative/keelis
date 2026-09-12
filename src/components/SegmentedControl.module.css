@@ -11,6 +11,21 @@
 .block { display: flex; width: 100%; }
 .block .segment { flex: 1; }
 
+/* Bare: the labels sit on the page with no track, evenly across the full width, and only
+   the selection is drawn. A filled bar under a chart competes with the chart. */
+.bare {
+  background: none;
+  padding: 0;
+}
+.bare .pill {
+  top: 0;
+  bottom: 0;
+  background: var(--seg-pill);
+  box-shadow: var(--elev-1);
+}
+.bare .segment { padding-inline: var(--sp-2); min-width: 0; }
+.bare .selected { color: var(--ink-900); }
+
 .pill {
   position: absolute;
   top: var(--seg-pad, var(--sp-1));

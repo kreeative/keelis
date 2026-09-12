@@ -187,7 +187,7 @@ export default function AssetDetailPage() {
           label={`Évolution du prix de ${asset.name} sur ${rangePeriod(range)}`}
           className={styles.chart}
         />
-        <SegmentedControl segments={RANGES} value={range} onChange={setRange} label="Période du graphique" block className={styles.tabs} />
+        <SegmentedControl segments={RANGES} value={range} onChange={setRange} label="Période du graphique" bare className={styles.tabs} />
       </div>
 
       <div className={styles.actions}>
