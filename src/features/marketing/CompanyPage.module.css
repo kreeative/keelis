@@ -1,0 +1,382 @@
+/* The public company page. It runs outside AppShell, so it carries its own frame: a
+   floating header pill, a centred column at --content-max, and its own footer.
+
+   Two things are deliberate here. The header is a *pill*, not a bar welded to the top of
+   the viewport — the app's own rule is that navigation floats at every width, and a
+   marketing page that flattens its chrome against the edge stops reading as the same
+   product. And the type is bigger than anywhere in the app: an app screen leads with a
+   number, a company page leads with a sentence, and a sentence at body size is a
+   paragraph, not a headline. Every size is still bounded by the token scale. */
+
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Header ---------- */
+
+.bar {
+  position: sticky;
+  top: calc(var(--safe-top) + var(--navbar-gap));
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  width: calc(100% - var(--gutter) * 2);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  margin-block-start: calc(var(--safe-top) + var(--navbar-gap));
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-5);
+  border-radius: var(--r-pill);
+}
+
+/* ---------- Column ---------- */
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-block: var(--space-section) var(--space-section);
+}
+.main > * + * {
+  margin-block-start: var(--space-section);
+}
+.section {
+  min-width: 0;
+}
+
+/* ---------- Hero ---------- */
+
+/* Centred copy is a poster device, and it stops working at about three lines: every line
+   starts in a different place, so the eye has to hunt for the next one. On a phone this
+   page's paragraphs run to six or seven lines, so the centring is held back until there is
+   width to keep them short. The app's own screens are left-aligned for the same reason. */
+.hero {
+  text-align: start;
+  padding-block: var(--sp-6) var(--sp-4);
+}
+.eyebrow {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  letter-spacing: var(--ls-label);
+  font-weight: var(--fw-label);
+  text-transform: uppercase;
+  color: var(--ink-600);
+}
+/* Bounded by the scale at both ends: never smaller than an H1, never larger than the
+   display size the balance uses. In between it tracks the viewport so the sentence keeps
+   roughly the same number of words per line on a phone and on a laptop. */
+.headline {
+  margin: 0 auto;
+  max-width: 18ch;
+  font-size: clamp(var(--fs-h1), 7.5vw, var(--fs-display));
+  line-height: 1.12;
+  letter-spacing: var(--ls-h1);
+  font-weight: var(--fw-h1);
+  /* Two-tone rather than italic: Poppins ships no italic face, so <em> would be a
+     synthesised oblique. Weight is already spent on the headline, and there is no hue to
+     reach for — which leaves ink, and ink is enough. */
+  color: var(--ink-600);
+}
+.headline em {
+  font-style: normal;
+  color: var(--ink-900);
+}
+.lede {
+  margin: var(--sp-5) auto 0;
+  max-width: 62ch;
+  font-size: var(--fs-h2);
+  line-height: 1.55;
+  letter-spacing: var(--ls-body);
+  color: var(--ink-600);
+}
+.heroActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-block-start: var(--sp-6);
+}
+
+/* ---------- Figures band ---------- */
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-5) var(--sp-4);
+}
+.fact {
+  min-width: 0;
+}
+.factValue {
+  margin: 0;
+  font-family: var(--font-numeric);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-numeric);
+  letter-spacing: var(--ls-numeric);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+  line-height: 1.2;
+}
+.factLabel {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+}
+
+/* ---------- Sections ---------- */
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--ls-h1);
+  font-weight: var(--fw-h1);
+  color: var(--ink-900);
+}
+.sectionLede {
+  margin: var(--sp-3) 0 0;
+  max-width: 68ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+  color: var(--ink-600);
+}
+.sectionTitle + .grid,
+.sectionLede + .grid,
+.sectionLede + .panel,
+.sectionTitle + .panel {
+  margin-block-start: var(--space-block);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+  gap: var(--space-items);
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-elements);
+}
+.tileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sp-7);
+  height: var(--sp-7);
+  border-radius: var(--r-pill);
+  background: var(--fill-subtle);
+  color: var(--ink-900);
+}
+.tileTitle {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--ls-h2);
+  font-weight: var(--fw-h2);
+  color: var(--ink-900);
+}
+.tileBody {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: 1.55;
+  color: var(--ink-600);
+}
+
+/* ---------- The peg ---------- */
+
+/* The one block that sits directly on the ambient ground, with no pane under it. A page
+   made only of cards reads as a filing cabinet; this is the breath between them. */
+.statement {
+  text-align: start;
+  padding-block: var(--sp-6);
+}
+.statementLead {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+  font-weight: var(--fw-body);
+  color: var(--ink-600);
+}
+.statementFigure {
+  margin: var(--sp-2) 0 0;
+  font-family: var(--font-numeric);
+  font-size: min(calc(var(--fs-display) * 1.4), 17vw);
+  line-height: 1.05;
+  font-weight: var(--fw-numeric);
+  letter-spacing: var(--ls-numeric);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+}
+.statementBody {
+  margin: var(--sp-5) auto 0;
+  max-width: 58ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+  color: var(--ink-600);
+}
+
+/* ---------- Pricing ---------- */
+
+.panel {
+  display: block;
+}
+.priceList {
+  margin: 0;
+}
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  min-height: var(--row-height);
+  border-block-end: 1px solid var(--line);
+}
+.priceRow:last-child {
+  border-block-end: 0;
+}
+.priceTerm {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink-900);
+}
+.priceValue {
+  margin: 0;
+  font-family: var(--font-numeric);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-numeric);
+  letter-spacing: var(--ls-numeric);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+  white-space: nowrap;
+}
+.priceNote {
+  margin: var(--sp-5) 0 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+}
+
+/* ---------- Currencies ---------- */
+
+.codes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.code {
+  min-width: 0;
+}
+.codeSymbol {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-demi);
+  letter-spacing: var(--ls-body);
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.codeName {
+  display: block;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Call to action ---------- */
+
+.cta {
+  text-align: start;
+  border-radius: var(--r-panel);
+  padding: var(--sp-6) var(--sp-5);
+}
+.ctaTitle {
+  margin: 0;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--ls-h1);
+  font-weight: var(--fw-h1);
+  color: var(--ink-900);
+}
+.ctaBody {
+  margin: var(--sp-3) auto var(--sp-6);
+  max-width: 52ch;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+  color: var(--ink-600);
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-6) calc(var(--sp-7) + var(--safe-bottom));
+  border-block-start: 1px solid var(--line);
+}
+.disclaimer {
+  margin: 0;
+  max-width: 78ch;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+}
+.disclaimer strong {
+  font-weight: var(--fw-demi);
+  color: var(--ink-900);
+}
+.footerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin-block-start: var(--sp-6);
+}
+
+/* The kit's own breakpoint: from here the lines are short enough to centre, the figures
+   fit on one row, and the hero's two buttons sit side by side. */
+@media (min-width: 768px) {
+  .hero,
+  .statement,
+  .cta {
+    text-align: center;
+  }
+  .heroActions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .cta {
+    padding: var(--sp-7) var(--sp-5);
+  }
+  .facts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  /* Four figures on one line have room to be figures. Still derived from the scale
+     rather than a new size: an H1 and a half, capped so it cannot outgrow the headline. */
+  .factValue {
+    font-size: min(calc(var(--fs-h1) * 1.5), 4vw);
+  }
+}
+@media (min-width: 1024px) {
+  .hero {
+    padding-block: var(--sp-8) var(--sp-6);
+  }
+}

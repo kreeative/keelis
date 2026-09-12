@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import { Button, Icon, Wordmark } from '@/components'
 import { useSession, useSettings, useToast } from '@/store'
+import { SAVINGS_APY } from '@/api/mock/seed'
+import { formatPercent } from '@/lib/format'
 import { DEMO_CODE, DEMO_EMAIL } from './demo'
 import styles from './WelcomePage.module.css'
 
 export default function WelcomePage() {
   const navigate = useNavigate()
   const { setSession } = useSession()
-  const { resolved, setTheme } = useSettings()
+  const { resolved, setTheme, locale } = useSettings()
   const { toast } = useToast()
   const [busy, setBusy] = useState(false)
 
@@ -38,8 +40,11 @@ export default function WelcomePage() {
       </header>
       <main className={styles.main}>
         <Wordmark size="lg" className="mark-clear" />
-        <h1 className={`t-h1 ${styles.title}`}>Vos dollars, votre épargne et vos cryptos. Au même endroit.</h1>
-        <p className={`t-body t-muted ${styles.lede}`}>Compte chèque avec carte, épargne à 4,00 %, crypto sans frais cachés.</p>
+        <h1 className={`t-h1 ${styles.title}`}>Vos francs, votre épargne et vos placements. Au même endroit.</h1>
+        <p className={`t-body t-muted ${styles.lede}`}>
+          Compte chèque avec carte, épargne à {formatPercent(SAVINGS_APY, { locale, signed: false, minFraction: 2 })}, actions africaines et crypto,
+          et le change avec sa marge affichée.
+        </p>
       </main>
       <div className={styles.actions}>
         <Button size="lg" block onClick={() => navigate('/inscription/courriel')}>
@@ -52,7 +57,9 @@ export default function WelcomePage() {
           Explorer la démo
         </Button>
       </div>
-      <p className={`t-label ${styles.footer}`}>Keewal Meere Technologies · Montréal</p>
+      <p className={`t-label ${styles.footer}`}>
+        <Link to="/entreprise">À propos de Keewal Meere</Link>
+      </p>
       <div className={styles.toasts}>
       </div>
     </div>

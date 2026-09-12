@@ -13,12 +13,19 @@
  */
 import { CURRENCIES, roundTo, type Currency } from './currency'
 
+/**
+ * The CFA franc's parity with the euro. Fixed by treaty, not quoted by a market — which is
+ * why it is a named constant rather than a row in a rate table that something might one
+ * day "refresh". Both CFA francs carry it, which is also why they are 1:1 with each other.
+ */
+export const CFA_PER_EUR = 655.957
+
 /** Units of each currency per 1 EUR. EUR is the base because the two pegs are to it. */
 const PER_EUR: Readonly<Record<Currency, number>> = {
   EUR: 1,
   // Fixed by treaty. Not a quote, not rounded, not to be "refreshed" from a feed.
-  XOF: 655.957,
-  XAF: 655.957,
+  XOF: CFA_PER_EUR,
+  XAF: CFA_PER_EUR,
   USD: 1.08,
   NGN: 1700,
   ZAR: 19.8,

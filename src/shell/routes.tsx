@@ -43,6 +43,8 @@ const DocumentsPage = L(() => import('@/features/profile/DocumentsPage'))
 const TaxPage = L(() => import('@/features/profile/TaxPage'))
 const HelpPage = L(() => import('@/features/profile/HelpPage'))
 const NotificationsPage = L(() => import('@/features/notifications/NotificationsPage'))
+// Marketing
+const CompanyPage = L(() => import('@/features/marketing/CompanyPage'))
 // Onboarding
 const WelcomePage = L(() => import('@/features/onboarding/WelcomePage'))
 const OnboardingPage = L(() => import('@/features/onboarding/OnboardingPage'))
@@ -59,6 +61,10 @@ export function AppRoutes() {
           <Route path="/bienvenue" element={<WelcomePage />} />
           <Route path="/inscription/*" element={<OnboardingPage />} />
         </Route>
+
+        {/* The company page is outside both guards on purpose: a page that redirects a
+            signed-in visitor to their dashboard is a page nobody can link to. */}
+        <Route path="/entreprise" element={<CompanyPage />} />
 
         {/* Dev: component library with all states */}
         <Route path="/composants" element={<ComponentsGallery />} />
@@ -82,8 +88,8 @@ export function AppRoutes() {
             <Route path="/carte/transactions/:id" element={<TransactionDetailPage />} />
             <Route path="/transactions/:id" element={<TransactionDetailPage />} />
             <Route path="/envoyer" element={<SendMoneyPage />} />
-<Route path="/convertir" element={<ConvertPage />} />
-<Route path="/envoyer/operateurs" element={<TransferProvidersPage />} />
+            <Route path="/envoyer/operateurs" element={<TransferProvidersPage />} />
+            <Route path="/convertir" element={<ConvertPage />} />
 
             <Route path="/epargne" element={<SavingsPage />} />
             <Route path="/epargne/deposer" element={<SavingsMovePage direction="deposit" />} />

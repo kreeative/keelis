@@ -73,6 +73,9 @@ and the old wordmark only escaped that by shipping as outlines rather than as ty
 - **The currency symbol is part of the figure, not an annotation.** Same size, same weight, same ink as the digits (`.symbol` in `AmountDisplay`). What recedes is a *unit* — « BTC », « USD » — which is a word, not a symbol (`.unit`). The narrow no-break space French sets before the symbol is `0.18em`, in em so it holds at every size.
 - **`--ls-numeric` is negative** (−0.02em). At display size the counters carry themselves and positive tracking only pulls the number apart.
 - **Money is weight 500** (`--fw-numeric`) with `--ls-numeric` at −0.035em — medium and tight, not bold. 900 turns a balance into a slab and 700 is still shouting; at 48px the size already carries the hierarchy and the counters carry themselves, so the weight comes down and the tracking comes in. Poppins ships 400 / 500 / 600 / 700 only — anything between falls back to the next face up, silently. It applies through `Money`, `AmountDisplay`, `.t-display`, `.figures`, `AmountEntry` and `ListRow` values; change the token, never a component.
+- **`Button` takes `to` and then renders a real `<a>`**, the way `Card` already does. A
+  destination has to survive a middle-click, a long-press and a "copy link address", which an
+  `onClick` on a `<button>` silently does not. Keep `onClick` for actions.
 - Give short controls an explicit `min-width: var(--tap)` so they never fall under 44px.
 - The spacing scale is the kit's: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 (`--sp-1`…`--sp-8`, plus 96 for documentation). The screen's side margin is `--gutter` — 16px on mobile, the kit's own value.
 - Radii follow the kit's scale (2 / 4 / 8 / 12 / 16 / 24 / 32): `--r-card` 16px for a card, `--r-panel` 24px for a container that holds cards, `--r-field` 16px for inner elements, `--r-sheet` 32px, `--r-pill` for pills and buttons.
@@ -128,6 +131,26 @@ set in Poppins, and those two decisions outrank the kit.
 - **A wire is not an e-Transfer with a different label.** `/envoyer` has three methods, and the `bancaire` branch collects **bank coordinates** — account holder, IBAN, BIC/SWIFT, motif — not a name and an email. `src/lib/iban.ts` does the real ISO 13616 check (first four characters to the end, letters as 10–35, mod 97 must equal 1), taken in seven-digit chunks because a 34-character IBAN becomes a 68-digit number that `Number()` cannot hold exactly. The UEMOA and CEMAC countries all issue IBANs, so a Dakar wire is validated exactly like a Paris one; the length table is per-country because a wrong-length IBAN still passes mod 97 about one time in 97. Each failure gets **its own sentence** — "IBAN invalide" on a number copied off a statement says nothing about where to look. The IBAN is grouped in fours as it is typed, and it is the line under the name on the confirmation sheet, because it is what the receiving bank acts on if the name and the account disagree.
 
 Every buy / sell / transfer / deposit / withdrawal: amount → **Sheet de confirmation** (montant, frais/spread explicites, total) → état de succès explicite → gestion d'erreur (`ApiError.code`: `insufficient_funds`, `validation`, `offline`, `network`). Transactions appear as « En attente » immediately (API events patch the cache), then settle.
+
+## The public page
+- **`/entreprise` is the company page, and it sits outside both route guards.** A page that
+  redirects a signed-in visitor to their dashboard is a page nobody can link to, so it is
+  neither `RequireAuth` nor `RequireAnonymous`. `/bienvenue` links to it; it links back.
+- **Every figure on it is one the codebase can point at** — the treaty peg from
+  `CFA_PER_EUR`, the tiers from `SPREADS`, the count from `CURRENCY_ORDER.length`. There is
+  no "milliards sous gestion", no "clients satisfaits", no approval claimed. The footer says
+  plainly that the app holds no money, executes no order and is agréée by no authority, and
+  that paragraph is the most important one on the page — a money product that is vague there
+  is doing the one thing it must not.
+- **The peg is formatted, never typed.** Hand-writing "655,957" prints six hundred thousand
+  francs to the euro under the app's own punctuation rule. It goes through `formatNumber`
+  like every other number.
+- **Copy is centred from 768px and left-aligned below it.** Centring stops working at about
+  three lines — each one starts somewhere different and the eye has to hunt — and on a phone
+  these paragraphs run to six or seven.
+- **The header is a floating pill, not a bar.** Navigation floats at every width in this app;
+  a marketing page that flattens its chrome against the viewport edge stops reading as the
+  same product.
 
 ## States
 Loading → `Skeleton*` (never a spinner for balances/lists). Empty → `EmptyState`. Error → `ErrorState` with Réessayer. Offline → `OfflineBanner` (mounted in the shell) + keep cached data visible.
