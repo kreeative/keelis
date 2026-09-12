@@ -1,6 +1,11 @@
 /**
- * Single 1.5px line. No grid, no axes, no fill.
- * Point + tooltip on hover/press. Colour follows the period delta.
+ * Price line with a stippled area under it, the period's opening value as a dashed
+ * baseline, and a dot on the last point. The stipple is the interesting part: in a palette
+ * with no hue, a tinted area fill has nothing to tint, so the area is carried by *texture*
+ * instead — a lattice of 1px dots, which reads as filled without needing colour.
+ *
+ * The viewBox tracks the measured width rather than a fixed 1000, so the SVG is 1:1 with
+ * CSS pixels: dots stay round, dashes keep their length, and nothing is stretched.
  */
 import { useCallback, useId, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { formatDateTime, formatMoney } from '@/lib/format'
@@ -28,9 +33,26 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
   const { locale } = useSettings()
   const ref = useRef<SVGSVGElement>(null)
   const [active, setActive] = useState<number | null>(null)
-  const W = 1000
+  /* Measured, so the drawing space equals the painting space. 1000 is only the first
+     frame's guess; the observer corrects it before anyone sees a stretched dot. */
+  const [W, setW] = useState(1000)
   const H = height
   const PAD = 6
+
+  /* A callback ref, not an effect: the chart renders a skeleton first, so by the time an
+     effect with an empty dep list runs there is no <svg> yet to observe. */
+  const observer = useRef<ResizeObserver | null>(null)
+  const attach = useCallback((el: SVGSVGElement | null) => {
+    ref.current = el
+    observer.current?.disconnect()
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => {
+      const w = Math.round(entry?.contentRect.width ?? 0)
+      if (w > 0) setW(w)
+    })
+    ro.observe(el)
+    observer.current = ro
+  }, [])
 
   const { path, xs, ys, min, max } = useMemo(() => {
     const n = points.length
@@ -53,7 +75,7 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
       d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1)
     }
     return { path: d, xs, ys, min: lo, max: hi }
-  }, [points, H])
+  }, [points, H, W])
 
   const first = points[0]?.p ?? 0
   const last = points[points.length - 1]?.p ?? 0
@@ -83,6 +105,10 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
     return <div className={cn(styles.skeleton, className)} style={{ height }} aria-hidden="true" />
   }
 
+  /* The dashed rule sits at the period's opening value, so above or below it is the whole
+     story of the period at a glance. */
+  const baseY = ys[0] ?? 0
+
   const ai = active
   const ax = ai !== null ? xs[ai]! : 0
   const ay = ai !== null ? ys[ai]! : 0
@@ -91,7 +117,7 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
   return (
     <div className={cn(styles.wrap, styles[derived], className)} style={{ height }}>
       <svg
-        ref={ref}
+        ref={attach}
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
         className={styles.svg}
@@ -105,10 +131,19 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
         <title id={`${id}-label`}>
           {label}. De {fv(first)} à {fv(last)}. Minimum {fv(min)}, maximum {fv(max)}.
         </title>
-        <path d={path} className={styles.line} vectorEffect="non-scaling-stroke" />
+        <defs>
+          {/* 1px dots on a 4px lattice — the area, drawn as texture rather than tint. */}
+          <pattern id={`${id}-stipple`} width="4" height="4" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.85" className={styles.stipple} />
+          </pattern>
+        </defs>
+        <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" />
+        <line x1={0} x2={W} y1={baseY} y2={baseY} className={styles.baseline} />
+        <path d={path} className={styles.line} />
+        <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={4} className={styles.nowDot} />
         {ai !== null ? (
           <>
-            <line x1={ax} x2={ax} y1={0} y2={H} className={styles.cursor} vectorEffect="non-scaling-stroke" />
+            <line x1={ax} x2={ax} y1={0} y2={H} className={styles.cursor} />
           </>
         ) : null}
       </svg>
