@@ -138,6 +138,18 @@
      was indistinguishable from an opaque one: the material was there, the thing it was
      supposed to refract was not. Deeper fields and a lighter pane make the translucency
      visible — the audit measures composited contrast, so the text stays legible. */
+  /* ---- Aurora: the one place hue is decorative ----
+     The owner asked for soft colour drifting under the home page in the light theme.
+     It is the *third* sanctioned exception to the monochrome palette, and the narrowest:
+     it carries no meaning, sits only behind the home sheet, never touches text or a
+     control, and is faint enough that a greyscale screenshot loses nothing. Chroma is
+     kept low on purpose — these read as a tint on white, not as a colour field. */
+  --aurora-1: oklch(0.93 0.075 72);   /* peach  */
+  --aurora-2: oklch(0.89 0.085 15);   /* rose   */
+  --aurora-3: oklch(0.89 0.065 300);  /* lilac  */
+  --aurora-4: oklch(0.93 0.065 210);  /* aqua   */
+  --aurora-5: oklch(0.94 0.055 160);  /* mint   */
+
   --ambient-1: oklch(0.745 0 0 / 0.92);
   --ambient-2: oklch(0.855 0 0 / 0.86);
   --ambient-3: oklch(0.705 0 0 / 0.88);

@@ -34,7 +34,10 @@ const AMBIENT = join(ROOT, 'components/AmbientGround.module.css')
    Bitcoin in a list without reading, so it keeps its real colours. Nothing else may. */
 const ASSET_ICONS = join(ROOT, 'components/AssetIcon.tsx')
 const allowedColourFiles = [TOKENS, ASSET_ICONS]
-const allowedGradientFiles = [TOKENS, BASE, AMBIENT]
+// The aurora wash is a second ground layer — same category as AmbientGround: radial
+// fields behind everything, no text on them, no control in them.
+const AURORA = join(ROOT, 'features/home/AuroraGround.module.css')
+const allowedGradientFiles = [TOKENS, BASE, AMBIENT, AURORA]
 const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|elev-item|glass-rim|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg|surface)\)/
 
 function check(file) {
@@ -68,12 +71,15 @@ function check(file) {
 {
   const src = readFileSync(TOKENS, 'utf8')
   src.split('\n').forEach((line, i) => {
-    /* Two sanctioned exceptions carry hue: --pos and --neg. Direction is the one meaning
-       people read by colour before they read anything, and the asset marks are how a token
-       is recognised. Everything else stays a neutral. */
-    const directional = /--[a-z-]*(pos|neg)\s*:/.test(line)
+    /* Three sanctioned exceptions carry hue, and only three. --pos / --neg, because
+       direction is the one meaning people read by colour before they read anything. The
+       asset marks (exempted by file above), because a logo is how a token is recognised.
+       And --aurora-*, the home page's wash: decorative, behind nothing but white space,
+       never under text or a control, and gone from a greyscale screenshot without loss.
+       Everything else stays a neutral. */
+    const sanctionedHue = /--[a-z-]*(pos|neg|aurora-\d)\s*:/.test(line)
     const m = line.match(/oklch\(\s*[\d.]+\s+([\d.]+)/)
-    if (m && Number(m[1]) > 0 && !directional) violations.push(`styles/tokens.css:${i + 1}: oklch chroma ${m[1]} — the palette is black-and-white only`)
+    if (m && Number(m[1]) > 0 && !sanctionedHue) violations.push(`styles/tokens.css:${i + 1}: oklch chroma ${m[1]} — the palette is black-and-white only`)
     const rgb = line.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
     if (rgb && !(rgb[1] === rgb[2] && rgb[2] === rgb[3])) violations.push(`styles/tokens.css:${i + 1}: rgb(${rgb[1]},${rgb[2]},${rgb[3]}) is not a neutral`)
   })

@@ -13,6 +13,7 @@ import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useDesktop, useQuery, useSettings } from '@/store'
 import { useSession } from '@/store/session'
 import { AccountCards } from './AccountCards'
+import { AuroraGround } from './AuroraGround'
 import { HoldingsPanel } from './HoldingsPanel'
 import { HoldingsRow } from './HoldingsRow'
 import styles from './HomePage.module.css'
@@ -130,6 +131,7 @@ export default function HomePage() {
 
           {/* The sheet rides up over the canvas, the way a bottom sheet does. */}
           <div className={styles.sheet}>
+            <AuroraGround />
             <span className={styles.grab} aria-hidden="true" />
 
             <div className={styles.asideMobile}>
