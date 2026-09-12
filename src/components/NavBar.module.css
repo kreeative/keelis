@@ -65,10 +65,10 @@
     align-items: center;
     gap: var(--sp-5);
     padding-block: var(--sp-4);
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-    border-right: 1px solid var(--line);
+    /* No panel and no divider: the reference's rail is the page, with only the icons on
+       it. A tinted glass column turned the active item into a bright card floating on a
+       darker strip — the inverse of what it should read as. */
+    background: none;
     overflow: visible;
   }
 
@@ -104,9 +104,10 @@
     color: var(--ink-400);
     transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   }
-  .railLink:hover { background: var(--surface-alt); color: var(--ink-900); }
+  .railLink:hover { background: var(--fill-subtle); color: var(--ink-900); }
   .railLink:focus-visible { box-shadow: var(--focus-ring); }
-  .railActive { background: var(--surface-alt); color: var(--ink-900); }
+  /* The selection sits *into* the page, not on top of it: a veil of ink, not a white card. */
+  .railActive { background: var(--fill-subtle); color: var(--ink-900); }
 
 
   /* The dot anchors to the glyph's corner, not to the 44px control around it. */

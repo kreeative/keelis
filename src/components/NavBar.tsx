@@ -87,7 +87,7 @@ export function NavBar({ unread = 0 }: { unread?: number }) {
       {/* Desktop */}
       <nav className={styles.rail} aria-label="Navigation principale">
         <NavLink to="/" className={styles.brand} aria-label="Keelis, accueil">
-          <Wordmark glyphOnly />
+          <Wordmark glyphOnly size="sm" />
         </NavLink>
 
         <ul className={styles.railList}>
