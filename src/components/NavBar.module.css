@@ -18,6 +18,17 @@
   border-top-color: var(--glass-border);
   box-shadow: var(--elev-2);
 }
+/* The rim the rail already carried and the pill did not. Without it the pill's edge
+   dissolves into whatever it floats over — measured on the reference, the boundary
+   hairline is the brightest thing in the whole control. */
+.bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--glass-rim);
+}
 .barList {
   display: flex;
   align-items: center;
@@ -37,9 +48,13 @@
 }
 .barLink:hover { color: var(--ink-600); }
 .barLink:focus-visible { box-shadow: var(--focus-ring); }
+/* The active capsule is a smaller piece of the same material, so it carries the same rim.
+   A fill with no edge reads as a smudge on the glass; the reference's active item is a
+   defined capsule on every one of the owner's four glass references. */
 .barActive {
   color: var(--ink-900);
   background: var(--fill-subtle);
+  box-shadow: var(--glass-rim);
 }
 .barIcon { position: relative; display: inline-flex; }
 
@@ -122,7 +137,7 @@
   .railLink:hover { background: var(--fill-subtle); color: var(--ink-900); }
   .railLink:focus-visible { box-shadow: var(--focus-ring); }
   /* The selection sits *into* the page, not on top of it: a veil of ink, not a white card. */
-  .railActive { background: var(--fill-subtle); color: var(--ink-900); }
+  .railActive { background: var(--fill-subtle); color: var(--ink-900); box-shadow: var(--glass-rim); }
 
 
   /* The dot anchors to the glyph's corner, not to the 44px control around it. */

@@ -281,10 +281,14 @@
   --glass-border: rgba(255, 255, 255, 0.16);
   --glass-edge: rgba(0, 0, 0, 0.5);
   --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
+  /* Measured off the owner's reference, sampling the nav pill's edge on all four sides:
+     the boundary hairline reads ~100 against a ground of 44 and a glass interior of 51 —
+     white at ~0.24, not the 0.07 this carried, where the edge simply vanished. The top
+     edge is the lit one; the bottom pools light back. */
   --glass-rim:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
-    inset 0 -10px 18px -10px rgba(255, 255, 255, 0.07);
+    inset 0 1px 0 rgba(255, 255, 255, 0.30),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    inset 0 -10px 18px -10px rgba(255, 255, 255, 0.16);
   --fill-subtle: oklch(0.97 0 0 / 0.14);
   --seg-pill: oklch(0.31 0 0);
   --key-face: oklch(0.31 0 0);
@@ -343,9 +347,9 @@
     --glass-edge: rgba(0, 0, 0, 0.5);
     --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
     --glass-rim:
-      inset 0 1px 0 rgba(255, 255, 255, 0.18),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.07),
-      inset 0 -10px 18px -10px rgba(255, 255, 255, 0.07);
+      inset 0 1px 0 rgba(255, 255, 255, 0.30),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+      inset 0 -10px 18px -10px rgba(255, 255, 255, 0.16);
     --fill-subtle: oklch(0.97 0 0 / 0.14);
     --seg-pill: oklch(0.31 0 0);
     --key-face: oklch(0.31 0 0);
