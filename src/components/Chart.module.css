@@ -32,34 +32,23 @@
   stroke: var(--line);
   stroke-width: 1;
 }
-.dot {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
-  border-radius: var(--r-pill);
-  background: var(--chart-color);
-  outline: 2px solid var(--surface);
-  pointer-events: none;
+/* What lies ahead of the cursor recedes; what you have scrubbed past stays lit. */
+.ahead { opacity: 0.28; }
+/* A ring on the line, not a disc over it: the cursor asks about the shape at this point,
+   so it must not cover it. The fill is the ground so the line does not show through. */
+.scrubDot {
+  fill: var(--surface);
+  stroke: var(--chart-color);
+  stroke-width: 2;
 }
-.tooltip {
+.srOnly {
   position: absolute;
-  top: 0;
-  transform: translate(-50%, calc(-100% - var(--sp-2)));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: var(--sp-1) var(--sp-3);
-  border-radius: var(--r-field);
-  background: var(--ink-900);
-  color: var(--surface);
-  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
-.tipValue { font-size: var(--fs-small); font-weight: var(--fw-medium); }
-.tipTime { font-size: var(--fs-label); opacity: 0.8; }
 .skeleton {
   width: 100%;
   border-radius: var(--r-card);

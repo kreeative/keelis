@@ -156,7 +156,6 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
   const ai = active
   const ax = ai !== null ? xs[ai]! : 0
   const ay = ai !== null ? ys[ai]! : 0
-  const tipLeft = ai !== null ? Math.min(Math.max((ax / W) * 100, 12), 88) : 0
 
   return (
     <div className={cn(styles.wrap, styles[derived], className)} style={{ height }}>
@@ -193,24 +192,39 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
           <mask id={`${id}-fademask`}>
             <rect x="0" y="0" width={W} height={H} fill={`url(#${id}-fade)`} />
           </mask>
+          <clipPath id={`${id}-behind`}>
+            <rect x="0" y="0" width={Math.max(0, ax)} height={H} />
+          </clipPath>
         </defs>
-        <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" mask={`url(#${id}-fademask)`} />
-        <path d={path} className={styles.line} />
-        <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={3} className={styles.nowDot} />
+        {/* The series is drawn twice while scrubbing: once dimmed for the whole period, then
+            again clipped to everything left of the cursor. What you have scrubbed past
+            stays lit and what you have not yet reached recedes, so the eye is held at the
+            point being read rather than at the end of the line. */}
+        <g className={ai !== null ? styles.ahead : undefined}>
+          <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" mask={`url(#${id}-fademask)`} />
+          <path d={path} className={styles.line} />
+          <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={3} className={styles.nowDot} />
+        </g>
         {ai !== null ? (
           <>
+            <g clipPath={`url(#${id}-behind)`}>
+              <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" mask={`url(#${id}-fademask)`} />
+              <path d={path} className={styles.line} />
+            </g>
             <line x1={ax} x2={ax} y1={0} y2={H} className={styles.cursor} />
+            {/* A ring, not a disc: the line runs through the point being read, and a
+                filled dot would hide the very shape the cursor is asking about. */}
+            <circle cx={ax} cy={ay} r={4} className={styles.scrubDot} vectorEffect="non-scaling-stroke" />
           </>
         ) : null}
       </svg>
+      {/* No tooltip. The screen's own hero swaps to the scrubbed value and its timestamp
+          (see `onHover`), and a floating box repeating it sat directly on top of the very
+          number it was duplicating. One readout, in the place the eye already is. */}
       {ai !== null ? (
-        <>
-          <span className={styles.dot} style={{ left: `${(ax / W) * 100}%`, top: ay }} aria-hidden="true" />
-          <div className={styles.tooltip} style={{ left: `${tipLeft}%` }} role="status">
-            <span className={styles.tipValue}>{fv(points[ai]!.p)}</span>
-            <span className={styles.tipTime}>{ft(points[ai]!.t)}</span>
-          </div>
-        </>
+        <span className={styles.srOnly} role="status">
+          {fv(points[ai]!.p)}, {ft(points[ai]!.t)}
+        </span>
       ) : null}
     </div>
   )
