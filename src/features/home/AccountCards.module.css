@@ -22,8 +22,8 @@
   display: block;
   font-size: var(--fs-h2);
   line-height: var(--lh-h2);
-  letter-spacing: var(--ls-h2);
-  font-weight: var(--fw-h2);
+  letter-spacing: var(--ls-numeric);
+  font-weight: var(--fw-numeric);
   color: var(--ink-900);
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
