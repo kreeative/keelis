@@ -14,6 +14,10 @@ The marks live in `src/components/Wordmark.tsx` and come from the brand artwork
   `--mark-disc` picks one by theme, so only the used one is fetched, and `tone="ink"` /
   `tone="paper"` pins one where the surface decides instead (the virtual card is always
   dark, so it always takes the paper disc). Do not replace it with a drawn circle.
+- **The mark gets clear space, not paragraph spacing.** A logo set with the same air as a
+  line of body text reads as crowded. Any screen that pairs the wordmark with a heading
+  gives it `.mark-clear` — at least its own height before the next thing starts. Check the
+  container's gap before reusing the class: it adds to it rather than replacing it.
 - **The brand face is EtherealDemo-ExtraBold, a *demo* release not licensed for commercial
   use.** The outlines ship as artwork; never set the name as live text in it, and never add
   it as a webfont. Licensing it is the owner's decision.

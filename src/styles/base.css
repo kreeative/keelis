@@ -150,6 +150,12 @@ img, svg {
 .t-neg { color: var(--neg); }
 .t-warn { color: var(--warn); }
 .t-accent { color: var(--accent); }
+/* Clear space under the mark. A logo is not a line of text and must not be set with the
+   same air as one: the rule of thumb is at least its own height before anything else
+   begins. Both screens that pair the mark with a heading stack at --sp-5 (24px), so this
+   adds 16 to reach 40 — check the container's gap before reusing it elsewhere. */
+.mark-clear { margin-bottom: var(--sp-4); }
+
 /* A section's title. One definition, shared by <SectionHeader> and by the bare headings
    that screens write themselves. All four values come from the same place — the kit's own
    title component: 14/18, weight 700, uppercase, full ink, tracking -0.002em. That last

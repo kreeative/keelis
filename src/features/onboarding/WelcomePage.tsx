@@ -37,7 +37,7 @@ export default function WelcomePage() {
         </Button>
       </header>
       <main className={styles.main}>
-        <Wordmark size="lg" />
+        <Wordmark size="lg" className="mark-clear" />
         <h1 className={`t-h1 ${styles.title}`}>Vos dollars, votre épargne et vos cryptos. Au même endroit.</h1>
         <p className={`t-body t-muted ${styles.lede}`}>Compte chèque avec carte, épargne à 4,00 %, crypto sans frais cachés.</p>
       </main>

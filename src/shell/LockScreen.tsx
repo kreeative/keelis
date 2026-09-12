@@ -45,7 +45,7 @@ export function LockScreen() {
   return createPortal(
     <div className={styles.root} role="dialog" aria-modal="true" aria-labelledby="lock-title" onKeyDown={onKey} tabIndex={-1} ref={(el) => el?.focus()}>
       <div className={styles.inner}>
-        <Wordmark size="sm" />
+        <Wordmark size="sm" className="mark-clear" />
         <div className={styles.center}>
           <Icon name="lock-keyhole" className={styles.lockIcon} />
           <h1 id="lock-title" className="t-h2">
