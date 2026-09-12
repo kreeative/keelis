@@ -48,22 +48,25 @@
   --card-ink: oklch(0.97 0 0);
   --card-ink-muted: oklch(0.72 0 0);
 
-  /* ---- Canvas: a dark island inside a light page ----
-     The home hero is always dark, in both themes, the way the payment card is. Rather
-     than restyle every child, the canvas *redefines the tokens its children read* — so a
-     chart, a segmented control and a button behave correctly inside it without knowing
-     they are on dark. These are the values those tokens take there. */
-  --canvas-surface-alt: oklch(0.24 0 0);
-  --canvas-line: oklch(0.97 0 0 / 0.12);
-  --canvas-fill: oklch(0.97 0 0 / 0.14);
-  --canvas-seg-pill: oklch(0.31 0 0);
-  --canvas-pos: oklch(0.80 0.16 150);
-  --canvas-neg: oklch(0.72 0.15 27);
-  /* Glass on the canvas is a light veil on dark, not a white pane: the light-theme value
-     composites to a pale grey there and swallows the ink sitting on it. */
-  --canvas-glass: rgba(255, 255, 255, 0.08);
-  --canvas-glass-strong: rgba(255, 255, 255, 0.10);
-  --canvas-glass-border: rgba(255, 255, 255, 0.2);
+  /* ---- Canvas: the home hero, which now *follows the theme* ----
+     It used to be dark in both themes, the way the payment card still is. The owner asked
+     for it light on the light theme, so these tokens have two sets: here, the light ones,
+     which are simply the page's own values — the canvas stops being an island and the
+     redefinitions inside `.canvas` become no-ops. The dark block further down carries the
+     dark island unchanged, so nothing about the dark theme moves.
+     Note this is *not* --card-surface: the virtual card is still always dark. */
+  --canvas-bg: var(--surface);
+  --canvas-ink: var(--ink-900);
+  --canvas-ink-muted: var(--ink-600);
+  --canvas-surface-alt: var(--surface-alt);
+  --canvas-line: var(--line);
+  --canvas-fill: var(--fill-subtle);
+  --canvas-seg-pill: var(--seg-pill);
+  --canvas-pos: var(--pos);
+  --canvas-neg: var(--neg);
+  --canvas-glass: var(--glass-bg);
+  --canvas-glass-strong: var(--glass-bg-strong);
+  --canvas-glass-border: var(--glass-border);
 
   /* ---- Glass material ----
      Semi-transparent surface + heavy blur + a hairline top highlight where light
@@ -309,6 +312,21 @@
     inset 0 -10px 18px -10px rgba(255, 255, 255, 0.16);
   --fill-subtle: oklch(0.97 0 0 / 0.14);
   --seg-pill: oklch(0.31 0 0);
+  /* The canvas keeps its dark island here — the values it always had. */
+  --canvas-bg: var(--card-surface);
+  --canvas-ink: var(--card-ink);
+  --canvas-ink-muted: var(--card-ink-muted);
+  --canvas-surface-alt: oklch(0.24 0 0);
+  --canvas-line: oklch(0.97 0 0 / 0.12);
+  --canvas-fill: oklch(0.97 0 0 / 0.14);
+  --canvas-seg-pill: oklch(0.31 0 0);
+  --canvas-pos: oklch(0.80 0.16 150);
+  --canvas-neg: oklch(0.72 0.15 27);
+  /* Glass on a dark canvas is a light veil, not a white pane: a white one composites to a
+     pale grey there and swallows the ink sitting on it. */
+  --canvas-glass: rgba(255, 255, 255, 0.08);
+  --canvas-glass-strong: rgba(255, 255, 255, 0.10);
+  --canvas-glass-border: rgba(255, 255, 255, 0.2);
   --key-face: oklch(0.31 0 0);
   --key-press: oklch(0.21 0 0);
   --mark-disc: url('/brand/mark-paper.png');
@@ -371,6 +389,18 @@
       inset 0 -10px 18px -10px rgba(255, 255, 255, 0.16);
     --fill-subtle: oklch(0.97 0 0 / 0.14);
     --seg-pill: oklch(0.31 0 0);
+    --canvas-bg: var(--card-surface);
+    --canvas-ink: var(--card-ink);
+    --canvas-ink-muted: var(--card-ink-muted);
+    --canvas-surface-alt: oklch(0.24 0 0);
+    --canvas-line: oklch(0.97 0 0 / 0.12);
+    --canvas-fill: oklch(0.97 0 0 / 0.14);
+    --canvas-seg-pill: oklch(0.31 0 0);
+    --canvas-pos: oklch(0.80 0.16 150);
+    --canvas-neg: oklch(0.72 0.15 27);
+    --canvas-glass: rgba(255, 255, 255, 0.08);
+    --canvas-glass-strong: rgba(255, 255, 255, 0.10);
+    --canvas-glass-border: rgba(255, 255, 255, 0.2);
     --key-face: oklch(0.31 0 0);
     --key-press: oklch(0.21 0 0);
   --mark-disc: url('/brand/mark-paper.png');

@@ -27,13 +27,13 @@
   margin: calc(-1 * var(--sp-5)) calc(-1 * var(--gutter)) 0;
   padding: calc(var(--safe-top) + var(--sp-3)) var(--gutter) var(--sp-7);
   border-radius: 0 0 var(--r-sheet) var(--r-sheet);
-  background: var(--card-surface);
-  color: var(--card-ink);
+  background: var(--canvas-bg);
+  color: var(--canvas-ink);
 
-  --ink-900: var(--card-ink);
-  --ink-600: var(--card-ink-muted);
-  --ink-400: var(--card-ink-muted);
-  --surface: var(--card-surface);
+  --ink-900: var(--canvas-ink);
+  --ink-600: var(--canvas-ink-muted);
+  --ink-400: var(--canvas-ink-muted);
+  --surface: var(--canvas-bg);
   --surface-alt: var(--canvas-surface-alt);
   --line: var(--canvas-line);
   --fill-subtle: var(--canvas-fill);
@@ -44,8 +44,8 @@
   --glass-bg-strong: var(--canvas-glass-strong);
   --glass-border: var(--canvas-glass-border);
   --glass-edge: var(--canvas-line);
-  --cta: var(--card-ink);
-  --on-cta: var(--card-surface);
+  --cta: var(--canvas-ink);
+  --on-cta: var(--canvas-bg);
 }
 /* iOS rubber-banding at the top of the page pulls the content down and reveals whatever
    is behind it — which is the light ambient ground, a white band above the black canvas.
@@ -58,11 +58,11 @@
   right: 0;
   bottom: 100%;
   height: 100vh;
-  background: var(--card-surface);
+  background: var(--canvas-bg);
   pointer-events: none;
 }
 .canvasBar { margin-bottom: var(--sp-2); }
-.canvasLabel { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--card-ink-muted); }
+.canvasLabel { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--canvas-ink-muted); }
 .canvasActions { display: flex; gap: var(--sp-3); }
 .canvasActions > * { flex: 1; }
 
