@@ -3,7 +3,7 @@
  * Prices come from useMarket() (tick every 10 s) and update in place, without animation.
  */
 import { useDeferredValue, useMemo, useState } from 'react'
-import { AmountDisplay, AppBar, AssetIcon, Card, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SkeletonRow, Sparkline } from '@/components'
+import { AmountDisplay, AppBar, AssetIcon, Badge, Button, Card, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SkeletonRow, Sparkline } from '@/components'
 import type { CryptoAsset, Holding } from '@/api/types'
 import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -12,11 +12,14 @@ import { monthlyTotal } from './cryptoFormat'
 import { useLiveAccount, useLiveAssets, useLiveHoldings, useLiveRecurring } from './hooks'
 import styles from './CryptoListPage.module.css'
 
-type Filter = 'all' | 'mine' | 'watched' | 'gainers' | 'losers'
+type Filter = 'all' | 'equity' | 'crypto' | 'mine' | 'watched' | 'gainers' | 'losers'
 
-/* A scrolling chip bar holds more ways to cut the list than three fixed segments could. */
+/* A scrolling chip bar holds more ways to cut the list than three fixed segments could.
+   Actions africaines leads, because that is what the app is for. */
 const FILTERS: ReadonlyArray<{ value: Filter; label: string }> = [
   { value: 'all', label: 'Tous' },
+  { value: 'equity', label: 'Actions africaines' },
+  { value: 'crypto', label: 'Crypto' },
   { value: 'mine', label: 'Mes actifs' },
   { value: 'watched', label: 'Suivis' },
   { value: 'gainers', label: 'Plus fortes hausses' },
@@ -34,7 +37,8 @@ function normalise(s: string): string {
 function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | undefined }) {
   const { locale, hidden } = useSettings()
   const held = holding && holding.quantity > 0
-  const subtitle = held ? `${asset.name} · ${hidden ? MASKED : formatCrypto(holding.quantity, undefined, { locale })} ${asset.symbol}` : asset.name
+  const where = asset.assetClass === 'equity' ? `${asset.name} · ${asset.market}` : asset.name
+  const subtitle = held ? `${where} · ${hidden ? MASKED : formatCrypto(holding.quantity, undefined, { locale })} ${asset.symbol}` : where
   return (
     <ListRow
       to={`/crypto/${asset.id}`}
@@ -74,7 +78,9 @@ export default function CryptoListPage() {
     const assets = market.assets ?? []
     const q = normalise(deferredQuery)
     let list = assets.filter((a) => (q ? normalise(a.name).includes(q) || normalise(a.symbol).includes(q) : true))
-    if (filter === 'mine') {
+    if (filter === 'equity' || filter === 'crypto') {
+      list = list.filter((a) => a.assetClass === filter).sort((a, b) => a.rank - b.rank)
+    } else if (filter === 'mine') {
       list = list.filter((a) => (holdingById.get(a.id)?.quantity ?? 0) > 0).sort((a, b) => (holdingById.get(b.id)?.value ?? 0) - (holdingById.get(a.id)?.value ?? 0))
     } else if (filter === 'gainers') {
       list = list.slice().sort((a, b) => b.change24hPct - a.change24hPct)
@@ -110,6 +116,23 @@ export default function CryptoListPage() {
             <AmountDisplay value={account.data?.balance} delta={account.data?.change24h} deltaPct={account.data?.change24hPct} period="24 h" loading={account.data === undefined} />
           )}
         </section>
+      </Card>
+
+      {/* A market nobody has explained is a market nobody buys into. The demo carries one
+          real, dated event so the education has something concrete to hang on. */}
+      <Card padding="lg" elevation={1} className={styles.ipoCard}>
+        <Badge tone="neutral" icon>
+          Bientôt en bourse
+        </Badge>
+        <h2 className={`t-h2 ${styles.ipoTitle}`}>Dangote Refinery entre à la NGX</h2>
+        <p className={styles.ipoBody}>
+          La raffinerie de Lekki — la plus grande d’Afrique — ouvre son capital le 14 octobre. Une introduction en bourse
+          met des parts d’une entreprise en vente pour la première fois&nbsp;; le prix d’ouverture est fixé à l’avance,
+          puis le marché décide. Rien à faire pour l’instant.
+        </p>
+        <Button variant="secondary" icon={<Icon name="file-text" size={18} />} className={styles.ipoAction}>
+          Comprendre une IPO
+        </Button>
       </Card>
 
       <Card padding="none" elevation={1} className={styles.recurringCard}>

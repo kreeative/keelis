@@ -31,6 +31,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
 
 /** Desktop rail — the same destinations plus Activité, which has its own entry there. */
 const RAIL_ITEMS: readonly NavItem[] = [
+  /* Search leads the rail, as it does in the reference: on a desktop the first thing you
+     reach for is the thing you cannot see. */
+  { to: '/crypto', label: 'Rechercher un actif', icon: 'search', end: true },
   { to: '/', label: 'Accueil', icon: 'house', end: true },
   { to: '/crypto', label: 'Crypto', icon: 'chart-line', end: false },
   { to: '/carte', label: 'Carte', icon: 'credit-card', end: false },

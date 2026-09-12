@@ -97,11 +97,63 @@ interface AssetSeed {
   spreadPct: number
   watched: boolean
   rank: number
+  assetClass?: CryptoAsset['assetClass']
+  market?: string
+  sector?: string
 }
 
 const eth = (prefix = '0x') => ({ addressPrefix: prefix })
 
+/** An equity does not settle on a chain, so it carries no network. */
+const NO_NETWORK: CryptoAsset['networks'] = []
+
 const assetSeeds: AssetSeed[] = [
+  /* ---- Actions africaines ----
+     BRVM (Abidjan, zone UEMOA), NGX (Lagos), JSE (Johannesburg). Prices in CAD, as every
+     figure in the app is: the conversion belongs to the ledger, not to the display. */
+  {
+    id: 'dangcem', symbol: 'DANGCEM', name: 'Dangote Cement', price: 0.62, change24hPct: 2.14, marketCap: 10_600_000_000, volume24h: 4_200_000, circulatingSupply: 17_040_000_000, decimals: 0, minTrade: 1, spreadPct: 0.008, watched: true, rank: 1,
+    assetClass: 'equity', market: 'NGX', sector: 'Matériaux',
+    description: 'Premier cimentier d’Afrique subsaharienne, présent dans dix pays. Son chiffre d’affaires suit la construction de routes, de logements et d’infrastructures publiques.',
+    networks: NO_NETWORK,
+  },
+  {
+    id: 'sonatel', symbol: 'SNTS', name: 'Sonatel', price: 44.5, change24hPct: 0.83, marketCap: 6_100_000_000, volume24h: 1_900_000, circulatingSupply: 100_000_000, decimals: 0, minTrade: 1, spreadPct: 0.009, watched: true, rank: 2,
+    assetClass: 'equity', market: 'BRVM', sector: 'Télécommunications',
+    description: 'Opérateur télécom du Sénégal, du Mali, de la Guinée et de la Sierra Leone. Première capitalisation de la BRVM, et l’un des rares titres à verser un dividende régulier.',
+    networks: NO_NETWORK,
+  },
+  {
+    id: 'mtnn', symbol: 'MTNN', name: 'MTN Nigeria', price: 0.28, change24hPct: -1.36, marketCap: 5_700_000_000, volume24h: 3_400_000, circulatingSupply: 20_350_000_000, decimals: 0, minTrade: 1, spreadPct: 0.009, watched: false, rank: 3,
+    assetClass: 'equity', market: 'NGX', sector: 'Télécommunications',
+    description: 'Premier opérateur mobile du Nigéria, avec plus de 75 millions d’abonnés. Son activité de paiement mobile croît plus vite que la voix.',
+    networks: NO_NETWORK,
+  },
+  {
+    id: 'nsiabrvm', symbol: 'NSBC', name: 'NSIA Banque CI', price: 12.8, change24hPct: 1.05, marketCap: 820_000_000, volume24h: 340_000, circulatingSupply: 64_000_000, decimals: 0, minTrade: 1, spreadPct: 0.011, watched: false, rank: 6,
+    assetClass: 'equity', market: 'BRVM', sector: 'Banque',
+    description: 'Banque commerciale ivoirienne, active dans le crédit aux entreprises et la banque de détail en zone UEMOA.',
+    networks: NO_NETWORK,
+  },
+  {
+    id: 'naspers', symbol: 'NPN', name: 'Naspers', price: 285.0, change24hPct: -0.42, marketCap: 21_000_000_000, volume24h: 8_100_000, circulatingSupply: 73_700_000, decimals: 0, minTrade: 1, spreadPct: 0.008, watched: false, rank: 4,
+    assetClass: 'equity', market: 'JSE', sector: 'Technologie',
+    description: 'Groupe sud-africain d’investissement technologique. Sa participation historique dans Tencent reste le principal moteur de sa valorisation.',
+    networks: NO_NETWORK,
+  },
+  {
+    id: 'safaricom', symbol: 'SCOM', name: 'Safaricom', price: 0.19, change24hPct: 3.27, marketCap: 6_300_000_000, volume24h: 2_700_000, circulatingSupply: 40_070_000_000, decimals: 0, minTrade: 1, spreadPct: 0.009, watched: true, rank: 5,
+    assetClass: 'equity', market: 'NSE', sector: 'Télécommunications',
+    description: 'Opérateur kényan, éditeur de M-Pesa — le service d’argent mobile le plus utilisé du continent, et l’essentiel de sa croissance.',
+    networks: NO_NETWORK,
+  },
+  {
+    id: 'sonabel', symbol: 'CIEC', name: 'CIE Côte d’Ivoire', price: 6.4, change24hPct: -0.61, marketCap: 410_000_000, volume24h: 180_000, circulatingSupply: 64_000_000, decimals: 0, minTrade: 1, spreadPct: 0.012, watched: false, rank: 9,
+    assetClass: 'equity', market: 'BRVM', sector: 'Énergie',
+    description: 'Concessionnaire de la distribution d’électricité en Côte d’Ivoire. Revenus régulés, sensibles aux tarifs publics et à la demande industrielle.',
+    networks: NO_NETWORK,
+  },
+  /* ---- Cryptomonnaies ---- */
   {
     id: 'btc', symbol: 'BTC', name: 'Bitcoin', price: 142_850, change24hPct: 1.42, marketCap: 2_830_000_000_000, volume24h: 48_000_000_000, circulatingSupply: 19_820_000, decimals: 8, minTrade: 1, spreadPct: 0.015, watched: true, rank: 1,
     description: 'Première monnaie numérique décentralisée. Son offre est plafonnée à 21 millions d’unités et son registre est sécurisé par la preuve de travail.',
@@ -168,7 +220,13 @@ export function makeSparkline(seed: number, price: number, changePct: number, n 
 
 export const seedAssets: CryptoAsset[] = assetSeeds.map((a, i) => {
   const change24h = a.price - a.price / (1 + a.change24hPct / 100)
-  return { ...a, change24h, sparkline: makeSparkline(1000 + i, a.price, a.change24hPct) }
+  return {
+    ...a,
+    assetClass: a.assetClass ?? 'crypto',
+    market: a.market ?? a.networks[0]?.name ?? 'Crypto',
+    change24h,
+    sparkline: makeSparkline(1000 + i, a.price, a.change24hPct),
+  }
 })
 
 export const seedHoldingsRaw: Array<Pick<Holding, 'assetId' | 'quantity' | 'avgCost'>> = [

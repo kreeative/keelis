@@ -37,6 +37,8 @@
     justify-content: space-between;
     gap: var(--sp-3);
     min-height: var(--tap);
+    /* Without this the action buttons sit flush on the card below — measured at 0px. */
+    margin-bottom: var(--sp-4);
   }
   .headActions { display: flex; }
   .hero { padding-block: var(--sp-6) var(--sp-5); }

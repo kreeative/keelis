@@ -210,7 +210,16 @@ export interface CryptoAsset {
   /** Whether the user follows this asset */
   watched: boolean
   rank: number
+  /** What kind of thing this is. Equities are the app's centre of gravity; crypto sits
+      beside them, not above them. */
+  assetClass: AssetClass
+  /** Where it trades — « BRVM », « NGX », « JSE » for an equity, the chain for a coin. */
+  market: string
+  /** Equities only: the sector, for grouping and for a plain-language explanation. */
+  sector?: string
 }
+
+export type AssetClass = 'equity' | 'crypto'
 
 export interface CryptoNetwork {
   id: string
