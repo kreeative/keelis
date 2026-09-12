@@ -121,7 +121,9 @@
      Bold, not black: at display sizes the size already carries the hierarchy. */
   --font-numeric: var(--font-sans);
   --fw-numeric: 700;
-  --ls-numeric: 0.02em;
+  /* Big figures need optical compensation: at 48px the counters carry themselves and
+     positive tracking just pulls the number apart. Tight, as the reference sets it. */
+  --ls-numeric: -0.02em;
 
   /* Tracking follows the reference kit's Foundations page, which is set in Futura and
      tracks POSITIVE at text sizes (H2 20/27/+0.25px, H3 16/21/+0.5, H4 14/19/+0.5,

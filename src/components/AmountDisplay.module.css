@@ -8,7 +8,6 @@
 .amount {
   display: flex;
   align-items: baseline;
-  gap: var(--sp-2);
   font-size: var(--fs-display);
   line-height: var(--lh-display);
   letter-spacing: var(--ls-numeric);
@@ -26,7 +25,17 @@
 .amountPos { color: var(--pos); }
 .amountNeg { color: var(--neg); }
 .number { min-width: 0; }
-.currency {
+/* The currency symbol is part of the figure, not an annotation: same size, same weight,
+   same ink. Only the narrow space before it is typographic — in em, so it scales with the
+   type rather than staying 8px whatever the size. */
+.symbol {
+  /* French sets a narrow no-break space before the symbol — a sixth of an em. In em so it
+     holds at every size, and a shade over 1/6 because the negative tracking eats into it. */
+  margin-left: 0.18em;
+}
+/* A unit is a word, not a symbol — « BTC », « USD ». That one does recede. */
+.unit {
+  margin-left: var(--sp-2);
   font-family: var(--font-sans);
   font-size: var(--fs-h2);
   line-height: var(--lh-h2);

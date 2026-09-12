@@ -58,8 +58,8 @@ export function AmountDisplay({ value, currency = 'CAD', delta, deltaPct, period
         role="text"
       >
         <span className={styles.number}>{masked ? MASKED : number}</span>
-        {!unit && locale === 'fr-CA' ? <span className={styles.currency}>{symbol}</span> : null}
-        {unit ? <span className={styles.currency}>{unit}</span> : null}
+        {!unit && locale === 'fr-CA' ? <span className={styles.symbol}>{symbol}</span> : null}
+        {unit ? <span className={styles.unit}>{unit}</span> : null}
       </div>
       {hasDelta ? (
         <p className={cn(styles.delta, deltaTone)} aria-label={masked ? undefined : `${delta !== undefined ? moneyAriaLabel(delta, { locale, currency }) + ', ' : ''}${deltaPct !== undefined ? percentAriaLabel(deltaPct, { locale }) : ''}${period ? `, ${period}` : ''}`}>
