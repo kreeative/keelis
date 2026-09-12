@@ -136,6 +136,10 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* The build this device is actually running. Without it, "it still looks wrong" and
+          "the fix is deployed" can both be true and nobody can tell. */}
+      <p className={styles.build}>Version {__BUILD_ID__}</p>
+
       <ConfirmSheet
         open={confirming}
         onClose={() => setConfirming(false)}

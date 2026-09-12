@@ -104,3 +104,11 @@
     max-width: none;
   }
 }
+
+.build {
+  margin-top: var(--space-section);
+  text-align: center;
+  font-size: var(--fs-label);
+  color: var(--ink-400);
+  font-variant-numeric: tabular-nums;
+}

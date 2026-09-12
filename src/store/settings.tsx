@@ -17,10 +17,25 @@ interface Settings {
 
 const SettingsContext = createContext<Settings | null>(null)
 
+const LOCALES: readonly Locale[] = ['fr-SN', 'en-NG']
+
+/**
+ * A stored locale has to be *validated*, not just read back.
+ *
+ * The locale set moved from fr-CA / en-CA to fr-SN / en-NG, and anyone who used the app
+ * before that still has the old string in their browser. Handing it straight to Intl is
+ * silently wrong rather than broken: fr-CA renders XOF as "XOF" where fr-SN renders it
+ * "F CFA", so the app looks Canadian to exactly the people who have used it longest.
+ */
+function readLocale(): Locale {
+  const stored = readJson<string>('keelis.locale', 'fr-SN')
+  return (LOCALES as readonly string[]).includes(stored) ? (stored as Locale) : 'fr-SN'
+}
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeChoice>(() => readTheme())
   const [systemDark, setSystemDark] = useState(() => resolvedTheme('system') === 'dark')
-  const [locale, setLocaleState] = useState<Locale>(() => readJson<Locale>('keelis.locale', 'fr-SN'))
+  const [locale, setLocaleState] = useState<Locale>(() => readLocale())
   const [hidden, setHidden] = useState(() => readJson<boolean>('keelis.hidden', false))
   const [reducedMotion, setReducedMotion] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
 
