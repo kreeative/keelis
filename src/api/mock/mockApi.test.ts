@@ -79,12 +79,17 @@ describe('failure modes', () => {
 })
 
 describe('seed', () => {
-  it('has ~60 transactions over 3 months, 8 assets, 2 goals', async () => {
+  it('has ~60 transactions over 3 months, both asset classes, 2 goals', async () => {
     const txs = await mockApi.transactions.list()
     expect(txs.length).toBeGreaterThanOrEqual(60)
     const oldest = txs[txs.length - 1]!
     expect(Date.now() - new Date(oldest.date).getTime()).toBeLessThan(92 * 86_400_000)
-    expect((await mockApi.crypto.listAssets()).length).toBe(8)
+    // The demo leads with African equities and keeps the coins beside them, so assert the
+    // split rather than a total — a bare count would break again the next time either
+    // list grows, and would not have caught an empty equity list.
+    const assets = await mockApi.crypto.listAssets()
+    expect(assets.filter((a) => a.assetClass === 'equity').length).toBe(7)
+    expect(assets.filter((a) => a.assetClass === 'crypto').length).toBe(8)
     expect((await mockApi.savings.goals.list()).length).toBe(2)
   })
   it('filters transactions', async () => {

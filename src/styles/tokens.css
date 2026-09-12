@@ -116,6 +116,14 @@
      it sits on, so the selection would disappear. */
   --seg-pill: var(--surface);
 
+  /* A keypad key is a raised face, and "raised" means nearer the light in both themes —
+     which no single existing token gives: --surface is the top layer in light but the
+     bottom one in dark. Pressed is always a step *down* from the face, so it cannot be
+     --fill-subtle either: that wash is ink in light but paper in dark, and would make a
+     pressed key glow. */
+  --key-face: oklch(0.99 0 0);
+  --key-press: oklch(0.92 0 0);
+
   /* Tactile lift on hover / press */
   --lift: translateY(-2px) scale(1.01);
   --press: translateY(0) scale(0.995);
@@ -279,6 +287,8 @@
     inset 0 -10px 18px -10px rgba(255, 255, 255, 0.07);
   --fill-subtle: oklch(0.97 0 0 / 0.14);
   --seg-pill: oklch(0.31 0 0);
+  --key-face: oklch(0.31 0 0);
+  --key-press: oklch(0.21 0 0);
   --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.185 0 0);
   --glass-fallback-strong: oklch(0.215 0 0);
@@ -338,6 +348,8 @@
       inset 0 -10px 18px -10px rgba(255, 255, 255, 0.07);
     --fill-subtle: oklch(0.97 0 0 / 0.14);
     --seg-pill: oklch(0.31 0 0);
+    --key-face: oklch(0.31 0 0);
+    --key-press: oklch(0.21 0 0);
   --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.185 0 0);
     --glass-fallback-strong: oklch(0.215 0 0);

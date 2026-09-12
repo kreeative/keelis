@@ -3,7 +3,6 @@
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: var(--sp-2);
   font-size: var(--fs-display);
   line-height: var(--lh-display);
   letter-spacing: var(--ls-numeric);
@@ -17,11 +16,25 @@
   text-align: center;
   padding-top: var(--sp-4);
 }
-.empty .number { color: var(--ink-300); }
+/* Placeholder zero and its symbol recede together — a symbol left at full ink beside a
+   greyed-out figure reads as two different states of the same number. */
+.empty .number,
+.empty .symbol { color: var(--ink-300); }
 .number { min-width: 0; }
+/* The currency symbol is part of the figure, not an annotation: same size, same weight,
+   same ink, with only the French narrow space before it — set in em so it tracks the type.
+   This is the screen where the figure is being typed; shrinking the $ here would undo on
+   entry exactly what AmountDisplay does everywhere the figure is read back. */
+.symbol { margin-left: 0.18em; }
+/* en-CA sets the symbol first and tight against the figure — "$1,234.56", no space. */
+.symbol:first-child { margin-left: 0; }
+/* A unit is a word — « BTC », « ETH ». That one does recede. */
 .unit {
+  margin-left: var(--sp-2);
+  font-family: var(--font-sans);
   font-size: var(--fs-h2);
   line-height: var(--lh-h2);
+  letter-spacing: var(--ls-h2);
   font-weight: var(--fw-h2);
   color: var(--ink-600);
 }

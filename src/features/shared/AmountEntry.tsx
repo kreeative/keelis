@@ -39,13 +39,15 @@ export function AmountEntry({ value, onChange, mode = 'fiat', unit = 'CAD', seco
   const aria = mode === 'fiat' ? moneyAriaLabel(numeric, { locale }) : `${formatCrypto(numeric, unit, { locale })}`
   const symbol = unit === 'CAD' ? '$' : unit
   const symbolFirst = mode === 'fiat' && locale === 'en-CA'
+  // '$' is a symbol and belongs to the figure at full size; 'BTC' is a word and recedes.
+  const symbolClass = unit === 'CAD' ? styles.symbol : styles.unit
 
   return (
     <div className={styles.wrap}>
       <div className={cn(styles.amount, empty && styles.empty)} role="text" aria-label={`${label} : ${aria}`}>
-        {symbolFirst ? <span className={styles.unit}>{symbol}</span> : null}
+        {symbolFirst ? <span className={symbolClass}>{symbol}</span> : null}
         <span className={styles.number}>{display}</span>
-        {!symbolFirst ? <span className={styles.unit}>{symbol}</span> : null}
+        {!symbolFirst ? <span className={symbolClass}>{symbol}</span> : null}
         {onToggleMode ? (
           <Button variant="secondary" iconOnly aria-label={mode === 'fiat' ? 'Saisir en crypto' : 'Saisir en dollars'} onClick={onToggleMode} className={styles.swap} disabled={disabled}>
             <Icon name="transfer" size={18} />

@@ -1,7 +1,12 @@
+/* Keys are raised lozenges, not flat hit areas: a number pad is the one place in the app
+   where every tap is deliberate, and a key that looks pressable is worth the pixels.
+   Solid rather than glass — twelve blurred layers is the most expensive way to draw a
+   keypad, and --key-face / --key-press already carry the raised/sunken pair through
+   both themes. */
 .pad {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   width: 100%;
   max-width: 360px;
   margin-inline: auto;
@@ -12,16 +17,29 @@
   justify-content: center;
   height: 56px;
   min-height: var(--tap);
-  border-radius: var(--r-field);
+  border-radius: var(--r-pill);
+  background: var(--key-face);
+  border: 1px solid var(--glass-edge);
+  border-top-color: var(--glass-border);
+  box-shadow: var(--elev-1);
   font-size: var(--fs-h2);
   font-weight: var(--fw-h2);
   font-family: var(--font-numeric);
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
   color: var(--ink-900);
-  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease);
 }
-.key:hover:not(:disabled) { background: var(--surface-alt); }
-.key:active:not(:disabled) { background: var(--surface-alt); transform: scale(0.96); }
-.key:focus-visible { box-shadow: var(--focus-ring); }
-.key:disabled { color: var(--ink-300); cursor: not-allowed; }
+.key:hover:not(:disabled) { transform: var(--lift); box-shadow: var(--elev-2); }
+/* Pressed, the key sinks into the pad instead of lifting off it. */
+.key:active:not(:disabled) {
+  background: var(--key-press);
+  transform: var(--press);
+  box-shadow: none;
+  transition-duration: var(--dur-fast);
+}
+.key:focus-visible { box-shadow: var(--focus-ring), var(--elev-1); }
+.key:disabled { color: var(--ink-300); cursor: not-allowed; box-shadow: none; background: none; border-color: transparent; }
