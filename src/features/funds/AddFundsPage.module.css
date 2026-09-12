@@ -170,3 +170,8 @@
     top: var(--sp-5);
   }
 }
+
+/* The amount step carries its own primary action, so the keypad is not sharing a screen
+   with a summary of a total that is still changing. */
+.stepActions { display: flex; margin-top: var(--space-block); }
+.stepActions > * { flex: 1; }

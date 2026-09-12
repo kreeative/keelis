@@ -451,10 +451,10 @@ export const seedNotifications: AppNotification[] = [
 // ---------- Funding ----------
 
 export const seedFundingSources: FundingSource[] = [
-  { id: 'src_bank', kind: 'bank', label: 'Banque liée', mask: 'Compte chèque ···· 4821', eta: '1 à 3 jours ouvrables', etaMinutes: 2_880, feePct: 0, limitPerDay: 25_000 },
-  { id: 'src_etransfer', kind: 'etransfer', label: 'e-Transfer', mask: 'aissatou.ndiaye@exemple.ca', eta: 'Quelques minutes', etaMinutes: 15, feePct: 0, limitPerDay: 3_000 },
-  { id: 'src_wire', kind: 'wire', label: 'Virement bancaire', mask: 'Instructions fournies', eta: '1 à 2 jours ouvrables', etaMinutes: 1_440, feePct: 0, limitPerDay: 100_000 },
-  { id: 'src_card', kind: 'card', label: 'Carte de débit', mask: '···· 2210', eta: 'Instantané', etaMinutes: 0, feePct: 0.0, limitPerDay: 1_000 },
+  { id: 'src_bank', kind: 'bank', label: 'Banque liée', mask: 'Compte chèque ···· 4821', eta: '1 à 3 jours ouvrables', etaMinutes: 2_880, feePct: 0, limitPerDay: Math.round(25_000 * XOF_PER_EUR) },
+  { id: 'src_etransfer', kind: 'etransfer', label: 'e-Transfer', mask: 'aissatou.ndiaye@exemple.ca', eta: 'Quelques minutes', etaMinutes: 15, feePct: 0, limitPerDay: Math.round(3_000 * XOF_PER_EUR) },
+  { id: 'src_wire', kind: 'wire', label: 'Virement bancaire', mask: 'Instructions fournies', eta: '1 à 2 jours ouvrables', etaMinutes: 1_440, feePct: 0, limitPerDay: Math.round(100_000 * XOF_PER_EUR) },
+  { id: 'src_card', kind: 'card', label: 'Carte de débit', mask: '···· 2210', eta: 'Instantané', etaMinutes: 0, feePct: 0.0, limitPerDay: Math.round(1_000 * XOF_PER_EUR) },
 ]
 
 // ---------- Profile ----------

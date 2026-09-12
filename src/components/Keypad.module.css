@@ -47,3 +47,45 @@
 }
 .key:focus-visible { box-shadow: var(--focus-ring), var(--elev-1); }
 .key:disabled { color: var(--ink-300); cursor: not-allowed; box-shadow: none; background: none; border-color: transparent; }
+
+.wrap { display: flex; flex-direction: column; gap: var(--sp-3); width: 100%; }
+
+/* The operators are quieter than the digits — they are a tool you reach for, not the
+   thing you are doing. Same lozenge, no fill until one is held. */
+.ops {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-2);
+  width: 100%;
+  max-width: 360px;
+  margin-inline: auto;
+}
+.op {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  border-radius: var(--r-pill);
+  background: none;
+  border: 1px solid transparent;
+  color: var(--ink-600);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-numeric);
+  font-family: var(--font-numeric);
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+.op:hover:not(:disabled) { color: var(--ink-900); background: var(--fill-subtle); }
+.op:focus-visible { box-shadow: var(--focus-ring); }
+.op:disabled { color: var(--ink-300); cursor: not-allowed; }
+/* Held: this is the operation waiting for its second number. */
+.opActive {
+  background: var(--key-face);
+  border-color: var(--glass-edge);
+  border-top-color: var(--glass-border);
+  box-shadow: var(--elev-1);
+  color: var(--ink-900);
+}

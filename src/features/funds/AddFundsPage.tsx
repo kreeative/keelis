@@ -30,7 +30,9 @@ const SOURCE_ICONS: Record<FundingSource['kind'], IconName> = {
   card: 'credit-card',
 }
 
-const PRESETS = [100, 250, 500, 1000]
+/* Quick amounts someone would actually deposit in francs. 1 000 F CFA is a euro and a
+   half — these were authored when the app was Canadian. */
+const PRESETS = [25_000, 50_000, 100_000, 250_000]
 
 /** Every ApiError code gets a sentence that says what to do next. */
 function depositError(err: unknown): ApiError {
@@ -61,6 +63,11 @@ export default function AddFundsPage() {
   const [sourceId, setSourceId] = useState<string | null>(null)
   const [amount, setAmount] = useState('')
   const [amountError, setAmountError] = useState<string | null>(null)
+  /* Three screens on a phone, not one: montant → aperçu → confirmation. Seeing the
+     summary while the keypad is still up means reading a total that is still changing —
+     and it pushed the recap under the fold anyway. On a large screen the whole task is one
+     form, as the kit's « optimize for devices » rule has it, so `grouped` skips the step. */
+  const [step, setStep] = useState<'amount' | 'review'>('amount')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pending, setPending] = useState(false)
   const [submitError, setSubmitError] = useState<ApiError | null>(null)
@@ -81,6 +88,7 @@ export default function AddFundsPage() {
 
   const choose = (id: string) => {
     setSourceId(id)
+    setStep('amount')
     setAmountError(null)
     setSourceError(null)
     setSubmitError(null)
@@ -147,7 +155,7 @@ export default function AddFundsPage() {
 
   return (
     <div className={styles.page}>
-      <PageHeader close back={-1} title="Ajouter des fonds" eyebrow={grouped ? undefined : `Étape ${source ? 2 : 1} sur 2`} />
+      <PageHeader close back={-1} title="Ajouter des fonds" eyebrow={grouped ? undefined : `Étape ${!source ? 1 : step === 'amount' ? 2 : 3} sur 3`} />
 
       <div className={styles.layout}>
         <div className={styles.main}>
@@ -156,7 +164,7 @@ export default function AddFundsPage() {
               <Badge tone="neutral" icon={<Icon name={SOURCE_ICONS[source.kind]} size={14} />}>
                 {source.label}
               </Badge>
-              <Button variant="ghost" onClick={() => setSourceId(null)}>
+              <Button variant="ghost" onClick={() => { setSourceId(null); setStep('amount') }}>
                 Changer
               </Button>
             </section>
@@ -229,7 +237,7 @@ export default function AddFundsPage() {
             </>
           ) : null}
 
-          {source || grouped ? (
+          {(source && (grouped || step === 'amount')) || grouped ? (
             <section className={styles.amount} aria-labelledby="funds-amount">
               <h2 id="funds-amount" className="sr-only">
                 Montant à déposer
@@ -248,16 +256,28 @@ export default function AddFundsPage() {
                     : 'La limite et le délai dépendent de la provenance choisie.'
                 }
                 error={amountError}
+                calculator
               />
+              {!grouped ? (
+                <div className={styles.stepActions}>
+                  <Button size="lg" block onClick={() => { if (validate()) setStep('review') }}>
+                    Continuer
+                  </Button>
+                </div>
+              ) : null}
             </section>
           ) : null}
         </div>
 
         <aside className={styles.aside}>
-          {source || grouped ? (
+          {(source && (grouped || step === 'review')) ? (
             <>
               <h2 className="t-section">Aperçu</h2>
               <List>
+                {/* The amount leads, because splitting the keypad off this screen took away
+                    the only place it was visible — a summary you confirm without the sum on
+                    it is worse than no summary. */}
+                <ListRow static title="Montant" value={<Money value={value} unmasked />} />
                 <ListRow static title="Source" subtitle={source?.mask} value={source ? source.label : '—'} />
                 <ListRow
                   static
@@ -276,8 +296,13 @@ export default function AddFundsPage() {
                     if (validate()) setConfirmOpen(true)
                   }}
                 >
-                  Continuer
+                  {grouped ? 'Continuer' : 'Confirmer le dépôt'}
                 </Button>
+                {!grouped ? (
+                  <Button variant="ghost" block onClick={() => setStep('amount')}>
+                    Modifier le montant
+                  </Button>
+                ) : null}
                 {source?.kind === 'wire' ? (
                   <Button variant="ghost" block onClick={() => setWireOpen(true)}>
                     Instructions de virement

@@ -3,11 +3,19 @@
  * Controlled: value is a raw string like "1234,5" (locale-agnostic internally).
  */
 import { useCallback } from 'react'
+import { cn } from '@/lib/cn'
 import { tick } from '@/lib/haptics'
+import { CALC_OPS, type CalcOp } from '@/lib/calc'
 import { Icon } from './Icon'
 import styles from './Keypad.module.css'
 
 export interface KeypadProps {
+  /** Show the four operations above the digits. */
+  operators?: boolean
+  /** Called when one is pressed; the caller owns the running calculation. */
+  onOperator?: (op: CalcOp) => void
+  /** The operator currently pending, so its key can show as held. */
+  activeOperator?: CalcOp | null
   value: string
   onChange: (next: string) => void
   /** Max decimals allowed (2 for fiat, 8 for crypto) */
@@ -37,7 +45,7 @@ export function keypadReduce(rawValue: string, key: string, opts: { maxDecimals?
   return value + key
 }
 
-export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integerOnly = false, disabled = false }: KeypadProps) {
+export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integerOnly = false, disabled = false, operators = false, onOperator, activeOperator = null }: KeypadProps) {
   const press = useCallback(
     (key: string) => {
       if (disabled) return
@@ -52,7 +60,34 @@ export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integ
   const decimal = '.'
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', integerOnly ? '' : ',', '0', 'back']
 
+  const OP_LABEL: Record<CalcOp, string> = { '+': 'Plus', '−': 'Moins', '×': 'Multiplié par', '÷': 'Divisé par' }
+
   return (
+    <div className={styles.wrap}>
+      {/* The four operations sit above the digits, as a row of their own: someone splitting
+          a bill or sending three months of rent should not have to leave for the phone's
+          calculator and come back with a number they then retype. */}
+      {operators ? (
+        <div className={styles.ops} role="group" aria-label="Opérations">
+          {CALC_OPS.map((op) => (
+            <button
+              key={op}
+              type="button"
+              className={cn(styles.op, activeOperator === op && styles.opActive)}
+              onClick={() => {
+                if (disabled) return
+                tick()
+                onOperator?.(op)
+              }}
+              disabled={disabled || !onOperator}
+              aria-label={OP_LABEL[op]}
+              aria-pressed={activeOperator === op}
+            >
+              {op}
+            </button>
+          ))}
+        </div>
+      ) : null}
     <div className={styles.pad} role="group" aria-label="Pavé numérique">
       {keys.map((k, i) =>
         k === '' ? (
@@ -70,6 +105,7 @@ export function Keypad({ value, onChange, maxDecimals = 2, maxLength = 12, integ
           </button>
         ),
       )}
+    </div>
     </div>
   )
 }
