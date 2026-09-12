@@ -16,31 +16,6 @@
 .clear:hover:not(:disabled) { background: transparent; color: var(--ink-900); }
 
 /* Tabs must be full tap targets: 44px segments inside a 52px control. */
-.tabs { min-height: var(--control-lg); }
-.tabs [role="tab"] { min-height: var(--tap); }
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-}
-.chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--tap);
-  padding-inline: var(--sp-4);
-  border-radius: var(--r-pill);
-  background: var(--surface-alt);
-  color: var(--ink-600);
-  font-size: var(--fs-small);
-  font-weight: var(--fw-medium);
-  white-space: nowrap;
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-}
-.chip:hover { color: var(--ink-900); }
-.chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-text); }
-.chip:focus-visible { box-shadow: var(--focus-ring); border-radius: var(--r-pill); }
 
 .results { min-height: 40dvh; }
 .group + .group { margin-top: var(--sp-5); }
@@ -53,7 +28,10 @@
   justify-content: space-between;
   gap: var(--sp-3);
   padding-block: var(--sp-3) var(--sp-2);
-  background: var(--surface);
+  /* The band has to be opaque — it slides under the rows — so it takes the *card's* fill,
+     not the page's. On --surface it read as a bright white bar cutting across a grey
+     ground, which is what made this screen look unfinished. */
+  background: var(--surface-alt);
   border-bottom: 1px solid var(--line);
 }
 .dayTotal {
@@ -72,3 +50,5 @@
   .tabs { width: auto; flex: 0 0 auto; }
   .chips { flex: 0 0 auto; }
 }
+
+.resultsCard { margin-top: var(--sp-4); min-width: 0; }

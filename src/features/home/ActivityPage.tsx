@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IDS } from '@/api'
 import type { Transaction } from '@/api/types'
-import { Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SegmentedControl, SkeletonRow } from '@/components'
+import { Button, Card, ChipBar, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SkeletonRow } from '@/components'
 import { TransactionRow, groupByDay, isIncoming, useTransactions } from '@/features/shared'
 import { formatDayHeading, formatNumber } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -155,26 +155,37 @@ export default function ActivityPage() {
           }
           className={styles.search}
         />
-        <SegmentedControl segments={DIRECTIONS} value={direction} onChange={setDirection} label="Sens des transactions" block className={styles.tabs} />
-        <div className={styles.chips} role="group" aria-label="Compte">
-          {ACCOUNTS.map((a) => {
-            const pressed = account?.value === a.value
-            return (
-              <button key={a.value} type="button" className={styles.chip} aria-pressed={pressed} onClick={() => selectAccount(pressed ? null : a.value)}>
-                {a.label}
-              </button>
-            )
-          })}
-        </div>
+        {/* One control, not two: a segmented track and a row of loose pills side by side
+            were two systems doing the same job. */}
+        <ChipBar
+          label="Filtrer l’activité"
+          value={account ? `compte:${account.value}` : `sens:${direction}`}
+          onChange={(v) => {
+            const [kind, val] = v.split(':')
+            if (kind === 'sens') {
+              selectAccount(null)
+              setDirection(val as Direction)
+            } else {
+              setDirection('all')
+              selectAccount(val as AccountParam)
+            }
+          }}
+          chips={[
+            ...DIRECTIONS.map((d) => ({ value: `sens:${d.value}`, label: d.label })),
+            ...ACCOUNTS.map((a) => ({ value: `compte:${a.value}`, label: a.label })),
+          ]}
+        />
       </div>
 
       <p className="sr-only" role="status" aria-live="polite">
         {status}
       </p>
 
-      <div className={styles.results} aria-busy={txs.loading || undefined}>
-        {body}
-      </div>
+      <Card material="solid" padding="md" elevation={1} className={styles.resultsCard}>
+        <div className={styles.results} aria-busy={txs.loading || undefined}>
+          {body}
+        </div>
+      </Card>
     </div>
   )
 }

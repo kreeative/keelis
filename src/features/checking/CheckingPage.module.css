@@ -107,7 +107,8 @@
   z-index: 2;
   display: block;
   padding-block: var(--sp-3) var(--sp-2);
-  background: var(--surface);
+  /* Same as Activité: the sticky band takes the card's fill, not the page's. */
+  background: var(--surface-alt);
   border-bottom: 1px solid var(--line);
 }
 

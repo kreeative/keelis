@@ -211,7 +211,7 @@ export default function CheckingPage() {
             {status}
           </p>
 
-          <Card padding="md" elevation={1} className={styles.resultsCard}>
+          <Card material="solid" padding="md" elevation={1} className={styles.resultsCard}>
             <div className={styles.results}>{body}</div>
           </Card>
         </section>
