@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, PriceHistory } from '@/api/types'
-import { AmountDisplay, AppBar, Button, Card, Chart, EmptyState, ErrorState, Icon, List, QuickActions, SectionHeader, SegmentedControl, SkeletonRow } from '@/components'
+import { AmountDisplay, AppBar, Button, Card, Chart, EmptyState, ErrorState, Icon, List, SectionHeader, SegmentedControl, SkeletonRow } from '@/components'
 import { TransactionRow, useAccounts, useTransactions } from '@/features/shared'
 import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useDesktop, useQuery, useSettings } from '@/store'
@@ -69,11 +69,6 @@ export default function HomePage() {
     <div className={styles.page}>
       <div className={styles.layout}>
         <div className={styles.main}>
-          {/* The bar carries the greeting below 768px; from there up the rail carries the
-              bell and the profile, so the greeting comes back as the page's own heading.
-              Only one of the two is ever in the accessibility tree. */}
-          <AppBar title={hello} />
-
           <header className={styles.head}>
             <h1 className={`t-h2 ${styles.greeting}`}>{hello}</h1>
             <div className={styles.headActions}>
@@ -86,27 +81,40 @@ export default function HomePage() {
             </div>
           </header>
 
-          {/* Balance, movement and the period control are one thing, so they sit on one
-              surface rather than floating loose on the page. */}
-          <Card padding="lg" className={styles.balanceCard}>
-            <section className={styles.hero} aria-busy={accounts.loading || undefined}>
-              <div className={styles.heroTop}>
-                <p className="t-name">Solde total</p>
-                <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
-                  <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
-                </Button>
-              </div>
-              {accounts.error && !accounts.data ? (
-                <ErrorState compact error={accounts.error} onRetry={() => void accounts.refetch()} />
-              ) : (
-                <AmountDisplay value={heroValue} delta={heroDelta} deltaPct={heroPct} period={hover ? undefined : period?.period} caption={heroCaption} />
-              )}
-            </section>
+          {/* The canvas: a dark island that holds the balance, the two actions people
+              actually take, and the curve. It redefines the tokens its children read, so
+              everything inside behaves as it would on a dark theme. */}
+          <section className={styles.canvas} aria-busy={accounts.loading || undefined}>
+            {/* The bar lives on the canvas, not above it: the bell and the avatar belong
+                to the dark ground. Below 768px it carries the greeting; from there up the
+                rail carries those links and the greeting is the page's own heading. */}
+            <AppBar title={hello} className={styles.canvasBar} />
 
-            <section className={styles.chartBlock} aria-label="Évolution du solde total">
+            <div className={styles.heroTop}>
+              <p className={styles.canvasLabel}>Solde total</p>
+              <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
+                <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
+              </Button>
+            </div>
+            {accounts.error && !accounts.data ? (
+              <ErrorState compact error={accounts.error} onRetry={() => void accounts.refetch()} />
+            ) : (
+              <AmountDisplay value={heroValue} delta={heroDelta} deltaPct={heroPct} period={hover ? undefined : period?.period} caption={heroCaption} />
+            )}
+
+            <div className={styles.canvasActions}>
+              <Button size="lg" icon={<Icon name="send" size={18} />} onClick={() => navigate('/envoyer')}>
+                Envoyer
+              </Button>
+              <Button size="lg" variant="secondary" icon={<Icon name="plus" size={18} />} onClick={() => navigate('/fonds')}>
+                Ajouter
+              </Button>
+            </div>
+
+            <div className={styles.chartBlock} aria-label="Évolution du solde total">
               <Chart
                 points={history.data?.points ?? []}
-                height={wide ? 220 : 148}
+                height={wide ? 190 : 132}
                 label={`Solde total, ${period?.period.toLowerCase() ?? range}`}
                 loading={history.loading && !history.data}
                 onHover={setHover}
@@ -114,26 +122,21 @@ export default function HomePage() {
                 formatTime={(t) => (range === '1D' ? formatDateTime(t, { locale }) : formatDate(t, { locale }))}
               />
               <SegmentedControl segments={RANGES.map((r) => ({ value: r.value, label: r.label }))} value={range} onChange={setRange} label="Période du graphique" size="sm" bare />
-            </section>
-          </Card>
-
-          <div className={styles.asideMobile}>
-            <AccountCards accounts={accounts.data} loading={accounts.loading} />
-            <div className={styles.holdings}>
-              <HoldingsRow />
             </div>
-          </div>
+          </section>
 
-          <QuickActions
-            className={styles.actions}
-            actions={[
-              { label: 'Ajouter des fonds', icon: <Icon name="plus" />, to: '/fonds' },
-              { label: 'Envoyer', icon: <Icon name="send" />, to: '/envoyer' },
-              { label: 'Acheter crypto', icon: <Icon name="chart-line" />, to: '/crypto' },
-            ]}
-          />
+          {/* The sheet rides up over the canvas, the way a bottom sheet does. */}
+          <div className={styles.sheet}>
+            <span className={styles.grab} aria-hidden="true" />
 
-          <section className={styles.section} aria-busy={recent.loading || undefined}>
+            <div className={styles.asideMobile}>
+              <AccountCards accounts={accounts.data} loading={accounts.loading} />
+              <div className={styles.holdings}>
+                <HoldingsRow />
+              </div>
+            </div>
+
+            <section className={styles.section} aria-busy={recent.loading || undefined}>
             <SectionHeader title="Activité récente" action={{ label: 'Tout voir', to: '/activite', icon: 'arrow-right' }} />
             {recent.loading ? (
               <Card padding="md" elevation={1}>
@@ -159,8 +162,9 @@ export default function HomePage() {
                   </Button>
                 }
               />
-            )}
-          </section>
+              )}
+            </section>
+          </div>
         </div>
 
         <aside className={styles.aside}>

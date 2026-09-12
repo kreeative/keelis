@@ -25,6 +25,12 @@
 .amountPos { color: var(--pos); }
 .amountNeg { color: var(--neg); }
 .number { min-width: 0; }
+/* Dollars carry the figure; cents are precision. 58% of the size and a step back in ink —
+   still legible, no longer competing. */
+.cents {
+  font-size: 0.58em;
+  color: var(--ink-600);
+}
 /* The currency symbol is part of the figure, not an annotation: same size, same weight,
    same ink. Only the narrow space before it is typographic — in em, so it scales with the
    type rather than staying 8px whatever the size. */

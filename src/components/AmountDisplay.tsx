@@ -47,6 +47,15 @@ export function AmountDisplay({ value, currency = 'CAD', delta, deltaPct, period
     ? formatNumber(value, { locale, maxFraction: maxFraction ?? 8, signed })
     : formatMoney(value, { locale, currency, signed }).replace(symbol, '').trim()
 
+  /* The cents are set smaller and quieter than the dollars. In a balance the dollars are
+     the figure; the cents are precision, and giving them equal weight makes the number
+     harder to read at a glance, not more exact. The split is on the locale's own decimal
+     separator, so it holds in fr-CA (comma) and en-CA (point) alike. */
+  const sep = unit ? '' : locale === 'fr-CA' ? ',' : '.'
+  const cut = sep ? number.lastIndexOf(sep) : -1
+  const whole = cut > 0 ? number.slice(0, cut) : number
+  const cents = cut > 0 ? number.slice(cut) : ''
+
   const hasDelta = delta !== undefined || deltaPct !== undefined
   const deltaTone = (deltaPct ?? delta ?? 0) > 0 ? styles.pos : (deltaPct ?? delta ?? 0) < 0 ? styles.neg : styles.flat
 
@@ -57,7 +66,14 @@ export function AmountDisplay({ value, currency = 'CAD', delta, deltaPct, period
         aria-label={masked ? 'Montant masqué' : unit ? `${number} ${unit}` : moneyAriaLabel(value, { locale, currency })}
         role="text"
       >
-        <span className={styles.number}>{masked ? MASKED : number}</span>
+        {masked ? (
+          <span className={styles.number}>{MASKED}</span>
+        ) : (
+          <span className={styles.number}>
+            {whole}
+            {cents ? <span className={styles.cents}>{cents}</span> : null}
+          </span>
+        )}
         {!unit && locale === 'fr-CA' ? <span className={styles.symbol}>{symbol}</span> : null}
         {unit ? <span className={styles.unit}>{unit}</span> : null}
       </div>

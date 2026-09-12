@@ -43,6 +43,23 @@
   --card-ink: oklch(0.97 0 0);
   --card-ink-muted: oklch(0.72 0 0);
 
+  /* ---- Canvas: a dark island inside a light page ----
+     The home hero is always dark, in both themes, the way the payment card is. Rather
+     than restyle every child, the canvas *redefines the tokens its children read* — so a
+     chart, a segmented control and a button behave correctly inside it without knowing
+     they are on dark. These are the values those tokens take there. */
+  --canvas-surface-alt: oklch(0.24 0 0);
+  --canvas-line: oklch(0.97 0 0 / 0.12);
+  --canvas-fill: oklch(0.97 0 0 / 0.14);
+  --canvas-seg-pill: oklch(0.31 0 0);
+  --canvas-pos: oklch(0.80 0.16 150);
+  --canvas-neg: oklch(0.72 0.15 27);
+  /* Glass on the canvas is a light veil on dark, not a white pane: the light-theme value
+     composites to a pale grey there and swallows the ink sitting on it. */
+  --canvas-glass: rgba(255, 255, 255, 0.08);
+  --canvas-glass-strong: rgba(255, 255, 255, 0.10);
+  --canvas-glass-border: rgba(255, 255, 255, 0.2);
+
   /* ---- Glass material ----
      Semi-transparent surface + heavy blur + a hairline top highlight where light
      strikes the edge. `-strong` is used where text density is highest. */
@@ -189,6 +206,7 @@
   --navbar-height: 44px;   /* mobile floating pill */
   --navbar-gap: 12px;      /* space between the pill and the screen edge */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 
   /* ---- Radii ---- */
   /* The kit puts every card at 16px and reserves 24px for the large container that holds

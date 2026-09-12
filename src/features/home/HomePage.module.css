@@ -14,15 +14,68 @@
 .greeting { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .headActions { display: none; gap: var(--sp-2); flex-shrink: 0; }
 
-.balanceCard { display: flex; flex-direction: column; gap: var(--sp-4); }
-.hero { display: flex; flex-direction: column; gap: var(--sp-1); }
+/* The canvas is always dark, in both themes, the way the payment card is. It does not
+   restyle its children — it redefines the tokens they read, so a chart, a segmented
+   control and a button all behave here exactly as they would on a dark theme. */
+.canvas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  /* Bleeds to the page's edges and up past its top padding, so the dark runs to the top
+     of the screen and the status bar sits on it. */
+  margin: calc(-1 * var(--sp-5)) calc(-1 * var(--gutter)) 0;
+  padding: calc(var(--safe-top) + var(--sp-3)) var(--gutter) var(--sp-7);
+  border-radius: 0 0 var(--r-sheet) var(--r-sheet);
+  background: var(--card-surface);
+  color: var(--card-ink);
+
+  --ink-900: var(--card-ink);
+  --ink-600: var(--card-ink-muted);
+  --ink-400: var(--card-ink-muted);
+  --surface: var(--card-surface);
+  --surface-alt: var(--canvas-surface-alt);
+  --line: var(--canvas-line);
+  --fill-subtle: var(--canvas-fill);
+  --seg-pill: var(--canvas-seg-pill);
+  --pos: var(--canvas-pos);
+  --neg: var(--canvas-neg);
+  --glass-bg: var(--canvas-glass);
+  --glass-bg-strong: var(--canvas-glass-strong);
+  --glass-border: var(--canvas-glass-border);
+  --glass-edge: var(--canvas-line);
+  --cta: var(--card-ink);
+  --on-cta: var(--card-surface);
+}
+.canvasBar { margin-bottom: var(--sp-2); }
+.canvasLabel { font-size: var(--fs-small); line-height: var(--lh-small); color: var(--card-ink-muted); }
+.canvasActions { display: flex; gap: var(--sp-3); }
+.canvasActions > * { flex: 1; }
+
+/* The sheet rides up over the canvas's rounded bottom. */
+.sheet {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(-1 * var(--sp-6));
+  margin-inline: calc(-1 * var(--gutter));
+  padding: var(--sp-3) var(--gutter) 0;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  background: var(--surface);
+}
+.grab {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto var(--sp-4);
+  border-radius: var(--r-pill);
+  background: var(--ink-300);
+}
 .heroTop { display: flex; align-items: center; gap: var(--sp-1); min-height: var(--tap); }
 .eye { color: var(--ink-400); }
 .eye:hover { color: var(--ink-900); }
 
-.chartBlock { display: flex; flex-direction: column; gap: var(--sp-3); align-items: flex-start; }
+.chartBlock { display: flex; flex-direction: column; gap: var(--sp-2); align-items: stretch; }
 
-.asideMobile { margin-top: var(--sp-5); }
+.asideMobile { margin-top: 0; }
 .holdings { margin-top: var(--sp-3); }
 .aside { display: none; }
 

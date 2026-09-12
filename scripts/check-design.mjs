@@ -71,7 +71,7 @@ function check(file) {
     /* Two sanctioned exceptions carry hue: --pos and --neg. Direction is the one meaning
        people read by colour before they read anything, and the asset marks are how a token
        is recognised. Everything else stays a neutral. */
-    const directional = /--(pos|neg)\s*:/.test(line)
+    const directional = /--[a-z-]*(pos|neg)\s*:/.test(line)
     const m = line.match(/oklch\(\s*[\d.]+\s+([\d.]+)/)
     if (m && Number(m[1]) > 0 && !directional) violations.push(`styles/tokens.css:${i + 1}: oklch chroma ${m[1]} — the palette is black-and-white only`)
     const rgb = line.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
