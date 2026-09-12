@@ -53,7 +53,7 @@ function GoalCard({ goal }: { goal: SavingsGoal }) {
   const pct = goalPercent(goal.current, goal.target)
   const meta = [
     formatWholePercent(pct, locale),
-    `${inlineMoney(goal.monthlyContribution, hidden, { locale, compactCents: true })} par mois`,
+    `${inlineMoney(goal.monthlyContribution, hidden, { locale })} par mois`,
     `atteint vers ${formatMonthYear(goal.estimatedDate, locale)}`,
   ].join(' · ')
   return (
@@ -62,9 +62,9 @@ function GoalCard({ goal }: { goal: SavingsGoal }) {
         <span className={styles.goalTop}>
           <span className={styles.goalName}>{goal.name}</span>
           <span className={styles.goalAmount}>
-            <Money value={goal.current} compactCents />
+            <Money value={goal.current} />
             <span className={styles.goalTarget}> / </span>
-            <Money value={goal.target} compactCents className={styles.goalTarget} />
+            <Money value={goal.target} className={styles.goalTarget} />
           </span>
         </span>
         <ProgressBar value={goalProgress(goal.current, goal.target)} label={`${goal.name} : ${pct} %`} />

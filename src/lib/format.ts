@@ -44,8 +44,10 @@ export interface MoneyOptions {
   currency?: string
   /** Show explicit sign for positive values */
   signed?: boolean
-  /** Hide the cents when the value is a whole number (default false) */
-  compactCents?: boolean
+  /** Keep the cents on a whole number — "2,00 $" rather than "2 $". Off by default:
+      ",00" carries no information, and a dozen call sites were already opting out of it
+      one at a time before this became the default. */
+  alwaysCents?: boolean
   /** Max fraction digits override */
   maxFraction?: number
 }
@@ -54,7 +56,11 @@ export interface MoneyOptions {
 export function formatMoney(value: number, opts: MoneyOptions = {}): string {
   const locale = opts.locale ?? currentLocale
   const currency = opts.currency ?? 'CAD'
-  const minimumFractionDigits = opts.compactCents && Number.isInteger(value) ? 0 : 2
+  // Decide on the value actually rendered, not the one passed in: a tiny negative is
+  // clamped to zero below, and testing the raw -0.001 for integer-ness would print it as
+  // "0,00 $" while a true zero printed "0 $".
+  const shown = Math.abs(value) < 0.005 && !opts.signed ? 0 : value
+  const minimumFractionDigits = !opts.alwaysCents && Number.isInteger(shown) ? 0 : 2
   const f = numberFormat(locale, {
     style: 'currency',
     currency,
@@ -63,8 +69,7 @@ export function formatMoney(value: number, opts: MoneyOptions = {}): string {
     maximumFractionDigits: opts.maxFraction ?? 2,
     signDisplay: opts.signed ? 'exceptZero' : 'auto',
   })
-  const abs = Math.abs(value) < 0.005 && !opts.signed ? 0 : value
-  return joinParts(f.formatToParts(abs), locale)
+  return joinParts(f.formatToParts(shown), locale)
 }
 
 /** Plain number, e.g. 12 345,6 */

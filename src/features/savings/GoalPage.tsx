@@ -291,7 +291,7 @@ function GoalDetail({ goal, free }: { goal: SavingsGoal; free: number | undefine
       />
 
       <section className={styles.hero}>
-        <AmountDisplay value={goal.current} caption={`sur ${inlineMoney(goal.target, hidden, { locale, compactCents: true })} · ${formatWholePercent(pct, locale)}`} />
+        <AmountDisplay value={goal.current} caption={`sur ${inlineMoney(goal.target, hidden, { locale })} · ${formatWholePercent(pct, locale)}`} />
         <ProgressBar value={goalProgress(goal.current, goal.target)} size="regular" label={`${goal.name} : ${pct} %`} className={styles.bar} />
       </section>
 
@@ -299,7 +299,7 @@ function GoalDetail({ goal, free }: { goal: SavingsGoal; free: number | undefine
         <div className={styles.cell}>
           <dt className="t-name">Versement mensuel</dt>
           <dd className={styles.cellValue}>
-            <Money value={goal.monthlyContribution} compactCents />
+            <Money value={goal.monthlyContribution} />
           </dd>
         </div>
         <div className={styles.cell}>
@@ -309,7 +309,7 @@ function GoalDetail({ goal, free }: { goal: SavingsGoal; free: number | undefine
         <div className={styles.cell}>
           <dt className="t-name">Restant</dt>
           <dd className={styles.cellValue}>
-            <Money value={remaining} compactCents />
+            <Money value={remaining} />
           </dd>
         </div>
       </dl>

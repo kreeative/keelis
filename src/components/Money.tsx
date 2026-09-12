@@ -19,10 +19,10 @@ export interface MoneyProps extends HTMLAttributes<HTMLSpanElement>, MoneyOption
   unmasked?: boolean
 }
 
-export function Money({ value, tone = false, unmasked = false, signed, compactCents, maxFraction, currency, className, ...rest }: MoneyProps) {
+export function Money({ value, tone = false, unmasked = false, signed, alwaysCents, maxFraction, currency, className, ...rest }: MoneyProps) {
   const { hidden, locale } = useSettings()
   const masked = hidden && !unmasked
-  const text = masked ? maskedMoney({ locale, currency }) : formatMoney(value, { locale, signed, compactCents, maxFraction, currency })
+  const text = masked ? maskedMoney({ locale, currency }) : formatMoney(value, { locale, signed, alwaysCents, maxFraction, currency })
   const label = masked ? 'Montant masqué' : moneyAriaLabel(value, { locale, currency })
   return (
     <span className={cn(styles.money, tone && value > 0 && styles.pos, tone && value < 0 && styles.neg, className)} aria-label={label} {...rest}>

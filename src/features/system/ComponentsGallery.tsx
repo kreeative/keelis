@@ -338,7 +338,7 @@ export default function ComponentsGallery() {
               <Money value={1234.56} />
               <Money value={1234.56} signed tone />
               <Money value={-89.9} tone />
-              <Money value={4200} compactCents />
+              <Money value={4200} />
             </div>
           </Example>
           <Example caption="Delta · hausse, baisse, stable">

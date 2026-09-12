@@ -46,8 +46,8 @@ describe('formatting', () => {
   })
 
   it('masks an amount written inside a sentence when balances are hidden', () => {
-    expect(inlineMoney(3_500, false, { locale: 'fr-CA', compactCents: true })).toBe(formatMoney(3_500, { locale: 'fr-CA', compactCents: true }))
-    expect(inlineMoney(3_500, true, { locale: 'fr-CA', compactCents: true })).toBe(MASKED)
+    expect(inlineMoney(3_500, false, { locale: 'fr-CA' })).toBe(formatMoney(3_500, { locale: 'fr-CA' }))
+    expect(inlineMoney(3_500, true, { locale: 'fr-CA' })).toBe(MASKED)
   })
 })
 

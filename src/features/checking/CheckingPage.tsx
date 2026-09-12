@@ -53,7 +53,7 @@ export default function CheckingPage() {
   const shown = useMemo(() => items.slice(0, visible), [items, visible])
   const groups = useMemo(() => groupByDay(shown), [shown])
   const remaining = items.length - shown.length
-  const activeFilters = useMemo(() => describeFilter(filter, (n) => formatMoney(n, { locale, compactCents: true })), [filter, locale])
+  const activeFilters = useMemo(() => describeFilter(filter, (n) => formatMoney(n, { locale })), [filter, locale])
 
   const filterKey = JSON.stringify([filter, debouncedQuery])
   useEffect(() => {

@@ -18,7 +18,7 @@ describe('formatMoney', () => {
     expect(formatMoney(-12.4, { locale: 'fr-CA', signed: true })).toBe(`-12,40${NBSP}$`)
   })
   it('never renders negative zero', () => {
-    expect(formatMoney(-0.001, { locale: 'fr-CA' })).toBe(`0,00${NBSP}$`)
+    expect(formatMoney(-0.001, { locale: 'fr-CA' })).toBe(`0${NBSP}$`)
   })
 })
 

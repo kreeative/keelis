@@ -62,7 +62,7 @@ export function AmountEntry({ value, onChange, mode = 'fiat', unit = 'CAD', seco
         <div className={styles.presets} role="group" aria-label="Montants rapides">
           {presets?.map((p) => (
             <button key={p} type="button" className={styles.chip} onClick={() => onChange(String(p))} disabled={disabled}>
-              {formatMoney(p, { locale, compactCents: true })}
+              {formatMoney(p, { locale })}
             </button>
           ))}
           {onMax ? (

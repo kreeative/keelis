@@ -97,7 +97,7 @@ export default function AddFundsPage() {
       return false
     }
     if (value > source.limitPerDay) {
-      setAmountError(`Limite quotidienne : ${formatMoney(source.limitPerDay, { locale, compactCents: true })}`)
+      setAmountError(`Limite quotidienne : ${formatMoney(source.limitPerDay, { locale })}`)
       return false
     }
     setAmountError(null)
@@ -244,7 +244,7 @@ export default function AddFundsPage() {
                 presets={PRESETS}
                 secondary={
                   source
-                    ? `Limite quotidienne : ${formatMoney(source.limitPerDay, { locale, compactCents: true })} · Délai : ${source.eta}`
+                    ? `Limite quotidienne : ${formatMoney(source.limitPerDay, { locale })} · Délai : ${source.eta}`
                     : 'La limite et le délai dépendent de la provenance choisie.'
                 }
                 error={amountError}
