@@ -30,9 +30,13 @@
 
   /* Direction is carried by the explicit sign (+ / −), the arrow glyph and weight,
      never by hue — the palette has none. */
-  --pos: oklch(0.17 0 0);             /* up */
-  --neg: oklch(0.17 0 0);             /* down */
-  --warn: oklch(0.17 0 0);            /* attention */
+  /* Direction is the second sanctioned exception to the monochrome rule, after the asset
+     marks. Both measured against the page and the card: green 5.49 / 5.10, red 5.87 /
+     5.46, well over the 4.5 floor. Colour is never the *only* carrier — the explicit sign,
+     the glyph and the weight all still say it, so a state survives a greyscale screenshot. */
+  --pos: oklch(0.50 0.13 150);        /* up */
+  --neg: oklch(0.52 0.18 27);         /* down */
+  --warn: oklch(0.17 0 0);            /* attention — stays ink; the glyph carries it */
 
   /* Card (virtual card) — deliberately the same in both modes */
   --card-surface: oklch(0.17 0 0);
@@ -230,8 +234,8 @@
   --accent-text: oklch(0.92 0 0);
   --accent-soft: oklch(0.28 0 0);
   --on-accent: oklch(0.15 0 0);
-  --pos: oklch(0.97 0 0);
-  --neg: oklch(0.97 0 0);
+  --pos: oklch(0.80 0.16 150);
+  --neg: oklch(0.72 0.15 27);
   --warn: oklch(0.97 0 0);
   --cta: oklch(0.97 0 0);
   --cta-hover: oklch(0.88 0 0);
@@ -288,8 +292,8 @@
     --accent-text: oklch(0.92 0 0);
     --accent-soft: oklch(0.28 0 0);
     --on-accent: oklch(0.15 0 0);
-    --pos: oklch(0.97 0 0);
-    --neg: oklch(0.97 0 0);
+    --pos: oklch(0.80 0.16 150);
+    --neg: oklch(0.72 0.15 27);
     --warn: oklch(0.97 0 0);
     --cta: oklch(0.97 0 0);
     --cta-hover: oklch(0.88 0 0);
