@@ -3,7 +3,7 @@
  * Prices come from useMarket() (tick every 10 s) and update in place, without animation.
  */
 import { useDeferredValue, useMemo, useState } from 'react'
-import { AmountDisplay, AppBar, AssetIcon, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
+import { AmountDisplay, AppBar, AssetIcon, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SkeletonRow, Sparkline } from '@/components'
 import type { CryptoAsset, Holding } from '@/api/types'
 import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
 import { useSettings } from '@/store'
@@ -12,12 +12,15 @@ import { monthlyTotal } from './cryptoFormat'
 import { useLiveAccount, useLiveAssets, useLiveHoldings, useLiveRecurring } from './hooks'
 import styles from './CryptoListPage.module.css'
 
-type Filter = 'all' | 'mine' | 'watched'
+type Filter = 'all' | 'mine' | 'watched' | 'gainers' | 'losers'
 
+/* A scrolling chip bar holds more ways to cut the list than three fixed segments could. */
 const FILTERS: ReadonlyArray<{ value: Filter; label: string }> = [
   { value: 'all', label: 'Tous' },
   { value: 'mine', label: 'Mes actifs' },
   { value: 'watched', label: 'Suivis' },
+  { value: 'gainers', label: 'Plus fortes hausses' },
+  { value: 'losers', label: 'Plus fortes baisses' },
 ]
 
 function normalise(s: string): string {
@@ -31,12 +34,12 @@ function normalise(s: string): string {
 function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | undefined }) {
   const { locale, hidden } = useSettings()
   const held = holding && holding.quantity > 0
-  const subtitle = held ? `${asset.symbol} · Vous détenez ${hidden ? MASKED : formatCrypto(holding.quantity, undefined, { locale })} ${asset.symbol}` : asset.symbol
+  const subtitle = held ? `${asset.name} · ${hidden ? MASKED : formatCrypto(holding.quantity, undefined, { locale })} ${asset.symbol}` : asset.name
   return (
     <ListRow
       to={`/crypto/${asset.id}`}
       leading={<AssetIcon symbol={asset.symbol} label={asset.name} />}
-      title={asset.name}
+      title={asset.symbol}
       subtitle={subtitle}
       value={
         <span className={styles.valueLine}>
@@ -46,7 +49,7 @@ function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | u
           <Money value={asset.price} unmasked />
         </span>
       }
-      valueSub={<Delta value={asset.change24hPct} suffix="24 h" />}
+      valueSub={<Delta value={asset.change24hPct} amount={asset.change24h} />}
     />
   )
 }
@@ -73,6 +76,10 @@ export default function CryptoListPage() {
     let list = assets.filter((a) => (q ? normalise(a.name).includes(q) || normalise(a.symbol).includes(q) : true))
     if (filter === 'mine') {
       list = list.filter((a) => (holdingById.get(a.id)?.quantity ?? 0) > 0).sort((a, b) => (holdingById.get(b.id)?.value ?? 0) - (holdingById.get(a.id)?.value ?? 0))
+    } else if (filter === 'gainers') {
+      list = list.slice().sort((a, b) => b.change24hPct - a.change24hPct)
+    } else if (filter === 'losers') {
+      list = list.slice().sort((a, b) => a.change24hPct - b.change24hPct)
     } else {
       if (filter === 'watched') list = list.filter((a) => a.watched)
       list = list.slice().sort((a, b) => a.rank - b.rank)
@@ -130,7 +137,7 @@ export default function CryptoListPage() {
           onChange={(e) => setQuery(e.target.value)}
           leading={<Icon name="search" size={20} />}
         />
-        <SegmentedControl segments={FILTERS} value={filter} onChange={setFilter} label="Filtrer les actifs" block className={styles.tabs} />
+        <ChipBar chips={FILTERS} value={filter} onChange={setFilter} label="Filtrer les actifs" />
       </div>
 
       <section className={styles.listSection} aria-label="Actifs" aria-busy={firstLoad || undefined}>

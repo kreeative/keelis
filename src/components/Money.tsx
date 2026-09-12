@@ -35,6 +35,9 @@ export interface DeltaProps extends HTMLAttributes<HTMLSpanElement> {
   value: number
   /** Trailing context, e.g. « 24 h », « ce mois-ci » */
   suffix?: string
+  /** The same move in dollars. Shown before the percentage, which goes in brackets —
+      a percentage alone does not say whether it was worth 4 $ or 400 $. */
+  amount?: number
   /** 'text' sits inline; 'pill' encloses it in a rounded chip, as on a stat card. */
   variant?: 'text' | 'pill'
   className?: string
@@ -44,16 +47,18 @@ export interface DeltaProps extends HTMLAttributes<HTMLSpanElement> {
  * Percentage delta. The sign is always explicit — the palette is monochrome, so direction
  * is never carried by hue.
  */
-export function Delta({ value, suffix, variant = 'text', className, ...rest }: DeltaProps) {
-  const { locale } = useSettings()
+export function Delta({ value, suffix, amount, variant = 'text', className, ...rest }: DeltaProps) {
+  const { locale, hidden } = useSettings()
   const sign = value > 0 ? '+' : value < 0 ? '−' : ''
   const abs = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(Math.abs(value))
-  const text = `${sign}${abs} %${suffix ? ` · ${suffix}` : ''}`
+  const pct = `${sign}${abs} %`
+  const money = amount === undefined ? null : hidden ? maskedMoney({ locale }) : formatMoney(amount, { locale, signed: true })
+  const text = `${money ? `${money} (${pct})` : pct}${suffix ? ` · ${suffix}` : ''}`
   const dir = value > 0 ? 'en hausse de' : value < 0 ? 'en baisse de' : 'stable'
   return (
     <span
       className={cn(styles.money, variant === 'pill' && styles.pill, value > 0 && styles.pos, value < 0 && styles.neg, className)}
-      aria-label={value === 0 ? 'stable' : `${dir} ${abs} pour cent${suffix ? ` sur ${suffix}` : ''}`}
+      aria-label={value === 0 ? 'stable' : `${dir} ${abs} pour cent${money ? `, soit ${money}` : ''}${suffix ? ` sur ${suffix}` : ''}`}
       {...rest}
     >
       {text}

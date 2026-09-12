@@ -1,0 +1,42 @@
+/* The row bleeds into the page gutter so a chip can sit half off the edge — that overflow
+   is the affordance that says the list keeps going. */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(-1 * var(--gutter));
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-1);
+  scroll-padding-inline: var(--gutter);
+}
+.bar::-webkit-scrollbar { display: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+  min-height: var(--tap);
+  padding-inline: var(--sp-4);
+  border-radius: var(--r-pill);
+  background: var(--fill-subtle);
+  /* Full ink, not --ink-600: that fill lifts the dark background enough to fail contrast,
+     and the reference draws these in full black anyway. */
+  color: var(--ink-900);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.chip:hover:not(.on) { background: var(--surface-alt); }
+.chip:active { transform: var(--press); }
+.chip:focus-visible { box-shadow: var(--focus-ring); }
+
+.on {
+  background: var(--ink-900);
+  color: var(--surface);
+}
+
+.meta { opacity: 0.6; font-weight: var(--fw-medium); }

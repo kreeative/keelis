@@ -9,6 +9,7 @@ import {
   Badge,
   Button,
   Card,
+  ChipBar,
   Chart,
   Delta,
   EmptyState,
@@ -153,6 +154,7 @@ export default function ComponentsGallery() {
   const [seg4, setSeg4] = useState('1j')
   const [on, setOn] = useState(true)
   const [choice, setChoice] = useState('interac')
+  const [chip, setChip] = useState('all')
   const [off, setOff] = useState(false)
   const [sheet, setSheet] = useState(false)
   const [pinSheet, setPinSheet] = useState(false)
@@ -455,6 +457,21 @@ export default function ComponentsGallery() {
           </Example>
           <Example caption="block · pleine largeur" wide>
             <SegmentedControl segments={[{ value: 'a', label: 'Chèque' }, { value: 'v', label: 'Épargne' }]} value={seg2} onChange={setSeg2} label="Compte" block />
+          </Example>
+          <Example caption="ChipBar · défile latéralement, pour plus de filtres qu'il n'en tient à l'écran" wide>
+            <ChipBar
+              chips={[
+                { value: 'all', label: 'Tous' },
+                { value: 'mine', label: 'Mes actifs' },
+                { value: 'watched', label: 'Suivis' },
+                { value: 'up', label: 'Plus fortes hausses' },
+                { value: 'down', label: 'Plus fortes baisses' },
+                { value: 'new', label: 'Nouveautés' },
+              ]}
+              value={chip}
+              onChange={setChip}
+              label="Exemple de filtres"
+            />
           </Example>
         </Section>
 

@@ -33,6 +33,8 @@ The marks live in `src/components/Wordmark.tsx` and come from the brand artwork
 - **Direction and status are never carried by hue.** Gains, losses, warnings and errors all resolve to `--ink-900`; the signal is the explicit sign (`+` / `−`), the directional glyph, weight and the alert icon. Keep `signed` on amounts that can go either way.
 - **`--cta` is a fill only** (ink in light, paper in dark), reserved for primary buttons; text on it is `--on-cta`. Links, ghost buttons and focus rings use `--accent`; accent text on `--accent-soft` uses `--accent-text`.
 - `--ink-300` is **not** for text (fails contrast); use `--ink-400` for labels/tertiary text.
+- **A market list is scanned by ticker.** `AssetIcon` + the symbol as the row's title, the full name in the subtitle, and `Delta` carrying `amount` so the move shows in dollars *and* percent — a percentage alone does not say whether it was worth 4 $ or 400 $.
+- **More filters than fit on a phone → `ChipBar`, not `SegmentedControl`.** The segmented control divides a fixed width between its segments, so it caps out at three or four; the chip bar is content-sized and scrolls past the gutter, and that overflowing chip is the affordance saying there is more.
 - Assets are drawn with `AssetIcon`, never a monogram `Avatar`, wherever the symbol is known. `AvatarStack` takes `assets` for the same reason.
 - No emoji. Gradients only in the token/base/AmbientGround layer. `backdrop-filter` only via `--glass-blur`.
 - Text ≥ 12px (`--fs-label`). Tap targets ≥ 44px (`--tap`).
