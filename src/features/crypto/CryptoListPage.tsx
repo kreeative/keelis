@@ -109,7 +109,7 @@ export default function CryptoListPage() {
 
   return (
     <div className={cn('page', styles.page)}>
-      <AppBar title="Crypto" />
+      <AppBar title="Actifs" />
       <Card padding="lg" className={styles.heroCard}>
         <section className={styles.hero} aria-label="Solde du compte Crypto">
           <p className="t-name">Valeur du portefeuille</p>

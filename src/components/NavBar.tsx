@@ -23,7 +23,7 @@ interface NavItem {
 /** Mobile bottom bar — 5 tabs, as specified. */
 export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/', label: 'Accueil', icon: 'house', end: true },
-  { to: '/crypto', label: 'Crypto', icon: 'chart-line', end: false },
+  { to: '/crypto', label: 'Actifs', icon: 'chart-line', end: false },
   { to: '/carte', label: 'Carte', icon: 'credit-card', end: false },
   { to: '/epargne', label: 'Épargne', icon: 'piggy-bank', end: false },
   { to: '/profil', label: 'Profil', icon: 'circle-user-round', end: false },
@@ -35,7 +35,7 @@ const RAIL_ITEMS: readonly NavItem[] = [
      reach for is the thing you cannot see. */
   { to: '/crypto', label: 'Rechercher un actif', icon: 'search', end: true },
   { to: '/', label: 'Accueil', icon: 'house', end: true },
-  { to: '/crypto', label: 'Crypto', icon: 'chart-line', end: false },
+  { to: '/crypto', label: 'Actifs', icon: 'chart-line', end: false },
   { to: '/carte', label: 'Carte', icon: 'credit-card', end: false },
   { to: '/epargne', label: 'Épargne', icon: 'piggy-bank', end: false },
   { to: '/activite', label: 'Activité', icon: 'clock', end: false },

@@ -3,22 +3,26 @@
   flex-direction: column;
   gap: var(--sp-1);
   min-width: 0;
+  /* The figure sizes itself against this, so it shrinks to the space it actually has
+     rather than to the viewport. */
+  container-type: inline-size;
 }
 .center { align-items: center; text-align: center; }
 .amount {
   display: flex;
   align-items: baseline;
-  font-size: var(--fs-display);
+  /* Never wrap: the ceiling from the character count is what keeps it on one line. */
+  white-space: nowrap;
+  font-size: min(var(--fs-display), calc(var(--amount-fit, 100) * 1cqi));
   line-height: var(--lh-display);
   letter-spacing: var(--ls-numeric);
   font-weight: var(--fw-numeric);
   font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
   color: var(--ink-900);
-  overflow-wrap: anywhere;
 }
 .h1 {
-  font-size: var(--fs-h1);
+  font-size: min(var(--fs-h1), calc(var(--amount-fit, 100) * 1cqi));
   line-height: var(--lh-h1);
   letter-spacing: var(--ls-numeric);
 }

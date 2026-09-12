@@ -2,6 +2,7 @@
  * The hero number. Amount in `display`, currency in `h2` on the same baseline,
  * optional delta line below ("+12,40 $ · +1,4 % · 24 h").
  */
+import type { CSSProperties } from 'react'
 import { DEFAULT_CURRENCY, MASKED, formatMoney, formatNumber, formatPercent, moneyAriaLabel, percentAriaLabel, splitMoney } from '@/lib/format'
 import { useSettings } from '@/store/settings'
 import { cn } from '@/lib/cn'
@@ -49,9 +50,20 @@ export function AmountDisplay({ value, currency = DEFAULT_CURRENCY, delta, delta
   const hasDelta = delta !== undefined || deltaPct !== undefined
   const deltaTone = (deltaPct ?? delta ?? 0) > 0 ? styles.pos : (deltaPct ?? delta ?? 0) < 0 ? styles.neg : styles.flat
 
+  /* A figure must never wrap. "10,792,539 XOF" broke across two lines mid-number and
+     mid-symbol, which is the one thing a hero amount cannot do.
+     Rather than measure and re-measure in JS, the character count picks a ceiling in
+     container-relative units: a tabular digit in Poppins is about 0.55em wide, so N
+     characters fit when the size is at most (100 / (N × 0.55)) cqi. The CSS takes the
+     smaller of that and the display size, so short amounts are unaffected and long ones
+     step down exactly as far as they need to. */
+  const chars = (masked ? MASKED : number).length + (symbol ? symbol.length + 1 : 0) + (unit ? unit.length + 1 : 0)
+  const fit = 100 / (chars * 0.55)
+
   return (
     <div className={cn(styles.wrap, align === 'center' && styles.center, className)}>
       <div
+        style={{ '--amount-fit': fit } as CSSProperties}
         className={cn(styles.amount, size === 'h1' && styles.h1, tone && value > 0 && styles.amountPos, tone && value < 0 && styles.amountNeg)}
         aria-label={masked ? 'Montant masqué' : unit ? `${number} ${unit}` : moneyAriaLabel(value, { locale, currency })}
         role="text"
