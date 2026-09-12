@@ -22,8 +22,12 @@
   border: 1px solid var(--glass-edge);
   border-top-color: var(--glass-border);
   box-shadow: var(--elev-1);
-  font-size: var(--fs-h2);
-  font-weight: var(--fw-h2);
+  /* A key's label is a figure, so it takes the figure's weight (500), not a heading's
+     600 — the reference's digits are light and the pad reads calmer for it. Tracking
+     stays at 0: --ls-numeric tightens a *run* of digits, and on a single glyph it only
+     shaves the right side off centre. */
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-numeric);
   font-family: var(--font-numeric);
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
