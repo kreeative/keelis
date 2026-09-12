@@ -35,7 +35,7 @@ const AMBIENT = join(ROOT, 'components/AmbientGround.module.css')
 const ASSET_ICONS = join(ROOT, 'components/AssetIcon.tsx')
 const allowedColourFiles = [TOKENS, ASSET_ICONS]
 const allowedGradientFiles = [TOKENS, BASE, AMBIENT]
-const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg|surface)\)/
+const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|elev-item|glass-rim|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg|surface)\)/
 
 function check(file) {
   const rel = relative(ROOT, file)

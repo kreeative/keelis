@@ -78,10 +78,22 @@ img, svg {
 
 /* Glass material. Composed by .glass + an elevation class. */
 .glass {
+  position: relative;
   background: var(--glass-fallback);
   border: 1px solid var(--glass-edge);
   border-top-color: var(--glass-border);
   border-radius: var(--r-card);
+}
+/* The rim rides on its own layer so it survives every elevation the surface takes — a
+   second box-shadow on the element itself would be replaced by the hover and focus
+   states, not added to them. */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: var(--glass-rim);
 }
 .glass-strong { background: var(--glass-fallback-strong); }
 

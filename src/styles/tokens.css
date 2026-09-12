@@ -50,6 +50,14 @@
   --glass-edge: rgba(0, 0, 0, 0.06);
   /* The lit corner of a pane. Layered over the translucent fill, not replacing it. */
   --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
+  /* The rim: what makes a pane read as a *piece* of glass rather than a translucent
+     rectangle. Three insets — the hard top edge where light lands, a hairline tracing the
+     whole boundary (the thickness of the material), and light pooling along the bottom
+     inner edge, which is the lensing you see at the edge of anything transparent. */
+  --glass-rim:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+    inset 0 -10px 18px -10px rgba(255, 255, 255, 0.45);
   --glass-blur: blur(24px) saturate(1.08);
   /* Opaque stand-ins for browsers without backdrop-filter, and for print. */
   /* The K disc, from the brand sheet's embossed artwork. Ink on a light page, paper on
@@ -234,6 +242,10 @@
   --glass-border: rgba(255, 255, 255, 0.16);
   --glass-edge: rgba(0, 0, 0, 0.5);
   --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
+  --glass-rim:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    inset 0 -10px 18px -10px rgba(255, 255, 255, 0.07);
   --fill-subtle: oklch(0.97 0 0 / 0.14);
   --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.185 0 0);
@@ -288,6 +300,10 @@
     --glass-border: rgba(255, 255, 255, 0.16);
     --glass-edge: rgba(0, 0, 0, 0.5);
     --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
+    --glass-rim:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+      inset 0 -10px 18px -10px rgba(255, 255, 255, 0.07);
     --fill-subtle: oklch(0.97 0 0 / 0.14);
   --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.185 0 0);

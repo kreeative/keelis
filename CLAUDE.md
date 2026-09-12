@@ -29,6 +29,7 @@ The marks live in `src/components/Wordmark.tsx` and come from the brand artwork
 
 ## Non-negotiable design rules (enforced by `scripts/check-design.mjs` and `e2e/screenshots.mjs`)
 - **All visual values come from `src/styles/tokens.css`.** Never write a colour literal, px font-size, shadow, blur or gradient in a component. Use `var(--…)`.
+- **The rim is what makes glass read as glass.** `--glass-rim` is three insets on `.glass::after`: a hard top edge where light lands, a hairline tracing the whole boundary (the material's thickness), and light pooling along the bottom inner edge — the lensing you see at the edge of anything transparent. It rides on a pseudo-element *on purpose*: a second `box-shadow` on the element itself would be replaced by the hover, active and focus states rather than added to them.
 - **Material.** Surfaces are glass: `.glass` (or `.glass-strong`) + an `.elev-*` class, or the `Card` component, which composes both. Glass = translucent background + `var(--glass-blur)` + a hairline `--glass-border` top highlight. There is an opaque `@supports` fallback; never assume backdrop-filter exists.
 - **Elevation is layered, never a single blur.** Use `--elev-1/2/3` (ambient contact + direct drop + deep lift) and `--elev-2-hover`. A hand-rolled `box-shadow` fails the design check.
 - **Tactile physics.** Interactive surfaces lift with `var(--lift)` (`translateY(-2px) scale(1.01)`) and settle with `var(--press)`; both collapse to `none` under reduced motion. Animate transform and box-shadow only.
