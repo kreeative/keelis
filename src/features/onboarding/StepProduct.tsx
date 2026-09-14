@@ -18,10 +18,15 @@ interface Product {
   to: string
 }
 
+/* No rate and no count in the copy. A number written into a sentence here is a promise
+   this screen cannot keep — it drifts the moment the seed changes, and against a real
+   back-end it would simply be someone else's rate. The screens that own those figures show
+   them. And the third product is « Actifs »: it lists African shares as well as crypto, so
+   it cannot be named after one of them. */
 const PRODUCTS: readonly Product[] = [
   { kind: 'checking', name: 'Chèque', description: 'Compte de dépense et carte virtuelle', icon: 'credit-card', to: '/carte' },
-  { kind: 'savings', name: 'Épargne', description: '4,00 % d’intérêt, sans minimum', icon: 'piggy-bank', to: '/epargne' },
-  { kind: 'crypto', name: 'Crypto', description: '8 actifs, écart affiché avant chaque achat', icon: 'chart-line', to: '/crypto' },
+  { kind: 'savings', name: 'Épargne', description: 'Compte rémunéré, sans minimum', icon: 'piggy-bank', to: '/epargne' },
+  { kind: 'crypto', name: 'Actifs', description: 'Actions africaines et crypto, écart affiché avant chaque ordre', icon: 'chart-line', to: '/crypto' },
 ]
 
 export function StepProduct() {

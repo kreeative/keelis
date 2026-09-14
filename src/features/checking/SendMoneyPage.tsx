@@ -2,10 +2,10 @@
  * Envoyer de l’argent : e-Transfer, virement interne (vers l’Épargne) ou virement bancaire.
  * Montant → confirmation détaillée (frais et délai explicites) → succès.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
-import { TRANSFER_HANDLE_LABEL } from '@/api/labels'
+import { handleField } from './handle'
 import { ApiError, type MoneyMovementResult, type TransferProvider } from '@/api/types'
 import { Button, Field, Icon, ListRow, Money, PageHeader, SegmentedControl } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useAccountId } from '@/features/shared'
@@ -22,7 +22,6 @@ const MODES: ReadonlyArray<{ value: Mode; label: string; title: string; eta: str
   { value: 'bancaire', label: 'Bancaire', title: 'Virement bancaire', eta: '1 à 2 jours ouvrables', description: '1 à 2 jours ouvrables, vers une autre institution.' },
 ]
 
-const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
 /* Each IBAN failure gets its own sentence. "IBAN invalide" on a number someone has copied
    off a statement tells them nothing about where to look. */
@@ -68,9 +67,19 @@ export default function SendMoneyPage() {
      be a page of its own without this form having to hold its state. */
   const providers = useQuery<TransferProvider[]>(QK.transferProviders, () => api.transfers.providers())
   const operator = providers.data?.find((p) => p.id === params.get('operateur')) ?? null
+  const field = handleField(operator?.handle)
+  /* Switching rails changes what the field *is*. Keeping « nom@exemple.sn » in a box now
+     labelled « Numéro de téléphone » would hand the person an error they did not cause. */
+  const lastHandle = useRef(operator?.handle)
+  useEffect(() => {
+    if (lastHandle.current === operator?.handle) return
+    lastHandle.current = operator?.handle
+    setContact('')
+    setContactError(null)
+  }, [operator?.handle])
 
   const [name, setName] = useState(params.get('name') ?? '')
-  const [email, setEmail] = useState(params.get('to') ?? '')
+  const [contact, setContact] = useState(params.get('to') ?? '')
   const [note, setNote] = useState('')
   // Bank coordinates, for the wire branch only.
   const [iban, setIban] = useState('')
@@ -80,7 +89,7 @@ export default function SendMoneyPage() {
   const [amount, setAmount] = useState(() => toKeypadValue(params.get('montant') ?? ''))
 
   const [nameError, setNameError] = useState<string | null>(null)
-  const [emailError, setEmailError] = useState<string | null>(null)
+  const [contactError, setContactError] = useState<string | null>(null)
   const [amountError, setAmountError] = useState<string | null>(null)
   const [needsFunds, setNeedsFunds] = useState(false)
 
@@ -90,7 +99,7 @@ export default function SendMoneyPage() {
   const [result, setResult] = useState<{ movement: MoneyMovementResult; recipient: string; amount: number } | null>(null)
 
   const value = useMemo(() => parseAmountInput(amount), [amount])
-  const recipientLabel = internal ? 'Compte Épargne' : name.trim() || (wire ? formatIban(iban) : email.trim())
+  const recipientLabel = internal ? 'Compte Épargne' : name.trim() || (wire ? formatIban(iban) : contact.trim())
 
   const setMode = (next: Mode) => {
     setParams(
@@ -102,7 +111,7 @@ export default function SendMoneyPage() {
       { replace: true },
     )
     setNameError(null)
-    setEmailError(null)
+    setContactError(null)
     setSendError(null)
   }
 
@@ -134,10 +143,10 @@ export default function SendMoneyPage() {
         ok = false
       } else setBicError(null)
     } else if (!internal) {
-      if (!EMAIL_RE.test(email.trim())) {
-        setEmailError('Entrez une adresse courriel valide.')
+      if (!field.test(contact)) {
+        setContactError(field.error)
         ok = false
-      } else setEmailError(null)
+      } else setContactError(null)
     }
     if (!(value > 0)) {
       setAmountError('Entrez un montant.')
@@ -160,7 +169,7 @@ export default function SendMoneyPage() {
       const movement = await api.transfers.send({
         fromAccountId: account.data.id,
         toAccountId: internal ? savingsId : undefined,
-        recipient: internal ? undefined : { name: name.trim(), email: wire ? undefined : email.trim(), iban: wire ? normalizeIban(iban) : undefined, bic: wire ? bic.trim().toUpperCase() : undefined },
+        recipient: internal ? undefined : { name: name.trim(), email: wire ? undefined : contact.trim(), iban: wire ? normalizeIban(iban) : undefined, bic: wire ? bic.trim().toUpperCase() : undefined },
         amount: value,
         note: note.trim() || undefined,
         method: internal ? 'internal' : mode === 'bancaire' ? 'wire' : 'operator',
@@ -171,7 +180,7 @@ export default function SendMoneyPage() {
       const apiErr = err instanceof ApiError ? err : new ApiError('L’envoi n’a pas pu être effectué.', 'unknown')
       if (apiErr.details?.email) {
         setConfirmOpen(false)
-        setEmailError(apiErr.details.email)
+        setContactError(apiErr.details.email)
       } else if (apiErr.code === 'insufficient_funds') {
         setConfirmOpen(false)
         setAmountError(apiErr.message)
@@ -293,18 +302,21 @@ export default function SendMoneyPage() {
                 />
               </>
             ) : (
+              /* Label, keyboard, autocomplete, placeholder and check all come from the
+                 operator's own handle — see `handle.ts`. */
               <Field
-                label={operator ? TRANSFER_HANDLE_LABEL[operator.handle] : 'Courriel'}
-                type="email"
-                inputMode="email"
-                autoComplete="email"
+                label={field.label}
+                type={field.type}
+                inputMode={field.inputMode}
+                autoComplete={field.autoComplete}
                 spellCheck={false}
-                placeholder="nom@exemple.sn"
-                value={email}
-                error={emailError ?? undefined}
+                placeholder={field.placeholder}
+                hint={field.hint}
+                value={contact}
+                error={contactError ?? undefined}
                 onChange={(e) => {
-                  setEmail(e.target.value)
-                  setEmailError(null)
+                  setContact(e.target.value)
+                  setContactError(null)
                 }}
               />
             )}
@@ -325,6 +337,7 @@ export default function SendMoneyPage() {
             setAmountError(null)
             setNeedsFunds(false)
           }}
+          calculator
           presets={[5_000, 10_000, 25_000, 50_000]}
           onMax={balance !== undefined ? () => setAmount(toKeypadValue(balance)) : undefined}
           secondary={balance !== undefined ? `Disponible : ${formatMoney(balance, { locale })}` : undefined}
@@ -356,10 +369,10 @@ export default function SendMoneyPage() {
         hero={<Money value={value} unmasked />}
         heroCaption={`À ${recipientLabel}`}
         lines={[
-          /* On a wire the line under the name is the IBAN, not an email: it is the one thing
+          /* On a wire the line under the name is the IBAN, not the operator handle: it is the one thing
              worth re-reading before the money leaves, and it is what the recipient's bank
              will act on if the name and the account disagree. */
-          { label: internal ? 'Vers' : 'Destinataire', value: recipientLabel, hint: internal ? undefined : wire ? formatIban(iban) : email.trim() },
+          { label: internal ? 'Vers' : 'Destinataire', value: recipientLabel, hint: internal ? undefined : wire ? formatIban(iban) : contact.trim() },
           ...(wire ? [{ label: 'BIC / SWIFT', value: bic.trim().toUpperCase() }] : []),
           { label: 'Méthode', value: config.title },
           { label: 'Montant', value: <Money value={value} unmasked /> },

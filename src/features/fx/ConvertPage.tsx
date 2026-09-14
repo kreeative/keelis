@@ -39,12 +39,19 @@ export default function ConvertPage() {
    * round — 655,96 against 663,92 francs to the euro — the same spread is plainly there.
    * This is how a bureau de change writes it on the board, and for the same reason.
    */
-  const rateLine = (rate: number) => {
+  const rateLine = (rate: number, exact = false) => {
     const invert = rate < 1
     const shown = invert ? 1 / rate : rate
     const [a, b] = invert ? [to, from] : [from, to]
-    return `1 ${a} = ${formatNumber(shown, { locale, maxFraction: shown < 10 ? 4 : 2 })} ${b}`
+    /* The peg is exact, and rounding it to 655.96 quietly contradicts the sentence beside
+       it. Three decimals for that one pair; everything else is a quote, and a quote does
+       not deserve a precision it does not have. */
+    const maxFraction = exact ? 3 : shown < 10 ? 4 : 2
+    return `1 ${a} = ${formatNumber(shown, { locale, maxFraction, minFraction: exact ? 3 : 0 })} ${b}`
   }
+  /* Exact only for the pair the treaty fixes: a CFA franc against the euro. XOF→USD runs
+     through that peg but is not itself fixed, so it stays a quote. */
+  const exactPeg = (CURRENCIES[from].pegged === true && to === 'EUR') || (CURRENCIES[to].pegged === true && from === 'EUR')
   const rateText = rateLine(q.rate)
 
   const swap = () => {
@@ -103,7 +110,7 @@ export default function ConvertPage() {
         <StatGrid
           label="Détail de la conversion"
           stats={[
-            { label: 'Taux du marché', value: rateLine(q.midRate) },
+            { label: 'Taux du marché', value: rateLine(q.midRate, exactPeg) },
             { label: 'Taux appliqué', value: rateText },
             { label: `Marge (${formatNumber(q.spread * 100, { locale, maxFraction: 2 })} %)`, value: money(q.feeIn, from) },
             { label: 'Vous recevez', value: money(q.amountOut, to) },

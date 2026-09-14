@@ -43,7 +43,7 @@ const FAQ: ReadonlyArray<Faq> = [
   {
     id: 'interets',
     q: 'Quand les intérêts sont-ils versés ?',
-    a: 'Le taux annuel est de 4,00 %. Les intérêts se calculent chaque jour sur le solde et sont versés le premier jour de chaque mois, directement dans votre compte Épargne.',
+    a: 'Les intérêts se calculent chaque jour sur le solde et sont versés le premier jour de chaque mois, directement dans votre compte Épargne. Le taux annuel en vigueur est affiché sur l’écran Épargne.',
   },
   {
     id: 'envoi-crypto',
