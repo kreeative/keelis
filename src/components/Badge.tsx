@@ -23,7 +23,7 @@ const TONE_ICON: Record<BadgeTone, IconName> = {
   neg: 'circle-alert',
 }
 
-/** Pill badge: « Vérifié », « En attente », « APY 4,00 % » */
+/** Pill badge: « Vérifié », « En attente », « 4,00 % par an » */
 export function Badge({ tone = 'accent', icon, size = 'sm', className, children, ...rest }: BadgeProps) {
   const glyph = size === 'xs' ? null : icon === true ? <Icon name={TONE_ICON[tone]} /> : icon
   return (

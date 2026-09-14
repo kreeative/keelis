@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { MASKED, formatMoney } from '@/lib/format'
-import { dateInMonths, estimateInterest, formatApy, formatMonthYear, formatWholePercent, goalPercent, goalProgress, inlineMoney, monthsToTarget, sanitizeAmountInput, toKeypadRaw, unallocated } from './savingsUtils'
+import { MASKED, formatMoney, formatRate } from '@/lib/format'
+import { dateInMonths, estimateInterest, formatMonthYear, formatWholePercent, goalPercent, goalProgress, inlineMoney, monthsToTarget, sanitizeAmountInput, toKeypadRaw, unallocated } from './savingsUtils'
 
 describe('goal maths', () => {
   it('counts the months left, rounding up', () => {
@@ -39,9 +39,17 @@ describe('interest projection', () => {
 })
 
 describe('formatting', () => {
-  it('writes the APY with two decimals and the month in French', () => {
-    expect(formatApy(4, 'fr-SN')).toBe('4.00 %')
-    expect(formatWholePercent(52.86, 'fr-SN')).toBe('53 %')
+  it('writes the rate with two decimals and the month in French', () => {
+    /* Never « APY »: an American acronym that means nothing to somebody reading French in
+       Dakar, and the wrong word anyway — it promises a compounded yield where this pays a
+       simple daily rate credited monthly. It reads « 4,00 % par an » at every call site, and
+       lives in `lib/format` so the account row and the savings page cannot write the same
+       rate two ways. */
+    /* U+00A0, and it has to be: the constant behind this was named NBSP and held an
+       ordinary space, so « 53 % » could break across two lines between the figure and its
+       sign. A literal typed with the keyboard's space would still pass that. */
+    expect(formatRate(4, 'fr-SN')).toBe('4.00\u00a0%')
+    expect(formatWholePercent(52.86, 'fr-SN')).toBe('53\u00a0%')
     expect(formatMonthYear(new Date(2027, 3, 1), 'fr-SN')).toBe('avril 2027')
   })
 

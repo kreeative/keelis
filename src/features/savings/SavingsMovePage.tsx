@@ -9,10 +9,10 @@ import { api } from '@/api'
 import type { ApiError, MoneyMovementResult } from '@/api/types'
 import { Button, Money, PageHeader } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useAccountId, useSavings, useTransaction } from '@/features/shared'
-import { formatMoney, parseAmountInput } from '@/lib/format'
+import { formatMoney, formatRate, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
-import { estimateInterest, floorTo, formatApy, toKeypadRaw } from './savingsUtils'
+import { estimateInterest, floorTo, toKeypadRaw } from './savingsUtils'
 import styles from './SavingsMovePage.module.css'
 
 type Direction = 'deposit' | 'withdraw'
@@ -185,8 +185,8 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
         ]}
         note={
           deposit
-            ? `Aucuns frais. Au taux actuel de ${formatApy(apy, locale)}, ce dépôt rapporte environ ${formatMoney(interest, { locale })} sur 12 mois.`
-            : `Aucuns frais. Les fonds retirés cessent de rapporter le taux de ${formatApy(apy, locale)}.`
+            ? `Aucuns frais. Au taux actuel de ${formatRate(apy, locale)}, ce dépôt rapporte environ ${formatMoney(interest, { locale })} sur 12 mois.`
+            : `Aucuns frais. Les fonds retirés cessent de rapporter le taux de ${formatRate(apy, locale)}.`
         }
         confirmLabel={deposit ? 'Confirmer le dépôt' : 'Confirmer le retrait'}
         onConfirm={() => void onConfirm()}

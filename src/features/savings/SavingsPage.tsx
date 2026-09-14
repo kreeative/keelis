@@ -8,9 +8,9 @@ import { api } from '@/api'
 import type { ChartRange, PriceHistory, PricePoint, SavingsGoal } from '@/api/types'
 import { AmountDisplay, AppBar, Badge, Button, Card, Chart, EmptyState, ErrorState, Icon, List, Money, ProgressBar, QuickActions, SectionHeader, SegmentedControl, Skeleton, SkeletonRow } from '@/components'
 import { TransactionRow, useAccount, useAccountId, useGoals, useSavings, useTransactions } from '@/features/shared'
-import { MASKED, formatDate, formatDateTime, formatMoney } from '@/lib/format'
+import { MASKED, formatDate, formatDateTime, formatMoney, formatRate } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
-import { formatApy, formatMonthYear, formatWholePercent, goalPercent, goalProgress, inlineMoney, unallocated } from './savingsUtils'
+import { formatMonthYear, formatWholePercent, goalPercent, goalProgress, inlineMoney, unallocated } from './savingsUtils'
 import { useMediaQuery } from './hooks'
 import styles from './SavingsPage.module.css'
 
@@ -153,7 +153,7 @@ export default function SavingsPage() {
             <section className={styles.hero} aria-busy={savings.loading || undefined}>
               <div className={styles.heroTop}>
                 <p className="t-name">Solde</p>
-                {apy !== undefined ? <Badge tone="accent">{`APY ${formatApy(apy, locale)}`}</Badge> : null}
+                {apy !== undefined ? <Badge tone="accent">{`${formatRate(apy, locale)} par an`}</Badge> : null}
                 <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
                   <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
                 </Button>

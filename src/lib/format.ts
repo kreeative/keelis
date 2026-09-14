@@ -370,3 +370,19 @@ export function formatAmountInput(raw: string, locale: Locale = currentLocale): 
   // One decimal mark app-wide, same as joinParts.
   return fracPart === undefined ? grouped : `${grouped}.${fracPart}`
 }
+
+/**
+ * « 4,00 % » — the savings rate, always to two decimals.
+ *
+ * Here rather than in `features/savings/` because two screens show it now, and the one that
+ * did not — the account row on Accueil — was writing « 4.0 % » with `formatPercent` while the
+ * savings page wrote « 4,00 % ». The same rate, two ways, on two screens a tap apart.
+ *
+ * It is written « … par an » wherever it appears, never « APY ». That acronym is American,
+ * means nothing to somebody reading French in Dakar, and is the wrong word besides: it
+ * promises a *compounded* yield, while what this pays is a simple daily rate on the balance,
+ * credited monthly. Saying « 4,00 % par an » needs no glossary and happens to be true.
+ */
+export function formatRate(rate: number, locale?: Locale): string {
+  return `${formatNumber(rate, { locale: locale ?? currentLocale, minFraction: 2, maxFraction: 2 })}${NBSP}%`
+}

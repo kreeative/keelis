@@ -56,12 +56,10 @@ export function inlineMoney(value: number, hidden: boolean, opts: MoneyOptions =
 
 // ---------- Percentages ----------
 
-const NBSP = ' '
+/* A real no-break space. This constant was named NBSP and held U+0020 — an ordinary space —
+   so « 53 % » could break across two lines between the figure and its sign. */
+const NBSP = ' '
 
-/** « 4,00 % » — the APY badge (always two decimals). */
-export function formatApy(apy: number, locale: Locale): string {
-  return `${formatNumber(apy, { locale, minFraction: 2, maxFraction: 2 })}${NBSP}%`
-}
 
 /** « 53 % » — goal progress (whole percent). */
 export function formatWholePercent(value: number, locale: Locale): string {
