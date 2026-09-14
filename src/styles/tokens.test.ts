@@ -1,9 +1,11 @@
 /**
  * The palette, checked where a comment cannot check itself.
  *
- * `scripts/check-design.mjs` polices the band and the chroma budget. These are the two
- * things it cannot see: that the dark theme is written twice and the copies agree, and that
- * the `theme-color` in `index.html` is still the colour it claims to be measured from.
+ * `scripts/check-design.mjs` polices the band and the chroma budget. These are the things it
+ * cannot see: that the dark theme is written twice and the copies agree, that the
+ * `theme-color` in `index.html` is still the colour it claims to be measured from, and that
+ * `DESIGN.md`'s contrast table still describes the tokens rather than a palette they used to
+ * have.
  */
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -99,5 +101,59 @@ describe('index.html’s theme-color is the colour it says it is', () => {
       dark: oklchToHex(...oklchOf(light.get('--card-surface')!)),
     }
     for (const m of themeColors) expect(m[1], `theme-color for ${m[2]}`).toBe(expected[m[2]!])
+  })
+})
+
+/** WCAG 2.x relative luminance, from an oklch triple. */
+function luminance(L: number, C: number, H: number): number {
+  const h = (H * Math.PI) / 180
+  const a = C * Math.cos(h)
+  const b = C * Math.sin(h)
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
+  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3
+  const lin = [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ].map((c) => Math.min(1, Math.max(0, c)))
+  return 0.2126 * lin[0]! + 0.7152 * lin[1]! + 0.0722 * lin[2]!
+}
+
+function ratio(a: string, b: string): number {
+  const la = luminance(...oklchOf(a))
+  const lb = luminance(...oklchOf(b))
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05)
+}
+
+describe('DESIGN.md’s contrast table describes the tokens it is about', () => {
+  /* The table was computed by hand when the palette changed, which makes every row a claim
+     with nothing keeping it true: move `--accent-soft` by 0.04 to clear a real audit failure
+     — as this palette needed — and two rows quietly become fiction. A design document that
+     is confidently wrong about contrast is worse than one that says nothing, because it is
+     the thing somebody checks *instead of* measuring. */
+  const light = declarations(CSS, ':root {\n  color-scheme: light;')
+  const dark = declarations(CSS, ':root[data-theme="dark"] {')
+  const rows = [...readFileSync(join(ROOT, 'DESIGN.md'), 'utf8').matchAll(/^\|\s*`(--[\w-]+)` sur `(--[\w-]+)`\s*\|\s*([\d,]+):1\s*\|\s*([\d,]+):1\s*\|/gm)]
+
+  it('has a table to check', () => {
+    expect(rows.length).toBeGreaterThanOrEqual(8)
+  })
+
+  it.each([
+    ['clair', light, 3],
+    ['sombre', dark, 4],
+  ] as const)('matches the computed ratios in %s', (_scheme, tokens, column) => {
+    const wrong: string[] = []
+    for (const row of rows) {
+      const [fg, bg] = [row[1]!, row[2]!]
+      // The dark block redeclares only what changes; anything else is inherited from light.
+      const resolve = (name: string) => tokens.get(name) ?? light.get(name)!
+      const actual = ratio(resolve(fg), resolve(bg))
+      const claimed = Number(row[column]!.replace(',', '.'))
+      // A tenth either way: the table is rounded to one decimal.
+      if (Math.abs(actual - claimed) > 0.1) wrong.push(`${fg} on ${bg}: table says ${claimed}, tokens give ${actual.toFixed(1)}`)
+    }
+    expect(wrong).toEqual([])
   })
 })
