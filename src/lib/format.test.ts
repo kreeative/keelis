@@ -113,14 +113,25 @@ describe('compact money', () => {
 
   it('abbreviates on length, not on value', () => {
     /* The rule is about the string running out of room, not about passing a round figure:
-       ten million francs is an ordinary balance and ten million euros is not. « 2,766,500 F
-       CFA » is fifteen characters and stays exact; one more digit does not fit beside the
-       account's name at 320px, so it abbreviates. */
+       ten million francs is an ordinary balance and ten million euros is not. */
     const plain = (v: number) => formatMoney(v, { locale: 'fr-SN', currency: 'XOF' })
-    expect(plain(2_766_500)).toHaveLength(15)
-    expect(xof(2_766_500)).toBe(plain(2_766_500))
-    expect(plain(24_325_824)).toHaveLength(16)
-    expect(xof(24_325_824)).toBe(`24.3${NB}M${NB}${FCFA}`)
+    expect(plain(999_999_999)).toHaveLength(17)
+    expect(plain(12_345_678_901)).toHaveLength(20)
+  })
+
+  it('shows millions in full, because they fit', () => {
+    /* The owner's rule: if there is room, print the figure. The budget is eighteen
+       characters, measured on the 320px row — everything below a billion francs stays
+       exact. It was fifteen, from an estimate that guessed the per-character width instead
+       of measuring it, and abbreviated figures with thirty pixels to spare. */
+    const plain = (v: number) => formatMoney(v, { locale: 'fr-SN', currency: 'XOF' })
+    for (const v of [2_766_500, 8_290_000, 13_545_512, 24_325_824, 999_999_999]) {
+      expect(xof(v), `${v} should be printed in full`).toBe(plain(v))
+    }
+  })
+
+  it('abbreviates once it genuinely will not fit', () => {
+    expect(xof(12_345_678_901)).toBe(`12.3${NB}Md${NB}${FCFA}`)
   })
 
   it('leaves a figure that fits exactly alone', () => {
@@ -131,33 +142,30 @@ describe('compact money', () => {
   })
 
   it('truncates rather than rounds, because a balance may not claim money it does not hold', () => {
-    // Half-up would print « 2 Md » for this, which is money the account does not have.
-    expect(xof(1_999_999_999)).toBe(`1.9${NB}Md${NB}${FCFA}`)
+    // Half-up would print « 20 Md » for this, which is money the account does not have.
+    expect(xof(19_999_999_999)).toBe(`19.9${NB}Md${NB}${FCFA}`)
   })
 
   it('takes its suffixes from the locale rather than a table', () => {
-    expect(xof(1_500_000_000)).toBe(`1.5${NB}Md${NB}${FCFA}`)
-    expect(xof(1_500_000_000, 'en-NG')).toBe(`${FCFA}${NB}1.5B`)
-    expect(xof(24_325_824, 'en-NG')).toBe(`${FCFA}${NB}24.3M`)
+    expect(xof(15_000_000_000)).toBe(`15${NB}Md${NB}${FCFA}`)
+    expect(xof(15_000_000_000, 'en-NG')).toBe(`${FCFA}${NB}15B`)
   })
 
   it('keeps the app’s punctuation: comma groups, point decimal', () => {
-    // The French locale would write « 24,3 M » — the app's rule overrides that everywhere.
-    expect(xof(24_325_824)).toBe(`24.3${NB}M${NB}${FCFA}`)
-    expect(xof(24_325_824)).not.toContain(',')
+    // The French locale would write « 12,3 Md » — the app's rule overrides that everywhere.
+    expect(xof(12_345_678_901)).toBe(`12.3${NB}Md${NB}${FCFA}`)
   })
 
   it('splits the same way it formats', () => {
     // These two drifted: splitMoney stripped every space literal, so the compact suffix lost
     // the gap that formatMoney kept.
-    const split = splitMoney(24_325_824, { locale: 'fr-SN', currency: 'XOF', compact: true })
-    expect(split.number).toBe(`24.3${NB}M`)
-    expect(`${split.number}${NB}${split.symbol}`).toBe(xof(24_325_824))
+    const split = splitMoney(12_345_678_901, { locale: 'fr-SN', currency: 'XOF', compact: true })
+    expect(split.number).toBe(`12.3${NB}Md`)
+    expect(`${split.number}${NB}${split.symbol}`).toBe(xof(12_345_678_901))
   })
 
   it('carries the sign on a negative', () => {
-    // The minus costs a character, so this abbreviates where the positive does not.
-    expect(xof(-24_325_824)).toContain(`24.3${NB}M`)
-    expect(xof(-24_325_824).startsWith('-')).toBe(true)
+    expect(xof(-12_345_678_901)).toContain(`12.3${NB}Md`)
+    expect(xof(-12_345_678_901).startsWith('-')).toBe(true)
   })
 })

@@ -98,15 +98,20 @@ export interface MoneyOptions {
  *
  * A value threshold would be wrong in both directions: ten million francs is an ordinary
  * balance and ten million euros is not, and the thing that actually breaks is the *string*
- * running out of room. Measured on the account row, the narrowest the app supports: 320px
- * leaves the amount about 170px beside a name, and a tabular Poppins figure at `--fs-h2` is
- * roughly 11px a character. Fifteen fits; sixteen starts eating the name.
+ * running out of room.
  *
- * So « 2,766,500 F CFA » (15) stays exact and « 24,325,824 F CFA » (16) becomes « 24.3 M »,
- * which is what the owner asked for — abbreviate when the number no longer fits, not when it
- * passes some round figure.
+ * Measured on the account row at 320px, the narrowest the app supports: the row is 254px,
+ * the widest account name 66px and the gap 16px, so the amount has **172px**, and a figure
+ * there runs about 8.75px a character. Nineteen characters fit and twenty do not; eighteen
+ * is the budget, which leaves the name 90px rather than shaving the last six pixels.
+ *
+ * That is deliberately generous, and the owner asked for it to be: **if a figure fits, it is
+ * shown in full, millions included.** Eighteen characters covers every balance below a
+ * billion francs — « 13,545,512 F CFA » is sixteen and stays exact. It was fifteen, from a
+ * first estimate of « about 170px » that guessed the per-character width instead of measuring
+ * it, and that abbreviated figures with thirty pixels of room to spare.
  */
-export const COMPACT_MAX_CHARS = 15
+export const COMPACT_MAX_CHARS = 18
 
 const COMPACT_OPTIONS: Intl.NumberFormatOptions = { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 1, roundingMode: 'trunc', minimumFractionDigits: 0 }
 
