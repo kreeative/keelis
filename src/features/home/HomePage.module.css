@@ -82,13 +82,10 @@
      the material — the card's glass, its rim and its elevation against a darker ground. */
   background: var(--sheet-ground);
   box-shadow: var(--sheet-shadow);
-  /* The aurora wash is absolutely positioned against this, and clipped by it so the
-     fields do not spill past the sheet's rounded top. */
+  /* Still clipped: the cards inside reach the sheet's rounded top, and without this their
+     square corners cut across it. */
   overflow: hidden;
 }
-/* Everything the sheet holds sits above the wash. */
-.sheet > *:not([aria-hidden='true']) { position: relative; z-index: 1; }
-.grab { position: relative; z-index: 1; }
 .grab {
   display: block;
   width: 36px;

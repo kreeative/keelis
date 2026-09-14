@@ -13,7 +13,6 @@ import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useDesktop, useQuery, useSettings } from '@/store'
 import { useSession } from '@/store/session'
 import { AccountCards } from './AccountCards'
-import { AuroraGround } from './AuroraGround'
 import { HoldingsPanel } from './HoldingsPanel'
 import styles from './HomePage.module.css'
 
@@ -133,8 +132,11 @@ export default function HomePage() {
           </section>
 
           {/* The sheet rides up over the canvas, the way a bottom sheet does. */}
+          {/* The aurora wash used to drift here: five pale coloured fields under the sheet,
+              in the light theme only. It was the one place the palette let a hue be
+              decorative, and it is the first thing to go when the brief is plain colours —
+              a slow gradient behind the content is exactly the look the owner named. */}
           <div className={styles.sheet}>
-            <AuroraGround />
             <span className={styles.grab} aria-hidden="true" />
 
             <div className={styles.asideMobile}>

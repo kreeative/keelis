@@ -4,8 +4,7 @@
  *  - no hard-coded colours outside tokens.css
  *  - elevation only through the layered --elev-* / --sheet-shadow / focus-ring tokens
  *    (a hand-rolled single-blur shadow is the thing this catches)
- *  - gradients only in the token and base layers (the ambient ground)
- *  - blur only through --glass-blur, so every glass surface matches
+ *  - no gradients at all, and no backdrop-filter: surfaces are plain fills
  *  - the palette stays in one warm family: every token's hue sits in the sanctioned band
  *  - no font-size below 12px
  *  - no emoji in source
@@ -40,10 +39,16 @@ const ASSET_ICONS = join(ROOT, 'components/AssetIcon.tsx')
    percentage in the application read « 8,01 % » beside « 346,345 F CFA ». */
 const FORMAT = join(ROOT, 'lib/format.ts')
 const allowedColourFiles = [TOKENS, ASSET_ICONS]
-// The aurora wash is a second ground layer — same category as AmbientGround: radial
-// fields behind everything, no text on them, no control in them.
-const AURORA = join(ROOT, 'features/home/AuroraGround.module.css')
-const allowedGradientFiles = [TOKENS, BASE, AMBIENT, AURORA]
+/* **No gradients, anywhere.** This used to allow them in the ground layers — the ambient
+   fields and the aurora wash — and in `--glass-sheen`, the diagonal highlight across the
+   top-left corner of every surface. The owner asked for plain colours: the sheen implies a
+   light source the screen does not have, and that is most of what made the surfaces read as
+   generated rather than designed. So there is no allowlist left. A gradient anywhere,
+   including the token layer, is now the thing this catches.
+
+   `backdrop-filter` goes with it. With the surfaces opaque there is nothing behind them to
+   blur, so a blur is pure cost — one composited layer per card — for no visible effect. */
+const allowedGradientFiles = []
 const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|elev-item|glass-rim|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg|surface)\)/
 
 function check(file) {
@@ -56,11 +61,11 @@ function check(file) {
     if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return
     if (emoji.test(line)) violations.push(`${where}: emoji found`)
     if (/new Intl\.NumberFormat/.test(line) && file !== FORMAT) violations.push(`${where}: bare Intl.NumberFormat — format numbers through src/lib/format.ts, or the app's punctuation drifts`)
-    if (/gradient\(/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: gradient outside the token/base layer`)
+    if (/gradient\(/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: gradient — surfaces are plain colours`)
     if (file.endsWith('.css')) {
       if (!allowedColourFiles.includes(file) && colourLiteral.test(line) && !/currentColor|transparent|inherit/.test(line)) violations.push(`${where}: hard-coded colour → use a token`)
       if (/box-shadow\s*:/.test(line) && !SHADOW_TOKENS.test(line) && !/box-shadow\s*:\s*none/.test(line) && file !== TOKENS) violations.push(`${where}: hand-rolled box-shadow — use the layered --elev-* tokens`)
-      if (/backdrop-filter\s*:/.test(line) && !/var\(--glass-blur\)/.test(line) && !/backdrop-filter\s*:\s*(none|blur\(2px\))/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: backdrop-filter outside --glass-blur`)
+      if (/backdrop-filter\s*:/.test(line)) violations.push(`${where}: backdrop-filter — the surfaces are opaque, so a blur costs a layer and shows nothing`)
       const fs = line.match(/font-size\s*:\s*(\d+(?:\.\d+)?)px/)
       if (fs && Number(fs[1]) < 12 && file !== TOKENS) violations.push(`${where}: font-size ${fs[1]}px < 12px`)
       const min = line.match(/(min-height|height|min-width|width)\s*:\s*(\d+)px/)
@@ -145,5 +150,5 @@ if (violations.length) {
   console.error(`Design check failed (${violations.length}):\n` + violations.map((v) => '  - ' + v).join('\n'))
   process.exit(1)
 } else {
-  console.log('Design check passed: colours, elevation, blur and gradients all come from the token layer; no emoji or sub-12px text.')
+  console.log('Design check passed: one warm family, plain fills, no gradient or blur anywhere, elevation from the token layer; no emoji or sub-12px text.')
 }

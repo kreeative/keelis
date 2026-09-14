@@ -76,39 +76,22 @@ img, svg {
   border-radius: var(--r-field);
 }
 
-/* Glass material. Composed by .glass + an elevation class. */
+/* Surfaces. Composed by .glass + an elevation class.
+   A solid fill and a hairline, and nothing else. These used to be translucent panes with a
+   heavy backdrop blur, a diagonal sheen across the top-left corner and a three-inset rim
+   glowing along every edge — the owner asked for plain colours, because that sheen implies
+   a light source the screen does not have and is most of what made the surfaces read as
+   generated. The `::after` that carried the rim is gone rather than emptied: an extra
+   painted pseudo-element on every card is not free, and there is nothing left for it to
+   draw. The class keeps its name because forty files use it. */
 .glass {
-  position: relative;
-  background: var(--glass-fallback);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-edge);
   border-top-color: var(--glass-border);
   border-radius: var(--r-card);
 }
-/* The rim rides on its own layer so it survives every elevation the surface takes — a
-   second box-shadow on the element itself would be replaced by the hover and focus
-   states, not added to them. */
-.glass::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: var(--glass-rim);
-}
-.glass-strong { background: var(--glass-fallback-strong); }
-
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass {
-    /* Fill and sheen are separate layers: the colour is the pane's translucency, the
-       image is the light catching its top-left corner. */
-    background-color: var(--glass-bg);
-    background-image: var(--glass-sheen);
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
-  }
-  .glass-strong { background-color: var(--glass-bg-strong); }
-  .glass-soft { background-color: var(--glass-bg-soft); }
-}
+.glass-strong { background: var(--glass-bg-strong); }
+.glass-soft { background: var(--glass-bg-soft); }
 
 .elev-1 { box-shadow: var(--elev-1); }
 .elev-2 { box-shadow: var(--elev-2); }

@@ -10,8 +10,6 @@
   position: absolute;
   inset: 0;
   background: var(--backdrop);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
   animation: fade var(--dur) var(--ease);
 }
 .panel {
@@ -19,8 +17,6 @@
   width: 100%;
   max-height: calc(100dvh - var(--sp-7));
   background: var(--glass-bg-strong);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
   border: 1px solid transparent;
   border-top-color: var(--glass-border);
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;

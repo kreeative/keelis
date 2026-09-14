@@ -68,33 +68,38 @@
   --canvas-glass-strong: var(--glass-bg-strong);
   --canvas-glass-border: var(--glass-border);
 
-  /* ---- Glass material ----
-     Semi-transparent surface + heavy blur + a hairline top highlight where light
-     strikes the edge. `-strong` is used where text density is highest. */
-  --glass-bg: rgba(255, 251, 242, 0.52);
-  --glass-bg-strong: rgba(255, 251, 242, 0.72);
-  --glass-bg-soft: rgba(255, 251, 242, 0.34);
-  --glass-border: rgba(255, 252, 244, 0.92);
-  /* The hairline that reads as the cut edge of the pane, under the top highlight. */
-  --glass-edge: rgba(46, 32, 18, 0.07);
-  /* The lit corner of a pane. Layered over the translucent fill, not replacing it. */
-  --glass-sheen: linear-gradient(135deg, rgba(255, 252, 244, 0.55), rgba(255, 252, 244, 0) 46%);
-  /* The rim: what makes a pane read as a *piece* of glass rather than a translucent
-     rectangle. Three insets — the hard top edge where light lands, a hairline tracing the
-     whole boundary (the thickness of the material), and light pooling along the bottom
-     inner edge, which is the lensing you see at the edge of anything transparent. */
-  --glass-rim:
-    inset 0 1px 0 rgba(255, 252, 244, 0.78),
-    inset 0 0 0 1px rgba(255, 252, 244, 0.22),
-    inset 0 -10px 18px -10px rgba(255, 252, 244, 0.45);
-  --glass-blur: blur(24px) saturate(1.08);
-  /* Opaque stand-ins for browsers without backdrop-filter, and for print. */
+  /* ---- Surfaces: plain fills ----
+     These were glass: translucent, blurred, with a diagonal sheen across the top-left
+     corner and a three-inset rim glowing along the edges. The owner asked for plain
+     colours — the sheen read as a light source the screen does not have, which is the
+     thing that made it look generated rather than designed.
+     So a surface is now a solid fill and a hairline, and nothing else. `--glass-*` keeps
+     its name because every component in the library reads these, and renaming a token
+     touched by forty files buys nothing. `--glass-sheen` and `--glass-rim` stay declared as
+     `none` because rules elsewhere still read them; `--glass-blur` is gone entirely, along
+     with every `backdrop-filter` in the library — with nothing translucent left there is
+     nothing behind a surface to blur, so it cost a composited layer per card and showed
+     nothing.
+     `-strong` is a step up, used where a surface floats over content (the nav pill, a
+     sheet); `-soft` a step down, for a control resting *in* a surface. */
+  --glass-bg: oklch(0.995 0.006 90);
+  --glass-bg-strong: oklch(0.998 0.005 90);
+  --glass-bg-soft: oklch(0.975 0.010 90);
+  --glass-border: oklch(0.90 0.016 86);
+  /* The hairline. It is what separates a surface from the one behind it now that there is
+     no blur and no shadow-catching edge doing it — so it has to stay visible in both
+     themes, a clear step from the fill rather than a whisper against it. */
+  --glass-edge: oklch(0.90 0.016 86);
+  /* Kept as `none` rather than deleted: every surface in the library reads it, and a
+     missing custom property is an invalid declaration the browser drops silently. */
+  --glass-sheen: none;
+  --glass-rim: none;
   /* The K disc, from the brand sheet's embossed artwork. Ink on a light page, paper on
      a dark one — the sheet draws both, and only the used one is ever fetched. */
   --mark-disc: url('/brand/mark-ink.png');
 
-  --glass-fallback: oklch(0.99 0.008 90);
-  --glass-fallback-strong: oklch(0.995 0.006 90);
+  --glass-fallback: oklch(0.995 0.006 90);
+  --glass-fallback-strong: oklch(0.998 0.005 90);
 
   /* ---- Elevation: layered, never a single blur ----
      ambient contact + direct drop + deep 3D lift. */
@@ -136,27 +141,16 @@
   --lift: translateY(-2px) scale(1.01);
   --press: translateY(0) scale(0.995);
 
-  /* ---- Ambient ground: the field the glass refracts ----
-     These were within 0.03–0.09 lightness of --surface, so a 72%-opaque pane over them
-     was indistinguishable from an opaque one: the material was there, the thing it was
-     supposed to refract was not. Deeper fields and a lighter pane make the translucency
-     visible — the audit measures composited contrast, so the text stays legible. */
-  /* ---- Aurora: the one place hue is decorative ----
-     The owner asked for soft colour drifting under the home page in the light theme.
-     It is the *third* sanctioned exception to the monochrome palette, and the narrowest:
-     it carries no meaning, sits only behind the home sheet, never touches text or a
-     control, and is faint enough that a greyscale screenshot loses nothing. Chroma is
-     kept low on purpose — these read as a tint on white, not as a colour field. */
-  --aurora-1: oklch(0.93 0.075 82);   /* peach  */
-  --aurora-2: oklch(0.91 0.072 52);   /* rose   */
-  --aurora-3: oklch(0.92 0.058 100);  /* lilac  */
-  --aurora-4: oklch(0.90 0.062 48);  /* aqua   */
-  --aurora-5: oklch(0.93 0.052 118);  /* mint   */
+  /* ---- The page's ground ----
+     `<AmbientGround />` paints `--surface`, which is what this token has always meant, so
+     there is nothing to declare here any more.
 
-  --ambient-1: oklch(0.745 0.035 88 / 0.92);
-  --ambient-2: oklch(0.855 0.028 90 / 0.86);
-  --ambient-3: oklch(0.700 0.040 82 / 0.88);
-  --ambient-4: oklch(0.795 0.032 86 / 0.76);
+     There used to be: `--ambient-1…4`, four overlapping radial fields kept deliberately
+     deep so a translucent pane over them read as translucent, and `--aurora-1…5`, five pale
+     coloured fields drifting under the home sheet — the one place the palette allowed a
+     decorative hue. Both went with the glass. With the surfaces plain the ambient fields
+     had nothing to refract and only showed between the cards as a soft mottling, and a slow
+     gradient behind the content is precisely the look the owner asked to be rid of. */
 
   /* Derived */
   --backdrop: oklch(0.18 0.024 66 / 0.38);
@@ -303,20 +297,13 @@
   --on-cta: oklch(0.20 0.022 68);
   --backdrop: oklch(0.10 0.016 66 / 0.58);
   --sheet-shadow: 0 -1px 40px oklch(0.08 0.014 66 / 0.38);
-  --glass-bg: rgba(46, 33, 20, 0.56);
-  --glass-bg-strong: rgba(46, 33, 20, 0.74);
-  --glass-bg-soft: rgba(35, 25, 15, 0.42);
-  --glass-border: rgba(255, 240, 208, 0.18);
-  --glass-edge: rgba(12, 8, 3, 0.5);
-  --glass-sheen: linear-gradient(135deg, rgba(255, 240, 208, 0.14), rgba(255, 240, 208, 0) 46%);
-  /* Measured off the owner's reference, sampling the nav pill's edge on all four sides:
-     the boundary hairline reads ~100 against a ground of 44 and a glass interior of 51 —
-     white at ~0.24, not the 0.07 this carried, where the edge simply vanished. The top
-     edge is the lit one; the bottom pools light back. */
-  --glass-rim:
-    inset 0 1px 0 rgba(255, 240, 208, 0.30),
-    inset 0 0 0 1px rgba(255, 240, 208, 0.22),
-    inset 0 -10px 18px -10px rgba(255, 240, 208, 0.16);
+  --glass-bg: oklch(0.255 0.026 67);
+  --glass-bg-strong: oklch(0.285 0.028 67);
+  --glass-bg-soft: oklch(0.235 0.024 68);
+  --glass-border: oklch(0.36 0.028 68);
+  --glass-edge: oklch(0.33 0.026 68);
+  --glass-sheen: none;
+  --glass-rim: none;
   --fill-subtle: oklch(0.965 0.014 92 / 0.14);
   --seg-pill: oklch(0.35 0.030 68);
   /* The canvas keeps its dark island here — the values it always had. */
@@ -331,13 +318,13 @@
   --canvas-neg: oklch(0.72 0.15 27);
   /* Glass on a dark canvas is a light veil, not a white pane: a white one composites to a
      pale grey there and swallows the ink sitting on it. */
-  --canvas-glass: rgba(255, 240, 208, 0.08);
-  --canvas-glass-strong: rgba(255, 240, 208, 0.10);
-  --canvas-glass-border: rgba(255, 240, 208, 0.22);
+  --canvas-glass: oklch(0.255 0.026 67);
+  --canvas-glass-strong: oklch(0.285 0.028 67);
+  --canvas-glass-border: oklch(0.36 0.028 68);
   --key-face: oklch(0.35 0.030 68);
   --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
-  --glass-fallback: oklch(0.245 0.024 68);
+  --glass-fallback: oklch(0.255 0.026 67);
   --glass-fallback-strong: oklch(0.285 0.028 67);
   --elev-1:
     0 1px 2px rgba(0, 0, 0, 0.24),
@@ -355,10 +342,6 @@
     0 4px 8px rgba(0, 0, 0, 0.32),
     0 16px 32px -6px rgba(0, 0, 0, 0.44),
     0 40px 72px -16px rgba(0, 0, 0, 0.58);
-  --ambient-1: oklch(0.44 0.038 70 / 0.80);
-  --ambient-2: oklch(0.24 0.026 66 / 0.70);
-  --ambient-3: oklch(0.47 0.040 72 / 0.76);
-  --ambient-4: oklch(0.34 0.032 68 / 0.64);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -384,16 +367,13 @@
     --on-cta: oklch(0.20 0.022 68);
     --backdrop: oklch(0.10 0.016 66 / 0.58);
     --sheet-shadow: 0 -1px 40px oklch(0.08 0.014 66 / 0.38);
-    --glass-bg: rgba(46, 33, 20, 0.56);
-    --glass-bg-strong: rgba(46, 33, 20, 0.74);
-    --glass-bg-soft: rgba(35, 25, 15, 0.42);
-    --glass-border: rgba(255, 240, 208, 0.18);
-    --glass-edge: rgba(12, 8, 3, 0.5);
-    --glass-sheen: linear-gradient(135deg, rgba(255, 240, 208, 0.14), rgba(255, 240, 208, 0) 46%);
-    --glass-rim:
-      inset 0 1px 0 rgba(255, 240, 208, 0.30),
-      inset 0 0 0 1px rgba(255, 240, 208, 0.22),
-      inset 0 -10px 18px -10px rgba(255, 240, 208, 0.16);
+    --glass-bg: oklch(0.255 0.026 67);
+    --glass-bg-strong: oklch(0.285 0.028 67);
+    --glass-bg-soft: oklch(0.235 0.024 68);
+    --glass-border: oklch(0.36 0.028 68);
+    --glass-edge: oklch(0.33 0.026 68);
+    --glass-sheen: none;
+    --glass-rim: none;
     --fill-subtle: oklch(0.965 0.014 92 / 0.14);
     --seg-pill: oklch(0.35 0.030 68);
     --canvas-bg: var(--card-surface);
@@ -405,13 +385,13 @@
     --canvas-seg-pill: oklch(0.35 0.030 68);
     --canvas-pos: oklch(0.80 0.16 150);
     --canvas-neg: oklch(0.72 0.15 27);
-    --canvas-glass: rgba(255, 240, 208, 0.08);
-    --canvas-glass-strong: rgba(255, 240, 208, 0.10);
-    --canvas-glass-border: rgba(255, 240, 208, 0.22);
+    --canvas-glass: oklch(0.255 0.026 67);
+    --canvas-glass-strong: oklch(0.285 0.028 67);
+    --canvas-glass-border: oklch(0.36 0.028 68);
     --key-face: oklch(0.35 0.030 68);
     --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
-  --glass-fallback: oklch(0.245 0.024 68);
+  --glass-fallback: oklch(0.255 0.026 67);
     --glass-fallback-strong: oklch(0.285 0.028 67);
     --elev-1:
       0 1px 2px rgba(0, 0, 0, 0.24),
@@ -429,10 +409,6 @@
       0 4px 8px rgba(0, 0, 0, 0.32),
       0 16px 32px -6px rgba(0, 0, 0, 0.44),
       0 40px 72px -16px rgba(0, 0, 0, 0.58);
-    --ambient-1: oklch(0.44 0.038 70 / 0.80);
-    --ambient-2: oklch(0.24 0.026 66 / 0.70);
-    --ambient-3: oklch(0.47 0.040 72 / 0.76);
-    --ambient-4: oklch(0.34 0.032 68 / 0.64);
   }
 }
 

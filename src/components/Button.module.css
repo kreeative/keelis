@@ -98,8 +98,6 @@
 
 .secondary {
   background: var(--glass-bg-strong);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
   color: var(--ink-900);
   border: 1px solid transparent;
   border-top-color: var(--glass-border);
@@ -133,8 +131,6 @@
 
 .destructive {
   background: var(--glass-bg-soft);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
   color: var(--neg);
   border: 1px solid var(--line);
 }

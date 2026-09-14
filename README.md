@@ -11,7 +11,7 @@ nigérian (en-NG) en seconde langue.
 | **Change** | seize devises, du franc CFA au rand, taux du marché et marge côte à côte |
 
 Style : une seule famille chaude — du brun profond à l'or beurre, teintes 62 à 97 — et
-Poppins, sur une matière de verre translucide. **L'or est la signature, et c'est un
+Poppins, sur des aplats pleins. **L'or est la signature, et c'est un
 aplat** : le bouton principal, la destination active dans la barre, un filtre sélectionné.
 Les surfaces restent presque neutres ; seule la rampe d'accent est saturée. Le chiffre est
 le héros — les montants sont en graisse 500 et à l'échelle d'affichage, serrés plutôt que
