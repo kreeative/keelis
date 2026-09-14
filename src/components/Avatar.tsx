@@ -7,7 +7,8 @@ export interface AvatarProps {
   /** Explicit monogram override (max 3 chars) */
   monogram?: string
   size?: number
-  tone?: 'neutral' | 'accent' | 'ink'
+  /** `mark` is for an asset without a logo; `neutral` for a person or a merchant. */
+  tone?: 'neutral' | 'accent' | 'ink' | 'mark'
   className?: string
 }
 

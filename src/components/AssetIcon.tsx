@@ -52,7 +52,7 @@ export interface AssetIconProps {
 
 export function AssetIcon({ symbol, label, size = 'md', className }: AssetIconProps) {
   const mark = MARKS[symbol.toUpperCase()]
-  if (!mark) return <Avatar label={label ?? symbol} monogram={symbol.slice(0, 3)} size={size === 'sm' ? 24 : 32} className={className} />
+  if (!mark) return <Avatar label={label ?? symbol} monogram={symbol.slice(0, 3)} tone="mark" size={size === 'sm' ? 24 : 32} className={className} />
   return (
     <span className={cn(styles.icon, styles[size], className)} role="img" aria-label={label ?? symbol}>
       <svg viewBox="0 0 32 32" aria-hidden="true">{mark}</svg>

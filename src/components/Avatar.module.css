@@ -8,6 +8,12 @@
   letter-spacing: 0.02em;
 }
 .neutral { background: var(--surface-alt); color: var(--ink-600); }
+/* An asset with no bundled logo still has to read as a *mark*, not as a counterparty's
+   initials: in a list where Bitcoin arrives in full colour, a grey ticker on a grey disc
+   made the African equities — the ones this app is principally about — look like the
+   weakest rows on the screen. Full ink and the control weight, no invented hue: a brand
+   colour we made up would be a fabricated logo. */
+.mark { background: var(--fill-subtle); color: var(--ink-900); font-weight: var(--fw-bold); }
 .accent { background: var(--accent-soft); color: var(--accent-text); }
 .ink { background: var(--ink-900); color: var(--surface); }
 .text { line-height: 1; }
