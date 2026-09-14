@@ -227,3 +227,62 @@ img, svg {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- The page behind a sheet ----
+   iOS pushes the presenting view back when a card comes up over it: it scales down a
+   little, its corners round, and it dims. It is not decoration — it is what says the thing
+   underneath is still there and still yours, rather than having been replaced by the
+   sheet. Without it a bottom sheet is a rectangle that appeared, and the app behind it is
+   just background.
+
+   **The view has to be frozen before it can be scaled**, and this is the part that is easy
+   to get wrong: a transform (or a filter — same rule) on an ancestor makes it the
+   containing block for every `position: fixed` descendant inside it. The floating nav is
+   fixed and lives in here, so scaling a 3000px-tall page would have pinned the nav to the
+   bottom of the *document* rather than the bottom of the screen, and it would have
+   disappeared off the end of the page every time a sheet opened. So while a sheet is up,
+   `.app-view` becomes the viewport itself — fixed, one screen tall, not scrolling — and
+   its content is offset by the scroll position it was at, which `Sheet` writes into
+   `--view-scroll`. Nothing moves on screen at the moment of the swap; the nav is then
+   fixed against a box that is exactly the viewport, which is what it always wanted.
+
+   Three states, not two. `open` recedes. `closing` keeps the freeze while the recession
+   animates *back*, because releasing it first would restore the document's height under a
+   still-transformed page and put the nav at the bottom of it for the length of the exit.
+   No attribute at all is the resting state, and only then is the scroll handed back. */
+.app-view {
+  transform-origin: top center;
+  transition:
+    transform var(--dur-bouncy) var(--ease-snappy),
+    filter var(--dur-smooth) var(--ease-smooth),
+    border-radius var(--dur-smooth) var(--ease-smooth);
+}
+html[data-sheet] .app-view {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+}
+/* The page keeps showing what it was showing. `--view-scroll` is negative. */
+html[data-sheet] .app-view > * { margin-top: var(--view-scroll, 0px); }
+
+html[data-sheet='open'] .app-view {
+  transform: scale(0.94) translateY(var(--sp-2));
+  border-radius: var(--r-sheet);
+  /* Brightness, not an overlay: a full-screen scrim of our own would sit between the page
+     and the sheet's own backdrop, and the two would compound into something much darker
+     than either was designed to be. */
+  filter: brightness(0.86);
+}
+/* Coming back is an exit — the page is returning, the sheet is the thing that left. */
+html[data-sheet='closing'] .app-view {
+  transition-duration: var(--dur-exit);
+  transition-timing-function: var(--ease-exit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The recession is motion for its own sake; with the movement gone, the dimming is left
+     making the page behind harder to read for nothing. */
+  html[data-sheet='open'] .app-view { transform: none; filter: none; border-radius: 0; }
+}

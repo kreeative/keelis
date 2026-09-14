@@ -15,11 +15,11 @@
   white-space: nowrap;
   user-select: none;
   transition:
-    background-color var(--dur-fast) var(--ease),
-    color var(--dur-fast) var(--ease),
-    opacity var(--dur-fast) var(--ease),
-    box-shadow var(--dur) var(--ease),
-    transform var(--dur) var(--ease);
+    background-color var(--dur-smooth) var(--ease-smooth),
+    color var(--dur-smooth) var(--ease-smooth),
+    opacity var(--dur-smooth) var(--ease-smooth),
+    box-shadow var(--dur-smooth) var(--ease-smooth),
+    transform var(--dur-snappy) var(--ease-snappy);
 }
 .btn:focus-visible {
   box-shadow: var(--focus-ring);

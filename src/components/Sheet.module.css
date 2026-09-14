@@ -10,7 +10,7 @@
   position: absolute;
   inset: 0;
   background: var(--backdrop);
-  animation: fade var(--dur) var(--ease);
+  animation: fade var(--dur-smooth) var(--ease-smooth);
 }
 .panel {
   position: relative;
@@ -24,9 +24,27 @@
   display: flex;
   flex-direction: column;
   padding: var(--sp-2) var(--gutter) calc(var(--sp-5) + var(--safe-bottom));
-  animation: rise var(--dur-slow) var(--ease);
+  /* The sheet comes in from off-screen, the way it does on iOS — not from 24px below,
+     which is a fade with a nudge and reads as a popup rather than as a surface sliding
+     up over the app.
+
+     `--ease-snappy` over `--dur-bouncy` is the app's one documented mismatched pairing,
+     and the reason is in tokens.css: a spring's overshoot is a percentage of its
+     *travel*. On a 3px control `--ease-bouncy`'s 5.4% is a third of a pixel and the
+     bounce does not exist; on a 700px sheet it is 38px and the sheet visibly jumps past
+     the top of itself. The travel here is the largest in the app, so it takes the
+     smallest bounce — 0.6%, four pixels — and the longer duration a long slide needs. */
+  animation: rise var(--dur-bouncy) var(--ease-snappy);
   outline: none;
 }
+
+/* Dismissed. There was no exit at all before this: the sheet was unmounted the instant it
+   closed, so a surface that took 690ms to arrive vanished between two frames. Going out is
+   not a spring — nothing that leaves should wobble — and it is faster than coming in,
+   because you do not wait for a thing you have already dismissed. */
+.closing .backdrop { animation: fade var(--dur-exit) var(--ease-exit) reverse both; }
+.closing .panel { animation: rise var(--dur-exit) var(--ease-exit) reverse both; }
+
 .handle {
   width: var(--handle-w);
   height: var(--handle-h);
@@ -62,11 +80,15 @@
     padding-inline: var(--sp-6);
     padding-bottom: var(--sp-6);
     max-height: calc(100dvh - var(--sp-9));
-    animation: pop var(--dur-slow) var(--ease);
+    /* A centred dialog has nowhere to slide from, so it scales. The delta is small, which
+       is exactly the case `--ease-bouncy` is wrong for — the bounce would be half a pixel.
+       It gets the same spring as everything else that answers a click. */
+    animation: pop var(--dur-snappy) var(--ease-snappy);
   }
+  .closing .panel { animation: pop var(--dur-exit) var(--ease-exit) reverse both; }
   .handle { visibility: hidden; margin-bottom: var(--sp-2); }
 }
 
-@keyframes rise { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes pop { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes rise { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes pop { from { transform: scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }

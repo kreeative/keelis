@@ -25,7 +25,7 @@
   font-weight: var(--fw-medium);
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth), color var(--dur-smooth) var(--ease-smooth), transform var(--dur-snappy) var(--ease-snappy);
 }
 .action:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent-text); }
 .action:focus-visible { box-shadow: var(--focus-ring); }

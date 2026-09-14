@@ -28,11 +28,27 @@
   box-shadow: var(--glass-rim);
 }
 .barList {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 2px;
 }
-.barItem { display: flex; }
+.barItem { display: flex; position: relative; z-index: 1; }
+
+/* The capsule itself, sliding between destinations. `--ease-snappy` with the travel of a
+   whole tab width: this is the one control in the app where the spring is plainly visible,
+   and it should be — it is the thing that says you moved. */
+.barPill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  border-radius: var(--r-pill);
+  background: var(--cta);
+  box-shadow: var(--glass-rim);
+  transition: transform var(--dur-snappy) var(--ease-snappy), width var(--dur-snappy) var(--ease-snappy);
+}
 .barLink {
   display: flex;
   align-items: center;
@@ -42,7 +58,7 @@
   height: var(--tap);
   border-radius: var(--r-pill);
   color: var(--ink-400);
-  transition: color var(--dur-fast) var(--ease), background-color var(--dur) var(--ease);
+  transition: color var(--dur-smooth) var(--ease-smooth), background-color var(--dur-smooth) var(--ease-smooth);
 }
 .barLink:hover { color: var(--ink-600); }
 .barLink:focus-visible { box-shadow: var(--focus-ring); }
@@ -52,11 +68,10 @@
    destination is solid yellow on the brown pill, and it is the first thing the eye finds on
    every screen. The rim stays: a fill with no edge reads as a smudge on the glass, on every
    one of the owner's glass references. */
-.barActive {
-  color: var(--on-cta);
-  background: var(--cta);
-  box-shadow: var(--glass-rim);
-}
+/* The fill moved to `.barPill`, which slides; what is left here is the ink that has to
+   change at the same time. It changes *fast*, because a label that fades over the capsule's
+   whole travel spends most of it as neither colour. */
+.barActive { color: var(--on-cta); transition-duration: var(--dur-press); }
 .barIcon { position: relative; display: inline-flex; }
 
 @media (max-width: 359px) {
@@ -131,7 +146,7 @@
     height: var(--tap);
     border-radius: var(--r-field);
     color: var(--ink-400);
-    transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+    transition: background-color var(--dur-smooth) var(--ease-smooth), color var(--dur-smooth) var(--ease-smooth);
   }
   .railLink:hover { background: var(--fill-subtle); color: var(--ink-900); }
   .railLink:focus-visible { box-shadow: var(--focus-ring); }
@@ -172,7 +187,7 @@
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--dur-fast) var(--ease);
+    transition: opacity var(--dur-smooth) var(--ease-smooth);
     z-index: 1;
   }
   .railLink:hover .tip,

@@ -33,9 +33,9 @@
   font-variant-numeric: tabular-nums;
   color: var(--ink-900);
   transition:
-    background-color var(--dur-fast) var(--ease),
-    box-shadow var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease);
+    background-color var(--dur-smooth) var(--ease-smooth),
+    box-shadow var(--dur-smooth) var(--ease-smooth),
+    transform var(--dur-snappy) var(--ease-snappy);
 }
 .key:hover:not(:disabled) { transform: var(--lift); box-shadow: var(--elev-2); }
 /* Pressed, the key sinks into the pad instead of lifting off it. */
@@ -43,7 +43,8 @@
   background: var(--key-press);
   transform: var(--press);
   box-shadow: none;
-  transition-duration: var(--dur-fast);
+  transition-duration: var(--dur-press);
+  transition-timing-function: var(--ease-exit);
 }
 .key:focus-visible { box-shadow: var(--focus-ring), var(--elev-1); }
 .key:disabled { color: var(--ink-300); cursor: not-allowed; box-shadow: none; background: none; border-color: transparent; }
@@ -74,9 +75,9 @@
   font-weight: var(--fw-numeric);
   font-family: var(--font-numeric);
   transition:
-    background-color var(--dur-fast) var(--ease),
-    color var(--dur-fast) var(--ease),
-    box-shadow var(--dur-fast) var(--ease);
+    background-color var(--dur-smooth) var(--ease-smooth),
+    color var(--dur-smooth) var(--ease-smooth),
+    box-shadow var(--dur-smooth) var(--ease-smooth);
 }
 .op:hover:not(:disabled) { color: var(--ink-900); background: var(--fill-subtle); }
 .op:focus-visible { box-shadow: var(--focus-ring); }

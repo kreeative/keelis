@@ -12,7 +12,7 @@
   text-align: left;
   color: var(--ink-900);
   border-radius: 0;
-  transition: background-color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth);
 }
 .interactive { cursor: pointer; }
 .interactive:hover { background: var(--surface-alt); margin-inline: calc(-1 * var(--sp-3)); padding-inline: var(--sp-3); width: auto; }

@@ -5,7 +5,8 @@
  *   middle, utilities (notifications, theme, profile) at the bottom. Labels appear as
  *   tooltips on hover/focus; every control keeps an aria-label and a 44px target.
  */
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { useSession, useSettings } from '@/store'
 import { Icon, type IconName } from './Icon'
@@ -57,8 +58,47 @@ function RailLink({ item, badge }: { item: NavItem; badge?: boolean }) {
   )
 }
 
+/**
+ * Where the gold capsule sits, in the pill's own coordinates.
+ *
+ * It used to be a background on whichever link was active, which meant that changing tab
+ * cross-faded two gold blobs through each other — for a third of a second there were two
+ * lit destinations, and then there was one. A capsule that *moves* is both truer (there is
+ * one active destination, and it went somewhere) and the single most recognisable piece of
+ * motion in an iOS tab bar. It is measured rather than computed from the index, because the
+ * links are not all the same width below 360px.
+ */
+function useActiveCapsule(deps: unknown) {
+  const list = useRef<HTMLUListElement>(null)
+  const [at, setAt] = useState<{ x: number; w: number } | null>(null)
+
+  const measure = () => {
+    const root = list.current
+    if (!root) return
+    /* The <li>, not the <a> inside it. The item is `position: relative` so it can sit
+       above the capsule, which makes it the link's own `offsetParent` — so the link's
+       `offsetLeft` is 0 on every tab, and the capsule sat under the first one for ever.
+       Measured, caught, and this is the line that was wrong. */
+    const active = root.querySelector<HTMLElement>('[aria-current="page"]')?.closest('li')
+    /* Null on a screen no tab owns — /notifications, a transaction detail. No capsule is
+       the honest answer there; parking it under a tab you are not on is not. */
+    setAt(active instanceof HTMLElement ? { x: active.offsetLeft, w: active.offsetWidth } : null)
+  }
+
+  useLayoutEffect(measure, [deps])
+  useEffect(() => {
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null
+    if (list.current && ro) ro.observe(list.current)
+    return () => ro?.disconnect()
+  }, [])
+
+  return { list, at }
+}
+
 export function NavBar({ unread = 0 }: { unread?: number }) {
   const { resolved, setTheme } = useSettings()
+  const { pathname } = useLocation()
+  const capsule = useActiveCapsule(pathname)
   const { user } = useSession()
   const navigate = useNavigate()
   const initials = user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase() : 'K'
@@ -68,7 +108,10 @@ export function NavBar({ unread = 0 }: { unread?: number }) {
     <>
       {/* Mobile: a floating pill above the content, not a bar welded to the edge. */}
       <nav className={styles.bar} aria-label="Navigation principale">
-        <ul className={styles.barList}>
+        <ul className={styles.barList} ref={capsule.list}>
+          {capsule.at ? (
+            <li className={styles.barPill} style={{ transform: `translateX(${capsule.at.x}px)`, width: capsule.at.w }} aria-hidden="true" />
+          ) : null}
           {NAV_ITEMS.map((item) => (
             <li key={item.to} className={styles.barItem}>
               <NavLink

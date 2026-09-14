@@ -34,7 +34,7 @@
   border-radius: var(--r-pill);
   background: var(--surface-alt);
   color: var(--ink-900);
-  transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth), transform var(--dur-snappy) var(--ease-snappy), box-shadow var(--dur-smooth) var(--ease-smooth);
 }
 .button:hover { background: var(--accent-soft); color: var(--accent-text); transform: var(--lift); box-shadow: var(--elev-1); }
 .button:active { transform: var(--press); }

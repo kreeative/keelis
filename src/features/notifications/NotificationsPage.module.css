@@ -47,7 +47,7 @@
   padding-block: var(--sp-3);
   text-align: left;
   color: var(--ink-900);
-  transition: background-color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth);
 }
 .row:hover {
   background: var(--surface-alt);

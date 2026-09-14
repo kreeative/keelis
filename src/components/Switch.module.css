@@ -22,7 +22,7 @@
   border-radius: 16px;
   background: var(--fill-subtle);
   border: 1px solid var(--line);
-  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth), border-color var(--dur-smooth) var(--ease-smooth);
 }
 .on {
   background: var(--ink-900);
@@ -41,7 +41,7 @@
   border-radius: var(--r-pill);
   background: var(--ink-600);
   filter: var(--elev-item);
-  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), width var(--dur) var(--ease), height var(--dur) var(--ease);
+  transition: transform var(--dur-snappy) var(--ease-snappy), background-color var(--dur-smooth) var(--ease-smooth), width var(--dur-snappy) var(--ease-snappy), height var(--dur-snappy) var(--ease-snappy);
 }
 .on .thumb {
   width: 22px;
@@ -56,6 +56,6 @@
   height: 12px;
   color: var(--ink-900);
   opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease);
+  transition: opacity var(--dur-smooth) var(--ease-smooth);
 }
 .on .check { opacity: 1; }

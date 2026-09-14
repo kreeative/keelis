@@ -19,7 +19,7 @@
 .center { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); text-align: center; margin-top: var(--sp-6); }
 .lockIcon { color: var(--ink-400); margin-bottom: var(--sp-2); }
 .dots { display: flex; gap: var(--sp-3); margin-top: var(--sp-4); }
-.dot, .dotOn { width: 12px; height: 12px; border-radius: var(--r-pill); background: var(--line); transition: background-color var(--dur-fast) var(--ease); }
+.dot, .dotOn { width: 12px; height: 12px; border-radius: var(--r-pill); background: var(--line); transition: background-color var(--dur-smooth) var(--ease-smooth); }
 .dotOn { background: var(--ink-900); }
 .error { min-height: 20px; font-size: var(--fs-small); color: var(--neg); }
 .hint { font-size: var(--fs-label); color: var(--ink-400); font-family: var(--font-mono); }

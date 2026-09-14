@@ -250,13 +250,61 @@
   --handle-w: 36px;
   --handle-h: 4px;
 
-  /* ---- Motion ---- */
-  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --dur-fast: 150ms;
-  --dur: 200ms;
-  --dur-slow: 250ms;
+  /* ---- Motion ----
+     Every curve here is a *spring*, not an ease. Apple's motion has weight because a
+     control on iOS is modelled as a mass on a damped spring released toward its target: it
+     accelerates, overshoots by a hair when it is meant to, and settles. A cubic-bezier
+     cannot overshoot at all — its control points are clamped to the unit square — so no
+     amount of fiddling with one gets there, and the app's single `cubic-bezier(0.2, 0.8,
+     0.2, 1)` was the same polite glide on all seventy-two of its call sites.
+
+     `linear()` can overshoot, because it is a list of sampled output values. These lists
+     come out of the spring equation in scripts/springs.mjs, which `pnpm check` re-runs
+     against this file — so the numbers cannot be nudged by hand into something that is no
+     longer a spring. The parameters are SwiftUI's own vocabulary, `Spring(duration:bounce:)`.
+
+     Each curve carries its own duration, and they are paired on purpose: a 350 ms spring
+     played over 150 ms compresses its overshoot into six milliseconds, which is a bezier
+     with extra steps. Use `--ease-x` with `--dur-x`.
+
+     One thing about a spring that is easy to get wrong: **the overshoot is a percentage of
+     the travel, not a distance.** `--ease-bouncy` peaks at 1.054, so on a 3px control it
+     overshoots by a sixth of a pixel and there is no bounce at all, while on a 700px sheet
+     it overshoots by 38px and the sheet visibly jumps past the top of itself. Which is why
+     the bounciest curve is not the one on the biggest motion: Sheet slides its panel with
+     `--ease-snappy` over `--dur-bouncy`, the app's one deliberate mismatch, and says so
+     where it does it. */
+  /* No overshoot. Colour, opacity, shadow — anything where a bounce would be a tic.
+     Spring: 0.24s perceptual, bounce 0; 300ms to settle.
+     Generated — run `node scripts/springs.mjs`, never edit by hand. */
+  --ease-smooth: linear(0, 0.0256, 0.0874, 0.1685, 0.2575, 0.3472, 0.433, 0.5123, 0.584, 0.6476, 0.7032, 0.7513, 0.7925, 0.8276, 0.8572, 0.8821, 0.9029, 0.9203, 0.9347, 0.9466, 0.9564, 0.9645, 0.9711, 0.9765, 0.9809, 0.9846, 0.9875, 0.9899, 0.9918, 0.9934, 0.9947, 0.9957, 1);
+  --dur-smooth: 300ms;
+  /* A hair of overshoot. A control answering a finger — this is what gives it weight.
+     Spring: 0.3s perceptual, bounce 0.15; 350ms to settle.
+     Generated — run `node scripts/springs.mjs`, never edit by hand. */
+  --ease-snappy: linear(0, 0.023, 0.0809, 0.1599, 0.2498, 0.3431, 0.4348, 0.5213, 0.6007, 0.6717, 0.7341, 0.7878, 0.8334, 0.8715, 0.9028, 0.9283, 0.9486, 0.9646, 0.977, 0.9864, 0.9933, 0.9983, 1.0018, 1.004, 1.0054, 1.0061, 1.0063, 1.0062, 1.0058, 1.0053, 1.0047, 1.0042, 1);
+  --dur-snappy: 350ms;
+  /* Visible overshoot, for something arriving: a sheet, a toast, a success state.
+     Spring: 0.5s perceptual, bounce 0.32; 690ms to settle.
+     Generated — run `node scripts/springs.mjs`, never edit by hand. */
+  --ease-bouncy: linear(0, 0.0324, 0.1139, 0.2243, 0.3481, 0.4735, 0.5923, 0.6995, 0.7919, 0.8686, 0.9296, 0.9761, 1.0098, 1.0325, 1.0462, 1.0528, 1.0542, 1.0519, 1.0471, 1.0409, 1.0341, 1.0273, 1.021, 1.0153, 1.0105, 1.0065, 1.0033, 1.0009, 0.9992, 0.9981, 0.9974, 0.9971, 1);
+  --dur-bouncy: 690ms;
+
+  /* An exit is not a spring, and this one is a bezier on purpose. Something arriving has
+     somewhere to settle; something leaving does not, and a wobble on the way out reads as
+     hesitation — Apple accelerates those away instead. Faster than any entrance, too: you
+     do not wait for a thing you have already dismissed. */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --dur-exit: 180ms;
+
+  /* Going *down* under a finger is the one motion in the app that must not spring. The
+     finger is driving it, so it accelerates and stops dead where the finger stops; a
+     control that sprang into its pressed state would be springing under a thumb that is
+     still there. Coming back up is a release, and that one springs (`--ease-snappy`),
+     which is the whole asymmetry of a physical key. */
+  --dur-press: 110ms;
   /* A figure settling, and a chart line drawing itself. Deliberately outside the 150–250 ms
-     band above, which governs *transitions* — a control answering a touch. A number
+     band a transition lives in — a control answering a touch. A number
      arriving is a different thing and reads as hurried at 250 ms. These two are the only
      motion in the app that asks to be looked at rather than getting out of the way, and
      they are on the balance and its curve, which are what the screen is for. */
@@ -432,9 +480,11 @@
 /* ---- Reduced motion: every transition/animation collapses to 0 ms ---- */
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --dur-fast: 0ms;
-    --dur: 0ms;
-    --dur-slow: 0ms;
+    --dur-smooth: 0ms;
+    --dur-snappy: 0ms;
+    --dur-bouncy: 0ms;
+    --dur-exit: 0ms;
+    --dur-press: 0ms;
     --dur-figure: 0ms;
     --dur-draw: 0ms;
     --skeleton-pulse: 0ms;

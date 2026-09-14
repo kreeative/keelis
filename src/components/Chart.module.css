@@ -45,13 +45,13 @@
 }
 .drawing .line {
   stroke-dasharray: 1;
-  animation: draw var(--dur-draw) var(--ease) forwards;
+  animation: draw var(--dur-draw) var(--ease-smooth) forwards;
 }
 /* The texture and the end dot follow the line rather than appearing under it: the area is
    something the curve casts, so it cannot arrive first. */
 .drawing .stippleArea,
 .drawing .nowDot {
-  animation: rise var(--dur-slow) var(--ease) both;
+  animation: rise var(--dur-smooth) var(--ease-smooth) both;
   animation-delay: calc(var(--dur-draw) * 0.55);
 }
 /* The area, as texture. This is the density at the top; the mask thins it with depth. */

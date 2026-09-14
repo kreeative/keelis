@@ -23,7 +23,7 @@
   text-align: center;
   word-break: break-all;
   overflow-wrap: anywhere;
-  transition: opacity var(--dur) var(--ease);
+  transition: opacity var(--dur-smooth) var(--ease-smooth);
 }
 .refetching { opacity: 0.7; }
 

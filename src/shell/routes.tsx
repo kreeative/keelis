@@ -76,6 +76,11 @@ export function AppRoutes() {
     /* The public routes live outside AppShell, so they get their own boundary: a failed
        chunk on /bienvenue or /entreprise would otherwise be the same white page. */
     <RouteBoundary>
+      {/* `.app-view` is what a sheet pushes back. It has to sit outside the sheet's portal
+          — which lands on document.body — and it has to be one element, so it wraps every
+          route rather than each layout: AppShell has one and /bienvenue, /inscription and
+          /entreprise have none, and a sheet opened on any of them should look the same. */}
+      <div className="app-view">
       <Suspense fallback={<PageFallback />}>
         <Routes>
         {/* Public */}
@@ -138,6 +143,7 @@ export function AppRoutes() {
         <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
+      </div>
     </RouteBoundary>
   )
 }

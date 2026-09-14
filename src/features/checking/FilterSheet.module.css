@@ -23,7 +23,7 @@
   font-size: var(--fs-small);
   font-weight: var(--fw-medium);
   white-space: nowrap;
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth), color var(--dur-smooth) var(--ease-smooth);
 }
 .chip:hover {
   color: var(--ink-900);

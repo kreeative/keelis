@@ -25,7 +25,7 @@
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  transition: opacity var(--dur) var(--ease);
+  transition: opacity var(--dur-smooth) var(--ease-smooth);
 }
 .faded {
   opacity: 0.55;

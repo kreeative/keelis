@@ -10,7 +10,7 @@
   height: 100%;
   width: 100%;
   transform-origin: left center;
-  transition: transform var(--dur-slow) var(--ease);
+  transition: transform var(--dur-snappy) var(--ease-snappy);
   border-radius: var(--r-pill);
 }
 .accent { background: var(--accent); }

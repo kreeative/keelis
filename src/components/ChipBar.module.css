@@ -28,7 +28,7 @@
   font-size: var(--fs-small);
   font-weight: var(--fw-bold);
   white-space: nowrap;
-  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth), color var(--dur-smooth) var(--ease-smooth), transform var(--dur-snappy) var(--ease-snappy);
 }
 .chip:hover:not(.on) { background: var(--surface-alt); }
 .chip:active { transform: var(--press); }

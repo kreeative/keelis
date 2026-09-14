@@ -4,9 +4,9 @@
   border-radius: var(--r-card);
   /* Transform and shadow only: both composite cheaply, so the lift stays at 60fps. */
   transition:
-    transform var(--dur) var(--ease),
-    box-shadow var(--dur) var(--ease),
-    background-color var(--dur-fast) var(--ease);
+    transform var(--dur-snappy) var(--ease-snappy),
+    box-shadow var(--dur-smooth) var(--ease-smooth),
+    background-color var(--dur-smooth) var(--ease-smooth);
 }
 .solid {
   background: var(--surface-alt);
@@ -35,7 +35,8 @@
 .interactive:active {
   transform: var(--press);
   box-shadow: var(--elev-1);
-  transition-duration: var(--dur-fast);
+  transition-duration: var(--dur-press);
+  transition-timing-function: var(--ease-exit);
 }
 .interactive:focus-visible {
   outline: none;

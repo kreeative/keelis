@@ -15,7 +15,7 @@
   background: var(--surface-alt);
   border-radius: var(--r-field);
   border: 1px solid transparent;
-  transition: box-shadow var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  transition: box-shadow var(--dur-smooth) var(--ease-smooth), border-color var(--dur-smooth) var(--ease-smooth);
 }
 .control:focus-within { box-shadow: var(--focus-ring); }
 .hasError .control { border-color: var(--neg); }

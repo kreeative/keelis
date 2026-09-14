@@ -188,7 +188,7 @@
     background: var(--surface-alt);
     color: var(--ink-600);
     font-size: var(--fs-small);
-    transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+    transition: background-color var(--dur-smooth) var(--ease-smooth), color var(--dur-smooth) var(--ease-smooth);
   }
   .tocLink:hover {
     background: var(--accent-soft);

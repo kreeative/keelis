@@ -16,7 +16,7 @@
   color: var(--accent);
   font-size: var(--fs-small);
   font-weight: var(--fw-medium);
-  transition: color var(--dur-fast) var(--ease);
+  transition: color var(--dur-smooth) var(--ease-smooth);
 }
 .more:hover { color: var(--accent-text); }
 .more:focus-visible { box-shadow: var(--focus-ring); }

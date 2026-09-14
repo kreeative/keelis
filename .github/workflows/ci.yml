@@ -12,7 +12,10 @@
 # policy that breaks the application for everyone on the day it ships. `e2e:keyboard` drives
 # every screen with nothing but Tab, Shift-Tab, arrows, Enter and Escape, because the other
 # walkers all click with a mouse and would happily pass an app nobody can navigate without
-# one. `e2e:server` is the
+# one. `e2e:motion` measures the one thing a screenshot cannot see at all: that the easings
+# are springs rather than beziers, that a sheet arrives *and leaves*, that the page behind it
+# recedes without taking the floating nav off the bottom of the screen, and that a screen
+# arrives from the direction you actually went. `e2e:server` is the
 # only one that proves the thing the whole architecture is for: it compiles the app with
 # `VITE_API_URL` set — which strips the mock out of the bundle entirely — and runs it against
 # a server answering `docs/API.md` over HTTP. Everything else tests the app against invented
@@ -42,6 +45,8 @@ jobs:
         run: pnpm test
       - name: Design rules
         run: pnpm check:design
+      - name: Motion tokens match the spring equation
+        run: pnpm check:springs
       - name: Build
         run: pnpm build
 
@@ -64,6 +69,8 @@ jobs:
         run: pnpm e2e:flows
       - name: Keyboard only
         run: pnpm e2e:keyboard
+      - name: Motion
+        run: pnpm e2e:motion
       - name: Content-Security-Policy
         run: pnpm e2e:csp
       - name: Against a real back-end

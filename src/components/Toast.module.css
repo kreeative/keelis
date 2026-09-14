@@ -27,6 +27,19 @@
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
-  animation: up var(--dur) var(--ease);
+  /* It comes from below its own resting place rather than nudging 8px, which at this size
+     was a fade with a twitch attached. The travel is the toast's own height, so the spring
+     has something to overshoot — a bounce is a percentage of the distance travelled, and
+     eight pixels of it is nothing. */
+  animation: up var(--dur-snappy) var(--ease-snappy);
 }
-@keyframes up { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* Leaving. A toast that vanished between two frames was the same defect the sheet had:
+   something that took a third of a second to arrive has to take some time to go. */
+.leaving {
+  animation: up var(--dur-exit) var(--ease-exit) reverse both;
+  pointer-events: none;
+}
+@keyframes up {
+  from { transform: translateY(calc(100% + var(--sp-4))); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}

@@ -68,7 +68,7 @@
 .chevron {
   flex-shrink: 0;
   color: var(--ink-400);
-  transition: transform var(--dur) var(--ease);
+  transition: transform var(--dur-snappy) var(--ease-snappy);
 }
 .chevronOpen {
   transform: rotate(180deg);
@@ -109,7 +109,7 @@
   padding-block: var(--sp-2);
   text-align: left;
   color: var(--ink-900);
-  transition: background-color var(--dur-fast) var(--ease);
+  transition: background-color var(--dur-smooth) var(--ease-smooth);
 }
 .contact:hover {
   background: var(--surface-alt);

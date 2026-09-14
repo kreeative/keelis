@@ -26,3 +26,29 @@
   .shell { --toast-offset: 0px; }
   .content { padding-bottom: 0; padding-left: var(--rail-width); }
 }
+
+/* ---- How a screen arrives ----
+   See `arrival()` in AppShell.tsx for which is which and why there are three. The travel is
+   deliberately short: a full-width slide on a web page that cannot also animate the
+   outgoing screen reads as the new page sliding in over nothing. Eighteen pixels with the
+   spring's settle is enough to say « this came from the right » without promising a
+   push the DOM cannot actually perform.
+
+   `both` matters: under reduced motion the global rule collapses the duration to 0 ms, and
+   the fill keeps the *end* state rather than leaving the page at its start offset. */
+.arriveForward { animation: arriveForward var(--dur-snappy) var(--ease-snappy) both; }
+.arriveBack { animation: arriveBack var(--dur-snappy) var(--ease-snappy) both; }
+.arriveFade { animation: arriveFade var(--dur-smooth) var(--ease-smooth) both; }
+
+@keyframes arriveForward {
+  from { transform: translateX(18px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes arriveBack {
+  from { transform: translateX(-18px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes arriveFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

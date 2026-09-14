@@ -38,7 +38,7 @@
   left: 0;
   background: var(--accent-soft);
   border-radius: var(--r-pill);
-  transition: transform var(--dur) var(--ease), width var(--dur) var(--ease);
+  transition: transform var(--dur-snappy) var(--ease-snappy), width var(--dur-snappy) var(--ease-snappy);
   z-index: 0;
 }
 .segment {
@@ -53,7 +53,7 @@
   font-weight: var(--fw-medium);
   color: var(--ink-600);
   white-space: nowrap;
-  transition: color var(--dur-fast) var(--ease);
+  transition: color var(--dur-smooth) var(--ease-smooth);
 }
 /* Every segment is a tap target: at least 44px in both directions, whatever the
    label width — Futura's narrow figures make short labels like « 1J » undersized. */
