@@ -5,10 +5,9 @@
  */
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { IDS } from '@/api'
-import type { Transaction } from '@/api/types'
+import type { AccountKind, Transaction } from '@/api/types'
 import { Button, Card, ChipBar, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SkeletonRow } from '@/components'
-import { TransactionRow, groupByDay, isIncoming, useTransactions } from '@/features/shared'
+import { TransactionRow, groupByDay, isIncoming, useAccounts, useTransactions } from '@/features/shared'
 import { formatDayHeading, formatNumber } from '@/lib/format'
 import { useSettings } from '@/store'
 import styles from './ActivityPage.module.css'
@@ -22,10 +21,11 @@ const DIRECTIONS: ReadonlyArray<{ value: Direction; label: string }> = [
   { value: 'out', label: 'Sorties' },
 ]
 
-const ACCOUNTS: ReadonlyArray<{ value: AccountParam; label: string; id: string }> = [
-  { value: 'cheque', label: 'Chèque', id: IDS.checking },
-  { value: 'epargne', label: 'Épargne', id: IDS.savings },
-  { value: 'crypto', label: 'Crypto', id: IDS.crypto },
+/* The chip says which kind of account; the id it filters on comes from the accounts list. */
+const ACCOUNTS: ReadonlyArray<{ value: AccountParam; label: string; kind: AccountKind }> = [
+  { value: 'cheque', label: 'Chèque', kind: 'checking' },
+  { value: 'epargne', label: 'Épargne', kind: 'savings' },
+  { value: 'crypto', label: 'Crypto', kind: 'crypto' },
 ]
 
 const PARAM = 'compte'
@@ -48,7 +48,9 @@ export default function ActivityPage() {
   const navigate = useNavigate()
   const { locale } = useSettings()
   const [params, setParams] = useSearchParams()
-  const account = ACCOUNTS.find((a) => a.value === params.get(PARAM))
+  const accounts = useAccounts()
+  const chosen = ACCOUNTS.find((a) => a.value === params.get(PARAM))
+  const accountId = chosen ? accounts.data?.find((a) => a.kind === chosen.kind)?.id : undefined
   const [query, setQuery] = useState('')
   const [direction, setDirection] = useState<Direction>('all')
   const txs = useTransactions('all')
@@ -68,8 +70,8 @@ export default function ActivityPage() {
   const filtered = useMemo(() => {
     const list = txs.data ?? []
     const q = fold(query.trim())
-    return list.filter((t) => (!account || t.accountId === account.id) && (direction === 'all' || (direction === 'in') === isIncoming(t)) && matches(t, q))
-  }, [txs.data, account, direction, query])
+    return list.filter((t) => (!accountId || t.accountId === accountId) && (direction === 'all' || (direction === 'in') === isIncoming(t)) && matches(t, q))
+  }, [txs.data, accountId, direction, query])
 
   const groups = useMemo(() => groupByDay(filtered), [filtered])
 
@@ -159,7 +161,7 @@ export default function ActivityPage() {
             were two systems doing the same job. */}
         <ChipBar
           label="Filtrer l’activité"
-          value={account ? `compte:${account.value}` : `sens:${direction}`}
+          value={chosen ? `compte:${chosen.value}` : `sens:${direction}`}
           onChange={(v) => {
             const [kind, val] = v.split(':')
             if (kind === 'sens') {

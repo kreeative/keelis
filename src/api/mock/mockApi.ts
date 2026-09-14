@@ -230,7 +230,10 @@ class MockState {
   }
 }
 
-const state = new MockState()
+// @__PURE__ marks this as droppable: a build that talks to a real back-end folds the mock
+// branch away in `api/index.ts`, and without the annotation Rollup keeps the whole module
+// (and the entire invented dataset) alive for the constructor's side effects alone.
+const state = /* @__PURE__ */ new MockState()
 
 // ---------- history generation ----------
 

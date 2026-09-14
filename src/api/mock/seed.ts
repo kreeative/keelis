@@ -20,7 +20,6 @@ import type {
   TaxDocument,
   Transaction,
   TransactionCategory,
-  TransactionType,
   User,
 } from '../types'
 
@@ -392,43 +391,6 @@ export function makeTransactions(): Transaction[] {
   return txs
 }
 
-export const TYPE_LABELS: Record<TransactionType, string> = {
-  card: 'Paiement par carte',
-  transfer_in: 'Virement reçu',
-  transfer_out: 'Virement envoyé',
-  etransfer_in: 'e-Transfer reçu',
-  etransfer_out: 'e-Transfer envoyé',
-  deposit: 'Dépôt',
-  withdrawal: 'Retrait',
-  interest: 'Intérêts',
-  crypto_buy: 'Achat crypto',
-  crypto_sell: 'Vente crypto',
-  crypto_send: 'Envoi crypto',
-  crypto_receive: 'Réception crypto',
-  recurring_buy: 'Achat récurrent',
-  refund: 'Remboursement',
-  fee: 'Frais',
-}
-
-export const CATEGORY_LABELS: Record<TransactionCategory, string> = {
-  groceries: 'Épicerie',
-  restaurants: 'Restaurants',
-  transport: 'Transport',
-  shopping: 'Achats',
-  subscriptions: 'Abonnements',
-  housing: 'Logement',
-  utilities: 'Services',
-  health: 'Santé',
-  entertainment: 'Sorties',
-  travel: 'Voyage',
-  transfer: 'Virements',
-  income: 'Revenus',
-  savings: 'Épargne',
-  crypto: 'Crypto',
-  fees: 'Frais',
-  other: 'Autre',
-}
-
 // ---------- Savings goals ----------
 
 export const seedGoals: SavingsGoal[] = [
@@ -526,16 +488,3 @@ export const seedTransferProviders: TransferProvider[] = [
   { id: 'sepa', mark: 'SEP', name: 'Virement SEPA', family: 'bank', handle: 'account', reach: 'Zone euro', currency: 'EUR', feePct: 0, eta: '1 à 2 jours ouvrables', etaMinutes: 1_440, limitPerDay: 20_000, available: true },
 ]
 
-export const TRANSFER_FAMILY_LABEL: Readonly<Record<TransferProvider['family'], string>> = {
-  mobile_money: 'Mobile Money',
-  wallet: 'Portefeuilles et néobanques',
-  remittance: 'Espèces à retirer',
-  bank: 'Virements bancaires',
-}
-
-export const TRANSFER_HANDLE_LABEL: Readonly<Record<TransferProvider['handle'], string>> = {
-  phone: 'Numéro de téléphone',
-  email: 'Adresse courriel',
-  tag: 'Identifiant',
-  account: 'Coordonnées du destinataire',
-}

@@ -1,17 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api } from '@/api'
+import { api, isLive } from '@/api'
 import { Button, Icon, Wordmark } from '@/components'
 import { useSession, useSettings, useToast } from '@/store'
-import { SAVINGS_APY } from '@/api/mock/seed'
-import { formatPercent } from '@/lib/format'
 import { DEMO_CODE, DEMO_EMAIL } from './demo'
 import styles from './WelcomePage.module.css'
 
 export default function WelcomePage() {
   const navigate = useNavigate()
   const { setSession } = useSession()
-  const { resolved, setTheme, locale } = useSettings()
+  const { resolved, setTheme } = useSettings()
   const { toast } = useToast()
   const [busy, setBusy] = useState(false)
 
@@ -42,8 +40,8 @@ export default function WelcomePage() {
         <Wordmark size="lg" className="mark-clear" />
         <h1 className={`t-h1 ${styles.title}`}>Vos francs, votre épargne et vos placements. Au même endroit.</h1>
         <p className={`t-body t-muted ${styles.lede}`}>
-          Compte chèque avec carte, épargne à {formatPercent(SAVINGS_APY, { locale, signed: false, minFraction: 2 })}, actions africaines et crypto,
-          et le change avec sa marge affichée.
+          Compte chèque avec carte, épargne rémunérée, actions africaines et crypto, et le change
+          avec sa marge affichée avant que vous confirmiez.
         </p>
       </main>
       <div className={styles.actions}>
@@ -53,9 +51,13 @@ export default function WelcomePage() {
         <Button size="lg" block variant="secondary" onClick={() => navigate('/inscription/courriel?mode=connexion')}>
           Se connecter
         </Button>
-        <Button block variant="ghost" onClick={exploreDemo} loading={busy}>
-          Explorer la démo
-        </Button>
+        {/* Only while the app *is* a demo. Connected to a back-end there is no such
+            account, and a button that signs nobody in is worse than no button. */}
+        {isLive ? null : (
+          <Button block variant="ghost" onClick={exploreDemo} loading={busy}>
+            Explorer la démo
+          </Button>
+        )}
       </div>
       <p className={`t-label ${styles.footer}`}>
         <Link to="/entreprise">À propos de Keewal Meere</Link>

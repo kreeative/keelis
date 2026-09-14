@@ -5,10 +5,10 @@
  */
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api, IDS } from '@/api'
+import { api } from '@/api'
 import type { ApiError, MoneyMovementResult } from '@/api/types'
 import { Button, Money, PageHeader } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useSavings, useTransaction } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useAccountId, useSavings, useTransaction } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
@@ -65,7 +65,10 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
   const [serverError, setServerError] = useState<ApiError | null>(null)
   const [result, setResult] = useState<MoneyMovementResult | null>(null)
 
-  const move = useMutation((amount: number) => (deposit ? api.savings.deposit(amount, IDS.checking) : api.savings.withdraw(amount, IDS.checking)))
+  // The other end of the move is the chequing account, found by kind: the id is the
+  // back-end's, and a movement sent to a hard-coded one would go nowhere real.
+  const chequeId = useAccountId('checking')
+  const move = useMutation((amount: number) => (deposit ? api.savings.deposit(amount, chequeId!) : api.savings.withdraw(amount, chequeId!)))
 
   const savingsBalance = savings.data?.balance ?? savingsAccount.data?.balance
   const checkingBalance = checking.data?.balance
@@ -76,7 +79,8 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
   const clientError = typed > 0 && source !== undefined && typed > source + 1e-9 ? (deposit ? 'Solde Chèque insuffisant' : 'Solde Épargne insuffisant') : null
   const entryError = serverError?.message ?? clientError
   const insufficient = deposit && (clientError !== null || serverError?.code === 'insufficient_funds')
-  const canContinue = typed > 0 && !clientError && source !== undefined
+  // The chequing account has to be known: it is the other end of every move here.
+  const canContinue = typed > 0 && !clientError && source !== undefined && chequeId !== undefined
 
   const newSavings = savingsBalance === undefined ? undefined : savingsBalance + (deposit ? typed : -typed)
   const secondary =
@@ -101,6 +105,7 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
   }
 
   const onConfirm = async () => {
+    if (!chequeId) return
     try {
       const r = await move.mutate(typed)
       setSheetOpen(false)

@@ -4,10 +4,10 @@
  */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api, IDS } from '@/api'
+import { api } from '@/api'
 import type { ChartRange, PriceHistory, PricePoint, SavingsGoal } from '@/api/types'
 import { AmountDisplay, AppBar, Badge, Button, Card, Chart, EmptyState, ErrorState, Icon, List, Money, ProgressBar, QuickActions, SectionHeader, SegmentedControl, Skeleton, SkeletonRow } from '@/components'
-import { TransactionRow, useAccount, useGoals, useSavings, useTransactions } from '@/features/shared'
+import { TransactionRow, useAccount, useAccountId, useGoals, useSavings, useTransactions } from '@/features/shared'
 import { MASKED, formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
 import { formatApy, formatMonthYear, formatWholePercent, goalPercent, goalProgress, inlineMoney, unallocated } from './savingsUtils'
@@ -122,7 +122,8 @@ export default function SavingsPage() {
   const account = useAccount('savings')
   const goals = useGoals()
   const history = useQuery<PriceHistory>(QK.savingsHistory(range), () => api.savings.history(range), { staleTime: 30_000 })
-  const activity = useTransactions(IDS.savings)
+  const savingsId = useAccountId('savings')
+  const activity = useTransactions(savingsId ?? 'pending')
   const wide = useMediaQuery('(min-width: 768px)')
 
   const balance = savings.data?.balance ?? account.data?.balance

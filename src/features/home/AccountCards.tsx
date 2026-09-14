@@ -9,18 +9,18 @@
  * of them.
  */
 import { Fragment, type ReactNode } from 'react'
-import type { Account } from '@/api/types'
-import { IDS } from '@/api'
+import type { Account, AccountKind } from '@/api/types'
 import { Badge, Card, Delta, Money, MoneyDelta, Skeleton } from '@/components'
 import { formatPercent } from '@/lib/format'
 import { useSettings } from '@/store'
 import styles from './AccountCards.module.css'
 
-const ORDER = [
-  { id: IDS.checking, to: '/carte' },
-  { id: IDS.savings, to: '/epargne' },
-  { id: IDS.crypto, to: '/crypto' },
-] as const
+/* Fixed order, by kind rather than by id: the ids belong to whichever back-end answers. */
+const ORDER: ReadonlyArray<{ kind: AccountKind; to: string }> = [
+  { kind: 'checking', to: '/carte' },
+  { kind: 'savings', to: '/epargne' },
+  { kind: 'crypto', to: '/crypto' },
+]
 
 const SKELETON_HEIGHT = 132
 
@@ -54,7 +54,7 @@ export function AccountCards({ accounts, loading, beforeCrypto }: { accounts: Ac
     return (
       <section className={styles.grid} aria-busy={loading || undefined} aria-label="Comptes">
         {ORDER.map((o) => (
-          <Skeleton key={o.id} shape="card" height={SKELETON_HEIGHT} />
+          <Skeleton key={o.kind} shape="card" height={SKELETON_HEIGHT} />
         ))}
       </section>
     )
@@ -62,11 +62,11 @@ export function AccountCards({ accounts, loading, beforeCrypto }: { accounts: Ac
   return (
     <section className={styles.grid} aria-label="Comptes">
       {ORDER.map((o) => {
-        const account = accounts.find((a) => a.id === o.id)
+        const account = accounts.find((a) => a.kind === o.kind)
         if (!account) return null
         return (
-          <Fragment key={o.id}>
-            {o.id === IDS.crypto ? beforeCrypto : null}
+          <Fragment key={o.kind}>
+            {o.kind === 'crypto' ? beforeCrypto : null}
             <AccountCard account={account} to={o.to} />
           </Fragment>
         )

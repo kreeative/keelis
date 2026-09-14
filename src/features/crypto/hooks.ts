@@ -3,8 +3,8 @@
  * same QK cache keys, plus a price-tick subscription and a media-query helper.
  */
 import { useEffect, useReducer, useSyncExternalStore } from 'react'
-import { api, IDS } from '@/api'
-import type { Account, ChartRange, CryptoAsset, Holding, PriceHistory, RecurringBuy, Transaction } from '@/api/types'
+import { api } from '@/api'
+import type { Account, AccountKind, ChartRange, CryptoAsset, Holding, PriceHistory, RecurringBuy, Transaction } from '@/api/types'
 import { QK, setQueryData, useMarket, useQuery } from '@/store'
 
 /** Optimistic cache patch (alias kept for readability at call sites). */
@@ -41,10 +41,10 @@ export function useLiveAccounts() {
   return useQuery<Account[]>(QK.accounts, () => api.accounts.list())
 }
 
-export function useLiveAccount(kind: 'checking' | 'savings' | 'crypto') {
+/** By kind, not by id — the id belongs to whichever back-end is answering. */
+export function useLiveAccount(kind: AccountKind) {
   const q = useLiveAccounts()
-  const id = kind === 'checking' ? IDS.checking : kind === 'savings' ? IDS.savings : IDS.crypto
-  return { ...q, data: q.data?.find((a) => a.id === id) }
+  return { ...q, data: q.data?.find((a) => a.kind === kind) }
 }
 
 export function useLiveHoldings() {

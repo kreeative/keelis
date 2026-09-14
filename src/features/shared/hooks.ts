@@ -1,18 +1,30 @@
 /**
  * Shared data hooks. Every screen reads through these so cache keys stay consistent.
  */
-import { api, IDS } from '@/api'
-import type { Account, AppNotification, Card, Holding, RecurringBuy, SavingsGoal, SavingsSummary, Transaction, TransactionFilter } from '@/api/types'
+import { api } from '@/api'
+import type { Account, AccountKind, AppNotification, Card, Holding, RecurringBuy, SavingsGoal, SavingsSummary, Transaction, TransactionFilter } from '@/api/types'
 import { QK, useQuery } from '@/store'
 
 export function useAccounts() {
   return useQuery<Account[]>(QK.accounts, () => api.accounts.list())
 }
 
-export function useAccount(kind: 'checking' | 'savings' | 'crypto') {
+/**
+ * An account is found by **what it is**, never by a hard-coded id.
+ *
+ * The screens used to look up `IDS.checking`, a constant from the mock seed — which meant
+ * that the day a real back-end returned its own identifiers, every screen would quietly
+ * find nothing and render an empty state. `kind` is part of the contract; the id is the
+ * server's business.
+ */
+export function useAccount(kind: AccountKind) {
   const q = useAccounts()
-  const id = kind === 'checking' ? IDS.checking : kind === 'savings' ? IDS.savings : IDS.crypto
-  return { ...q, data: q.data?.find((a) => a.id === id) }
+  return { ...q, data: q.data?.find((a) => a.kind === kind) }
+}
+
+/** The id of that account, once it is known. `undefined` while the list is loading. */
+export function useAccountId(kind: AccountKind): string | undefined {
+  return useAccount(kind).data?.id
 }
 
 /** scope: 'all' | accountId | 'recent' (5 most recent across accounts) */

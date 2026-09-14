@@ -2,18 +2,21 @@
  * Coordonnées bancaires du compte Chèque ou Épargne, copiables une par une ou en bloc.
  */
 import { useSearchParams } from 'react-router-dom'
-import { api, IDS } from '@/api'
-import type { AccountDetails } from '@/api/types'
+import { api } from '@/api'
+import type { AccountDetails, AccountKind } from '@/api/types'
 import { Button, ErrorState, Icon, PageHeader, SegmentedControl, Skeleton } from '@/components'
+import { useAccounts } from '@/features/shared'
 import { QK, useQuery, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import styles from './AccountDetailsPage.module.css'
 
 type AccountParam = 'cheque' | 'epargne'
 
-const ACCOUNTS: ReadonlyArray<{ value: AccountParam; label: string; id: string; name: string }> = [
-  { value: 'cheque', label: 'Chèque', id: IDS.checking, name: 'Compte Chèque' },
-  { value: 'epargne', label: 'Épargne', id: IDS.savings, name: 'Compte Épargne' },
+/* Which account, said by kind. The id comes from the accounts list — it is the back-end's
+   to choose, and a screen that hard-codes one shows an empty page against a real one. */
+const ACCOUNTS: ReadonlyArray<{ value: AccountParam; label: string; kind: AccountKind; name: string }> = [
+  { value: 'cheque', label: 'Chèque', kind: 'checking', name: 'Compte Chèque' },
+  { value: 'epargne', label: 'Épargne', kind: 'savings', name: 'Compte Épargne' },
 ]
 
 const PARAM = 'compte'
@@ -44,7 +47,9 @@ export default function AccountDetailsPage() {
   const [params, setParams] = useSearchParams()
   const { toast } = useToast()
   const current = ACCOUNTS.find((a) => a.value === params.get(PARAM)) ?? ACCOUNTS[0]!
-  const details = useQuery<AccountDetails>(QK.accountDetails(current.id), () => api.accounts.details(current.id), { staleTime: 60_000 })
+  const accounts = useAccounts()
+  const id = accounts.data?.find((a) => a.kind === current.kind)?.id
+  const details = useQuery<AccountDetails>(id ? QK.accountDetails(id) : null, () => api.accounts.details(id!), { staleTime: 60_000 })
 
   const select = (value: AccountParam) => {
     setParams(

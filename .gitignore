@@ -6,3 +6,11 @@ dist-ssr
 e2e/out
 coverage
 dist-single
+dist-live
+
+# Environment files. `.env.example` is the only one that belongs in the repository —
+# everything else is somebody's real configuration, and a committed key is a leaked key
+# even after the commit that removed it.
+.env
+.env.*
+!.env.example

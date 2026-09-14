@@ -4,11 +4,11 @@
  */
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { api, IDS } from '@/api'
-import { TRANSFER_HANDLE_LABEL } from '@/api/mock/seed'
+import { api } from '@/api'
+import { TRANSFER_HANDLE_LABEL } from '@/api/labels'
 import { ApiError, type MoneyMovementResult, type TransferProvider } from '@/api/types'
 import { Button, Field, Icon, ListRow, Money, PageHeader, SegmentedControl } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useAccountId } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
 import { bicMatchesIban, checkIban, formatIban, isValidBic, normalizeIban, type IbanError } from '@/lib/iban'
 import { QK, useQuery, useSettings } from '@/store'
@@ -56,6 +56,7 @@ export default function SendMoneyPage() {
   const [params, setParams] = useSearchParams()
   const { locale } = useSettings()
   const account = useAccount('checking')
+  const savingsId = useAccountId('savings')
   const balance = account.data?.balance
 
   const modeParam = params.get('mode')
@@ -150,12 +151,15 @@ export default function SendMoneyPage() {
   }
 
   const submit = async () => {
+    // Both ends of the movement come from the accounts list. Without the source account
+    // there is nothing to debit, and the screen's own balance line has not rendered yet.
+    if (!account.data) return
     setPending(true)
     setSendError(null)
     try {
       const movement = await api.transfers.send({
-        fromAccountId: IDS.checking,
-        toAccountId: internal ? IDS.savings : undefined,
+        fromAccountId: account.data.id,
+        toAccountId: internal ? savingsId : undefined,
         recipient: internal ? undefined : { name: name.trim(), email: wire ? undefined : email.trim(), iban: wire ? normalizeIban(iban) : undefined, bic: wire ? bic.trim().toUpperCase() : undefined },
         amount: value,
         note: note.trim() || undefined,

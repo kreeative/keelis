@@ -8,8 +8,8 @@
  */
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api, IDS } from '@/api'
-import { ApiError, type AccountDetails, type FundingSource } from '@/api/types'
+import { api } from '@/api'
+import { ApiError, type AccountDetails, type AccountKind, type FundingSource } from '@/api/types'
 import { Badge, Button, Callout, ChoiceList, EmptyState, ErrorState, Icon, List, ListRow, Money, PageHeader, SegmentedControl, Sheet, Skeleton, SkeletonRow, type IconName } from '@/components'
 import { AmountEntry, ConfirmSheet, useAccounts } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
@@ -18,9 +18,12 @@ import styles from './AddFundsPage.module.css'
 
 type Destination = 'cheque' | 'epargne'
 
-const DESTINATIONS: ReadonlyArray<{ value: Destination; label: string; accountId: string; name: string }> = [
-  { value: 'cheque', label: 'Chèque', accountId: IDS.checking, name: 'Compte Chèque' },
-  { value: 'epargne', label: 'Épargne', accountId: IDS.savings, name: 'Compte Épargne' },
+/* The destination is named by its `kind`, never by an id: the ids belong to whichever
+   back-end is answering, and a screen that hard-codes one finds nothing the day a real one
+   replies. The account itself is looked up in the list, which is loading anyway. */
+const DESTINATIONS: ReadonlyArray<{ value: Destination; label: string; kind: AccountKind; name: string }> = [
+  { value: 'cheque', label: 'Chèque', kind: 'checking', name: 'Compte Chèque' },
+  { value: 'epargne', label: 'Épargne', kind: 'savings', name: 'Compte Épargne' },
 ]
 
 const SOURCE_ICONS: Record<FundingSource['kind'], IconName> = {
@@ -78,13 +81,14 @@ export default function AddFundsPage() {
   const grouped = useLargeScreen()
 
   const target = DESTINATIONS.find((d) => d.value === destination) ?? DESTINATIONS[0]!
-  const account = accounts.data?.find((a) => a.id === target.accountId)
+  const account = accounts.data?.find((a) => a.kind === target.kind)
   const source = sources.data?.find((s) => s.id === sourceId) ?? null
   const value = useMemo(() => parseAmountInput(amount), [amount])
   const fee = source ? Math.round(value * source.feePct * 100) / 100 : 0
   const total = value + fee
 
-  const details = useQuery<AccountDetails>(wireOpen ? QK.accountDetails(IDS.checking) : null, () => api.accounts.details(IDS.checking), { staleTime: 60_000 })
+  const chequeId = accounts.data?.find((a) => a.kind === 'checking')?.id
+  const details = useQuery<AccountDetails>(wireOpen && chequeId ? QK.accountDetails(chequeId) : null, () => api.accounts.details(chequeId!), { staleTime: 60_000 })
 
   const choose = (id: string) => {
     setSourceId(id)
@@ -113,11 +117,14 @@ export default function AddFundsPage() {
   }
 
   const submit = async () => {
-    if (!source) return
+    // The destination account has to be known before money can be sent to it. It is
+    // resolved from the accounts list, which loads with the screen; the button is only
+    // reachable once the summary above it has rendered that account's name.
+    if (!source || !account) return
     setPending(true)
     setSubmitError(null)
     try {
-      const movement = await api.funding.addFunds({ sourceId: source.id, destinationAccountId: target.accountId, amount: value })
+      const movement = await api.funding.addFunds({ sourceId: source.id, destinationAccountId: account.id, amount: value })
       setConfirmOpen(false)
       navigate(`/fonds/statut/${movement.transactionId}`, { replace: true })
     } catch (err) {

@@ -2,8 +2,9 @@
  * Documents et relevés — un relevé mensuel par compte, en PDF.
  */
 import { useMemo, useState } from 'react'
-import { api, IDS, type Statement } from '@/api'
+import { api, type Statement } from '@/api'
 import { Button, EmptyState, ErrorState, Icon, List, ListRow, PageHeader, SegmentedControl, Skeleton } from '@/components'
+import { useAccounts } from '@/features/shared'
 import { QK, useQuery, useToast } from '@/store'
 import { RowIcon } from './RowIcon'
 import styles from './DocumentsPage.module.css'
@@ -20,7 +21,8 @@ export default function DocumentsPage() {
   const [scope, setScope] = useState<Scope>('checking')
   const statements = useQuery<Statement[]>(QK.statements, () => api.profile.statements())
 
-  const accountId = scope === 'checking' ? IDS.checking : IDS.savings
+  const accounts = useAccounts()
+  const accountId = accounts.data?.find((a) => a.kind === scope)?.id
   const items = useMemo(() => statements.data?.filter((s) => s.accountId === accountId) ?? [], [statements.data, accountId])
 
   return (

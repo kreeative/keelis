@@ -4,10 +4,9 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IDS } from '@/api'
 import type { Transaction } from '@/api/types'
 import { AmountDisplay, AppBar, Badge, Button, Card, EmptyState, ErrorState, Field, Icon, List, QuickActions, Refreshing, SkeletonRow } from '@/components'
-import { TransactionRow, groupByDay, useAccount, useTransactions } from '@/features/shared'
+import { TransactionRow, groupByDay, useAccount, useAccountId, useTransactions } from '@/features/shared'
 import { formatDayHeading, formatMoney, formatNumber } from '@/lib/format'
 import { useSettings } from '@/store'
 import { cn } from '@/lib/cn'
@@ -40,7 +39,11 @@ export default function CheckingPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
 
   const apiFilter = useMemo(() => toApiFilter(filter, debouncedQuery), [filter, debouncedQuery])
-  const txs = useTransactions(IDS.checking, apiFilter)
+  // 'pending' until the accounts list names the chequing account — the list below is a
+  // skeleton until then anyway, and a query keyed on a hard-coded id would have asked the
+  // back-end about an account that is not its.
+  const chequeId = useAccountId('checking')
+  const txs = useTransactions(chequeId ?? 'pending', apiFilter)
 
   // Keep the previous page of results on screen while a new filter loads:
   // skeletons are for the very first load only.

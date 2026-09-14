@@ -4,11 +4,10 @@
  * l’API patchent le cache).
  */
 import { useNavigate, useParams } from 'react-router-dom'
-import { IDS } from '@/api'
-import type { Transaction } from '@/api/types'
+import type { Account, AccountKind, Transaction } from '@/api/types'
 import type { IconName } from '@/components'
 import { AmountDisplay, Badge, Button, EmptyState, ErrorState, Icon, PageHeader, Skeleton } from '@/components'
-import { useTransaction } from '@/features/shared'
+import { useAccounts, useTransaction } from '@/features/shared'
 import { formatDateTime } from '@/lib/format'
 import { useSettings } from '@/store'
 import { cn } from '@/lib/cn'
@@ -16,10 +15,12 @@ import styles from './FundsStatusPage.module.css'
 
 const TIMELINE_STEPS = 3
 
-function accountName(accountId: string): string {
-  if (accountId === IDS.savings) return 'Épargne'
-  if (accountId === IDS.crypto) return 'Crypto'
-  return 'Chèque'
+/** The account's own name, from the list. Ids are the back-end's; names are the user's. */
+const KIND_NAME: Record<AccountKind, string> = { checking: 'Chèque', savings: 'Épargne', crypto: 'Crypto' }
+
+function accountName(accounts: Account[] | undefined, accountId: string): string {
+  const account = accounts?.find((a) => a.id === accountId)
+  return account ? (account.name || KIND_NAME[account.kind]) : 'Chèque'
 }
 
 function statusBadge(tx: Transaction): { label: string; tone: 'accent' | 'neutral' | 'neg'; icon: IconName } {
@@ -86,7 +87,8 @@ export default function FundsStatusPage() {
 function Status({ tx, locale }: { tx: Transaction; locale: 'fr-SN' | 'en-NG' }) {
   const navigate = useNavigate()
   const incoming = tx.amount >= 0
-  const account = accountName(tx.accountId)
+  const accounts = useAccounts()
+  const account = accountName(accounts.data, tx.accountId)
   const badge = statusBadge(tx)
   const posted = tx.status === 'posted'
 
