@@ -6,7 +6,7 @@
  * - privacy masking when balances are hidden
  */
 import type { HTMLAttributes } from 'react'
-import { formatMoney, maskedMoney, moneyAriaLabel, type MoneyOptions } from '@/lib/format'
+import { formatMoney, formatNumber, maskedMoney, moneyAriaLabel, type MoneyOptions } from '@/lib/format'
 import { useSettings } from '@/store/settings'
 import { cn } from '@/lib/cn'
 import styles from './Money.module.css'
@@ -50,7 +50,12 @@ export interface DeltaProps extends HTMLAttributes<HTMLSpanElement> {
 export function Delta({ value, suffix, amount, variant = 'text', className, ...rest }: DeltaProps) {
   const { locale, hidden } = useSettings()
   const sign = value > 0 ? '+' : value < 0 ? '−' : ''
-  const abs = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(Math.abs(value))
+  /* Through `formatNumber`, never a bare `Intl.NumberFormat`. The app carries one number
+     punctuation — comma groups, point decimal — and it lives in `joinParts`, which a raw
+     formatter skips: this line printed « +8,01 % » beside « +346,345 F CFA », comma
+     decimal against comma thousands, in the same sentence. Every percentage in the app
+     goes through a Delta, so every one of them was wrong. */
+  const abs = formatNumber(Math.abs(value), { locale, minFraction: 1, maxFraction: 2 })
   const pct = `${sign}${abs} %`
   const money = amount === undefined ? null : hidden ? maskedMoney({ locale }) : formatMoney(amount, { locale, signed: true })
   const text = `${money ? `${money} (${pct})` : pct}${suffix ? ` · ${suffix}` : ''}`

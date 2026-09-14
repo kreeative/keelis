@@ -9,6 +9,7 @@
  *  - the palette stays monochrome: every oklch token has chroma 0
  *  - no font-size below 12px
  *  - no emoji in source
+ *  - numbers are formatted through src/lib/format.ts, never a bare Intl.NumberFormat
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -33,6 +34,11 @@ const AMBIENT = join(ROOT, 'components/AmbientGround.module.css')
 /* The asset marks are the one sanctioned exception: a token's logo is how someone finds
    Bitcoin in a list without reading, so it keeps its real colours. Nothing else may. */
 const ASSET_ICONS = join(ROOT, 'components/AssetIcon.tsx')
+/* The app carries one number punctuation app-wide — comma groups, point decimal — and it
+   lives in `joinParts` inside this file. A bare `Intl.NumberFormat` anywhere else skips it
+   and silently prints French typography instead: `Delta` did exactly that, and every
+   percentage in the application read « 8,01 % » beside « 346,345 F CFA ». */
+const FORMAT = join(ROOT, 'lib/format.ts')
 const allowedColourFiles = [TOKENS, ASSET_ICONS]
 // The aurora wash is a second ground layer — same category as AmbientGround: radial
 // fields behind everything, no text on them, no control in them.
@@ -49,6 +55,7 @@ function check(file) {
     const trimmed = line.trim()
     if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return
     if (emoji.test(line)) violations.push(`${where}: emoji found`)
+    if (/new Intl\.NumberFormat/.test(line) && file !== FORMAT) violations.push(`${where}: bare Intl.NumberFormat — format numbers through src/lib/format.ts, or the app's punctuation drifts`)
     if (/gradient\(/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: gradient outside the token/base layer`)
     if (file.endsWith('.css')) {
       if (!allowedColourFiles.includes(file) && colourLiteral.test(line) && !/currentColor|transparent|inherit/.test(line)) violations.push(`${where}: hard-coded colour → use a token`)

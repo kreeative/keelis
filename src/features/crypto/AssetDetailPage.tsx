@@ -71,8 +71,11 @@ function AboutSection({ asset }: { asset: CryptoAsset }) {
   const facts: Stat[] = [
     { label: 'Capitalisation', value: formatCompactMoney(asset.marketCap, locale) },
     { label: 'Volume 24 h', value: formatCompactMoney(asset.volume24h, locale) },
-    { label: 'Offre en circulation', value: formatCompactQuantity(asset.circulatingSupply, asset.symbol, locale) },
-    { label: 'Réseaux', value: asset.networks.map((n) => n.name).join(', ') },
+    { label: asset.assetClass === 'equity' ? 'Titres en circulation' : 'Offre en circulation', value: formatCompactQuantity(asset.circulatingSupply, asset.symbol, locale) },
+    // A share does not settle on a chain, so it has no networks — and the row used to
+    // render anyway, as a heading with nothing under it.
+    ...(asset.networks.length > 0 ? [{ label: 'Réseaux', value: asset.networks.map((n) => n.name).join(', ') }] : []),
+    ...(asset.assetClass === 'equity' && asset.market ? [{ label: 'Place de cotation', value: asset.market }] : []),
   ]
   return (
     <section className={cn(styles.section, styles.about)} aria-labelledby="about-title">
@@ -101,6 +104,8 @@ export default function AssetDetailPage() {
   const holdings = useLiveHoldings()
   const holding = holdings.data?.find((h) => h.assetId === id)
   const hasHolding = !!holding && holding.quantity > 0
+  // An asset that settles on a chain. Equities do not, and `networks` is empty for them.
+  const onChain = (asset?.networks.length ?? 0) > 0
 
   const [range, setRange] = useState<ChartRange>('1D')
   const history = useLiveHistory(id, range)
@@ -220,12 +225,19 @@ export default function AssetDetailPage() {
       </div>
 
       <div className={styles.actions}>
+        {/* Sending and receiving are chain operations. A share of Sonatel cannot be sent to
+            an address, and offering the action on an equity is a promise the page cannot
+            keep — the receive screen would have had no network to show. */}
         <QuickActions
-          actions={[
-            { label: 'Envoyer', icon: <Icon name="send" />, to: `/crypto/${id}/envoyer`, disabled: holdings.data !== undefined && !hasHolding },
-            { label: 'Recevoir', icon: <Icon name="deposit" />, to: `/crypto/${id}/recevoir` },
-            { label: 'Récurrent', icon: <Icon name="recurring" />, to: '/crypto/recurrents' },
-          ]}
+          actions={
+            onChain
+              ? [
+                  { label: 'Envoyer', icon: <Icon name="send" />, to: `/crypto/${id}/envoyer`, disabled: holdings.data !== undefined && !hasHolding },
+                  { label: 'Recevoir', icon: <Icon name="deposit" />, to: `/crypto/${id}/recevoir` },
+                  { label: 'Récurrent', icon: <Icon name="recurring" />, to: '/crypto/recurrents' },
+                ]
+              : [{ label: 'Récurrent', icon: <Icon name="recurring" />, to: '/crypto/recurrents' }]
+          }
         />
       </div>
 

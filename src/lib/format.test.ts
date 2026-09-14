@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatPercent, moneyAriaLabel, parseAmountInput } from './format'
+import { maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatNumber, formatPercent, moneyAriaLabel, parseAmountInput } from './format'
 
 const norm = (v: string) => v.replace(/[\u202f\u00a0]/g, ' ')
 
@@ -89,5 +89,16 @@ describe('maskedMoney', () => {
     expect(norm(maskedMoney({ locale: 'fr-SN' }))).toBe('••••• F CFA')
     expect(norm(maskedMoney({ locale: 'en-NG' }))).toBe('F CFA •••••')
     expect(norm(maskedMoney({ locale: 'fr-SN', currency: 'EUR' }))).toBe('••••• €')
+  })
+})
+
+describe('one punctuation, everywhere', () => {
+  it('formats a percentage with a point decimal, like every other figure', () => {
+    // The rule lives in `joinParts`; anything that reaches for a bare `Intl.NumberFormat`
+    // silently gets French typography instead. `Delta` did, and printed « +8,01 % » next
+    // to « +346,345 F CFA » — comma decimal against comma thousands, same line.
+    expect(formatPercent(8.01, { locale: 'fr-SN' })).toContain('8.01')
+    expect(formatPercent(8.01, { locale: 'fr-SN' })).not.toContain('8,01')
+    expect(formatNumber(1234.5, { locale: 'fr-SN', minFraction: 1 })).toBe('1,234.5')
   })
 })
