@@ -89,6 +89,7 @@ pnpm check:design   # règles statiques : aucune couleur/ombre/dégradé/emoji/t
 pnpm build && pnpm preview &
 pnpm e2e            # Playwright : captures 320/390/768/1440 × clair/sombre + audit contraste, cibles 44px, débordement
 pnpm e2e:flows      # Playwright : parcours d'argent réels — acheter, envoyer par opérateur, convertir, déposer, hors ligne, verrou
+pnpm e2e:keyboard   # Playwright : tous les écrans au clavier seul — anneaux de focus, pièges, allers-retours, flèches
 pnpm e2e:csp        # Playwright : l'application sous la Content-Security-Policy déployée
 pnpm e2e:server     # Playwright : l'application compilée contre le back-end de référence, en HTTP
 ```

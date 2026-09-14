@@ -36,8 +36,10 @@ là : `LearnSheet` explique une introduction en bourse et comment lire un cours,
   Un actif indivisible se cote en unités entières : une action ne se fractionne pas sur la BRVM
 - Capture de document et selfie, test de vivacité (Smile ID / Sumsub) — **manque un fournisseur KYC.**
   L'écran accepte un fichier ; la vérification est côté serveur
-- Profil de risque : questionnaire avant de débloquer les classes d'actifs complexes — **à faire.**
-  C'est le prochain morceau utile côté interface : il ne dépend d'aucun tiers
+- Profil de risque : questionnaire — **fait**, à `/profil/risque`, et il **ne débloque rien.**
+  Refuser à un adulte l'usage de son propre argent est une posture, pas une protection : le
+  profil prévient avant l'ordre, là où la décision est encore ouverte, et dit lui-même ce
+  qu'il change. Quatre questions, chacune expliquant pourquoi elle est posée
 - Fractions d'action — **à décider.** Techniquement possible pour un dépositaire qui les
   offre ; la BRVM, elle, ne les connaît pas
 
@@ -46,6 +48,10 @@ là : `LearnSheet` explique une introduction en bourse et comment lire un cours,
 - Jetons, bibliothèque de composants, mode confidentialité — **fait**
 - Contrôles vérifiés par machine : règles de design statiques, audit de contraste composité,
   cibles de 44 px, débordement, parcours d'argent réels, Content-Security-Policy — **fait**
+- Navigation au clavier — **fait et mesurée.** `pnpm e2e:keyboard` traverse chaque écran, aux deux
+  largeurs, sans souris : chaque arrêt visible et bagué, aucun piège hors dialogue, l'aller-retour Tab /
+  Maj-Tab identique, un seul arrêt par composite et les flèches qui l'animent. La feuille
+  modale retient le focus et le rend au bouton qui l'a ouverte
 - Motion : le solde se pose, la courbe se dessine — **fait**, et coupée sous
   `prefers-reduced-motion`
 - **Nouvelle marque.** Le mot-symbole est composé en Poppins, en attendant : l'ancien tracé

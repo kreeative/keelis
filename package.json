@@ -16,6 +16,7 @@
     "build:single": "node scripts/build-single.mjs",
     "check": "pnpm typecheck && pnpm test && pnpm check:design",
     "e2e:csp": "node e2e/csp.mjs",
+    "e2e:keyboard": "node e2e/keyboard.mjs",
     "e2e:server": "node e2e/against-server.mjs",
     "server": "node server/reference.mjs"
   },

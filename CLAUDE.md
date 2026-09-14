@@ -171,5 +171,15 @@ Loading → `Skeleton*` (never a spinner for balances/lists). Empty → `EmptySt
 ## Accessibility
 Keyboard-complete; `:focus-visible` rings; ARIA roles on tabs (`SegmentedControl`), dialogs (`Sheet`), switches; long-form `aria-label` on amounts (`Money`, `AmountDisplay`); `prefers-reduced-motion` → 0 ms.
 
+- **« Keyboard-complete » is measured, by `pnpm e2e:keyboard`** — every screen at both
+  widths, driven with Tab, Shift-Tab, arrows, Enter and Escape and nothing else. It fails on a stop
+  that takes focus without showing it, a stop that is invisible or `aria-hidden`, a page Tab
+  cannot leave, a stop reachable in one direction only, a composite that costs more than one
+  Tab or whose arrows move nothing, a skip link that does not skip, and a `Sheet` that lets
+  focus out, ignores Escape, or drops focus instead of returning it to the opener. **The ring
+  may live on a wrapper**: `Field` draws it on its container via `:focus-within` so the label,
+  the leading icon and the input read as one control, and the check looks three levels up
+  rather than forcing the ring onto the input.
+
 ## Demo
 Demo account: `aissatou.ndiaye@exemple.sn` · code `246810` · PIN `1234`. Welcome screen has « Explorer la démo ».
