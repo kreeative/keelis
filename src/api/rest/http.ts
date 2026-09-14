@@ -11,9 +11,11 @@
  *    tell the user nothing. The mapping is deliberate rather than incidental: the server's
  *    own `code` wins when it sends one, the status decides otherwise, and a request that
  *    never left the device is `offline`, not `network` — the two get different copy because
- *    one is fixed by waiting and the other is not.
+ *    one is fixed by waiting and the other is not. Its *message* is shown for a refusal and
+ *    never for a fault: see `messageFor`.
  * 3. **Give up.** A money app that hangs on a dead socket is worse than one that fails: the
- *    user taps « Envoyer » again. Every request carries a timeout and aborts.
+ *    user taps « Envoyer » again. Every request carries a timeout and aborts — and a reply
+ *    that is not JSON fails here rather than travelling onward as `undefined`.
  */
 import { ApiError } from '../types'
 import { readJson, remove, writeJson } from '@/lib/storage'
@@ -55,6 +57,37 @@ const MESSAGE_FOR_CODE: Record<ApiError['code'], string> = {
   rate_limited: 'Trop de tentatives. Patientez un instant.',
   frozen: 'Cette carte est gelée.',
   unknown: 'Une erreur est survenue.',
+}
+
+/**
+ * Whose sentence the user reads.
+ *
+ * `docs/API.md` says `message` « est affiché tel quel », and for a **refusal** that is
+ * exactly right: a 4xx is the server having considered the request and declined it, and it
+ * wrote that line for the person who has to act on it. « Solde insuffisant » is a 409 that
+ * nothing on this side can tell apart from a duplicate, and « IBAN invalide » names a field
+ * only the server could have checked. Those words are the correct ones and no generic
+ * sentence improves them.
+ *
+ * A **5xx is not a refusal, it is a fault**, and its `message` is a log line. A
+ * half-deployed service answering `{"message":"boom"}` put the word « boom » on screen
+ * where the app's own sentence belonged; so would a stack fragment, an ORM's complaint
+ * about a column, or a proxy's English. None of that is copy, none of it is French, and
+ * none of it says what to do — which is all the contract asks a message to be. The status
+ * decides this, not the `code`: a service that is failing can also mislabel the failure.
+ *
+ * The length bound is the same argument from the other end. A `message` measured in
+ * kilobytes is a stack trace whatever the status said, and rendering it destroys the screen
+ * it was meant to explain.
+ */
+const MAX_SERVER_MESSAGE = 200
+
+function messageFor(sent: ServerError, status: number, code: ApiError['code']): string {
+  const ours = MESSAGE_FOR_CODE[code]
+  if (status >= 500) return ours
+  const theirs = sent.error?.message ?? sent.message
+  if (!theirs || theirs.length > MAX_SERVER_MESSAGE) return ours
+  return theirs
 }
 
 interface ServerError {
@@ -141,23 +174,43 @@ export function createHttp(opts: HttpOptions): Http {
     if (res.status === 204) return undefined as T
 
     let payload: unknown
+    let unparseable = false
     const text = await res.text().catch(() => '')
+    // An empty 200 is a legitimate void — several endpoints acknowledge and return nothing.
     if (text) {
       try {
         payload = JSON.parse(text)
       } catch {
-        payload = undefined
+        unparseable = true
       }
+    }
+
+    /* A 200 whose body is not JSON is a configuration fault, and it has to fail here.
+       Returning `undefined` sent it onward as *data*: the onboarding screen read `.step`
+       off it and threw, the route boundary caught that and said « Vérifiez votre
+       connexion » — blaming the network for a URL pointing at the wrong place. It is the
+       likeliest mistake anybody makes on the first day, because an API URL aimed at the
+       app's own origin answers every path with `index.html`, status 200. The user gets the
+       ordinary « service ne répond pas » sentence; the console gets the actual diagnosis,
+       because that is who can act on it. */
+    if (unparseable && res.ok) {
+      console.error(
+        `[keewal] ${method} ${url(path, query)} answered ${res.status} with ${res.headers.get('content-type') ?? 'no content type'} instead of JSON — ` +
+          `is VITE_API_URL pointing at the API rather than at the app? Body began: ${text.slice(0, 80)}`,
+      )
+      throw new ApiError(MESSAGE_FOR_CODE.network, 'network')
     }
 
     if (!res.ok) {
       const sent = (payload ?? {}) as ServerError
       // The server knows why it refused — "fonds insuffisants" is a 409 that only it can
       // tell apart from a duplicate. Its code wins; the status is the fallback.
-      const code = isKnownCode(sent.error?.code) ? sent.error.code : codeForStatus(res.status)
-      const message = sent.error?.message ?? sent.message ?? MESSAGE_FOR_CODE[code]
+      // Narrowed into a value rather than a boolean: `classified ? sent.error.code : …`
+      // through a separate flag leaves TypeScript with `string | undefined`.
+      const coded: ApiError['code'] | null = isKnownCode(sent.error?.code) ? sent.error.code : null
+      const code = coded ?? codeForStatus(res.status)
       if (code === 'unauthorized') setToken(null)
-      throw new ApiError(message, code, sent.error?.details)
+      throw new ApiError(messageFor(sent, res.status, code), code, sent.error?.details)
     }
 
     return payload as T

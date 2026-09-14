@@ -40,8 +40,17 @@ les clés » veut dire : les donner au back-end, et pointer `VITE_API_URL` vers 
 { "error": { "code": "insufficient_funds", "message": "Solde insuffisant", "details": { "iban": "Longueur incorrecte" } } }
 ```
 
-`message` est affiché tel quel : il doit être en français, court, et dire quoi faire.
-`details` associe un nom de champ à sa propre phrase, et remonte sous le champ concerné.
+`message` est affiché tel quel **sur un refus** — un statut 4xx : le serveur a examiné la
+demande et l'a déclinée, et il est le seul à savoir pourquoi. Il doit donc être en français,
+court, et dire quoi faire. `details` associe un nom de champ à sa propre phrase, et remonte
+sous le champ concerné.
+
+**Sur une panne — un statut 5xx — le `message` n'est jamais affiché**, quel que soit le
+`code` envoyé. Une panne n'est pas un refus : son message est une ligne de journal, et un
+service à demi déployé qui répond `{"message":"boom"}` a mis le mot « boom » à l'écran, à la
+place de la phrase de l'application. L'application dit alors la sienne, avec un bouton
+« Réessayer ». Un `message` de plus de 200 caractères est écarté de la même façon : c'est une
+trace d'exécution, pas une phrase.
 
 `code` décide de ce que l'écran fait, et prime sur le statut HTTP :
 

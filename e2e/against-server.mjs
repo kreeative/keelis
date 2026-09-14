@@ -9,9 +9,12 @@
  * contract.
  *
  * It boots both processes, drives a handful of paths that touch most of the surface, and
- * tears them down. Run it with `pnpm e2e:server`.
+ * tears them down. Then it does the other half, which matters just as much on the first
+ * day: it points the same build at a **broken** back-end and checks the app fails the way
+ * it should. Run it with `pnpm e2e:server`.
  */
 import { spawn } from 'node:child_process'
+import { createServer } from 'node:http'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { chromium } from 'playwright-core'
@@ -94,6 +97,57 @@ async function assertServingTheConfiguredBuild() {
 async function assertFree(port, what) {
   const answered = await fetch(`http://localhost:${port}/`).then(() => true).catch(() => false)
   if (answered) throw new Error(`something is already listening on ${port} — stop it before running ${what}`)
+}
+
+/**
+ * Stop the reference back-end so a broken one can take its port.
+ *
+ * The app is already built against this exact URL, so swapping what answers there is how
+ * one build covers both halves — the alternative is compiling the whole app twice.
+ */
+async function stopReference() {
+  const ref = children.shift()
+  if (ref) {
+    try {
+      process.kill(-ref.pid, 'SIGKILL')
+    } catch {
+      /* already gone */
+    }
+  }
+  // Wait for the port to actually free, or the broken server cannot bind it.
+  for (let i = 0; i < 40; i++) {
+    const stillUp = await fetch(`${API}/accounts`).then(() => true).catch(() => false)
+    if (!stillUp) return
+    await new Promise((r) => setTimeout(r, 200))
+  }
+  throw new Error('the reference back-end would not let go of its port')
+}
+
+/** A back-end that is reachable and wrong, in one of the two ways that actually happen. */
+function startBroken(mode) {
+  const server = createServer((req, res) => {
+    const cors = {
+      'Access-Control-Allow-Origin': req.headers.origin ?? '*',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Methods': 'GET,POST,PATCH,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    }
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, cors)
+      return res.end()
+    }
+    if (mode === 'html') {
+      // What an API URL pointed at the app's own origin returns for every path.
+      res.writeHead(200, { ...cors, 'Content-Type': 'text/html' })
+      return res.end('<!doctype html><title>app</title>')
+    }
+    res.writeHead(500, { ...cors, 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ error: { code: 'server', message: 'boom' } }))
+  })
+  return new Promise((resolve, reject) => {
+    server.once('error', reject)
+    server.listen(API_PORT, () => resolve(server))
+  })
 }
 
 const failures = []
@@ -195,6 +249,37 @@ try {
   // And the stream: a transaction posted by the server, seen without a refresh.
   await wait(/1 SNTS/, 'the receipt does not show a whole share')
   if (stream === 0) fail('the event stream never opened — the app is polling, not listening')
+  await page.close()
+
+  /* The other half: the same build, pointed at a back-end that is answering badly.
+     This is the first day, not the steady state — a half-deployed service, an API URL one
+     path segment off — and an app that mishandles it sends whoever is wiring it up looking
+     in the wrong place. Both modes below were real defects. */
+  console.log('Now against a back-end that is answering badly…')
+  await stopReference()
+  for (const [mode, what] of [
+    ['500', 'a service that is falling over'],
+    ['html', 'an API URL aimed at the app itself, so every path answers index.html'],
+  ]) {
+    const broken = await startBroken(mode)
+    const p = await browser.newPage({ viewport: { width: 390, height: 900 } })
+    const crashes = []
+    p.on('pageerror', (e) => crashes.push(e.message))
+    try {
+      await p.goto(`${APP}/inscription/courriel?mode=connexion`, { waitUntil: 'domcontentloaded' })
+      await p.waitForTimeout(6_000)
+      const text = (await p.locator('body').innerText().catch(() => '')).replace(/\s+/g, ' ')
+
+      // It has to say something, and it has to be the app's own sentence.
+      if (!/Réessayer/.test(text)) fail(`with ${what}, the app offered no way to retry — it said: ${text.slice(0, 160)}`)
+      if (/\bboom\b/.test(text)) fail(`with ${what}, the server's own log line reached the screen: ${text.slice(0, 160)}`)
+      if (/doctype|<title>/i.test(text)) fail(`with ${what}, a raw response body reached the screen`)
+      if (crashes.length) fail(`with ${what}, the app threw rather than failing: ${crashes[0]}`)
+    } finally {
+      await p.close()
+      await new Promise((r) => broken.close(r))
+    }
+  }
 
   await browser.close()
 } catch (e) {
@@ -207,4 +292,4 @@ if (failures.length) {
   console.error(`Against the reference back-end — failed (${failures.length}):\n` + failures.map((f) => '  - ' + f).join('\n'))
   process.exit(1)
 }
-console.log('Against the reference back-end: signed in, read accounts, holdings and pockets, placed an order — all over HTTP.')
+console.log('Against the reference back-end: signed in, read accounts, holdings and pockets, placed an order — all over HTTP.\nAgainst a broken one: failed with its own sentence and a way to retry, without throwing or repeating the server.')

@@ -20,8 +20,17 @@ interface Call {
 
 let calls: Call[] = []
 
+interface Queued {
+  status?: number
+  body?: unknown
+  throws?: Error
+  /** A raw body, for replies that are not JSON at all. */
+  text?: string
+  contentType?: string
+}
+
 /** A fetch that records the request and returns whatever the test queued. */
-function fakeFetch(responses: Array<{ status?: number; body?: unknown; throws?: Error }>): typeof fetch {
+function fakeFetch(responses: Array<Queued>): typeof fetch {
   let i = 0
   return (async (input: RequestInfo | URL, init?: RequestInit) => {
     const req = responses[Math.min(i, responses.length - 1)] ?? {}
@@ -34,16 +43,17 @@ function fakeFetch(responses: Array<{ status?: number; body?: unknown; throws?: 
     })
     if (req.throws) throw req.throws
     const status = req.status ?? 200
-    const text = req.body === undefined ? '' : JSON.stringify(req.body)
+    const text = req.text ?? (req.body === undefined ? '' : JSON.stringify(req.body))
     return {
       ok: status >= 200 && status < 300,
       status,
+      headers: new Headers(req.contentType ? { 'content-type': req.contentType } : {}),
       text: async () => text,
     } as Response
   }) as typeof fetch
 }
 
-function apiWith(responses: Array<{ status?: number; body?: unknown; throws?: Error }>) {
+function apiWith(responses: Array<Queued>) {
   return createRestApi({ baseUrl: 'https://api.example.test/v1', fetchFn: fakeFetch(responses) })
 }
 
@@ -174,6 +184,47 @@ describe('failures carry the code the screens branch on', () => {
     const err = await failure(api.accounts.list())
     expect(err.code).toBe('unknown')
     expect(err.message).toBe('non')
+  })
+
+  it('never puts a failing service’s own words on screen', async () => {
+    /* A half-deployed backend answering `{"message":"boom"}` printed « boom » to the user.
+       A 5xx is a fault, not a refusal: its message is a log line, and the app has its own
+       sentence for « the service is not answering » — the one with a Réessayer button. */
+    const api = apiWith([{ status: 500, body: { error: { code: 'server', message: 'boom' } } }])
+    const err = await failure(api.accounts.list())
+    expect(err.code).toBe('network')
+    expect(err.message).not.toContain('boom')
+    expect(err.message).toBe('Le service ne répond pas. Réessayez dans un instant.')
+  })
+
+  it('ignores a 5xx that mislabels itself as something the user caused', async () => {
+    // The status decides, not the code: a service that is falling over can also misreport.
+    const api = apiWith([{ status: 502, body: { error: { code: 'validation', message: 'upstream connect error 111' } } }])
+    const err = await failure(api.accounts.list())
+    expect(err.message).not.toContain('upstream')
+  })
+
+  it('still shows a refusal’s own sentence, which is the only correct one', async () => {
+    const api = apiWith([{ status: 409, body: { error: { code: 'insufficient_funds', message: 'Solde insuffisant sur le compte Chèque.' } } }])
+    const err = await failure(api.transfers.send({} as never))
+    expect(err.code).toBe('insufficient_funds')
+    expect(err.message).toBe('Solde insuffisant sur le compte Chèque.')
+  })
+
+  it('refuses a message long enough to be a stack trace', async () => {
+    const api = apiWith([{ status: 400, body: { error: { code: 'validation', message: 'x'.repeat(4000) } } }])
+    const err = await failure(api.accounts.list())
+    expect(err.message).toBe('Ces informations ne sont pas valides.')
+  })
+
+  it('refuses a 200 that is not JSON instead of passing undefined to a screen', async () => {
+    /* The likeliest first-day mistake: VITE_API_URL aimed at the app's own origin, where
+       every path answers `index.html` with status 200. This used to return `undefined` as
+       data — the onboarding screen read `.step` off it, threw, and the boundary blamed the
+       user's connection for a URL pointing at the wrong place. */
+    const api = apiWith([{ status: 200, text: '<!doctype html><title>app</title>', contentType: 'text/html' }])
+    const err = await failure(api.accounts.list())
+    expect(err.code).toBe('network')
   })
 
   it('survives an error body that is not JSON', async () => {
