@@ -10,6 +10,7 @@
  *
  * Usage: node e2e/flows.mjs [--keep] (--keep leaves screenshots of each step in e2e/out/)
  */
+import { Buffer } from 'node:buffer'
 import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { chromium } from 'playwright-core'
@@ -357,8 +358,89 @@ async function createAGoal(browser) {
   }
 }
 
+/**
+ * Signing up, from the first screen to the last — nine steps, no session injected.
+ *
+ * This is the only path where somebody who has never used the app has to get all the way
+ * through on their own, and it is the one that was quietly closed: the address step
+ * offered thirteen Canadian provinces and demanded a Canadian postal code, so nobody in
+ * Dakar could finish. Worth walking end to end rather than photographing step by step.
+ */
+async function signUp(browser) {
+  const flow = 'Inscription'
+  const page = await browser.newPage({ viewport: { width: 390, height: 900 } })
+  await page.addInitScript(() => {
+    localStorage.clear()
+    localStorage.setItem('keewal.theme', '"light"')
+  })
+  watchConsole(page, flow)
+  try {
+    await page.goto(`${BASE}/inscription/courriel`, { waitUntil: 'domcontentloaded' })
+    const next = () => page.getByRole('button', { name: /Continuer|Suivant|Terminer|Ouvrir/ }).last()
+
+    await present(page, page.getByLabel(/Courriel|Adresse courriel/), 'the email step')
+    await page.getByLabel(/Courriel|Adresse courriel/).first().fill('nouvelle.cliente@exemple.sn')
+    await next().click()
+
+    /* The code is a field, not a keypad — deliberately: `autocomplete="one-time-code"`
+       lets the phone fill it from the message, which a custom keypad throws away. */
+    await present(page, page.getByLabel('Code à six chiffres'), 'the code step')
+    await page.getByLabel('Code à six chiffres').fill('246810')
+
+    await present(page, page.getByLabel(/Prénom/), 'the name step')
+    await page.getByLabel(/Prénom/).first().fill('Fatou')
+    await page.getByLabel(/Nom/).last().fill('Sow')
+    await next().click()
+
+    await present(page, page.getByLabel('Date de naissance'), 'the birth step')
+    await page.getByLabel('Date de naissance').fill('1994-03-22')
+    await next().click()
+
+    // The step that used to be impossible from Dakar.
+    await present(page, page.getByLabel('Pays'), 'the address step')
+    const country = await page.getByLabel('Pays').inputValue()
+    if (country !== 'SN') fail(flow, `the address step opens on « ${country} » rather than Senegal, the home market`)
+    await page.getByLabel('Adresse').first().fill('12, rue Carnot')
+    await page.getByLabel('Ville').fill('Dakar')
+    await page.getByLabel(/Région/).selectOption('Dakar')
+    await page.getByLabel(/Code postal/).fill('11000')
+    await shot(page, 'signup-address')
+    if (await next().isDisabled()) return fail(flow, 'the address step could not be completed with a Dakar address')
+    await next().click()
+
+    // KYC needs a document, and there is no skip — which is correct for opening an account.
+    await present(page, page.getByText(/Déposez votre document/), 'the document step')
+    await page.locator('input[type=file]').setInputFiles({ name: 'cni.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('demo') })
+    await present(page, page.getByText('cni.jpg'), 'the chosen document')
+    await next().click()
+
+    await present(page, page.getByRole('button', { name: /Continuer|Activer|Plus tard/ }).last(), 'the two-factor step')
+    await page.getByRole('button', { name: /Continuer|Activer|Plus tard/ }).last().click()
+
+    // A PIN, then its confirmation.
+    await present(page, page.getByRole('button', { name: '1', exact: true }), 'the PIN keypad')
+    await keypad(page, ['1', '2', '3', '4'])
+    await page.waitForTimeout(500)
+    await keypad(page, ['1', '2', '3', '4'])
+    await page.waitForTimeout(700)
+
+    await present(page, page.getByText('Actifs', { exact: true }).first(), 'the product step')
+    await shot(page, 'signup-product')
+    await page.getByText('Actifs', { exact: true }).first().click()
+    await page.getByRole('button', { name: /Ouvrir/ }).last().click()
+    // The account is open when the app itself is on screen.
+    await present(page, page.getByText(/Valeur du portefeuille|Solde total/i), 'the app after signing up', 12_000)
+    await shot(page, 'signup-done')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
 const executablePath = findChromium()
 const browser = await chromium.launch(executablePath ? { executablePath } : {})
+await signUp(browser)
 await buyAShare(browser)
 await sellAShare(browser)
 await sendThroughAnOperator(browser)
@@ -375,4 +457,4 @@ if (failures.length) {
   console.error(`Flows failed (${failures.length}):\n` + failures.map((f) => '  - ' + f).join('\n'))
   process.exit(1)
 }
-console.log('Flows passed: buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal.')
+console.log('Flows passed: sign up, buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal.')
