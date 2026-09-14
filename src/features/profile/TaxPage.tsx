@@ -4,12 +4,12 @@
 import { useMemo } from 'react'
 import { api, type TaxDocument } from '@/api'
 import { Badge, Button, EmptyState, ErrorState, Icon, List, ListRow, PageHeader, Skeleton } from '@/components'
-import { QK, useQuery, useToast } from '@/store'
+import { download } from '@/lib/download'
+import { QK, useQuery } from '@/store'
 import { RowIcon } from './RowIcon'
 import styles from './TaxPage.module.css'
 
 export default function TaxPage() {
-  const { toast } = useToast()
   const docs = useQuery<TaxDocument[]>(QK.taxDocs, () => api.profile.taxDocuments())
 
   const years = useMemo(() => {
@@ -54,10 +54,15 @@ export default function TaxPage() {
                       title={<span className={styles.wrap}>{d.name}</span>}
                       subtitle={`Année d’imposition ${d.year}`}
                       trailing={
-                        d.available ? (
-                          <Button variant="ghost" iconOnly aria-label={`Télécharger ${d.name}`} onClick={() => toast(`${d.name} · téléchargement lancé`)}>
+                        d.available && d.url ? (
+                          <Button variant="ghost" iconOnly aria-label={`Télécharger ${d.name}`} onClick={() => download(d.url!, d.name)}>
                             <Icon name="download" size={20} />
                           </Button>
+                        ) : d.available ? (
+                          // Listed, dated, and with no file behind it: say so.
+                          <Badge tone="neutral" size="xs">
+                            Démonstration
+                          </Badge>
                         ) : (
                           <Badge tone="neutral">En février</Badge>
                         )

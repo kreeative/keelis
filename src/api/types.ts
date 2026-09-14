@@ -535,7 +535,13 @@ export interface Statement {
   period: string
   /** YYYY-MM */
   month: string
-  url: string
+  /**
+   * Where the PDF actually is. **Absent means there is no document** — the demonstration
+   * has nothing to hand over — and the screen has to say so rather than offer a download
+   * button that toasts « téléchargement lancé » and downloads nothing. A real back-end
+   * returns a signed URL here and the button works.
+   */
+  url?: string
 }
 
 export interface TaxDocument {

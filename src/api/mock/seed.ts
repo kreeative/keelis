@@ -541,8 +541,10 @@ function monthKey(offset: number): { key: string; label: string } {
 export const seedStatements: Statement[] = [1, 2, 3].flatMap((offset) => {
   const { key, label } = monthKey(offset)
   return [
-    { id: `stm_chq_${key}`, accountId: IDS.checking, period: label, month: key, url: '#' },
-    { id: `stm_epg_${key}`, accountId: IDS.savings, period: label, month: key, url: '#' },
+    /* No `url`: there is no PDF behind these. The screen says « Indisponible en
+       démonstration » instead of pretending to download one. */
+    { id: `stm_chq_${key}`, accountId: IDS.checking, period: label, month: key },
+    { id: `stm_epg_${key}`, accountId: IDS.savings, period: label, month: key },
   ]
 })
 
@@ -550,8 +552,8 @@ export const seedStatements: Statement[] = [1, 2, 3].flatMap((offset) => {
    from securities in the zone — the BRVM equivalent of the T5 that used to be listed here,
    alongside a Relevé 3 from Québec. */
 export const seedTaxDocuments: TaxDocument[] = [
-  { id: 'tax_irvm_prev', name: 'Attestation IRVM — revenus de valeurs mobilières', year: NOW.getFullYear() - 1, available: true, url: '#' },
-  { id: 'tax_interets_prev', name: 'Relevé annuel des intérêts — Épargne', year: NOW.getFullYear() - 1, available: true, url: '#' },
+  { id: 'tax_irvm_prev', name: 'Attestation IRVM — revenus de valeurs mobilières', year: NOW.getFullYear() - 1, available: true },
+  { id: 'tax_interets_prev', name: 'Relevé annuel des intérêts — Épargne', year: NOW.getFullYear() - 1, available: true },
   { id: 'tax_crypto', name: 'Rapport de transactions crypto', year: NOW.getFullYear(), available: false },
 ]
 

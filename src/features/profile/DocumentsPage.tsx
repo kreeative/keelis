@@ -3,9 +3,10 @@
  */
 import { useMemo, useState } from 'react'
 import { api, type Statement } from '@/api'
-import { Button, EmptyState, ErrorState, Icon, List, ListRow, PageHeader, SegmentedControl, Skeleton } from '@/components'
+import { Badge, Button, EmptyState, ErrorState, Icon, List, ListRow, PageHeader, SegmentedControl, Skeleton } from '@/components'
+import { download } from '@/lib/download'
 import { useAccounts } from '@/features/shared'
-import { QK, useQuery, useToast } from '@/store'
+import { QK, useQuery } from '@/store'
 import { RowIcon } from './RowIcon'
 import styles from './DocumentsPage.module.css'
 
@@ -17,7 +18,6 @@ const SCOPES: ReadonlyArray<{ value: Scope; label: string }> = [
 ]
 
 export default function DocumentsPage() {
-  const { toast } = useToast()
   const [scope, setScope] = useState<Scope>('checking')
   const statements = useQuery<Statement[]>(QK.statements, () => api.profile.statements())
 
@@ -56,9 +56,18 @@ export default function DocumentsPage() {
                     title={s.period}
                     subtitle="Relevé mensuel · PDF"
                     trailing={
-                      <Button variant="ghost" iconOnly aria-label={`Télécharger le relevé ${s.period}`} onClick={() => toast(`Relevé ${s.period} · téléchargement lancé`)}>
-                        <Icon name="download" size={20} />
-                      </Button>
+                      /* A download button with nothing behind it used to toast
+                         « téléchargement lancé » and download nothing — the same claim the
+                         conversion screen made about money. The badge is the truth. */
+                      s.url ? (
+                        <Button variant="ghost" iconOnly aria-label={`Télécharger le relevé ${s.period}`} onClick={() => download(s.url!, `Relevé ${s.period}`)}>
+                          <Icon name="download" size={20} />
+                        </Button>
+                      ) : (
+                        <Badge tone="neutral" size="xs">
+                          Démonstration
+                        </Badge>
+                      )
                     }
                   />
                 ))}
@@ -71,7 +80,7 @@ export default function DocumentsPage() {
           <h2 className="t-section">Bon à savoir</h2>
           <p className={styles.note}>Le relevé du mois est déposé le premier jour du mois suivant. Les douze derniers mois restent accessibles ici.</p>
           <List>
-            <ListRow to="/profil/fiscalite" leading={<RowIcon name="receipt" />} title="Fiscalité" subtitle={<span className={styles.wrap}>Feuillets T5, Relevé 3 et rapport crypto</span>} chevron />
+            <ListRow to="/profil/fiscalite" leading={<RowIcon name="receipt" />} title="Fiscalité" subtitle={<span className={styles.wrap}>Attestation IRVM, relevé d’intérêts et rapport crypto</span>} chevron />
           </List>
         </aside>
       </div>
