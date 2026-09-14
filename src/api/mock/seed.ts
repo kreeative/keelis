@@ -47,10 +47,10 @@ export const seedUser: User = {
   id: 'usr_01',
   firstName: 'Aïssatou',
   lastName: 'Ndiaye',
-  email: 'aissatou.ndiaye@exemple.ca',
-  phone: '+1 514 555 0148',
+  email: 'aissatou.ndiaye@exemple.sn',
+  phone: '+221 77 555 01 48',
   dateOfBirth: '1994-03-22',
-  address: { line1: '4512, rue Saint-Hubert', line2: 'app. 3', city: 'Montréal', province: 'QC', postalCode: 'H2J 2W9', country: 'CA' },
+  address: { line1: '12, rue Carnot', line2: 'Plateau', city: 'Dakar', province: 'Dakar', postalCode: '11000', country: 'SN' },
   verified: true,
   twoFactorEnabled: true,
   biometricsEnabled: false,
@@ -69,14 +69,18 @@ export const seedCard: Card = {
   kind: 'virtual',
 }
 
+/* A UEMOA RIB, and an IBAN that passes this app's own ISO 13616 check — a demonstration
+   number that its own validator rejects is worse than no number. It was Canadian, and
+   `CA62…` is doubly wrong: Canada does not issue IBANs at all. */
 export const seedAccountDetails: AccountDetails = {
   accountId: IDS.checking,
   holderName: 'Aïssatou Ndiaye',
-  institutionNumber: '628',
-  transitNumber: '10402',
-  accountNumber: '4001 8827 3',
-  iban: 'CA62 8104 0240 0188 2730',
-  swift: 'KAALCAM2',
+  bankCode: 'SN010',
+  branchCode: '01050',
+  accountNumber: '000012345678',
+  ribKey: '76',
+  iban: 'SN39 0100 1050 0000 0123 4567 8976',
+  swift: 'KWMLSNDA',
 }
 
 // ---------- Crypto ----------
@@ -255,17 +259,18 @@ export const seedRecurring: RecurringBuy[] = [
 
 // ---------- Accounts ----------
 
+/* Round francs, the way a balance is actually quoted. */
 export const seedBalances = {
-  checking: Math.round(4_218.37 * XOF_PER_EUR),
-  savings: Math.round(12_640.15 * XOF_PER_EUR),
+  checking: 2_766_500,
+  savings: 8_290_000,
 }
 
 export const SAVINGS_APY = 4.0
 
 export function makeAccounts(cryptoValue: number, cryptoChange: number, cryptoChangePct: number, cryptoSparkline: number[], balances = seedBalances): Account[] {
   return [
-    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, change24h: Math.round(-86.4 * XOF_PER_EUR), change24hPct: -2.0, openedAt: daysAgo(112) },
-    { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: Math.round(1.39 * XOF_PER_EUR), change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
+    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, change24h: -56_675, change24hPct: -2.0, openedAt: daysAgo(112) },
+    { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: 912, change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
     { id: IDS.crypto, kind: 'crypto', name: 'Crypto', currency: 'XOF', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
   ]
 }
@@ -280,22 +285,36 @@ interface MerchantSeed {
   channel: Transaction['channel']
 }
 
+/**
+ * A week of spending in Dakar, **priced in francs**.
+ *
+ * Both halves of that sentence were wrong before. The names were Montréal's — Épicerie
+ * Beaubien, Quincaillerie Villeray, Cinéma Beaubien — which is the first thing anyone
+ * scrolling the transaction list would have noticed about an app that opens with « Investir
+ * depuis l'Afrique de l'Ouest ». And the amounts were authored on a one-unit-≈-one-euro
+ * scale and multiplied by the peg, so a hardware shop charged 74 222 F CFA: arithmetically
+ * fine, and a price no shop has ever put on anything. Francs are quoted in round numbers,
+ * so these are authored in francs and rounded to the nearest 25.
+ *
+ * The places are named by neighbourhood and trade rather than after real businesses: a
+ * demonstration should not put invented charges against somebody's actual shop.
+ */
 const merchants: MerchantSeed[] = [
-  { name: 'Épicerie Beaubien', category: 'groceries', min: 18, max: 96, channel: 'card_present' },
-  { name: 'Marché Fruits & Cie', category: 'groceries', min: 12, max: 64, channel: 'card_present' },
-  { name: 'Café Saint-Viateur', category: 'restaurants', min: 4.25, max: 14.5, channel: 'card_present' },
-  { name: 'Restaurant Le Passage', category: 'restaurants', min: 28, max: 92, channel: 'card_present' },
-  { name: 'Boulangerie Rosemont', category: 'restaurants', min: 6, max: 22, channel: 'card_present' },
-  { name: 'Transport en commun', category: 'transport', min: 3.75, max: 3.75, channel: 'card_present' },
-  { name: 'Station-service Papineau', category: 'transport', min: 42, max: 78, channel: 'card_present' },
-  { name: 'Pharmacie du Quartier', category: 'health', min: 9, max: 58, channel: 'card_present' },
-  { name: 'Librairie du Parc', category: 'shopping', min: 15, max: 72, channel: 'card_present' },
-  { name: 'Friperie Mile-End', category: 'shopping', min: 20, max: 110, channel: 'card_present' },
-  { name: 'Abonnement musique', category: 'subscriptions', min: 11.99, max: 11.99, channel: 'online' },
-  { name: 'Abonnement vidéo', category: 'subscriptions', min: 16.49, max: 16.49, channel: 'online' },
-  { name: 'Télécom mobile', category: 'utilities', min: 54.6, max: 54.6, channel: 'online' },
-  { name: 'Cinéma Beaubien', category: 'entertainment', min: 14, max: 32, channel: 'card_present' },
-  { name: 'Quincaillerie Villeray', category: 'shopping', min: 8, max: 140, channel: 'card_present' },
+  { name: 'Marché Kermel', category: 'groceries', min: 3_000, max: 18_000, channel: 'card_present' },
+  { name: 'Supérette Point E', category: 'groceries', min: 1_500, max: 9_000, channel: 'card_present' },
+  { name: 'Café Touba — Médina', category: 'restaurants', min: 500, max: 1_500, channel: 'card_present' },
+  { name: 'Restaurant La Teranga', category: 'restaurants', min: 8_000, max: 35_000, channel: 'card_present' },
+  { name: 'Boulangerie du Plateau', category: 'restaurants', min: 500, max: 3_000, channel: 'card_present' },
+  { name: 'Transport urbain', category: 'transport', min: 250, max: 250, channel: 'card_present' },
+  { name: 'Station-service Ouakam', category: 'transport', min: 15_000, max: 40_000, channel: 'card_present' },
+  { name: 'Pharmacie Mermoz', category: 'health', min: 2_500, max: 25_000, channel: 'card_present' },
+  { name: 'Librairie du Plateau', category: 'shopping', min: 4_000, max: 30_000, channel: 'card_present' },
+  { name: 'Tissus — marché HLM', category: 'shopping', min: 10_000, max: 60_000, channel: 'card_present' },
+  { name: 'Abonnement musique', category: 'subscriptions', min: 3_500, max: 3_500, channel: 'online' },
+  { name: 'Abonnement vidéo', category: 'subscriptions', min: 5_500, max: 5_500, channel: 'online' },
+  { name: 'Forfait mobile', category: 'utilities', min: 15_000, max: 15_000, channel: 'online' },
+  { name: 'Cinéma — Sea Plaza', category: 'entertainment', min: 3_000, max: 6_000, channel: 'card_present' },
+  { name: 'Quincaillerie Grand-Yoff', category: 'shopping', min: 2_000, max: 75_000, channel: 'card_present' },
 ]
 
 export function makeTransactions(): Transaction[] {
@@ -304,20 +323,21 @@ export function makeTransactions(): Transaction[] {
   let n = 0
   const id = () => `tx_${String(++n).padStart(4, '0')}`
 
-  /* Every figure below was authored on a ~1:1 "one unit ≈ one euro" scale, back when the
-     demo account was Canadian. The account is West African now, so each amount is carried
-     across the peg once, here, and rounded to whole francs — XOF has no centimes, and a
-     transaction that cannot be paid in cash should not be shown. Scaling at this one
-     boundary keeps the authored figures readable in the source instead of scattering
-     six-digit literals through it. */
-  const add = (t: Omit<Transaction, 'id' | 'currency'>) =>
-    txs.push({ id: id(), currency: 'XOF', ...t, amount: Math.round(t.amount * XOF_PER_EUR) })
+  /* Amounts below are **francs**, written as someone in Dakar would say them. They used
+     to be euros multiplied by the peg here, which was arithmetically correct and produced
+     a salary of 1 432 938 F CFA and a rent of 934 739 — numbers nobody has ever been paid
+     or charged. XOF has no centimes either, so everything is whole.
+
+     Asset prices are the exception and still cross the peg where they are used: a share of
+     Dangote or a bitcoin has an international price, and that one *is* a conversion. */
+  const add = (t: Omit<Transaction, 'id' | 'currency'>) => txs.push({ id: id(), currency: 'XOF', ...t, amount: Math.round(t.amount) })
 
   // Card spend: ~40 over 90 days
   for (let i = 0; i < 40; i++) {
     const m = rng.pick(merchants)
     const day = rng.int(0, 89)
-    const amount = -Math.round(rng.range(m.min, m.max) * 100) / 100
+    // To the nearest 25 F: francs are quoted in round numbers, and the coins go 25, 50, 100.
+    const amount = -Math.round(rng.range(m.min, m.max) / 25) * 25
     add({
       accountId: IDS.checking,
       type: 'card',
@@ -336,35 +356,35 @@ export function makeTransactions(): Transaction[] {
 
   // Salary: 3 months, twice a month
   for (const day of [2, 16, 32, 46, 62, 76]) {
-    add({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: 2_184.5, counterparty: 'Salaire — Studio Nord', category: 'income', date: daysAgo(day, 6, 5), postedAt: daysAgo(day, 6, 5), channel: 'bank', reference: `PAIE${1000 + day}` })
+    add({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: 425_000, counterparty: 'Salaire — Teranga Digital', category: 'income', date: daysAgo(day, 6, 5), postedAt: daysAgo(day, 6, 5), channel: 'bank', reference: `PAIE${1000 + day}` })
   }
 
   // Rent: monthly
   for (const day of [9, 40, 70]) {
-    add({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -1_425, counterparty: 'Loyer — Gestion Immobilière Roy', category: 'housing', date: daysAgo(day, 8), postedAt: daysAgo(day, 8), channel: 'bank' })
+    add({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -250_000, counterparty: 'Loyer — Résidence Point E', category: 'housing', date: daysAgo(day, 8), postedAt: daysAgo(day, 8), channel: 'bank' })
   }
 
   // Utilities
   for (const day of [5, 36, 66]) {
-    add({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -68.32, counterparty: 'Électricité', category: 'utilities', date: daysAgo(day, 10), postedAt: daysAgo(day, 10), channel: 'online' })
+    add({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -35_000, counterparty: 'Senelec — électricité', category: 'utilities', date: daysAgo(day, 10), postedAt: daysAgo(day, 10), channel: 'online' })
   }
 
   // e-transfers
-  add({ accountId: IDS.checking, type: 'etransfer_in', status: 'posted', amount: 120, counterparty: 'Amina D.', category: 'transfer', date: daysAgo(1, 19, 42), postedAt: daysAgo(1, 19, 43), channel: 'app', note: 'Ta part du souper' })
-  add({ accountId: IDS.checking, type: 'etransfer_out', status: 'posted', amount: -45, counterparty: 'Karim B.', category: 'transfer', date: daysAgo(4, 13, 10), postedAt: daysAgo(4, 13, 12), channel: 'app', note: 'Billets' })
-  add({ accountId: IDS.checking, type: 'etransfer_out', status: 'posted', amount: -300, counterparty: 'Fatou N.', category: 'transfer', date: daysAgo(27, 9, 5), postedAt: daysAgo(27, 9, 6), channel: 'app' })
-  add({ accountId: IDS.checking, type: 'refund', status: 'posted', amount: 34.99, counterparty: 'Librairie du Parc', category: 'shopping', date: daysAgo(12, 15), postedAt: daysAgo(11, 3), cardLast4: seedCard.last4, channel: 'online' })
+  add({ accountId: IDS.checking, type: 'etransfer_in', status: 'posted', amount: 45_000, counterparty: 'Amina D.', category: 'transfer', date: daysAgo(1, 19, 42), postedAt: daysAgo(1, 19, 43), channel: 'app', note: 'Ta part du souper' })
+  add({ accountId: IDS.checking, type: 'etransfer_out', status: 'posted', amount: -15_000, counterparty: 'Karim B.', category: 'transfer', date: daysAgo(4, 13, 10), postedAt: daysAgo(4, 13, 12), channel: 'app', note: 'Billets' })
+  add({ accountId: IDS.checking, type: 'etransfer_out', status: 'posted', amount: -100_000, counterparty: 'Fatou N.', category: 'transfer', date: daysAgo(27, 9, 5), postedAt: daysAgo(27, 9, 6), channel: 'app' })
+  add({ accountId: IDS.checking, type: 'refund', status: 'posted', amount: 12_000, counterparty: 'Librairie du Plateau', category: 'shopping', date: daysAgo(12, 15), postedAt: daysAgo(11, 3), cardLast4: seedCard.last4, channel: 'online' })
 
   // Savings: deposits + monthly interest
   for (const day of [3, 33, 63]) {
-    add({ accountId: IDS.savings, type: 'deposit', status: 'posted', amount: 650, counterparty: 'Depuis Chèque', category: 'savings', date: daysAgo(day, 6, 30), postedAt: daysAgo(day, 6, 30), channel: 'app' })
-    add({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -650, counterparty: 'Vers Épargne', category: 'savings', date: daysAgo(day, 6, 30), postedAt: daysAgo(day, 6, 30), channel: 'app' })
+    add({ accountId: IDS.savings, type: 'deposit', status: 'posted', amount: 200_000, counterparty: 'Depuis Chèque', category: 'savings', date: daysAgo(day, 6, 30), postedAt: daysAgo(day, 6, 30), channel: 'app' })
+    add({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -200_000, counterparty: 'Vers Épargne', category: 'savings', date: daysAgo(day, 6, 30), postedAt: daysAgo(day, 6, 30), channel: 'app' })
   }
-  for (const [day, amt] of [[10, 41.88], [41, 39.72], [71, 37.15]] as const) {
-    add({ accountId: IDS.savings, type: 'interest', status: 'posted', amount: amt, counterparty: 'Intérêts Keewal Meere Épargne', category: 'income', date: daysAgo(day, 0, 5), postedAt: daysAgo(day, 0, 5), channel: 'app' })
+  for (const [day, amt] of [[10, 27_465], [41, 26_050], [71, 24_365]] as const) {
+    add({ accountId: IDS.savings, type: 'interest', status: 'posted', amount: amt, counterparty: 'Intérêts — Épargne', category: 'income', date: daysAgo(day, 0, 5), postedAt: daysAgo(day, 0, 5), channel: 'app' })
   }
-  add({ accountId: IDS.savings, type: 'withdrawal', status: 'posted', amount: -400, counterparty: 'Vers Chèque', category: 'savings', date: daysAgo(19, 11), postedAt: daysAgo(19, 11), channel: 'app' })
-  add({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: 400, counterparty: 'Depuis Épargne', category: 'savings', date: daysAgo(19, 11), postedAt: daysAgo(19, 11), channel: 'app' })
+  add({ accountId: IDS.savings, type: 'withdrawal', status: 'posted', amount: -125_000, counterparty: 'Vers Chèque', category: 'savings', date: daysAgo(19, 11), postedAt: daysAgo(19, 11), channel: 'app' })
+  add({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: 125_000, counterparty: 'Depuis Épargne', category: 'savings', date: daysAgo(19, 11), postedAt: daysAgo(19, 11), channel: 'app' })
 
   // Crypto: buys/sells + recurring
   const cryptoTrades: Array<[number, 'crypto_buy' | 'crypto_sell' | 'recurring_buy', string, string, number, number]> = [
@@ -381,7 +401,9 @@ export function makeTransactions(): Transaction[] {
     [7, 'crypto_buy', 'btc', 'BTC', 0.0035, 141_200],
   ]
   for (const [day, type, assetId, symbol, qty, price] of cryptoTrades) {
-    const fiat = Math.round(qty * price * 100) / 100
+    // The price above is on the asset scale (one unit ≈ one euro), like every other price
+    // in this file; the francs that leave the account are that, crossed once.
+    const fiat = Math.round(qty * price * XOF_PER_EUR)
     const sell = type === 'crypto_sell'
     add({ accountId: IDS.crypto, type, status: 'posted', amount: sell ? fiat : -fiat, counterparty: `${sell ? 'Vente' : 'Achat'} ${symbol}`, category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app', asset: { assetId, symbol, quantity: qty, price } })
     add({ accountId: IDS.checking, type: sell ? 'transfer_in' : 'transfer_out', status: 'posted', amount: sell ? fiat : -fiat, counterparty: sell ? 'Depuis Crypto' : 'Vers Crypto', category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app' })
@@ -393,9 +415,12 @@ export function makeTransactions(): Transaction[] {
 
 // ---------- Savings goals ----------
 
+/* In francs, like everything else the account holds. These were euro figures used raw, so
+   « Voyage à Dakar » was a 3 500 F CFA goal — about five euros — shown to someone who
+   lives in Dakar. Both the amounts and the ambition were wrong. */
 export const seedGoals: SavingsGoal[] = [
-  { id: 'goal_01', name: 'Voyage à Dakar', target: 3_500, current: 1_850, monthlyContribution: 250, createdAt: daysAgo(64), estimatedDate: daysAhead(200) },
-  { id: 'goal_02', name: 'Fonds d’urgence', target: 10_000, current: 6_200, monthlyContribution: 400, createdAt: daysAgo(105), estimatedDate: daysAhead(290) },
+  { id: 'goal_01', name: 'Tabaski', target: 750_000, current: 410_000, monthlyContribution: 60_000, createdAt: daysAgo(64), estimatedDate: daysAhead(200) },
+  { id: 'goal_02', name: 'Fonds d’urgence', target: 3_000_000, current: 1_850_000, monthlyContribution: 150_000, createdAt: daysAgo(105), estimatedDate: daysAhead(290) },
 ]
 
 // ---------- Notifications ----------
@@ -404,7 +429,7 @@ export const seedNotifications: AppNotification[] = [
   { id: 'ntf_01', kind: 'transaction', title: 'Paiement de 23,40 $', body: 'Café Saint-Viateur · Carte ···· 7364', date: daysAgo(0, 8, 42), read: false, link: '/carte' },
   { id: 'ntf_02', kind: 'market', title: 'SOL en hausse de 3,2 % aujourd’hui', body: 'Votre position vaut maintenant 3 567,50 $.', date: daysAgo(0, 7, 15), read: false, link: '/crypto/sol' },
   { id: 'ntf_03', kind: 'transaction', title: 'e-Transfer reçu · 120,00 $', body: 'Amina D. vous a envoyé de l’argent.', date: daysAgo(1, 19, 43), read: false, link: '/carte' },
-  { id: 'ntf_04', kind: 'security', title: 'Nouvelle connexion', body: 'iPhone · Montréal, QC. Ce n’était pas vous ? Sécurisez votre compte.', date: daysAgo(2, 21, 3), read: true, link: '/profil/securite' },
+  { id: 'ntf_04', kind: 'security', title: 'Nouvelle connexion', body: 'iPhone · Dakar, Sénégal. Ce n’était pas vous ? Sécurisez votre compte.', date: daysAgo(2, 21, 3), read: true, link: '/profil/securite' },
   { id: 'ntf_05', kind: 'savings', title: 'Objectif « Voyage à Dakar » à 53 %', body: 'Encore 1 650 $ à épargner. Prochain versement le 1er du mois.', date: daysAgo(3, 9, 0), read: true, link: '/epargne' },
   { id: 'ntf_06', kind: 'transaction', title: 'Achat récurrent exécuté', body: '50,00 $ de BTC achetés au prix de 141 200 $.', date: daysAgo(7, 9, 31), read: true, link: '/crypto/recurrents' },
   { id: 'ntf_07', kind: 'savings', title: 'Intérêts versés · 41,88 $', body: 'Votre compte Épargne a rapporté 41,88 $ ce mois-ci.', date: daysAgo(10, 0, 5), read: true, link: '/epargne' },
@@ -414,10 +439,10 @@ export const seedNotifications: AppNotification[] = [
 // ---------- Funding ----------
 
 export const seedFundingSources: FundingSource[] = [
-  { id: 'src_bank', kind: 'bank', label: 'Banque liée', mask: 'Compte chèque ···· 4821', eta: '1 à 3 jours ouvrables', etaMinutes: 2_880, feePct: 0, limitPerDay: Math.round(25_000 * XOF_PER_EUR) },
-  { id: 'src_etransfer', kind: 'etransfer', label: 'e-Transfer', mask: 'aissatou.ndiaye@exemple.ca', eta: 'Quelques minutes', etaMinutes: 15, feePct: 0, limitPerDay: Math.round(3_000 * XOF_PER_EUR) },
-  { id: 'src_wire', kind: 'wire', label: 'Virement bancaire', mask: 'Instructions fournies', eta: '1 à 2 jours ouvrables', etaMinutes: 1_440, feePct: 0, limitPerDay: Math.round(100_000 * XOF_PER_EUR) },
-  { id: 'src_card', kind: 'card', label: 'Carte de débit', mask: '···· 2210', eta: 'Instantané', etaMinutes: 0, feePct: 0.0, limitPerDay: Math.round(1_000 * XOF_PER_EUR) },
+  { id: 'src_bank', kind: 'bank', label: 'Banque liée', mask: 'Compte ···· 4821', eta: '1 à 3 jours ouvrables', etaMinutes: 2_880, feePct: 0, limitPerDay: 15_000_000 },
+  { id: 'src_momo', kind: 'mobile_money', label: 'Mobile Money', mask: 'Wave · +221 77 555 01 48', eta: 'Instantané', etaMinutes: 2, feePct: 0.01, limitPerDay: 2_000_000 },
+  { id: 'src_wire', kind: 'wire', label: 'Virement bancaire', mask: 'Instructions fournies', eta: '1 à 2 jours ouvrables', etaMinutes: 1_440, feePct: 0, limitPerDay: 65_000_000 },
+  { id: 'src_card', kind: 'card', label: 'Carte bancaire', mask: '···· 2210', eta: 'Instantané', etaMinutes: 0, feePct: 0.0, limitPerDay: 650_000 },
 ]
 
 // ---------- Profile ----------
@@ -443,9 +468,12 @@ export const seedStatements: Statement[] = [1, 2, 3].flatMap((offset) => {
   ]
 })
 
+/* The documents a UEMOA investor actually receives. The IRVM is the withholding on income
+   from securities in the zone — the BRVM equivalent of the T5 that used to be listed here,
+   alongside a Relevé 3 from Québec. */
 export const seedTaxDocuments: TaxDocument[] = [
-  { id: 'tax_t5_prev', name: 'Relevé T5 — revenus de placement', year: NOW.getFullYear() - 1, available: true, url: '#' },
-  { id: 'tax_r3_prev', name: 'Relevé 3 (Québec)', year: NOW.getFullYear() - 1, available: true, url: '#' },
+  { id: 'tax_irvm_prev', name: 'Attestation IRVM — revenus de valeurs mobilières', year: NOW.getFullYear() - 1, available: true, url: '#' },
+  { id: 'tax_interets_prev', name: 'Relevé annuel des intérêts — Épargne', year: NOW.getFullYear() - 1, available: true, url: '#' },
   { id: 'tax_crypto', name: 'Rapport de transactions crypto', year: NOW.getFullYear(), available: false },
 ]
 

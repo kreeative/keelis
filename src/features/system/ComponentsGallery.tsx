@@ -537,7 +537,7 @@ export default function ComponentsGallery() {
 
         <Section id="champs" title="Field">
           <Example caption="Field · vide avec indice" fill>
-            <Field label="Courriel" placeholder="nom@exemple.ca" hint="Nous confirmons chaque connexion." />
+            <Field label="Courriel" placeholder="nom@exemple.sn" hint="Nous confirmons chaque connexion." />
           </Example>
           <Example caption="Field · rempli" fill>
             <Field label="Nom du bénéficiaire" value={text} onChange={(e) => setText(e.target.value)} />

@@ -27,7 +27,7 @@ export const TYPE_CHIPS: readonly TypeChip[] = [
     types: TRANSFER_TYPES,
     match: (t) => TRANSFER_TYPES.includes(t.type) && t.category !== 'savings' && t.category !== 'crypto',
   },
-  { value: 'etransfer', label: 'e-Transfer', types: ['etransfer_in', 'etransfer_out'], match: (t) => t.type === 'etransfer_in' || t.type === 'etransfer_out' },
+  { value: 'etransfer', label: 'Transferts', types: ['etransfer_in', 'etransfer_out'], match: (t) => t.type === 'etransfer_in' || t.type === 'etransfer_out' },
   { value: 'deposits', label: 'Dépôts', types: ['deposit'], match: (t) => t.type === 'deposit' },
   {
     value: 'savings',

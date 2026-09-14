@@ -159,4 +159,4 @@ Loading → `Skeleton*` (never a spinner for balances/lists). Empty → `EmptySt
 Keyboard-complete; `:focus-visible` rings; ARIA roles on tabs (`SegmentedControl`), dialogs (`Sheet`), switches; long-form `aria-label` on amounts (`Money`, `AmountDisplay`); `prefers-reduced-motion` → 0 ms.
 
 ## Demo
-Demo account: `aissatou.ndiaye@exemple.ca` · code `246810` · PIN `1234`. Welcome screen has « Explorer la démo ».
+Demo account: `aissatou.ndiaye@exemple.sn` · code `246810` · PIN `1234`. Welcome screen has « Explorer la démo ».

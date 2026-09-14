@@ -35,9 +35,10 @@ const SKELETON_ROWS = 6
 function rowsOf(d: AccountDetails): DetailRow[] {
   return [
     { label: 'Titulaire', value: d.holderName, short: 'le nom du titulaire', mono: false },
-    { label: 'Numéro d’institution', value: d.institutionNumber, short: 'le numéro d’institution', mono: true },
-    { label: 'Numéro de transit', value: d.transitNumber, short: 'le numéro de transit', mono: true },
+    { label: 'Code banque', value: d.bankCode, short: 'le code banque', mono: true },
+    { label: 'Code guichet', value: d.branchCode, short: 'le code guichet', mono: true },
     { label: 'Numéro de compte', value: d.accountNumber, short: 'le numéro de compte', mono: true },
+    { label: 'Clé RIB', value: d.ribKey, short: 'la clé RIB', mono: true },
     { label: 'IBAN', value: d.iban, short: 'l’IBAN', mono: true },
     { label: 'SWIFT/BIC', value: d.swift, short: 'le code SWIFT', mono: true },
   ]

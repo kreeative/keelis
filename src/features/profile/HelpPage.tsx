@@ -146,11 +146,11 @@ export default function HelpPage() {
               </span>
               <Icon name="chevron-right" className={styles.contactChevron} />
             </button>
-            <a className={styles.contact} href="mailto:aide@keewal.ca">
+            <a className={styles.contact} href="mailto:aide@keewal.sn">
               <RowIcon name="mail" />
               <span className={styles.contactText}>
                 <span className={styles.contactTitle}>Courriel</span>
-                <span className={styles.contactSub}>aide@keewal.ca</span>
+                <span className={styles.contactSub}>aide@keewal.sn</span>
               </span>
               <Icon name="chevron-right" className={styles.contactChevron} />
             </a>

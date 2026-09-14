@@ -56,7 +56,7 @@ pnpm install
 pnpm dev            # http://localhost:5173
 ```
 
-Compte de démonstration : `aissatou.ndiaye@exemple.ca` · code `246810` · NIP `1234` (ou « Explorer la démo » sur l'écran d'accueil).
+Compte de démonstration : `aissatou.ndiaye@exemple.sn` · code `246810` · NIP `1234` (ou « Explorer la démo » sur l'écran d'accueil).
 
 ## Vérifier
 

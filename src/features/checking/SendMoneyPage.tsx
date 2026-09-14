@@ -14,10 +14,10 @@ import { bicMatchesIban, checkIban, formatIban, isValidBic, normalizeIban, type 
 import { QK, useQuery, useSettings } from '@/store'
 import styles from './SendMoneyPage.module.css'
 
-type Mode = 'etransfer' | 'interne' | 'bancaire'
+type Mode = 'operateur' | 'interne' | 'bancaire'
 
 const MODES: ReadonlyArray<{ value: Mode; label: string; title: string; eta: string; description: string }> = [
-  { value: 'etransfer', label: 'Transfert', title: 'Transfert', eta: 'Quelques minutes', description: 'Vers Wave, Orange Money, MoneyGram, Interac et une douzaine d’autres.' },
+  { value: 'operateur', label: 'Transfert', title: 'Transfert', eta: 'Quelques minutes', description: 'Vers Wave, Orange Money, MoneyGram, Interac et une douzaine d’autres.' },
   { value: 'interne', label: 'Interne', title: 'Virement interne', eta: 'Instantané', description: 'Instantané, entre vos comptes Keewal Meere.' },
   { value: 'bancaire', label: 'Bancaire', title: 'Virement bancaire', eta: '1 à 2 jours ouvrables', description: '1 à 2 jours ouvrables, vers une autre institution.' },
 ]
@@ -35,7 +35,7 @@ const IBAN_MESSAGE: Readonly<Record<IbanError, string>> = {
 }
 
 function isMode(v: string | null): v is Mode {
-  return v === 'etransfer' || v === 'interne' || v === 'bancaire'
+  return v === 'operateur' || v === 'interne' || v === 'bancaire'
 }
 
 /**
@@ -60,7 +60,7 @@ export default function SendMoneyPage() {
   const balance = account.data?.balance
 
   const modeParam = params.get('mode')
-  const mode: Mode = isMode(modeParam) ? modeParam : 'etransfer'
+  const mode: Mode = isMode(modeParam) ? modeParam : 'operateur'
   const config = MODES.find((m) => m.value === mode)!
   const internal = mode === 'interne'
   const wire = mode === 'bancaire'
@@ -163,7 +163,7 @@ export default function SendMoneyPage() {
         recipient: internal ? undefined : { name: name.trim(), email: wire ? undefined : email.trim(), iban: wire ? normalizeIban(iban) : undefined, bic: wire ? bic.trim().toUpperCase() : undefined },
         amount: value,
         note: note.trim() || undefined,
-        method: internal ? 'internal' : mode === 'bancaire' ? 'wire' : 'etransfer',
+        method: internal ? 'internal' : mode === 'bancaire' ? 'wire' : 'operator',
       })
       setConfirmOpen(false)
       setResult({ movement, recipient: recipientLabel, amount: value })
@@ -299,7 +299,7 @@ export default function SendMoneyPage() {
                 inputMode="email"
                 autoComplete="email"
                 spellCheck={false}
-                placeholder="nom@exemple.ca"
+                placeholder="nom@exemple.sn"
                 value={email}
                 error={emailError ?? undefined}
                 onChange={(e) => {

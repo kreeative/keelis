@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { bicMatchesIban, checkIban, formatIban, ibanCountry, isValidBic, isValidIban, normalizeIban } from './iban'
+import { seedAccountDetails } from '@/api/mock/seed'
 
 // Published specimen IBANs — the shapes banks print as examples, which satisfy mod 97.
 const SN = 'SN08SN0100152000048500003035'
@@ -77,5 +78,13 @@ describe('BIC', () => {
     expect(bicMatchesIban('BNPAFRPP', SN)).toBe(false)
     // Too little typed to contradict anything yet.
     expect(bicMatchesIban('CBAO', SN)).toBe(true)
+  })
+})
+
+describe('the demonstration account', () => {
+  it('carries an IBAN that this validator accepts', () => {
+    // A demo number its own checker rejects is worse than no number — and the previous one
+    // started `CA62`, from a country that does not issue IBANs at all.
+    expect(checkIban(seedAccountDetails.iban)).toBeNull()
   })
 })

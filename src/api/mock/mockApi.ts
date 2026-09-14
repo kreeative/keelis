@@ -112,8 +112,11 @@ class MockState {
   recurring: RecurringBuy[] = seedRecurring.map((r) => ({ ...r }))
   notifications: AppNotification[] = seedNotifications.map((n) => ({ ...n }))
   balances = { ...seedBalances }
-  interestThisMonth = 41.88
-  interestAllTime = 118.75
+  /* Francs, matching the interest transactions in the seed. These were euro figures used
+     raw, so the savings screen reported earning 42 F CFA this month on a balance of eight
+     million — six centimes of interest on twelve thousand euros. */
+  interestThisMonth = 27_465
+  interestAllTime = 77_880
   devices = seedDevices.map((d) => ({ ...d }))
   listeners = new Set<(e: ApiEvent) => void>()
   priceListeners = new Set<(a: CryptoAsset[]) => void>()
@@ -741,15 +744,17 @@ export const mockApi: KeewalApi = {
       const balance = state.balances.savings
       const dailyRate = SAVINGS_APY / 100 / 365
       const pts: PricePoint[] = []
-      // Deposits of 650 roughly every 30 days; a 400 withdrawal 19 days ago
+      // The same movements the seed records, in francs: 200 000 in roughly every 30 days,
+      // and the 125 000 withdrawal 19 days ago. The curve has to agree with the list under
+      // it — a chart that contradicts its own transactions is worse than no chart.
       for (let i = 0; i < cfg.points; i++) {
         const t = end - (cfg.points - 1 - i) * cfg.stepMs
         const daysBack = (end - t) / 86_400_000
         let v = balance
-        v -= 650 * Math.floor(Math.max(0, daysBack - 3) / 30 + (daysBack >= 3 ? 1 : 0))
-        if (daysBack >= 19) v += 400
+        v -= 200_000 * Math.floor(Math.max(0, daysBack - 3) / 30 + (daysBack >= 3 ? 1 : 0))
+        if (daysBack >= 19) v += 125_000
         v = v / Math.pow(1 + dailyRate, daysBack)
-        v += rng.range(-0.4, 0.4)
+        v += rng.range(-250, 250)
         pts.push({ t, p: Math.max(0, v) })
       }
       pts[pts.length - 1] = { t: end, p: balance }

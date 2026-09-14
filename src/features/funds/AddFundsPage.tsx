@@ -28,7 +28,7 @@ const DESTINATIONS: ReadonlyArray<{ value: Destination; label: string; kind: Acc
 
 const SOURCE_ICONS: Record<FundingSource['kind'], IconName> = {
   bank: 'landmark',
-  etransfer: 'send',
+  mobile_money: 'send',
   wire: 'building-2',
   card: 'credit-card',
 }
@@ -152,9 +152,10 @@ export default function AddFundsPage() {
   const wireRows = details.data
     ? [
         { label: 'Titulaire', value: details.data.holderName, short: 'le nom du titulaire', mono: false },
-        { label: 'Institution', value: details.data.institutionNumber, short: 'le numéro d’institution', mono: true },
-        { label: 'Transit', value: details.data.transitNumber, short: 'le numéro de transit', mono: true },
+        { label: 'Code banque', value: details.data.bankCode, short: 'le code banque', mono: true },
+        { label: 'Code guichet', value: details.data.branchCode, short: 'le code guichet', mono: true },
         { label: 'Numéro de compte', value: details.data.accountNumber, short: 'le numéro de compte', mono: true },
+        { label: 'Clé RIB', value: details.data.ribKey, short: 'la clé RIB', mono: true },
         { label: 'IBAN', value: details.data.iban, short: 'l’IBAN', mono: true },
         { label: 'SWIFT/BIC', value: details.data.swift, short: 'le code SWIFT', mono: true },
       ]

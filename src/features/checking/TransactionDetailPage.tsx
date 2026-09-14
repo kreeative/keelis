@@ -140,7 +140,7 @@ export default function TransactionDetailPage() {
 
   const duplicate = () => {
     const params = new URLSearchParams()
-    params.set('mode', tx.type === 'transfer_out' ? 'bancaire' : 'etransfer')
+    params.set('mode', tx.type === 'transfer_out' ? 'bancaire' : 'operateur')
     params.set('name', tx.counterparty)
     params.set('montant', String(Math.abs(tx.amount)))
     navigate(`/envoyer?${params.toString()}`)

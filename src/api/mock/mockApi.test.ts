@@ -100,23 +100,26 @@ describe('seed', () => {
   it('filters transactions', async () => {
     const card = await mockApi.transactions.list({ types: ['card'], accountId: IDS.checking })
     expect(card.every((t) => t.type === 'card')).toBe(true)
-    const q = await mockApi.transactions.list({ query: 'beaubien' })
+    // Accent- and case-insensitive search over the counterparty: « kermel » has to find
+    // « Marché Kermel ». The merchant list is Dakar's, so the term is too.
+    const q = await mockApi.transactions.list({ query: 'kermel' })
     expect(q.length).toBeGreaterThan(0)
+    expect(q.every((t) => t.counterparty.toLowerCase().includes('kermel'))).toBe(true)
   })
 })
 
 describe('auth', () => {
   it('opens a session for the demo user with the demo code', async () => {
-    await mockApi.auth.requestCode('aissatou.ndiaye@exemple.ca')
-    const r = await mockApi.auth.verifyCode('aissatou.ndiaye@exemple.ca', '246810')
+    await mockApi.auth.requestCode('aissatou.ndiaye@exemple.sn')
+    const r = await mockApi.auth.verifyCode('aissatou.ndiaye@exemple.sn', '246810')
     expect(r.session?.user.firstName).toBe('Aïssatou')
     expect(await mockApi.auth.getSession()).not.toBeNull()
     await mockApi.auth.signOut()
     expect(await mockApi.auth.getSession()).toBeNull()
   })
   it('rejects wrong codes', async () => {
-    await mockApi.auth.requestCode('new@exemple.ca')
-    await expect(mockApi.auth.verifyCode('new@exemple.ca', '000000')).rejects.toMatchObject({ code: 'validation' })
+    await mockApi.auth.requestCode('new@exemple.sn')
+    await expect(mockApi.auth.verifyCode('new@exemple.sn', '000000')).rejects.toMatchObject({ code: 'validation' })
   })
   it('verifies the PIN', async () => {
     await mockApi.auth.setPin('4321')

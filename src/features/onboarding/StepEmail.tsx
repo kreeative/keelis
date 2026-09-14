@@ -55,7 +55,7 @@ export function StepEmail() {
         autoComplete="email"
         ref={focusRef}
         spellCheck={false}
-        placeholder="nom@exemple.ca"
+        placeholder="nom@exemple.sn"
         value={email}
         error={error ?? undefined}
         onChange={(e) => {

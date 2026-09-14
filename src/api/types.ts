@@ -81,12 +81,22 @@ export interface Account {
   openedAt: string
 }
 
+/**
+ * What someone copies onto a transfer form. The fields are the UEMOA/CEMAC RIB — bank
+ * code, branch code, account number, RIB key — not the Canadian institution-and-transit
+ * pair these used to be. A Dakar bank does not have a transit number, and pasting one into
+ * a wire form is how a transfer bounces.
+ */
 export interface AccountDetails {
   accountId: string
   holderName: string
-  institutionNumber: string
-  transitNumber: string
+  /** Code banque — five characters in the UEMOA RIB. */
+  bankCode: string
+  /** Code guichet — the branch, five characters. */
+  branchCode: string
   accountNumber: string
+  /** Clé RIB — the two check digits that make the rest verifiable. */
+  ribKey: string
   iban: string
   swift: string
 }
@@ -372,7 +382,12 @@ export interface GoalInput {
 
 // ---------- Funding / transfers ----------
 
-export type FundingKind = 'bank' | 'wire' | 'etransfer' | 'card'
+/**
+ * Where money comes *into* an account from. « e-Transfer » used to be one of these: an
+ * Interac brand, in an app whose accounts are in Dakar. In this zone the everyday rail is
+ * Mobile Money — a phone number is the account — so that is what it is called.
+ */
+export type FundingKind = 'bank' | 'wire' | 'mobile_money' | 'card'
 
 /** How a transfer operator identifies the person receiving the money. */
 export type TransferHandle = 'phone' | 'email' | 'tag' | 'account'
@@ -427,11 +442,16 @@ export interface AddFundsRequest {
 export interface TransferRequest {
   fromAccountId: string
   toAccountId?: string
-  /** An e-Transfer reaches an email; a wire reaches bank coordinates. Both carry a name. */
+  /** An operator reaches a phone, tag or email; a wire reaches bank coordinates. Both carry a name. */
   recipient?: { name: string; email?: string; iban?: string; bic?: string }
   amount: number
   note?: string
-  method: 'internal' | 'etransfer' | 'wire'
+  /**
+   * `operator` covers every rail on `/envoyer/operateurs` — Wave, Orange Money, MoneyGram,
+   * Interac and the rest. It was called `etransfer`, which named one Canadian rail out of
+   * fifteen and put that brand in the contract.
+   */
+  method: 'internal' | 'operator' | 'wire'
 }
 
 export interface MoneyMovementResult {
