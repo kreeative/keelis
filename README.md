@@ -41,8 +41,24 @@ VITE_API_URL=https://api.votredomaine.com/v1
   fichier que des soldes réels.
 
 Aucun écran ne change, parce qu'aucun écran ne sait à qui il parle.
-[`docs/API.md`](docs/API.md) est la spécification complète : 62 points d'entrée, la forme des
+[`docs/API.md`](docs/API.md) est la spécification complète : 65 points d'entrée, la forme des
 erreurs, le flux d'évènements, et ce que le back-end doit garantir.
+
+**Et ce n'est pas une promesse sur papier.** `server/reference.mjs` est un back-end de
+référence — sans dépendance, la logique simulée servie en HTTP — qui répond à ce contrat :
+
+```bash
+pnpm server                              # http://localhost:8787/v1
+VITE_API_URL=http://localhost:8787/v1 pnpm build && pnpm preview
+pnpm e2e:server                          # les deux, automatiquement, puis un parcours réel
+```
+
+`pnpm e2e:server` compile l'application configurée, vérifie que le paquet livré ne contient
+plus la moindre donnée simulée, ouvre une session, lit les comptes, les titres et les poches
+de devises, passe un ordre et vérifie que le flux d'évènements est bien **ouvert** et non
+retombé sur l'interrogation périodique — le tout sur le réseau. C'est la seule preuve que
+« brancher un back-end » fonctionne ; tout le reste teste l'application contre des chiffres
+inventés.
 
 > **Si le back-end est sur un autre domaine**, ajoutez-le à `connect-src` dans la
 > Content-Security-Policy de `vercel.json`. La politique est volontairement stricte
@@ -74,6 +90,7 @@ pnpm build && pnpm preview &
 pnpm e2e            # Playwright : captures 320/390/768/1440 × clair/sombre + audit contraste, cibles 44px, débordement
 pnpm e2e:flows      # Playwright : parcours d'argent réels — acheter, envoyer par opérateur, convertir, déposer, hors ligne, verrou
 pnpm e2e:csp        # Playwright : l'application sous la Content-Security-Policy déployée
+pnpm e2e:server     # Playwright : l'application compilée contre le back-end de référence, en HTTP
 ```
 
 ## Architecture

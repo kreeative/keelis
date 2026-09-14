@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -p tsconfig.json && vite build",
-    "preview": "vite preview --host --port 4173",
+    "preview": "vite preview --host --port 4173 --strictPort",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -15,7 +15,9 @@
     "e2e:flows": "node e2e/flows.mjs",
     "build:single": "node scripts/build-single.mjs",
     "check": "pnpm typecheck && pnpm test && pnpm check:design",
-    "e2e:csp": "node e2e/csp.mjs"
+    "e2e:csp": "node e2e/csp.mjs",
+    "e2e:server": "node e2e/against-server.mjs",
+    "server": "node server/reference.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.544.0",

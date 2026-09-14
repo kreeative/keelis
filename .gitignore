@@ -14,3 +14,4 @@ dist-live
 .env
 .env.*
 !.env.example
+dist-server

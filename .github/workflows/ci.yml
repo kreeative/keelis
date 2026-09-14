@@ -7,7 +7,11 @@
 # `e2e:flows` drives the money flows — buy, send, convert, deposit — and fails on a button
 # that stays disabled or a balance that does not move. `e2e:csp` serves the app under the
 # exact Content-Security-Policy in vercel.json, because a policy nobody has exercised is a
-# policy that breaks the application for everyone on the day it ships.
+# policy that breaks the application for everyone on the day it ships. `e2e:server` is the
+# only one that proves the thing the whole architecture is for: it compiles the app with
+# `VITE_API_URL` set — which strips the mock out of the bundle entirely — and runs it against
+# a server answering `docs/API.md` over HTTP. Everything else tests the app against invented
+# data.
 name: CI
 
 on:
@@ -50,3 +54,5 @@ jobs:
         run: pnpm e2e:flows
       - name: Content-Security-Policy
         run: pnpm e2e:csp
+      - name: Against a real back-end
+        run: pnpm e2e:server
