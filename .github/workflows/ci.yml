@@ -45,8 +45,13 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # `playwright-core` has no installer — it is the library, not the tool — so
+      # `pnpm exec playwright install` failed with « Command "playwright" not found » and took
+      # every browser check down with it. The version is read from the installed core rather
+      # than pinned here: the CLI downloads a browser build keyed to its own version, and a
+      # mismatch leaves `chromium.launch()` looking in a folder that does not exist.
       - name: Install a browser
-        run: pnpm exec playwright install --with-deps chromium
+        run: npx --yes playwright@$(node -p "require('playwright-core/package.json').version") install --with-deps chromium
 
       - name: Serve the build
         run: |
