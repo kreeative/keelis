@@ -151,7 +151,13 @@ export default function CryptoListPage() {
       ? 'Automatisez vos achats'
       : activeRecurring.length === 0
         ? 'Aucun achat programmé'
-        : `${activeRecurring.length} ${activeRecurring.length > 1 ? 'achats actifs' : 'achat actif'} · ${formatMoney(monthlyTotal(recurring.data), { locale })} par mois`
+        : /* The amount and its period, and not the count.
+             « 2 achats actifs · 158,250 F CFA par mois » wants 261px and the row gives it
+             170 at 320px and 240 at 390 — so it was cut at both widths, and what the cut
+             took was « par mois »: the amount was left standing next to nothing saying how
+             often. The count is the first thing /crypto/recurrents says when you arrive;
+             the rate is the fact this row exists to carry. */
+          `${formatMoney(monthlyTotal(recurring.data), { locale })} par mois`
 
   const firstLoad = (market.assets === undefined && market.loading) || (filter === 'mine' && holdings.data === undefined && holdings.loading)
   const marketFailed = market.assets === undefined && !!market.error

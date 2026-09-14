@@ -56,11 +56,26 @@
 .goals { display: flex; flex-direction: column; gap: var(--sp-2); }
 .goal { min-width: 0; }
 .goalInner { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
-.goalTop { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
+/* The name gets its own line on a phone, the way `ListRow stack` does it.
+   Measured at 320px: the pair « 1,850,000 F CFA / 3,000,000 F CFA » is 210px of a 254px
+   row, which left « Fonds d'urgence » thirty-two pixels — it rendered as « Fo… ». A goal's
+   name is the one thing on the card that is the person's own words, and it was the only
+   thing being thrown away. Stacked, it has the full 254 and the figures keep their natural
+   width; from 768px there is room for both on one line and they go back to it. */
+.goalTop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+}
+@media (min-width: 768px) {
+  .goalTop { flex-direction: row; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
+}
 .goalName {
   font-size: var(--fs-body);
   font-weight: var(--fw-medium);
   min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
