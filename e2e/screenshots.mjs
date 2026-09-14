@@ -10,7 +10,8 @@
  *    background — translucent glass surfaces are blended down to the ground colour
  *
  * Usage: node e2e/screenshots.mjs [--routes=/,/crypto] [--widths=390,1440] [--themes=light,dark] [--no-shots] [--anonymous]
- *   --anonymous : do not inject the demo session (for /bienvenue and /inscription/* routes)
+ *   --anonymous : visit *every* route signed out. The signed-out routes are in the default
+ *                 sweep already and choose their own session; this forces the rest too.
  */
 import { chromium } from 'playwright-core'
 import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
@@ -26,6 +27,18 @@ const ROUTES = (args.routes ? String(args.routes).split(',') : [
   '/carte', '/carte/details', '/envoyer', '/envoyer/operateurs', '/convertir', '/epargne', '/epargne/deposer', '/epargne/retirer', '/epargne/objectifs/nouveau', '/epargne/objectifs/goal_01',
   '/fonds', '/profil', '/profil/securite', '/profil/notifications', '/profil/documents', '/profil/fiscalite', '/profil/aide', '/profil/donnees', '/profil/risque', '/notifications', '/entreprise', '/composants',
 ])
+
+/**
+ * Routes that must be visited *without* a session, and which the sweep used to skip.
+ *
+ * `--anonymous` decided it for a whole run, so covering them meant a second invocation
+ * nobody made: the welcome screen and every step of the onboarding wizard — the first
+ * screens anybody ever sees, and the only ones a new user judges the app by — had never
+ * been through the contrast audit at four widths in two themes. The session is chosen per
+ * route now, so one run covers both.
+ */
+const ANON_ROUTES = new Set(['/bienvenue', '/inscription/courriel', '/inscription/code', '/inscription/identite', '/inscription/adresse', '/inscription/piece', '/inscription/2fa', '/inscription/nip', '/inscription/produit'])
+if (!args.routes) for (const r of ANON_ROUTES) ROUTES.push(r)
 const WIDTHS = (args.widths ? String(args.widths).split(',').map(Number) : [320, 390, 768, 1440])
 const THEMES = (args.themes ? String(args.themes).split(',') : ['light', 'dark'])
 const SHOTS = !args['no-shots']
@@ -47,7 +60,7 @@ function findChromium() {
 }
 
 const DEMO_SESSION = {
-  user: { id: 'usr_01', firstName: 'Aïssatou', lastName: 'Ndiaye', email: 'aissatou.ndiaye@exemple.ca', verified: true, twoFactorEnabled: true, biometricsEnabled: false, pinSet: true, locale: 'fr-SN', createdAt: new Date(Date.now() - 100 * 86400000).toISOString() },
+  user: { id: 'usr_01', firstName: 'Aïssatou', lastName: 'Ndiaye', email: 'aissatou.ndiaye@exemple.sn', verified: true, twoFactorEnabled: true, biometricsEnabled: false, pinSet: true, locale: 'fr-SN', createdAt: new Date(Date.now() - 100 * 86400000).toISOString() },
   token: 'e2e',
   expiresAt: new Date(Date.now() + 86400000).toISOString(),
 }
@@ -153,26 +166,38 @@ let total = 0
 try {
   for (const theme of THEMES) {
     const ctx = await browser.newContext({ colorScheme: theme, locale: 'fr-SN', deviceScaleFactor: 1 })
+    /* Both, and the page picks. An init script runs before every navigation, so it cannot
+       be the thing that decides — it reads a flag the loop sets just before each goto. */
     await ctx.addInitScript((session) => {
       try {
-        if (session) {
-          localStorage.setItem('keewal.session', JSON.stringify(session))
-          localStorage.setItem('keewal.pin', '"1234"')
-        } else {
+        if (sessionStorage.getItem('e2e.anon') === '1') {
           localStorage.removeItem('keewal.session')
           localStorage.removeItem('keewal.onboarding')
+        } else {
+          localStorage.setItem('keewal.session', JSON.stringify(session))
+          localStorage.setItem('keewal.pin', '"1234"')
         }
       } catch {}
-    }, ANON ? null : DEMO_SESSION)
+    }, DEMO_SESSION)
     for (const width of WIDTHS) {
       const page = await ctx.newPage()
       await page.setViewportSize({ width, height: width < 768 ? 844 : 900 })
       const errors = []
       page.on('pageerror', (e) => errors.push(String(e)))
       page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()) })
+      /* One throwaway navigation to put the page on the app's origin before the loop.
+         `sessionStorage` is per-origin and a fresh page sits on `about:blank`, so the flag
+         written for the first route landed nowhere: /bienvenue was visited *with* a session,
+         redirected to the dashboard, and audited the home screen under the welcome screen's
+         name — passing, and measuring the wrong page. */
+      await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => {})
       for (const route of ROUTES) {
         const url = BASE + route
         try {
+          const anon = ANON || ANON_ROUTES.has(route)
+          /* `sessionStorage` survives the navigation the init script runs before, which
+             `localStorage` written here would not — the script clears that one. */
+          await page.evaluate((v) => sessionStorage.setItem('e2e.anon', v), anon ? '1' : '0').catch(() => {})
           await page.goto(url, { waitUntil: 'networkidle', timeout: 20000 })
           await page.waitForTimeout(700)
           // Let skeletons resolve (mock latency ≤ 600 ms + settle)
