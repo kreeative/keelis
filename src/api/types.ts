@@ -3,7 +3,9 @@
  * `src/api/mock` implements it in-memory; a real backend can replace it
  * without touching any screen.
  *
- * Money: all fiat amounts are numbers in CAD dollars (not cents).
+ * Money: fiat amounts are numbers in the currency's **main unit**, never in minor units —
+ * 1 500 F CFA is `1500`. Each object carrying an amount carries its currency with it, and
+ * not every currency has cents: see `lib/currency.ts`.
  * Dates: ISO 8601 strings.
  */
 

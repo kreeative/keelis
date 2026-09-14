@@ -17,13 +17,13 @@ interface Faq {
 const FAQ: ReadonlyArray<Faq> = [
   {
     id: 'frais',
-    q: 'Quels frais s’appliquent à un achat de cryptomonnaie ?',
-    a: 'Keewal Meere applique un écart (spread) sur le prix du marché, indiqué en pourcentage et en dollars avant chaque confirmation. Aucun frais fixe ne s’ajoute : le montant total affiché sur l’écran de confirmation est celui qui sera débité.',
+    q: 'Quels frais s’appliquent à un achat ?',
+    a: 'Keewal Meere applique un écart (spread) sur le prix du marché, indiqué en pourcentage et en francs avant chaque confirmation, sur une action comme sur une crypto. Aucun frais fixe ne s’ajoute : le montant total affiché sur l’écran de confirmation est celui qui sera débité.',
   },
   {
     id: 'depots',
     q: 'Combien de temps prend un dépôt ?',
-    a: 'Un e-Transfer arrive en quelques minutes. Un virement depuis une banque liée prend de un à trois jours ouvrables. Le délai estimé est affiché avant la confirmation, puis rappelé sur l’écran de suivi.',
+    a: 'Un dépôt par Mobile Money arrive en quelques minutes. Un virement depuis une banque liée prend de un à trois jours ouvrables. Le délai estimé est affiché avant la confirmation, puis rappelé sur l’écran de suivi.',
   },
   {
     id: 'carte',
@@ -154,11 +154,11 @@ export default function HelpPage() {
               </span>
               <Icon name="chevron-right" className={styles.contactChevron} />
             </a>
-            <a className={styles.contact} href="tel:+15145550100">
+            <a className={styles.contact} href="tel:+221338000000">
               <RowIcon name="smartphone" />
               <span className={styles.contactText}>
                 <span className={styles.contactTitle}>Téléphone</span>
-                <span className={styles.contactSub}>514 555-0100 · 7 h à 21 h</span>
+                <span className={styles.contactSub}>+221 33 800 00 00 · 7 h à 21 h</span>
               </span>
               <Icon name="chevron-right" className={styles.contactChevron} />
             </a>

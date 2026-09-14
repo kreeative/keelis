@@ -35,7 +35,7 @@ export interface DeltaProps extends HTMLAttributes<HTMLSpanElement> {
   value: number
   /** Trailing context, e.g. « 24 h », « ce mois-ci » */
   suffix?: string
-  /** The same move in dollars. Shown before the percentage, which goes in brackets —
+  /** The same move as money. Shown before the percentage, which goes in brackets —
       a percentage alone does not say whether it was worth 4 $ or 400 $. */
   amount?: number
   /** 'text' sits inline; 'pill' encloses it in a rounded chip, as on a stat card. */

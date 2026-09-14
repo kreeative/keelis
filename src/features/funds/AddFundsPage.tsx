@@ -349,14 +349,14 @@ export default function AddFundsPage() {
             { label: 'Destination', value: target.name },
             { label: 'Montant', value: <Money value={value} unmasked /> },
             { label: 'Frais', value: <Money value={fee} unmasked /> },
-            { label: 'Écart de change', value: 'Aucun', hint: 'Dépôt en dollars canadiens' },
+            { label: 'Écart de change', value: 'Aucun', hint: 'Dépôt en francs CFA' },
             { label: 'Total débité', value: <Money value={total} unmasked />, strong: true },
             { label: 'Délai', value: source.eta },
           ]}
           note={
             fee > 0
               ? `Les frais de ${formatMoney(fee, { locale })} sont prélevés par ${source.label} et inclus dans le total débité.`
-              : 'Keewal Meere ne prélève aucuns frais sur les dépôts et n’applique aucun écart de change : le montant est déposé en dollars canadiens.'
+              : 'Keewal Meere ne prélève aucuns frais sur les dépôts et n’applique aucun écart de change : le montant est déposé en francs CFA.'
           }
           confirmLabel="Déposer"
           onConfirm={() => void submit()}
