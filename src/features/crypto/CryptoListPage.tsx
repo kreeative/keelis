@@ -1,8 +1,13 @@
 /**
- * /crypto — the Crypto account value is the hero; under it, live prices for every asset.
+ * /crypto — the whole book's value is the hero; under it, live prices for every asset.
  * Prices come from useMarket() (tick every 10 s) and update in place, without animation.
+ *
+ * « Actifs » and « Crypto » are two accounts now, and this page still lists both classes —
+ * so the hero is their sum (`useLiveBook`) rather than either one, and `?classe=` opens the
+ * list on one of them.
  */
 import { useDeferredValue, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { AmountDisplay, AppBar, AssetIcon, Badge, Button, Card, Chart, ChipBar, Delta, EmptyState, ErrorState, Field, Icon, List, ListRow, Money, SegmentedControl, SkeletonRow, Sparkline } from '@/components'
 import { api } from '@/api'
 import type { ChartRange, CryptoAsset, Holding, PriceHistory } from '@/api/types'
@@ -11,7 +16,7 @@ import { QK, useQuery, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import { RANGES, monthlyTotal, rangePeriod } from './cryptoFormat'
 import { LearnSheet, type LearnTopic } from './LearnSheet'
-import { useLiveAccount, useLiveAssets, useLiveHoldings, useLiveRecurring } from './hooks'
+import { useLiveAssets, useLiveBook, useLiveHoldings, useLiveRecurring } from './hooks'
 import styles from './CryptoListPage.module.css'
 
 type Filter = 'all' | 'equity' | 'crypto' | 'mine' | 'watched' | 'gainers' | 'losers'
@@ -95,12 +100,21 @@ function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | u
 export default function CryptoListPage() {
   const { locale } = useSettings()
   const market = useLiveAssets()
-  const account = useLiveAccount('crypto')
+  const account = useLiveBook()
   const [bookRange, setBookRange] = useState<ChartRange>('1M')
   const bookHistory = useQuery<PriceHistory>(QK.cryptoPortfolioHistory(bookRange), () => api.crypto.portfolioHistory(bookRange), { staleTime: 30_000 })
   const holdings = useLiveHoldings()
   const recurring = useLiveRecurring()
-  const [filter, setFilter] = useState<Filter>('all')
+  /* The chip bar can be opened on a class: « Crypto » is its own account on Accueil now, and
+     its card needs somewhere of its own to land rather than the undifferentiated list. Read
+     once as the initial state rather than kept in sync with the URL — the chips are a view
+     of this page, not a route, and rewriting the address on every tap would put six entries
+     in the back stack between here and Accueil. */
+  const [params] = useSearchParams()
+  const [filter, setFilter] = useState<Filter>(() => {
+    const asked = params.get('classe')
+    return asked === 'crypto' || asked === 'equity' ? asked : 'all'
+  })
   // Which explanation is open, if any — see LearnSheet.
   const [learn, setLearn] = useState<LearnTopic | null>(null)
   const [query, setQuery] = useState('')

@@ -18,6 +18,7 @@ import {
   type AccountDetails,
   type ApiEvent,
   type AppNotification,
+  type AssetClass,
   type Card,
   type ChartRange,
   type CryptoAsset,
@@ -45,6 +46,7 @@ import {
   IDS,
   NOW,
   SAVINGS_APY,
+  type BookValue,
   makeAccounts,
   makeTransactions,
   seedAccountDetails,
@@ -191,34 +193,50 @@ class MockState {
       .sort((a, b) => b.value - a.value)
   }
 
+  /** The holdings of one class, or of both when `only` is omitted. */
+  book(only?: AssetClass): Holding[] {
+    return only ? this.holdingsView().filter((h) => this.assetOf(h).assetClass === only) : this.holdingsView()
+  }
+
+  /** The asset behind a holding, by symbol — `Holding` carries `assetId`. */
+  private assetOf(h: Holding): CryptoAsset {
+    return this.asset(h.assetId)
+  }
+
+  /**
+   * What one book is worth, how far it has moved today, and its shape.
+   *
+   * Computed per class since « Actifs » and « Crypto » became separate accounts: the two
+   * balances have to add up to what the single account used to show, so both come from the
+   * same holdings by the same arithmetic rather than one being derived from the other.
+   */
+  bookValue(only?: AssetClass): BookValue {
+    const held = this.holdings.filter((h) => !only || this.asset(h.assetId).assetClass === only)
+    let value = 0
+    let change = 0
+    const n = 24
+    const sparkline: number[] = new Array(n).fill(0)
+    for (const h of held) {
+      const a = this.asset(h.assetId)
+      value += h.quantity * a.price
+      change += h.quantity * a.change24h
+      for (let i = 0; i < n; i++) sparkline[i] = (sparkline[i] ?? 0) + h.quantity * (a.sparkline[i] ?? a.price)
+    }
+    const prev = value - change
+    return { value, change, changePct: prev > 0 ? (change / prev) * 100 : 0, sparkline }
+  }
+
   cryptoValue() {
     return this.holdingsView().reduce((s, h) => s + h.value, 0)
   }
 
-  cryptoChange24h() {
-    let change = 0
-    for (const h of this.holdings) {
-      const a = this.asset(h.assetId)
-      change += h.quantity * a.change24h
-    }
-    const value = this.cryptoValue()
-    const prev = value - change
-    return { change, pct: prev > 0 ? (change / prev) * 100 : 0 }
-  }
-
-  cryptoSparkline(): number[] {
-    const n = 24
-    const out: number[] = new Array(n).fill(0)
-    for (const h of this.holdings) {
-      const a = this.asset(h.assetId)
-      for (let i = 0; i < n; i++) out[i] = (out[i] ?? 0) + h.quantity * (a.sparkline[i] ?? a.price)
-    }
-    return out
+  /** Which account a movement in this asset belongs to. */
+  accountFor(assetId: string): string {
+    return this.asset(assetId).assetClass === 'equity' ? IDS.investing : IDS.crypto
   }
 
   accounts(): Account[] {
-    const { change, pct } = this.cryptoChange24h()
-    return makeAccounts(this.cryptoValue(), change, pct, this.cryptoSparkline(), this.balances, this.pockets)
+    return makeAccounts(this.bookValue('equity'), this.bookValue('crypto'), this.balances, this.pockets)
   }
 
   /** Random-walk price tick */
@@ -688,7 +706,7 @@ export const mockApi: KeewalApi = {
       }
       const now = new Date().toISOString()
       const tx = state.addTransaction({
-        accountId: IDS.crypto,
+        accountId: state.accountFor(a.id),
         type: q.side === 'buy' ? 'asset_buy' : 'asset_sell',
         status: 'pending',
         amount: q.side === 'buy' ? -q.total : q.total,
@@ -775,7 +793,7 @@ export const mockApi: KeewalApi = {
       const h = state.holdings.find((x) => x.assetId === a.id)!
       h.quantity = Math.max(0, h.quantity - preview.totalDebit)
       const tx = state.addTransaction({
-        accountId: IDS.crypto,
+        accountId: state.accountFor(a.id),
         type: 'crypto_send',
         status: 'pending',
         amount: -preview.fiatValue,

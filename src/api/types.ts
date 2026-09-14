@@ -13,7 +13,16 @@
 // is domain knowledge — minor units, the euro peg — not an API detail. See lib/currency.
 export type { Currency } from '@/lib/currency'
 import type { Currency } from '@/lib/currency'
-export type AccountKind = 'checking' | 'savings' | 'crypto'
+/**
+ * Four now, not three. « Actifs » used to hold African equities *and* crypto in one account,
+ * which is how the app started, and the owner asked for crypto to stand on its own — the way
+ * every bank that offers both keeps them apart, because one is a regulated security on a
+ * local exchange and the other is not.
+ *
+ * `investing` is « Actifs » — shares on the BRVM, the NGX, the JSE and the NSE. `crypto` is
+ * the coins. The old kind was called `crypto` and meant both; it means what it says now.
+ */
+export type AccountKind = 'checking' | 'savings' | 'investing' | 'crypto'
 export type Locale = 'fr-SN' | 'en-NG'
 
 // ---------- Session / user ----------

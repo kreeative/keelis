@@ -85,7 +85,9 @@ describe('failure modes', () => {
   it('surfaces forced network failures once', async () => {
     mockControls.failNext = 1
     await expect(mockApi.accounts.list()).rejects.toMatchObject({ code: 'network' })
-    await expect(mockApi.accounts.list()).resolves.toHaveLength(3)
+    // Four: Chèque, Épargne, Actifs and Crypto — the last two were one account until the
+    // owner asked for crypto to stand on its own.
+    await expect(mockApi.accounts.list()).resolves.toHaveLength(4)
   })
 })
 

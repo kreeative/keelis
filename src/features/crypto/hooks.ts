@@ -47,6 +47,32 @@ export function useLiveAccount(kind: AccountKind) {
   return { ...q, data: q.data?.find((a) => a.kind === kind) }
 }
 
+/**
+ * The whole book: « Actifs » and « Crypto » together.
+ *
+ * The market page lists both classes and its hero is the total of what they are worth, so
+ * it cannot read one account any more. Summed from the accounts rather than from the
+ * holdings, so the figure at the top of the page and the two cards on Accueil are the same
+ * arithmetic and cannot disagree.
+ */
+export function useLiveBook() {
+  const q = useLiveAccounts()
+  const books = q.data?.filter((a) => a.kind === 'investing' || a.kind === 'crypto')
+  if (!books?.length) return { ...q, data: undefined }
+  const balance = books.reduce((s, a) => s + a.balance, 0)
+  const change24h = books.reduce((s, a) => s + a.change24h, 0)
+  const previous = balance - change24h
+  return {
+    ...q,
+    data: {
+      balance,
+      change24h,
+      change24hPct: previous > 0 ? (change24h / previous) * 100 : 0,
+      currency: books[0]!.currency,
+    },
+  }
+}
+
 export function useLiveHoldings() {
   return useQuery<Holding[]>(QK.holdings, () => api.crypto.holdings())
 }

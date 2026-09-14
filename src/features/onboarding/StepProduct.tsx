@@ -26,7 +26,8 @@ interface Product {
 const PRODUCTS: readonly Product[] = [
   { kind: 'checking', name: 'Chèque', description: 'Compte de dépense et carte virtuelle', icon: 'credit-card', to: '/carte' },
   { kind: 'savings', name: 'Épargne', description: 'Compte rémunéré, sans minimum', icon: 'piggy-bank', to: '/epargne' },
-  { kind: 'crypto', name: 'Actifs', description: 'Actions africaines et crypto, écart affiché avant chaque ordre', icon: 'chart-line', to: '/crypto' },
+  { kind: 'investing', name: 'Actifs', description: 'Actions africaines, écart affiché avant chaque ordre', icon: 'chart-line', to: '/crypto' },
+  { kind: 'crypto', name: 'Crypto', description: 'Bitcoin, Ether et les autres, dans un compte à part', icon: 'crypto', to: '/crypto?classe=crypto' },
 ]
 
 export function StepProduct() {

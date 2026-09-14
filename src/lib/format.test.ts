@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatNumber, formatPercent, moneyAriaLabel, parseAmountInput } from './format'
+import { maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatNumber, formatPercent, moneyAriaLabel, parseAmountInput, splitMoney } from './format'
 
 const norm = (v: string) => v.replace(/[\u202f\u00a0]/g, ' ')
 
@@ -100,5 +100,64 @@ describe('one punctuation, everywhere', () => {
     expect(formatPercent(8.01, { locale: 'fr-SN' })).toContain('8.01')
     expect(formatPercent(8.01, { locale: 'fr-SN' })).not.toContain('8,01')
     expect(formatNumber(1234.5, { locale: 'fr-SN', minFraction: 1 })).toBe('1,234.5')
+  })
+})
+
+describe('compact money', () => {
+  /* The gaps are real characters and they matter: `joinParts` emits a no-break space
+     between the figure and its suffix, and « F CFA » carries a narrow one of its own. A
+     literal typed with the space on a keyboard matches none of it. */
+  const NB = '\u00a0'
+  const FCFA = `F\u202fCFA`
+  const xof = (v: number, locale: 'fr-SN' | 'en-NG' = 'fr-SN') => formatMoney(v, { locale, currency: 'XOF', compact: true })
+
+  it('abbreviates on length, not on value', () => {
+    /* The rule is about the string running out of room, not about passing a round figure:
+       ten million francs is an ordinary balance and ten million euros is not. « 2,766,500 F
+       CFA » is fifteen characters and stays exact; one more digit does not fit beside the
+       account's name at 320px, so it abbreviates. */
+    const plain = (v: number) => formatMoney(v, { locale: 'fr-SN', currency: 'XOF' })
+    expect(plain(2_766_500)).toHaveLength(15)
+    expect(xof(2_766_500)).toBe(plain(2_766_500))
+    expect(plain(24_325_824)).toHaveLength(16)
+    expect(xof(24_325_824)).toBe(`24.3${NB}M${NB}${FCFA}`)
+  })
+
+  it('leaves a figure that fits exactly alone', () => {
+    expect(xof(999_999)).toBe(formatMoney(999_999, { locale: 'fr-SN', currency: 'XOF' }))
+    // And it never invents a rounding: « 116,3 » for 116,34 is a precision loss nobody asked for.
+    expect(formatMoney(1240.5, { locale: 'fr-SN', currency: 'EUR', compact: true })).toBe(`1,240.50${NB}€`)
+    expect(formatMoney(116.34, { locale: 'fr-SN', currency: 'EUR', compact: true })).toBe(`116.34${NB}€`)
+  })
+
+  it('truncates rather than rounds, because a balance may not claim money it does not hold', () => {
+    // Half-up would print « 2 Md » for this, which is money the account does not have.
+    expect(xof(1_999_999_999)).toBe(`1.9${NB}Md${NB}${FCFA}`)
+  })
+
+  it('takes its suffixes from the locale rather than a table', () => {
+    expect(xof(1_500_000_000)).toBe(`1.5${NB}Md${NB}${FCFA}`)
+    expect(xof(1_500_000_000, 'en-NG')).toBe(`${FCFA}${NB}1.5B`)
+    expect(xof(24_325_824, 'en-NG')).toBe(`${FCFA}${NB}24.3M`)
+  })
+
+  it('keeps the app’s punctuation: comma groups, point decimal', () => {
+    // The French locale would write « 24,3 M » — the app's rule overrides that everywhere.
+    expect(xof(24_325_824)).toBe(`24.3${NB}M${NB}${FCFA}`)
+    expect(xof(24_325_824)).not.toContain(',')
+  })
+
+  it('splits the same way it formats', () => {
+    // These two drifted: splitMoney stripped every space literal, so the compact suffix lost
+    // the gap that formatMoney kept.
+    const split = splitMoney(24_325_824, { locale: 'fr-SN', currency: 'XOF', compact: true })
+    expect(split.number).toBe(`24.3${NB}M`)
+    expect(`${split.number}${NB}${split.symbol}`).toBe(xof(24_325_824))
+  })
+
+  it('carries the sign on a negative', () => {
+    // The minus costs a character, so this abbreviates where the positive does not.
+    expect(xof(-24_325_824)).toContain(`24.3${NB}M`)
+    expect(xof(-24_325_824).startsWith('-')).toBe(true)
   })
 })

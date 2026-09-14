@@ -42,6 +42,7 @@ function daysAhead(n: number): string {
 export const IDS = {
   checking: 'acc_chq_01',
   savings: 'acc_epg_01',
+  investing: 'acc_inv_01',
   crypto: 'acc_cry_01',
 } as const
 
@@ -293,11 +294,20 @@ export const seedPockets: Pocket[] = [
 
 export const SAVINGS_APY = 4.0
 
-export function makeAccounts(cryptoValue: number, cryptoChange: number, cryptoChangePct: number, cryptoSparkline: number[], balances = seedBalances, pockets: Pocket[] = seedPockets): Account[] {
+/** What a book of holdings is worth, and which way it has moved. One per investing account. */
+export interface BookValue {
+  value: number
+  change: number
+  changePct: number
+  sparkline: number[]
+}
+
+export function makeAccounts(equities: BookValue, coins: BookValue, balances = seedBalances, pockets: Pocket[] = seedPockets): Account[] {
   return [
     { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, pockets: pockets.map((p) => ({ ...p })), change24h: -56_675, change24hPct: -2.0, openedAt: daysAgo(112) },
     { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: 912, change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
-    { id: IDS.crypto, kind: 'crypto', name: 'Actifs', currency: 'XOF', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
+    { id: IDS.investing, kind: 'investing', name: 'Actifs', currency: 'XOF', balance: equities.value, change24h: equities.change, change24hPct: equities.changePct, sparkline: equities.sparkline, openedAt: daysAgo(98) },
+    { id: IDS.crypto, kind: 'crypto', name: 'Crypto', currency: 'XOF', balance: coins.value, change24h: coins.change, change24hPct: coins.changePct, sparkline: coins.sparkline, openedAt: daysAgo(96) },
   ]
 }
 
@@ -434,13 +444,20 @@ export function makeTransactions(): Transaction[] {
     [7, 'recurring_buy', 'btc', 'BTC', 0.00035, 141_200],
     [7, 'asset_buy', 'btc', 'BTC', 0.0035, 141_200],
   ]
+  /* Which of the two investment accounts a trade belongs to. « Actifs » and « Crypto » are
+     separate accounts now, so a Sonatel purchase must not appear under Crypto — and the
+     mirror line on the chequing side has to name the same destination it actually went to. */
+  const equityIds = new Set(seedAssets.filter((a) => a.assetClass === 'equity').map((a) => a.id))
   for (const [day, type, assetId, symbol, qty, price] of trades) {
     // The price above is on the asset scale (one unit ≈ one euro), like every other price
     // in this file; the francs that leave the account are that, crossed once.
     const fiat = Math.round(qty * price * XOF_PER_EUR)
     const sell = type === 'asset_sell'
-    add({ accountId: IDS.crypto, type, status: 'posted', amount: sell ? fiat : -fiat, counterparty: `${sell ? 'Vente' : 'Achat'} ${symbol}`, category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app', asset: { assetId, symbol, quantity: qty, price } })
-    add({ accountId: IDS.checking, type: sell ? 'transfer_in' : 'transfer_out', status: 'posted', amount: sell ? fiat : -fiat, counterparty: sell ? 'Depuis Actifs' : 'Vers Actifs', category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app' })
+    const equity = equityIds.has(assetId)
+    const book = equity ? IDS.investing : IDS.crypto
+    const bookName = equity ? 'Actifs' : 'Crypto'
+    add({ accountId: book, type, status: 'posted', amount: sell ? fiat : -fiat, counterparty: `${sell ? 'Vente' : 'Achat'} ${symbol}`, category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app', asset: { assetId, symbol, quantity: qty, price } })
+    add({ accountId: IDS.checking, type: sell ? 'transfer_in' : 'transfer_out', status: 'posted', amount: sell ? fiat : -fiat, counterparty: sell ? `Depuis ${bookName}` : `Vers ${bookName}`, category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app' })
   }
 
   txs.sort((a, b) => (a.date < b.date ? 1 : -1))

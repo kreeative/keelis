@@ -78,7 +78,37 @@ export interface MoneyOptions {
   alwaysCents?: boolean
   /** Max fraction digits override */
   maxFraction?: number
+  /**
+   * Abbreviate a large figure — « 24.3M F CFA » — once it is too long for the space it has.
+   *
+   * Only above `COMPACT_FROM`: below that the exact figure fits, and « 116.3 » in place of
+   * « 116.34 » would be a rounding nobody asked for. The suffixes come from `Intl`, so they
+   * are the locale's own — k / M / Md in French, K / M / B in English — rather than a table
+   * this file would have to keep for sixteen currencies.
+   *
+   * **Truncated, never rounded.** 1,999,999 F CFA rounds half-up to « 2 M », which claims a
+   * million the account does not hold; it truncates to « 1.9 M », which is true. A balance
+   * may be less precise than the ledger, never larger.
+   */
+  compact?: boolean
 }
+
+/**
+ * How long a figure may be before it is abbreviated — in characters, not in money.
+ *
+ * A value threshold would be wrong in both directions: ten million francs is an ordinary
+ * balance and ten million euros is not, and the thing that actually breaks is the *string*
+ * running out of room. Measured on the account row, the narrowest the app supports: 320px
+ * leaves the amount about 170px beside a name, and a tabular Poppins figure at `--fs-h2` is
+ * roughly 11px a character. Fifteen fits; sixteen starts eating the name.
+ *
+ * So « 2,766,500 F CFA » (15) stays exact and « 24,325,824 F CFA » (16) becomes « 24.3 M »,
+ * which is what the owner asked for — abbreviate when the number no longer fits, not when it
+ * passes some round figure.
+ */
+export const COMPACT_MAX_CHARS = 15
+
+const COMPACT_OPTIONS: Intl.NumberFormatOptions = { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 1, roundingMode: 'trunc', minimumFractionDigits: 0 }
 
 /** Format a fiat amount, e.g. 1 234,56 $ (fr-SN) or $1,234.56 (en-NG). */
 export function formatMoney(value: number, opts: MoneyOptions = {}): string {
@@ -92,14 +122,19 @@ export function formatMoney(value: number, opts: MoneyOptions = {}): string {
   const epsilon = 0.5 / 10 ** units
   const shown = Math.abs(value) < epsilon && !opts.signed ? 0 : value
   const minimumFractionDigits = !opts.alwaysCents && Number.isInteger(shown) ? 0 : units
-  const f = numberFormat(locale, {
+  const base: Intl.NumberFormatOptions = {
     style: 'currency',
     currency,
     currencyDisplay: 'narrowSymbol',
     minimumFractionDigits,
     maximumFractionDigits: opts.maxFraction ?? units,
     signDisplay: opts.signed ? 'exceptZero' : 'auto',
-  })
+  }
+  const plain = joinParts(numberFormat(locale, base).formatToParts(shown), locale)
+  if (!opts.compact || plain.length <= COMPACT_MAX_CHARS) return plain
+  // `minimumFractionDigits` is overridden by the compact options: a minimum of 2 alongside
+  // them would print « 2,70 M ».
+  const f = numberFormat(locale, { ...base, ...COMPACT_OPTIONS })
   return joinParts(f.formatToParts(shown), locale)
 }
 
@@ -118,18 +153,26 @@ export function splitMoney(value: number, opts: MoneyOptions = {}): { number: st
   const units = minorUnits(currency)
   const epsilon = 0.5 / 10 ** units
   const shown = Math.abs(value) < epsilon && !opts.signed ? 0 : value
-  const f = numberFormat(locale, {
+  const base: Intl.NumberFormatOptions = {
     style: 'currency',
     currency,
     currencyDisplay: 'narrowSymbol',
     minimumFractionDigits: !opts.alwaysCents && Number.isInteger(shown) ? 0 : units,
     maximumFractionDigits: opts.maxFraction ?? units,
     signDisplay: opts.signed ? 'exceptZero' : 'auto',
-  })
+  }
+  // The same decision as formatMoney, taken on the same string, so the two cannot disagree.
+  const tooLong = joinParts(numberFormat(locale, base).formatToParts(shown), locale).length > COMPACT_MAX_CHARS
+  const f = numberFormat(locale, opts.compact && tooLong ? { ...base, ...COMPACT_OPTIONS } : base)
   const parts = f.formatToParts(shown)
   const symbolIndex = parts.findIndex((p) => p.type === 'currency')
   const symbol = symbolIndex >= 0 ? parts[symbolIndex]!.value : ''
-  const rest = parts.filter((p, i) => i !== symbolIndex && !(p.type === 'literal' && (p.value === ' ' || p.value === NBSP)))
+  /* Only the space *next to the symbol* goes: that one is the gap this function exists to
+     own, since the caller sets the symbol beside the digits itself. Other literals belong to
+     the number — French writes « 24,3 M » with a space before the compact suffix, and
+     stripping every literal turned that into « 24,3M » while `formatMoney` kept the space. */
+  const isGap = (p: Intl.NumberFormatPart) => p.type === 'literal' && (p.value === ' ' || p.value === NBSP)
+  const rest = parts.filter((p, i) => i !== symbolIndex && !(isGap(p) && (i === symbolIndex - 1 || i === symbolIndex + 1)))
   return { number: joinParts(rest, locale).trim(), symbol, prefix: symbolIndex === 0 }
 }
 

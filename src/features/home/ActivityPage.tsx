@@ -13,7 +13,7 @@ import { useSettings } from '@/store'
 import styles from './ActivityPage.module.css'
 
 type Direction = 'all' | 'in' | 'out'
-type AccountParam = 'cheque' | 'epargne' | 'crypto'
+type AccountParam = 'cheque' | 'epargne' | 'actifs' | 'crypto'
 
 const DIRECTIONS: ReadonlyArray<{ value: Direction; label: string }> = [
   { value: 'all', label: 'Tous' },
@@ -25,6 +25,7 @@ const DIRECTIONS: ReadonlyArray<{ value: Direction; label: string }> = [
 const ACCOUNTS: ReadonlyArray<{ value: AccountParam; label: string; kind: AccountKind }> = [
   { value: 'cheque', label: 'Chèque', kind: 'checking' },
   { value: 'epargne', label: 'Épargne', kind: 'savings' },
+  { value: 'actifs', label: 'Actifs', kind: 'investing' },
   { value: 'crypto', label: 'Crypto', kind: 'crypto' },
 ]
 

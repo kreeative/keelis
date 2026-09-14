@@ -16,7 +16,7 @@ import styles from './FundsStatusPage.module.css'
 const TIMELINE_STEPS = 3
 
 /** The account's own name, from the list. Ids are the back-end's; names are the user's. */
-const KIND_NAME: Record<AccountKind, string> = { checking: 'Chèque', savings: 'Épargne', crypto: 'Crypto' }
+const KIND_NAME: Record<AccountKind, string> = { checking: 'Chèque', savings: 'Épargne', investing: 'Actifs', crypto: 'Crypto' }
 
 function accountName(accounts: Account[] | undefined, accountId: string): string {
   const account = accounts?.find((a) => a.id === accountId)
