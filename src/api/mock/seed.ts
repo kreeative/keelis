@@ -4,6 +4,7 @@
  * identical on every reload.
  */
 import { createPrng } from '@/lib/prng'
+import { formatMoney, formatPercent } from '@/lib/format'
 import type {
   Account,
   AccountDetails,
@@ -444,14 +445,58 @@ export const seedGoals: SavingsGoal[] = [
 
 // ---------- Notifications ----------
 
+/**
+ * The notification tray, written from the same figures as everything else.
+ *
+ * These bodies used to be hand-typed strings — « Paiement de 23,40 $ », « Café
+ * Saint-Viateur », « 50,00 $ de BTC achetés au prix de 141 200 $ » — which is why they
+ * survived the move to francs untouched while every other screen changed around them. A
+ * whole tray of Canadian dollars, comma decimals and a Montréal café, in an app whose
+ * balances are in F CFA. An amount written into a sentence by hand is an amount that will
+ * be wrong later, so each one below is derived and formatted like any other.
+ */
+const xof = (n: number) => formatMoney(n, { locale: 'fr-SN', currency: 'XOF' })
+const solHolding = seedHoldingsRaw.find((h) => h.assetId === 'sol')
+const solAsset = seedAssets.find((a) => a.id === 'sol')
+const solValue = (solHolding?.quantity ?? 0) * (solAsset?.price ?? 0)
+const tabaski = seedGoals[0]
+const tabaskiPct = tabaski ? (tabaski.current / tabaski.target) * 100 : 0
+const btcRecurring = seedRecurring.find((r) => r.symbol === 'BTC')
+const btcAsset = seedAssets.find((a) => a.id === 'btc')
+const INTEREST_THIS_MONTH = 27_465
+
 export const seedNotifications: AppNotification[] = [
-  { id: 'ntf_01', kind: 'transaction', title: 'Paiement de 23,40 $', body: 'Café Saint-Viateur · Carte ···· 7364', date: daysAgo(0, 8, 42), read: false, link: '/carte' },
-  { id: 'ntf_02', kind: 'market', title: 'SOL en hausse de 3,2 % aujourd’hui', body: 'Votre position vaut maintenant 3 567,50 $.', date: daysAgo(0, 7, 15), read: false, link: '/crypto/sol' },
-  { id: 'ntf_03', kind: 'transaction', title: 'e-Transfer reçu · 120,00 $', body: 'Amina D. vous a envoyé de l’argent.', date: daysAgo(1, 19, 43), read: false, link: '/carte' },
+  { id: 'ntf_01', kind: 'transaction', title: `Paiement de ${xof(1_200)}`, body: 'Boulangerie du Plateau · Carte ···· 7364', date: daysAgo(0, 8, 42), read: false, link: '/carte' },
+  {
+    id: 'ntf_02',
+    kind: 'market',
+    title: `SOL en hausse de ${formatPercent(solAsset?.change24hPct ?? 0, { locale: 'fr-SN', signed: false })} aujourd’hui`,
+    body: `Votre position vaut maintenant ${xof(solValue)}.`,
+    date: daysAgo(0, 7, 15),
+    read: false,
+    link: '/crypto/sol',
+  },
+  { id: 'ntf_03', kind: 'transaction', title: `Transfert reçu · ${xof(45_000)}`, body: 'Amina D. vous a envoyé de l’argent.', date: daysAgo(1, 19, 43), read: false, link: '/carte' },
   { id: 'ntf_04', kind: 'security', title: 'Nouvelle connexion', body: 'iPhone · Dakar, Sénégal. Ce n’était pas vous ? Sécurisez votre compte.', date: daysAgo(2, 21, 3), read: true, link: '/profil/securite' },
-  { id: 'ntf_05', kind: 'savings', title: 'Objectif « Voyage à Dakar » à 53 %', body: 'Encore 1 650 $ à épargner. Prochain versement le 1er du mois.', date: daysAgo(3, 9, 0), read: true, link: '/epargne' },
-  { id: 'ntf_06', kind: 'transaction', title: 'Achat récurrent exécuté', body: '50,00 $ de BTC achetés au prix de 141 200 $.', date: daysAgo(7, 9, 31), read: true, link: '/crypto/recurrents' },
-  { id: 'ntf_07', kind: 'savings', title: 'Intérêts versés · 41,88 $', body: 'Votre compte Épargne a rapporté 41,88 $ ce mois-ci.', date: daysAgo(10, 0, 5), read: true, link: '/epargne' },
+  {
+    id: 'ntf_05',
+    kind: 'savings',
+    title: `Objectif « ${tabaski?.name ?? 'Épargne'} » à ${formatPercent(tabaskiPct, { locale: 'fr-SN', signed: false, minFraction: 0, maxFraction: 0 })}`,
+    body: `Encore ${xof((tabaski?.target ?? 0) - (tabaski?.current ?? 0))} à épargner. Prochain versement le 1er du mois.`,
+    date: daysAgo(3, 9, 0),
+    read: true,
+    link: '/epargne',
+  },
+  {
+    id: 'ntf_06',
+    kind: 'transaction',
+    title: 'Achat récurrent exécuté',
+    body: `${xof(btcRecurring?.amount ?? 0)} de BTC achetés à ${xof((btcAsset?.price ?? 0))} l’unité.`,
+    date: daysAgo(7, 9, 31),
+    read: true,
+    link: '/crypto/recurrents',
+  },
+  { id: 'ntf_07', kind: 'savings', title: `Intérêts versés · ${xof(INTEREST_THIS_MONTH)}`, body: `Votre compte Épargne a rapporté ${xof(INTEREST_THIS_MONTH)} ce mois-ci.`, date: daysAgo(10, 0, 5), read: true, link: '/epargne' },
   { id: 'ntf_08', kind: 'system', title: 'Relevé de mois disponible', body: 'Votre relevé Chèque est prêt à être téléchargé.', date: daysAgo(10, 6, 0), read: true, link: '/profil/documents' },
 ]
 
