@@ -1,0 +1,60 @@
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--sp-5) var(--sp-7);
+  max-width: var(--content-max);
+  margin-inline: auto;
+  width: 100%;
+}
+.intro {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+  color: var(--ink-600);
+  max-width: 46ch;
+  margin-top: calc(-1 * var(--sp-2));
+}
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+  margin-top: var(--sp-6);
+  align-items: start;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+  min-width: 0;
+  width: 100%;
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+  min-width: 0;
+  width: 100%;
+}
+.errors {
+  margin: 0;
+  padding-inline-start: var(--sp-5);
+}
+/* The exception line sits under the list it qualifies, with its glyph on the first line —
+   in a palette with no hue the glyph is what marks it as an aside rather than a row. */
+.note {
+  display: flex;
+  align-items: start;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+  max-width: 62ch;
+}
+.noteIcon {
+  flex-shrink: 0;
+  margin-block-start: 1px;
+}
+.code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+}

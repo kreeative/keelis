@@ -4,7 +4,7 @@
  */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api, ApiError, type Locale } from '@/api'
+import { api, ApiError, isLive, type Locale } from '@/api'
 import { Avatar, Badge, Button, Icon, List, ListRow, SegmentedControl, Switch } from '@/components'
 import { ConfirmSheet } from '@/features/shared'
 import { formatDate } from '@/lib/format'
@@ -118,6 +118,15 @@ export default function ProfilePage() {
             </h2>
             <List>
               <ListRow to="/profil/aide" leading={<RowIcon name="help-circle" />} title="Aide" subtitle="Questions fréquentes" chevron />
+              {/* Where every figure on screen comes from — and, while there is no back-end,
+                  the one place that says plainly which of them are invented. */}
+              <ListRow
+                to="/profil/donnees"
+                leading={<RowIcon name="link-2" />}
+                title="Données et connexion"
+                subtitle={isLive ? 'Connecté à un back-end' : 'Mode démonstration'}
+                chevron
+              />
               <div className={styles.aboutRow}>
                 <RowIcon name="info" />
                 <span className={styles.aboutText}>
