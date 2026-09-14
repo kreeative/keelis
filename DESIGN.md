@@ -28,28 +28,58 @@ Les surfaces sont du verre translucide posé sur un fond de couleur, avec une pi
 
 **Physique tactile.** Au survol et à l'appui : `--lift` = `translateY(-2px) scale(1.01)`, `--press` = `translateY(0) scale(0.995)`. Seuls `transform` et `box-shadow` sont animés, les deux se composent sur le GPU. Sous `prefers-reduced-motion`, les deux valent `none`.
 
-**Fond ambiant.** `<AmbientGround />`, monté une fois dans `App`, peint trois champs radiaux (`--ambient-1/2/3`) derrière toute l'application. Sans lui le flou n'a rien à réfracter et le verre ressemble à du blanc. C'est une couche fixe unique plutôt qu'un `background-attachment: fixed`, qui repeint le dégradé à chaque image de défilement sur mobile. `body` est volontairement transparent.
+**Fond ambiant.** `<AmbientGround />`, monté une fois dans `App`, peint quatre champs radiaux (`--ambient-1/2/3/4`) derrière toute l'application. Sans lui le flou n'a rien à réfracter et le verre ressemble à une surface pleine. C'est une couche fixe unique plutôt qu'un `background-attachment: fixed`, qui repeint le dégradé à chaque image de défilement sur mobile. `body` est volontairement transparent.
 
-## Couleur : aucune
+## Couleur : une seule famille chaude
 
-La palette est monochrome. Chaque valeur est un neutre dérivé du noir et du blanc, écrit `oklch(L 0 0)`. `pnpm check:design` refuse un token dont la chroma dépasse 0, ou un `rgb()` dont les canaux diffèrent.
+La palette était monochrome — chaque valeur un neutre écrit `oklch(L 0 0)`. Le propriétaire a
+remplacé cette décision par la référence brun-et-or. En l'échantillonnant, **chaque surface,
+chaque encre et l'accent lui-même tiennent entre les teintes 62 et 97** : une seule famille
+éclairée différemment, pas une collection de couleurs.
 
-`--cta` sert de **fond** aux actions principales : encre en clair, papier en sombre, 18,6:1 dans les deux sens avec `--on-cta`.
+`pnpm check:design` fait respecter la bande (55–105) et un **budget de chroma par rôle** — la
+rampe d'accent (`--cta`, `--accent*`, `--aurora-*`) monte à 0,14, tout le reste reste sous
+0,05. La référence est catégorique là-dessus : les surfaces sont presque neutres et seul
+l'accent est saturé. Une surface qui rejoint la chroma de l'accent, c'est une palette
+retenue qui devient une palette brune. **La chroma 0 échoue aussi** désormais, hors ombres
+et voiles : un gris pur au milieu de neutres chauds se lit comme une plaque morte.
 
-**La direction n'est jamais portée par la teinte.** `--pos`, `--neg` et `--warn` valent tous `--ink-900`. Ce qui distingue une hausse d'une baisse : le signe explicite (`+` / `−`), la flèche, la graisse, et pour les erreurs l'icône d'alerte plus la bordure pleine du champ. C'est la règle d'accessibilité habituelle poussée à son terme — aucune information ne dépend de la couleur, puisqu'il n'y en a pas.
+**L'or est la signature, et c'est un aplat.** `--cta` est l'or beurre dans les **deux**
+thèmes — `#f0de9a` sur sombre, un `#ddba56` plus profond sur clair pour tenir sur la crème —
+avec `--on-cta` en brun profond. Trois emplacements, les trois que l'œil doit trouver en
+premier : le bouton principal, la destination active de la barre, un filtre sélectionné. Le
+`.canvas` de l'accueil ne le redéfinit **pas** : il le forçait en papier, ce qui était juste
+quand le bouton principal ne pouvait être que l'inverse de son fond, et ce qui ferait
+aujourd'hui de l'écran d'accueil le seul endroit où l'application ne montre pas sa couleur.
+
+**Les liens et les anneaux de focus ne sont pas l'or.** `--accent` est un bronze en clair,
+l'or en sombre : un or pâle en *texte* sur une page crème échoue au contraste, si bel aplat
+soit-il. `--cta` pour les remplissages, `--accent` pour tout ce qui se lit.
+
+**La direction reste en dehors de la famille, et c'est la seule chose qui en sort.** `--pos`
+est vert, `--neg` rouge : la hausse et la baisse sont le seul sens que les gens lisent par la
+couleur avant de lire quoi que ce soit, et ni l'un ni l'autre ne peut être chaud sans cesser
+de vouloir dire ce qu'il veut dire. La couleur n'est jamais le *seul* porteur — le signe
+explicite (`+` / `−`), la flèche et la graisse le disent aussi, donc chaque état survit à une
+capture en niveaux de gris.
 
 Contrastes vérifiés (oklch → luminance relative, WCAG 2.x) :
 
 | Paire | Clair | Sombre |
 |---|---|---|
-| `--ink-900` sur `--surface` | 18,6:1 | 18,0:1 |
-| `--ink-600` sur `--surface` | 6,9:1 | 7,9:1 |
-| `--ink-400` sur `--surface-alt` | 5,4:1 | 5,5:1 |
-| `--ink-400` sur `--accent-soft` | 4,9:1 | 4,5:1 |
-| `--on-cta` sur `--cta` | 18,6:1 | 18,0:1 |
-| `--accent-text` sur `--accent-soft` | 13,0:1 | 11,5:1 |
+| `--ink-900` sur `--surface` | 16,6:1 | 15,9:1 |
+| `--ink-600` sur `--surface` | 6,9:1 | 8,0:1 |
+| `--ink-400` sur `--surface-alt` | 5,3:1 | 5,2:1 |
+| `--ink-400` sur `--accent-soft` | 4,9:1 | 4,9:1 |
+| `--on-cta` sur `--cta` | 9,3:1 | 13,5:1 |
+| `--accent` sur `--surface` | 7,2:1 | 13,1:1 |
+| `--accent-text` sur `--accent-soft` | 8,3:1 | 9,9:1 |
+| `--pos` sur `--surface-alt` | 5,0:1 | 8,5:1 |
+| `--neg` sur `--surface-alt` | 5,3:1 | 5,6:1 |
 
-`--ink-300` n'est jamais du texte : placeholders, glyphes désactivés, traits décoratifs.
+`--ink-300` n'est jamais du texte courant : placeholders, glyphes désactivés, traits
+décoratifs. Il tient tout de même 3,4:1, parce qu'un montant vide l'affiche à 48 px et que
+le grand texte demande 3:1.
 
 L'audit navigateur recalcule ces contrastes sur le rendu réel, en aplatissant les surfaces translucides sur le fond effectivement composé.
 
@@ -107,6 +137,7 @@ Parcours d'argent (`features/shared`) : `AmountEntry` (chiffre héros monospace 
 
 1. Brief « fintech nordique minimaliste » : zéro ombre hors feuilles modales, zéro dégradé, zéro glassmorphism, accent teal.
 2. Remplacé par le système verre et profondeur : glassmorphism, ombres en trois couches, fond ambiant, accent citrine, chiffres en monospace.
-3. Remplacé par l'état actuel : **monochrome intégral** et **Poppins** (Futura d'abord, puis Poppins sur demande). La matière de verre et la pile d'élévation restent ; la teinte et la monospace disparaissent.
+3. Puis **monochrome intégral** et **Poppins** (Futura d'abord, puis Poppins sur demande). La matière de verre et la pile d'élévation restent ; la teinte et la monospace disparaissent.
+4. Remplacé par l'état actuel : **brun et or**, sur la référence du propriétaire. Le monochrome n'était pas une contrainte technique mais une décision, et elle a été reprise. Ce qui n'a pas changé, c'est qu'il y ait une règle : la garde statique est passée de « chroma 0 » à « une bande de teintes, et un budget de chroma par rôle », parce qu'une palette que rien ne surveille dérive d'une couleur plausible à la fois jusqu'à devenir un nuancier.
 
 `scripts/check-design.mjs` et l'audit navigateur ont suivi chaque fois. Ce qui n'a jamais changé : tout passe par les tokens, contraste ≥ 4,5:1, cibles ≥ 44 px, texte ≥ 12 px, mode sombre complet, aucune information portée par la seule couleur.

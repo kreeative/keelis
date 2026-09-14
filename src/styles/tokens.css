@@ -10,23 +10,23 @@
 
   /* ---- Colour: light (default) ---- */
   /* Monochrome only: every value is a neutral derived from black and white (chroma 0). */
-  --ink-900: oklch(0.17 0 0);         /* primary text */
-  --ink-600: oklch(0.46 0 0);         /* secondary text */
-  --ink-400: oklch(0.50 0 0);         /* tertiary text, labels (≥4.5:1 on every surface) */
-  --ink-300: oklch(0.66 0 0);         /* NON-TEXT only: placeholders, disabled glyphs, decorative strokes */
-  --line: oklch(0.90 0 0);            /* 1px separators */
-  --surface: oklch(0.99 0 0);         /* page background */
-  --surface-alt: oklch(0.965 0 0);    /* cards, fields, list rows */
+  --ink-900: oklch(0.22 0.026 68);         /* primary text */
+  --ink-600: oklch(0.46 0.034 70);         /* secondary text */
+  --ink-400: oklch(0.50 0.034 70);         /* tertiary text, labels (≥4.5:1 on every surface) */
+  --ink-300: oklch(0.60 0.032 78);         /* NON-TEXT only: placeholders, disabled glyphs, decorative strokes */
+  --line: oklch(0.89 0.018 85);            /* 1px separators */
+  --surface: oklch(0.985 0.008 90);         /* page background */
+  --surface-alt: oklch(0.955 0.015 88);    /* cards, fields, list rows */
 
-  --accent: oklch(0.17 0 0);          /* links, ghost buttons, focus rings */
-  --accent-text: oklch(0.25 0 0);     /* accent used as text on --accent-soft */
-  --accent-soft: oklch(0.93 0 0);     /* badge background / selected state */
-  --on-accent: oklch(0.99 0 0);       /* text placed on --accent */
+  --accent: oklch(0.45 0.085 72);          /* links, ghost buttons, focus rings */
+  --accent-text: oklch(0.38 0.080 70);     /* accent used as text on --accent-soft */
+  --accent-soft: oklch(0.93 0.048 90);     /* badge background / selected state */
+  --on-accent: oklch(0.99 0.006 90);       /* text placed on --accent */
 
   /* CTA fill. Monochrome: ink in light, paper in dark. 18.6:1 either way. */
-  --cta: oklch(0.17 0 0);
-  --cta-hover: oklch(0.28 0 0);
-  --on-cta: oklch(0.99 0 0);
+  --cta: oklch(0.80 0.125 90);
+  --cta-hover: oklch(0.74 0.130 88);
+  --on-cta: oklch(0.22 0.026 68);
 
   /* Direction is carried by the explicit sign (+ / −), the arrow glyph and weight,
      never by hue — the palette has none. */
@@ -36,17 +36,17 @@
      the glyph and the weight all still say it, so a state survives a greyscale screenshot. */
   --pos: oklch(0.50 0.13 150);        /* up */
   --neg: oklch(0.52 0.18 27);         /* down */
-  --warn: oklch(0.17 0 0);            /* attention — stays ink; the glyph carries it */
+  --warn: oklch(0.22 0.026 68);            /* attention — stays ink; the glyph carries it */
 
   /* Card (virtual card) — deliberately the same in both modes */
   /* The ground the home sheet paints, and the one thing it must not share with the cards
      riding on it: a white sheet under white cards leaves the cards with nothing but their
      shadow to be seen by. A step down from --surface in light, and *below* --surface in
      dark too, so the cards sit above the sheet in both themes rather than flipping. */
-  --sheet-ground: oklch(0.955 0 0);
-  --card-surface: oklch(0.17 0 0);
-  --card-ink: oklch(0.97 0 0);
-  --card-ink-muted: oklch(0.72 0 0);
+  --sheet-ground: oklch(0.945 0.020 86);
+  --card-surface: oklch(0.215 0.024 66);
+  --card-ink: oklch(0.97 0.012 90);
+  --card-ink-muted: oklch(0.74 0.030 84);
 
   /* ---- Canvas: the home hero, which now *follows the theme* ----
      It used to be dark in both themes, the way the payment card still is. The owner asked
@@ -71,54 +71,54 @@
   /* ---- Glass material ----
      Semi-transparent surface + heavy blur + a hairline top highlight where light
      strikes the edge. `-strong` is used where text density is highest. */
-  --glass-bg: rgba(255, 255, 255, 0.52);
-  --glass-bg-strong: rgba(255, 255, 255, 0.72);
-  --glass-bg-soft: rgba(255, 255, 255, 0.34);
-  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-bg: rgba(255, 251, 242, 0.52);
+  --glass-bg-strong: rgba(255, 251, 242, 0.72);
+  --glass-bg-soft: rgba(255, 251, 242, 0.34);
+  --glass-border: rgba(255, 252, 244, 0.92);
   /* The hairline that reads as the cut edge of the pane, under the top highlight. */
-  --glass-edge: rgba(0, 0, 0, 0.06);
+  --glass-edge: rgba(46, 32, 18, 0.07);
   /* The lit corner of a pane. Layered over the translucent fill, not replacing it. */
-  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 46%);
+  --glass-sheen: linear-gradient(135deg, rgba(255, 252, 244, 0.55), rgba(255, 252, 244, 0) 46%);
   /* The rim: what makes a pane read as a *piece* of glass rather than a translucent
      rectangle. Three insets — the hard top edge where light lands, a hairline tracing the
      whole boundary (the thickness of the material), and light pooling along the bottom
      inner edge, which is the lensing you see at the edge of anything transparent. */
   --glass-rim:
-    inset 0 1px 0 rgba(255, 255, 255, 0.78),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-    inset 0 -10px 18px -10px rgba(255, 255, 255, 0.45);
+    inset 0 1px 0 rgba(255, 252, 244, 0.78),
+    inset 0 0 0 1px rgba(255, 252, 244, 0.22),
+    inset 0 -10px 18px -10px rgba(255, 252, 244, 0.45);
   --glass-blur: blur(24px) saturate(1.08);
   /* Opaque stand-ins for browsers without backdrop-filter, and for print. */
   /* The K disc, from the brand sheet's embossed artwork. Ink on a light page, paper on
      a dark one — the sheet draws both, and only the used one is ever fetched. */
   --mark-disc: url('/brand/mark-ink.png');
 
-  --glass-fallback: oklch(0.995 0 0);
-  --glass-fallback-strong: oklch(1 0 0);
+  --glass-fallback: oklch(0.99 0.008 90);
+  --glass-fallback-strong: oklch(0.995 0.006 90);
 
   /* ---- Elevation: layered, never a single blur ----
      ambient contact + direct drop + deep 3D lift. */
   --elev-1:
-    0 1px 2px rgba(0, 0, 0, 0.02),
-    0 4px 8px -2px rgba(0, 0, 0, 0.05),
-    0 10px 20px -8px rgba(0, 0, 0, 0.08);
+    0 1px 2px rgba(46, 32, 18, 0.02),
+    0 4px 8px -2px rgba(46, 32, 18, 0.05),
+    0 10px 20px -8px rgba(46, 32, 18, 0.08);
   --elev-2:
-    0 2px 6px rgba(0, 0, 0, 0.04),
-    0 12px 24px -4px rgba(0, 0, 0, 0.12),
-    0 32px 64px -12px rgba(0, 0, 0, 0.18);
+    0 2px 6px rgba(46, 32, 18, 0.04),
+    0 12px 24px -4px rgba(46, 32, 18, 0.12),
+    0 32px 64px -12px rgba(46, 32, 18, 0.18);
   --elev-2-hover:
-    0 2px 8px rgba(0, 0, 0, 0.05),
-    0 18px 36px -4px rgba(0, 0, 0, 0.16),
-    0 44px 84px -12px rgba(0, 0, 0, 0.24);
+    0 2px 8px rgba(46, 32, 18, 0.05),
+    0 18px 36px -4px rgba(46, 32, 18, 0.16),
+    0 44px 84px -12px rgba(46, 32, 18, 0.24);
   --elev-3:
-    0 4px 10px rgba(0, 0, 0, 0.05),
-    0 20px 40px -6px rgba(0, 0, 0, 0.15),
-    0 52px 96px -16px rgba(0, 0, 0, 0.22);
+    0 4px 10px rgba(46, 32, 18, 0.05),
+    0 20px 40px -6px rgba(46, 32, 18, 0.15),
+    0 52px 96px -16px rgba(46, 32, 18, 0.22);
 
   /* The kit's item-shadow-light, lifting a small control off its track. */
-  --elev-item: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+  --elev-item: drop-shadow(0 1px 4px rgba(46, 32, 18, 0.12)) drop-shadow(0 2px 6px rgba(46, 32, 18, 0.2));
   /* Subtle ink wash the kit uses behind inactive controls (ink at 8%). */
-  --fill-subtle: oklch(0.17 0 0 / 0.08);
+  --fill-subtle: oklch(0.22 0.026 68 / 0.08);
   /* The selected pill of a bare segmented control. It has to sit *above* whatever it is
      on: paper in light, a lifted grey in dark — --surface there is darker than the card
      it sits on, so the selection would disappear. */
@@ -129,8 +129,8 @@
      bottom one in dark. Pressed is always a step *down* from the face, so it cannot be
      --fill-subtle either: that wash is ink in light but paper in dark, and would make a
      pressed key glow. */
-  --key-face: oklch(0.99 0 0);
-  --key-press: oklch(0.92 0 0);
+  --key-face: oklch(0.99 0.008 90);
+  --key-press: oklch(0.925 0.020 86);
 
   /* Tactile lift on hover / press */
   --lift: translateY(-2px) scale(1.01);
@@ -147,23 +147,23 @@
      it carries no meaning, sits only behind the home sheet, never touches text or a
      control, and is faint enough that a greyscale screenshot loses nothing. Chroma is
      kept low on purpose — these read as a tint on white, not as a colour field. */
-  --aurora-1: oklch(0.93 0.075 72);   /* peach  */
-  --aurora-2: oklch(0.89 0.085 15);   /* rose   */
-  --aurora-3: oklch(0.89 0.065 300);  /* lilac  */
-  --aurora-4: oklch(0.93 0.065 210);  /* aqua   */
-  --aurora-5: oklch(0.94 0.055 160);  /* mint   */
+  --aurora-1: oklch(0.93 0.075 82);   /* peach  */
+  --aurora-2: oklch(0.91 0.072 52);   /* rose   */
+  --aurora-3: oklch(0.92 0.058 100);  /* lilac  */
+  --aurora-4: oklch(0.90 0.062 48);  /* aqua   */
+  --aurora-5: oklch(0.93 0.052 118);  /* mint   */
 
-  --ambient-1: oklch(0.745 0 0 / 0.92);
-  --ambient-2: oklch(0.855 0 0 / 0.86);
-  --ambient-3: oklch(0.705 0 0 / 0.88);
-  --ambient-4: oklch(0.795 0 0 / 0.76);
+  --ambient-1: oklch(0.745 0.035 88 / 0.92);
+  --ambient-2: oklch(0.855 0.028 90 / 0.86);
+  --ambient-3: oklch(0.700 0.040 82 / 0.88);
+  --ambient-4: oklch(0.795 0.032 86 / 0.76);
 
   /* Derived */
-  --backdrop: oklch(0.17 0 0 / 0.35);
+  --backdrop: oklch(0.18 0.024 66 / 0.38);
   --focus-ring: 0 0 0 2px var(--accent);
   --focus-ring-offset: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); /* on accent-filled controls */
   --focus-ring-neg: 0 0 0 2px var(--neg);
-  --sheet-shadow: 0 -1px 40px oklch(0.17 0 0 / 0.10);
+  --sheet-shadow: 0 -1px 40px oklch(0.20 0.03 66 / 0.12);
 
   /* ---- Typography ---- */
   /* Poppins, self-hosted (see fonts.css). No system fallback comes close to it, so the
@@ -283,62 +283,62 @@
 /* ---- Colour: dark ---- */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --ink-900: oklch(0.97 0 0);
-  --ink-600: oklch(0.72 0 0);
-  --ink-400: oklch(0.65 0 0);
-  --ink-300: oklch(0.50 0 0);
-  --line: oklch(0.28 0 0);
-  --surface: oklch(0.15 0 0);
-  --surface-alt: oklch(0.21 0 0);
-  --sheet-ground: oklch(0.12 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-text: oklch(0.92 0 0);
-  --accent-soft: oklch(0.28 0 0);
-  --on-accent: oklch(0.15 0 0);
+  --ink-900: oklch(0.965 0.014 92);
+  --ink-600: oklch(0.755 0.032 86);
+  --ink-400: oklch(0.68 0.036 84);
+  --ink-300: oklch(0.52 0.030 74);
+  --line: oklch(0.33 0.026 68);
+  --surface: oklch(0.215 0.022 68);
+  --surface-alt: oklch(0.275 0.028 67);
+  --sheet-ground: oklch(0.165 0.018 68);
+  --accent: oklch(0.90 0.089 95);
+  --accent-text: oklch(0.88 0.085 95);
+  --accent-soft: oklch(0.29 0.042 76);
+  --on-accent: oklch(0.20 0.022 68);
   --pos: oklch(0.80 0.16 150);
   --neg: oklch(0.72 0.15 27);
-  --warn: oklch(0.97 0 0);
-  --cta: oklch(0.97 0 0);
-  --cta-hover: oklch(0.88 0 0);
-  --on-cta: oklch(0.15 0 0);
-  --backdrop: oklch(0.08 0 0 / 0.55);
-  --sheet-shadow: 0 -1px 40px oklch(0.06 0 0 / 0.35);
-  --glass-bg: rgba(26, 26, 26, 0.56);
-  --glass-bg-strong: rgba(26, 26, 26, 0.74);
-  --glass-bg-soft: rgba(19, 19, 19, 0.42);
-  --glass-border: rgba(255, 255, 255, 0.16);
-  --glass-edge: rgba(0, 0, 0, 0.5);
-  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
+  --warn: oklch(0.965 0.014 92);
+  --cta: oklch(0.90 0.089 95);
+  --cta-hover: oklch(0.84 0.098 93);
+  --on-cta: oklch(0.20 0.022 68);
+  --backdrop: oklch(0.10 0.016 66 / 0.58);
+  --sheet-shadow: 0 -1px 40px oklch(0.08 0.014 66 / 0.38);
+  --glass-bg: rgba(46, 33, 20, 0.56);
+  --glass-bg-strong: rgba(46, 33, 20, 0.74);
+  --glass-bg-soft: rgba(35, 25, 15, 0.42);
+  --glass-border: rgba(255, 240, 208, 0.18);
+  --glass-edge: rgba(12, 8, 3, 0.5);
+  --glass-sheen: linear-gradient(135deg, rgba(255, 240, 208, 0.14), rgba(255, 240, 208, 0) 46%);
   /* Measured off the owner's reference, sampling the nav pill's edge on all four sides:
      the boundary hairline reads ~100 against a ground of 44 and a glass interior of 51 —
      white at ~0.24, not the 0.07 this carried, where the edge simply vanished. The top
      edge is the lit one; the bottom pools light back. */
   --glass-rim:
-    inset 0 1px 0 rgba(255, 255, 255, 0.30),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-    inset 0 -10px 18px -10px rgba(255, 255, 255, 0.16);
-  --fill-subtle: oklch(0.97 0 0 / 0.14);
-  --seg-pill: oklch(0.31 0 0);
+    inset 0 1px 0 rgba(255, 240, 208, 0.30),
+    inset 0 0 0 1px rgba(255, 240, 208, 0.22),
+    inset 0 -10px 18px -10px rgba(255, 240, 208, 0.16);
+  --fill-subtle: oklch(0.965 0.014 92 / 0.14);
+  --seg-pill: oklch(0.35 0.030 68);
   /* The canvas keeps its dark island here — the values it always had. */
   --canvas-bg: var(--card-surface);
   --canvas-ink: var(--card-ink);
   --canvas-ink-muted: var(--card-ink-muted);
-  --canvas-surface-alt: oklch(0.24 0 0);
-  --canvas-line: oklch(0.97 0 0 / 0.12);
-  --canvas-fill: oklch(0.97 0 0 / 0.14);
-  --canvas-seg-pill: oklch(0.31 0 0);
+  --canvas-surface-alt: oklch(0.30 0.030 67);
+  --canvas-line: oklch(0.965 0.014 92 / 0.12);
+  --canvas-fill: oklch(0.965 0.014 92 / 0.14);
+  --canvas-seg-pill: oklch(0.35 0.030 68);
   --canvas-pos: oklch(0.80 0.16 150);
   --canvas-neg: oklch(0.72 0.15 27);
   /* Glass on a dark canvas is a light veil, not a white pane: a white one composites to a
      pale grey there and swallows the ink sitting on it. */
-  --canvas-glass: rgba(255, 255, 255, 0.08);
-  --canvas-glass-strong: rgba(255, 255, 255, 0.10);
-  --canvas-glass-border: rgba(255, 255, 255, 0.2);
-  --key-face: oklch(0.31 0 0);
-  --key-press: oklch(0.21 0 0);
+  --canvas-glass: rgba(255, 240, 208, 0.08);
+  --canvas-glass-strong: rgba(255, 240, 208, 0.10);
+  --canvas-glass-border: rgba(255, 240, 208, 0.22);
+  --key-face: oklch(0.35 0.030 68);
+  --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
-  --glass-fallback: oklch(0.185 0 0);
-  --glass-fallback-strong: oklch(0.215 0 0);
+  --glass-fallback: oklch(0.245 0.024 68);
+  --glass-fallback-strong: oklch(0.285 0.028 67);
   --elev-1:
     0 1px 2px rgba(0, 0, 0, 0.24),
     0 4px 8px -2px rgba(0, 0, 0, 0.32),
@@ -355,72 +355,72 @@
     0 4px 8px rgba(0, 0, 0, 0.32),
     0 16px 32px -6px rgba(0, 0, 0, 0.44),
     0 40px 72px -16px rgba(0, 0, 0, 0.58);
-  --ambient-1: oklch(0.47 0 0 / 0.80);
-  --ambient-2: oklch(0.225 0 0 / 0.70);
-  --ambient-3: oklch(0.50 0 0 / 0.76);
-  --ambient-4: oklch(0.36 0 0 / 0.64);
+  --ambient-1: oklch(0.44 0.038 70 / 0.80);
+  --ambient-2: oklch(0.24 0.026 66 / 0.70);
+  --ambient-3: oklch(0.47 0.040 72 / 0.76);
+  --ambient-4: oklch(0.34 0.032 68 / 0.64);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --ink-900: oklch(0.97 0 0);
-    --ink-600: oklch(0.72 0 0);
-    --ink-400: oklch(0.65 0 0);
-    --ink-300: oklch(0.50 0 0);
-    --line: oklch(0.28 0 0);
-    --surface: oklch(0.15 0 0);
-    --surface-alt: oklch(0.21 0 0);
-    --sheet-ground: oklch(0.12 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-text: oklch(0.92 0 0);
-    --accent-soft: oklch(0.28 0 0);
-    --on-accent: oklch(0.15 0 0);
+    --ink-900: oklch(0.965 0.014 92);
+    --ink-600: oklch(0.755 0.032 86);
+    --ink-400: oklch(0.68 0.036 84);
+    --ink-300: oklch(0.52 0.030 74);
+    --line: oklch(0.33 0.026 68);
+    --surface: oklch(0.215 0.022 68);
+    --surface-alt: oklch(0.275 0.028 67);
+    --sheet-ground: oklch(0.165 0.018 68);
+    --accent: oklch(0.90 0.089 95);
+    --accent-text: oklch(0.88 0.085 95);
+    --accent-soft: oklch(0.29 0.042 76);
+    --on-accent: oklch(0.20 0.022 68);
     --pos: oklch(0.80 0.16 150);
     --neg: oklch(0.72 0.15 27);
-    --warn: oklch(0.97 0 0);
-    --cta: oklch(0.97 0 0);
-    --cta-hover: oklch(0.88 0 0);
-    --on-cta: oklch(0.15 0 0);
-    --backdrop: oklch(0.08 0 0 / 0.55);
-    --sheet-shadow: 0 -1px 40px oklch(0.06 0 0 / 0.35);
-    --glass-bg: rgba(26, 26, 26, 0.56);
-    --glass-bg-strong: rgba(26, 26, 26, 0.74);
-    --glass-bg-soft: rgba(19, 19, 19, 0.42);
-    --glass-border: rgba(255, 255, 255, 0.16);
-    --glass-edge: rgba(0, 0, 0, 0.5);
-    --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 46%);
+    --warn: oklch(0.965 0.014 92);
+    --cta: oklch(0.90 0.089 95);
+    --cta-hover: oklch(0.84 0.098 93);
+    --on-cta: oklch(0.20 0.022 68);
+    --backdrop: oklch(0.10 0.016 66 / 0.58);
+    --sheet-shadow: 0 -1px 40px oklch(0.08 0.014 66 / 0.38);
+    --glass-bg: rgba(46, 33, 20, 0.56);
+    --glass-bg-strong: rgba(46, 33, 20, 0.74);
+    --glass-bg-soft: rgba(35, 25, 15, 0.42);
+    --glass-border: rgba(255, 240, 208, 0.18);
+    --glass-edge: rgba(12, 8, 3, 0.5);
+    --glass-sheen: linear-gradient(135deg, rgba(255, 240, 208, 0.14), rgba(255, 240, 208, 0) 46%);
     --glass-rim:
-      inset 0 1px 0 rgba(255, 255, 255, 0.30),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-      inset 0 -10px 18px -10px rgba(255, 255, 255, 0.16);
-    --fill-subtle: oklch(0.97 0 0 / 0.14);
-    --seg-pill: oklch(0.31 0 0);
+      inset 0 1px 0 rgba(255, 240, 208, 0.30),
+      inset 0 0 0 1px rgba(255, 240, 208, 0.22),
+      inset 0 -10px 18px -10px rgba(255, 240, 208, 0.16);
+    --fill-subtle: oklch(0.965 0.014 92 / 0.14);
+    --seg-pill: oklch(0.35 0.030 68);
     --canvas-bg: var(--card-surface);
     --canvas-ink: var(--card-ink);
     --canvas-ink-muted: var(--card-ink-muted);
-    --canvas-surface-alt: oklch(0.24 0 0);
-    --canvas-line: oklch(0.97 0 0 / 0.12);
-    --canvas-fill: oklch(0.97 0 0 / 0.14);
-    --canvas-seg-pill: oklch(0.31 0 0);
+    --canvas-surface-alt: oklch(0.30 0.030 67);
+    --canvas-line: oklch(0.965 0.014 92 / 0.12);
+    --canvas-fill: oklch(0.965 0.014 92 / 0.14);
+    --canvas-seg-pill: oklch(0.35 0.030 68);
     --canvas-pos: oklch(0.80 0.16 150);
     --canvas-neg: oklch(0.72 0.15 27);
-    --canvas-glass: rgba(255, 255, 255, 0.08);
-    --canvas-glass-strong: rgba(255, 255, 255, 0.10);
-    --canvas-glass-border: rgba(255, 255, 255, 0.2);
-    --key-face: oklch(0.31 0 0);
-    --key-press: oklch(0.21 0 0);
+    --canvas-glass: rgba(255, 240, 208, 0.08);
+    --canvas-glass-strong: rgba(255, 240, 208, 0.10);
+    --canvas-glass-border: rgba(255, 240, 208, 0.22);
+    --key-face: oklch(0.35 0.030 68);
+    --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
-  --glass-fallback: oklch(0.185 0 0);
-    --glass-fallback-strong: oklch(0.215 0 0);
+  --glass-fallback: oklch(0.245 0.024 68);
+    --glass-fallback-strong: oklch(0.285 0.028 67);
     --elev-1:
       0 1px 2px rgba(0, 0, 0, 0.24),
       0 4px 8px -2px rgba(0, 0, 0, 0.32),
       0 10px 20px -8px rgba(0, 0, 0, 0.40);
     --elev-2:
-      0 2px 4px rgba(0, 0, 0, 0.28),
-      0 10px 20px -4px rgba(0, 0, 0, 0.40),
-      0 24px 48px -12px rgba(0, 0, 0, 0.52);
+      0 2px 6px rgba(0, 0, 0, 0.30),
+      0 12px 24px -4px rgba(0, 0, 0, 0.44),
+      0 32px 64px -12px rgba(0, 0, 0, 0.58);
     --elev-2-hover:
       0 2px 6px rgba(0, 0, 0, 0.32),
       0 14px 28px -4px rgba(0, 0, 0, 0.46),
@@ -429,10 +429,10 @@
       0 4px 8px rgba(0, 0, 0, 0.32),
       0 16px 32px -6px rgba(0, 0, 0, 0.44),
       0 40px 72px -16px rgba(0, 0, 0, 0.58);
-    --ambient-1: oklch(0.47 0 0 / 0.80);
-    --ambient-2: oklch(0.225 0 0 / 0.70);
-    --ambient-3: oklch(0.50 0 0 / 0.76);
-    --ambient-4: oklch(0.36 0 0 / 0.64);
+    --ambient-1: oklch(0.44 0.038 70 / 0.80);
+    --ambient-2: oklch(0.24 0.026 66 / 0.70);
+    --ambient-3: oklch(0.47 0.040 72 / 0.76);
+    --ambient-4: oklch(0.34 0.032 68 / 0.64);
   }
 }
 

@@ -48,12 +48,15 @@
 }
 .barLink:hover { color: var(--ink-600); }
 .barLink:focus-visible { box-shadow: var(--focus-ring); }
-/* The active capsule is a smaller piece of the same material, so it carries the same rim.
-   A fill with no edge reads as a smudge on the glass; the reference's active item is a
-   defined capsule on every one of the owner's four glass references. */
+/* The active capsule is gold, and it is the app's signature.
+   It was a wash of --fill-subtle with the glass rim — the right answer when the palette had
+   no colour and "active" could only be said with lightness. In the reference the lit
+   destination is solid yellow on the brown pill, and it is the first thing the eye finds on
+   every screen. The rim stays: a fill with no edge reads as a smudge on the glass, on every
+   one of the owner's glass references. */
 .barActive {
-  color: var(--ink-900);
-  background: var(--fill-subtle);
+  color: var(--on-cta);
+  background: var(--cta);
   box-shadow: var(--glass-rim);
 }
 .barIcon { position: relative; display: inline-flex; }

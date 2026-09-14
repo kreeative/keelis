@@ -91,7 +91,12 @@ const SPACING_USE: ReadonlyArray<{ what: string; small: string; large: string; t
   { what: 'Marge au bord de l’écran', small: '16', large: 'flex', token: '--gutter' },
 ]
 
+/* The gold leads, because it is what the palette is *for*: --cta is the primary button, the
+   lit destination in the nav and a selected filter, and a page documenting the colours
+   without it documented everything except the one somebody would recognise the app by. */
 const TOKENS: ReadonlyArray<{ name: string }> = [
+  { name: '--cta' },
+  { name: '--on-cta' },
   { name: '--ink-900' },
   { name: '--ink-600' },
   { name: '--ink-400' },
@@ -106,6 +111,8 @@ const TOKENS: ReadonlyArray<{ name: string }> = [
   { name: '--pos' },
   { name: '--neg' },
   { name: '--warn' },
+  { name: '--sheet-ground' },
+  { name: '--card-surface' },
 ]
 
 const TYPE_SPECS: ReadonlyArray<{ cls: string; label: string; spec: string }> = [

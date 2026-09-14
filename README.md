@@ -10,10 +10,13 @@ nigérian (en-NG) en seconde langue.
 | **Épargne** | compte rémunéré avec objectifs nommés |
 | **Change** | seize devises, du franc CFA au rand, taux du marché et marge côte à côte |
 
-Style : monochrome intégral et Poppins, sur une matière de verre translucide posée sur un
-champ de dégradés neutres. Le chiffre est le héros — les montants sont en graisse 500 et à
-l'échelle d'affichage, serrés plutôt que gras. Tout le système visuel est défini par
-`src/styles/tokens.css`, et `DESIGN.md` en détaille les mesures.
+Style : une seule famille chaude — du brun profond à l'or beurre, teintes 62 à 97 — et
+Poppins, sur une matière de verre translucide. **L'or est la signature, et c'est un
+aplat** : le bouton principal, la destination active dans la barre, un filtre sélectionné.
+Les surfaces restent presque neutres ; seule la rampe d'accent est saturée. Le chiffre est
+le héros — les montants sont en graisse 500 et à l'échelle d'affichage, serrés plutôt que
+gras. Tout le système visuel est défini par `src/styles/tokens.css`, et `DESIGN.md` en
+détaille les mesures.
 
 ## Déployer
 
@@ -85,7 +88,7 @@ Compte de démonstration : `aissatou.ndiaye@exemple.sn` · code `246810` · NIP 
 ```bash
 pnpm typecheck      # TypeScript strict
 pnpm test           # vitest (devises, change, IBAN, pavé numérique, API mock, client REST)
-pnpm check:design   # règles statiques : aucune couleur/ombre/dégradé/emoji/texte < 12px hors tokens
+pnpm check:design   # règles statiques : teintes hors bande, couleur/ombre/dégradé/emoji/texte < 12px hors tokens
 pnpm build && pnpm preview &
 pnpm e2e            # Playwright : captures 320/390/768/1440 × clair/sombre + audit contraste, cibles 44px, débordement
 pnpm e2e:flows      # Playwright : parcours d'argent réels — acheter, envoyer par opérateur, convertir, déposer, hors ligne, verrou

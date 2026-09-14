@@ -44,8 +44,11 @@
   --glass-bg-strong: var(--canvas-glass-strong);
   --glass-border: var(--canvas-glass-border);
   --glass-edge: var(--canvas-line);
-  --cta: var(--canvas-ink);
-  --on-cta: var(--canvas-bg);
+  /* The CTA is *not* remapped here. It used to become paper on the dark canvas, which was
+     right when the palette was monochrome and the primary button was simply the opposite of
+     its ground. The accent is gold now, and gold on a dark brown canvas is the reference's
+     own primary button — the loudest thing on its home screen. Remapping it would have made
+     the one place the app most wants to show its colour the one place it did not. */
 }
 /* iOS rubber-banding at the top of the page pulls the content down and reveals whatever
    is behind it — which is the light ambient ground, a white band above the black canvas.

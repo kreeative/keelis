@@ -4,11 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#fcfcfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#fcfaf4" media="(prefers-color-scheme: light)" />
     <!-- These must match the *top of the page*, which is the home canvas — not the page
-         background. The canvas follows the theme now, so #fcfcfc / #0f0f0f are its two
-         measured values and the browser's own bar stops showing a seam above the app. -->
-    <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)" />
+         background. The canvas follows the theme now, so #fcfaf4 / #21170d are its two
+         measured values — --surface in light, --card-surface in dark — and the browser's
+         own bar stops showing a seam above the app. Recompute them if either token moves:
+         a theme-color left behind from the previous palette is a grey strip over a warm
+         page, which is exactly the seam these exist to remove. -->
+    <meta name="theme-color" content="#21170d" media="(prefers-color-scheme: dark)" />
     <title>Keewal Meere</title>
     <!-- Poppins, self-hosted. Preload the two faces that paint first: body and bold. -->
     <link rel="preload" href="/fonts/poppins-400-latin.woff2" as="font" type="font/woff2" crossorigin />

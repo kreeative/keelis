@@ -26,6 +26,11 @@
 .bare .segment { padding-inline: var(--sp-2); min-width: 0; }
 .bare .selected { color: var(--ink-900); }
 
+/* The soft wash, not the gold. The reference reserves a solid gold fill for a *filter* —
+   its selected month chip, which `ChipBar` matches — while its tab pair (« Transfer » /
+   « Request ») lights the active one with a pale chip. This component is the tab: making it
+   gold too would have spent the accent on four controls a screen, and it is only the
+   signature while it is rare. */
 .pill {
   position: absolute;
   top: var(--seg-pad, var(--sp-1));

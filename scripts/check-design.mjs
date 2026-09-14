@@ -6,7 +6,7 @@
  *    (a hand-rolled single-blur shadow is the thing this catches)
  *  - gradients only in the token and base layers (the ambient ground)
  *  - blur only through --glass-blur, so every glass surface matches
- *  - the palette stays monochrome: every oklch token has chroma 0
+ *  - the palette stays in one warm family: every token's hue sits in the sanctioned band
  *  - no font-size below 12px
  *  - no emoji in source
  *  - numbers are formatted through src/lib/format.ts, never a bare Intl.NumberFormat
@@ -74,21 +74,69 @@ function check(file) {
   })
 }
 
-// The palette is monochrome by decision: an oklch value with chroma > 0 reintroduces a hue.
+/**
+ * The palette is one warm family, and this keeps it that way.
+ *
+ * It used to be monochrome — every token `oklch(L 0 0)` — and this check simply forbade
+ * chroma. The owner replaced that decision with the brown-and-gold reference, so the rule
+ * it enforces changes with it, but the *reason* for having a rule does not: a palette
+ * nothing guards drifts one plausible colour at a time until it is a swatch collection.
+ *
+ * What holds now is the band. Sampling the reference, every surface, every piece of ink and
+ * the accent itself sit between hue 62 and 97 — deep brown through to butter gold, one
+ * family lit differently. So a token may carry hue, and it must carry *that* hue.
+ *
+ * Chroma is bounded by role rather than fixed, because the reference is emphatic about the
+ * difference: the surfaces are nearly neutral (0.02–0.04) and only the accent is saturated
+ * (~0.09). A surface that creeps up to the accent's chroma is how a restrained palette turns
+ * into a brown one.
+ *
+ * The exceptions are the same three as before. --pos / --neg, because direction is the one
+ * meaning people read by colour before they read anything, and green and red cannot be
+ * warm. The asset marks (exempted by file above), because a logo is how a token is
+ * recognised. And --aurora-*, the home page's wash — decorative, behind nothing but white
+ * space, never under text or a control.
+ */
+const HUE_MIN = 55
+const HUE_MAX = 105
+/* The accent ramp is allowed to be saturated; everything else is a near-neutral that merely
+   leans warm. Matched on the token's own name, so the budget is a property of the role. */
+const ACCENT_TOKENS = /--(cta|cta-hover|accent|accent-text|accent-soft|aurora-\d)\b/
+const CHROMA_MAX_ACCENT = 0.14
+const CHROMA_MAX_SURFACE = 0.05
+
 {
   const src = readFileSync(TOKENS, 'utf8')
   src.split('\n').forEach((line, i) => {
-    /* Three sanctioned exceptions carry hue, and only three. --pos / --neg, because
-       direction is the one meaning people read by colour before they read anything. The
-       asset marks (exempted by file above), because a logo is how a token is recognised.
-       And --aurora-*, the home page's wash: decorative, behind nothing but white space,
-       never under text or a control, and gone from a greyscale screenshot without loss.
-       Everything else stays a neutral. */
+    const where = `styles/tokens.css:${i + 1}`
     const sanctionedHue = /--[a-z-]*(pos|neg|aurora-\d)\s*:/.test(line)
-    const m = line.match(/oklch\(\s*[\d.]+\s+([\d.]+)/)
-    if (m && Number(m[1]) > 0 && !sanctionedHue) violations.push(`styles/tokens.css:${i + 1}: oklch chroma ${m[1]} — the palette is black-and-white only`)
+    const m = line.match(/oklch\(\s*[\d.]+\s+([\d.]+)\s+([\d.]+)/)
+    if (m && !sanctionedHue) {
+      const chroma = Number(m[1])
+      const hue = Number(m[2])
+      if (chroma > 0 && (hue < HUE_MIN || hue > HUE_MAX)) {
+        violations.push(`${where}: hue ${hue} is outside the warm band ${HUE_MIN}–${HUE_MAX} — the palette is one family`)
+      }
+      const budget = ACCENT_TOKENS.test(line) ? CHROMA_MAX_ACCENT : CHROMA_MAX_SURFACE
+      if (chroma > budget) {
+        violations.push(`${where}: chroma ${chroma} over the ${budget} budget for this role — only the accent ramp is saturated`)
+      }
+    }
+    /* An `oklch(L C)` with no hue at all is a grey, and a grey in a warm palette reads as a
+       dead patch beside everything around it. Chroma 0 is therefore only allowed where the
+       value is a shadow or a scrim — something that is an absence of light rather than a
+       surface. */
+    if (m && Number(m[1]) === 0 && !/(shadow|backdrop|scrim)/.test(line)) {
+      violations.push(`${where}: chroma 0 — a pure grey in a warm palette reads as a dead patch`)
+    }
+    /* rgb() in the token layer is glass, a rim highlight or a shadow. A highlight is the
+       light source's own colour and a shadow is its absence, so both may be neutral; a
+       *fill* may not, or the glass panes go grey over a brown ground. */
     const rgb = line.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
-    if (rgb && !(rgb[1] === rgb[2] && rgb[2] === rgb[3])) violations.push(`styles/tokens.css:${i + 1}: rgb(${rgb[1]},${rgb[2]},${rgb[3]}) is not a neutral`)
+    const neutral = rgb && rgb[1] === rgb[2] && rgb[2] === rgb[3]
+    if (neutral && /--glass-(bg|bg-strong|bg-soft|fallback)/.test(line)) {
+      violations.push(`${where}: a neutral glass fill over a warm ground composites to grey`)
+    }
   })
 }
 

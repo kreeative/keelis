@@ -34,9 +34,11 @@
 .chip:active { transform: var(--press); }
 .chip:focus-visible { box-shadow: var(--focus-ring); }
 
+/* Gold rather than ink: in a warm palette the selected filter is the one the eye should
+   land on, and the reference says that with its accent rather than with more darkness. */
 .on {
-  background: var(--ink-900);
-  color: var(--surface);
+  background: var(--cta);
+  color: var(--on-cta);
 }
 
 .meta { opacity: 0.6; font-weight: var(--fw-medium); }
