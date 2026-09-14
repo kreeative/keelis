@@ -24,7 +24,7 @@ const BASE = process.env.BASE_URL ?? 'http://localhost:4173'
 const ROUTES = (args.routes ? String(args.routes).split(',') : [
   '/', '/activite', '/crypto', '/crypto/btc', '/crypto/btc/acheter', '/crypto/btc/vendre', '/crypto/btc/envoyer', '/crypto/btc/recevoir', '/crypto/recurrents',
   '/carte', '/carte/details', '/envoyer', '/envoyer/operateurs', '/convertir', '/epargne', '/epargne/deposer', '/epargne/retirer', '/epargne/objectifs/nouveau', '/epargne/objectifs/goal_01',
-  '/fonds', '/profil', '/profil/securite', '/profil/notifications', '/profil/documents', '/profil/fiscalite', '/profil/aide', '/profil/donnees', '/notifications', '/entreprise', '/composants',
+  '/fonds', '/profil', '/profil/securite', '/profil/notifications', '/profil/documents', '/profil/fiscalite', '/profil/aide', '/profil/donnees', '/profil/risque', '/notifications', '/entreprise', '/composants',
 ])
 const WIDTHS = (args.widths ? String(args.widths).split(',').map(Number) : [320, 390, 768, 1440])
 const THEMES = (args.themes ? String(args.themes).split(',') : ['light', 'dark'])

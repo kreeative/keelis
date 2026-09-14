@@ -5,11 +5,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, ApiError, isLive, type Locale } from '@/api'
+import type { RiskProfile } from '@/api/types'
+import { RISK_LEVELS } from '@/lib/risk'
 import { Avatar, Badge, Button, Icon, List, ListRow, SegmentedControl, Switch } from '@/components'
 import { ConfirmSheet } from '@/features/shared'
 import { formatDate } from '@/lib/format'
 import type { ThemeChoice } from '@/lib/theme'
-import { useSession, useSettings, useToast } from '@/store'
+import { QK, useQuery, useSession, useSettings, useToast } from '@/store'
 import { RowIcon } from './RowIcon'
 import { SettingRow } from './SettingRow'
 import styles from './ProfilePage.module.css'
@@ -33,6 +35,7 @@ export default function ProfilePage() {
   const [confirming, setConfirming] = useState(false)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
+  const risk = useQuery<RiskProfile | null>(QK.risk, () => api.profile.risk())
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : ''
 
@@ -80,6 +83,13 @@ export default function ProfilePage() {
               <ListRow to="/profil/securite" leading={<RowIcon name="shield" />} title="Sécurité" subtitle="NIP et appareils" chevron />
               <ListRow to="/profil/notifications" leading={<RowIcon name="bell" />} title="Notifications" subtitle="Ce dont nous vous avertissons" chevron />
               <ListRow to="/profil/documents" leading={<RowIcon name="file-text" />} title="Documents et relevés" subtitle="Relevés mensuels en PDF" chevron />
+              <ListRow
+                to="/profil/risque"
+                leading={<RowIcon name="target" />}
+                title="Profil d’investisseur"
+                subtitle={risk.data ? RISK_LEVELS[risk.data.level].name : 'Quatre questions, deux minutes'}
+                chevron
+              />
               <ListRow to="/profil/fiscalite" leading={<RowIcon name="receipt" />} title="Fiscalité" subtitle="Feuillets et rapports annuels" chevron />
             </List>
           </section>

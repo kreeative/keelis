@@ -54,6 +54,7 @@ import type {
   ReceiveAddress,
   RecurringBuy,
   RecurringFrequency,
+  RiskProfile,
   SavingsGoal,
   SavingsSummary,
   SecuritySettings,
@@ -280,6 +281,8 @@ export function createRestApi(opts: HttpOptions): KeewalApi {
       revokeDevice: (id) => http.del<void>(`/me/devices/${encodeURIComponent(id)}`),
       statements: () => http.get<Statement[]>('/me/statements'),
       taxDocuments: () => http.get<TaxDocument[]>('/me/tax-documents'),
+      risk: () => http.get<RiskProfile | null>('/me/risk'),
+      setRisk: (answers: Record<string, string>) => http.patch<RiskProfile>('/me/risk', { answers }),
     },
 
     subscribe(listener): Unsubscribe {

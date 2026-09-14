@@ -11,6 +11,7 @@ import { formatMoney } from '@/lib/format'
 import { roundTo, type Currency } from '@/lib/currency'
 import { quote } from '@/lib/fx'
 import { handleRule } from '@/lib/transferHandle'
+import { isComplete, levelForAnswers } from '@/lib/risk'
 import {
   ApiError,
   type Account,
@@ -31,6 +32,7 @@ import {
   type Quote,
   type QuoteRequest,
   type RecurringBuy,
+  type RiskProfile,
   type SavingsGoal,
   type SecuritySettings,
   type Session,
@@ -71,6 +73,7 @@ const KEYS = {
   watched: 'keewal.watched',
   frozen: 'keewal.card.frozen',
   locale: 'keewal.locale',
+  risk: 'keewal.risk',
 }
 
 export const PRICE_TICK_MS = 10_000
@@ -128,6 +131,9 @@ class MockState {
      who saves in francs needs both at once — and without them a conversion had nowhere to
      land, which is why `/convertir` used to say « converti » and move nothing. */
   pockets: Pocket[] = seedPockets.map((p) => ({ ...p }))
+  /* Persisted: a questionnaire somebody has already answered should not be asked again
+     because they closed the tab. */
+  risk: RiskProfile | null = readJson<RiskProfile | null>(KEYS.risk, null)
 
   /** What the account holds in one currency — the home balance included. */
   pocketAmount(currency: Currency): number {
@@ -1028,6 +1034,17 @@ export const mockApi: KeewalApi = {
   },
 
   profile: {
+    async risk() {
+      await simulate()
+      return state.risk ? { ...state.risk } : null
+    },
+    async setRisk(answers) {
+      await simulate()
+      if (!isComplete(answers)) throw new ApiError('Répondez aux quatre questions.', 'validation')
+      state.risk = { level: levelForAnswers(answers), answers: { ...answers }, completedAt: new Date().toISOString() }
+      writeJson(KEYS.risk, state.risk)
+      return { ...state.risk }
+    },
     async me() {
       await simulate()
       return { ...state.user }

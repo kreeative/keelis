@@ -244,6 +244,14 @@ opérateur ne sont pas les nôtres, et la personne qui paie ne fait pas la diff�
 | DELETE | `/me/devices/:id` | `204` |
 | GET | `/me/statements` | `Statement[]` |
 | GET | `/me/tax-documents` | `TaxDocument[]` |
+| GET | `/me/risk` | `RiskProfile \| null` — `null` tant que le questionnaire n'a pas été rempli |
+| PATCH | `/me/risk` | `RiskProfile` pour `{ answers }` |
+
+Le profil de risque **ne bloque rien**. Il change ce que l'application *dit* avant un ordre
+sur un actif volatil : prévenir avant, pendant que la décision est ouverte, plutôt
+qu'interdire à un adulte l'usage de son propre argent. Le calcul est dans
+`src/lib/risk.ts` — quatre questions, chaque réponse vaut 0, 1 ou 2, trois bandes — et il
+est volontairement vérifiable à la main.
 
 ## Ce que le back-end doit garantir, et que l'interface suppose déjà
 

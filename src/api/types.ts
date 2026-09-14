@@ -552,6 +552,25 @@ export interface TaxDocument {
   url?: string
 }
 
+// ---------- Risk profile ----------
+
+/**
+ * What kind of investor somebody is, by their own answer.
+ *
+ * It exists to change what the app *says* before a volatile order, not to lock anybody out.
+ * The rule this product follows is « warn before, not after »: a consequence worth knowing
+ * belongs beside the control while the decision is still open, and refusing an adult their
+ * own money is a different thing that this app has no standing to do.
+ */
+export type RiskLevel = 'prudent' | 'equilibre' | 'dynamique'
+
+export interface RiskProfile {
+  level: RiskLevel
+  /** Answer id per question id, kept so the questionnaire can be reopened as filled in. */
+  answers: Record<string, string>
+  completedAt: string
+}
+
 export interface NotificationPrefs {
   transactions: boolean
   security: boolean
@@ -681,6 +700,9 @@ export interface KeewalApi {
     revokeDevice(id: string): Promise<void>
     statements(): Promise<Statement[]>
     taxDocuments(): Promise<TaxDocument[]>
+    /** `null` until the questionnaire has been answered. */
+    risk(): Promise<RiskProfile | null>
+    setRisk(answers: Record<string, string>): Promise<RiskProfile>
   }
   /** Fires whenever server-side state changes (e.g. a pending transaction settles). */
   subscribe(listener: (event: ApiEvent) => void): Unsubscribe

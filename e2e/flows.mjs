@@ -652,6 +652,58 @@ async function lockAndUnlock(browser) {
   }
 }
 
+/**
+ * The risk questionnaire, and the one thing it is allowed to change.
+ *
+ * The roadmap asked for it « avant de débloquer les classes d'actifs complexes », and the
+ * word *débloquer* is what this walk makes sure never happens: answering as cautiously as
+ * possible must add a sentence before a volatile buy and must not take the button away.
+ */
+async function riskProfile(browser) {
+  const flow = 'Profil d’investisseur'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/profil/risque`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByText('Question 1 sur 4'), 'the questionnaire')
+    // The most cautious answer to every question.
+    for (const first of ['Moins de deux ans', 'Je vends pour arrêter la perte', 'Jamais', 'Presque toute mon épargne']) {
+      await page.getByRole('radio', { name: first }).click()
+    }
+    await present(page, page.getByText(/Profil : Prudent/), 'the live result')
+    await shot(page, 'risk-form')
+    await page.getByRole('button', { name: /Enregistrer/ }).click()
+    await present(page, page.getByText(/Votre profil/), 'the saved result')
+    const result = await page.locator('body').innerText()
+    if (!/Prudent/.test(result)) fail(flow, 'the most cautious answers did not produce a prudent profile')
+    // The effect has to be stated: an invisible one is a hidden one.
+    if (!/prévient|rappel/i.test(result)) fail(flow, 'the result does not say what the app will do differently')
+    await shot(page, 'risk-result')
+
+    // Now the only consequence: a sentence before a volatile buy, and the button still there.
+    await page.goto(`${BASE}/crypto/btc/acheter`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByRole('button', { name: '5', exact: true }), 'the buy screen')
+    await keypad(page, ['5', '0', '0', '0', '0'])
+    await present(page, page.getByText(/prudent/i), 'the warning before a volatile buy')
+    await shot(page, 'risk-warning')
+    const cta = page.getByRole('button', { name: /Continuer|Acheter/ }).last()
+    // Warn before, not forbid: refusing an adult their own money is a posture.
+    if (await cta.isDisabled()) fail(flow, 'the risk profile blocked the order instead of warning')
+
+    // And no warning where it would be noise: an African equity is not the volatile end.
+    await page.goto(`${BASE}/crypto/sonatel/acheter`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByRole('button', { name: '5', exact: true }), 'the equity buy screen')
+    await keypad(page, ['5', '0', '0', '0', '0'])
+    await page.waitForTimeout(500)
+    if (/vous êtes décrit comme prudent/i.test(await page.locator('body').innerText())) {
+      fail(flow, 'the volatility warning appears on an African equity, where it is noise')
+    }
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
 const executablePath = findChromium()
 const browser = await chromium.launch(executablePath ? { executablePath } : {})
 
@@ -669,6 +721,7 @@ await run('moveToSavings', moveToSavings)
 await run('receiveCrypto', receiveCrypto)
 await run('freezeTheCard', freezeTheCard)
 await run('createAGoal', createAGoal)
+await run('riskProfile', riskProfile)
 await run('goOffline', goOffline)
 await run('lockAndUnlock', lockAndUnlock)
 await browser.close()
@@ -677,4 +730,4 @@ if (failures.length) {
   console.error(`Flows failed (${failures.length}):\n` + failures.map((f) => '  - ' + f).join('\n'))
   process.exit(1)
 }
-console.log('Flows passed: sign up, buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal, offline, lock.')
+console.log('Flows passed: sign up, buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal, risk, offline, lock.')

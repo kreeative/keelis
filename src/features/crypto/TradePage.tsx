@@ -6,11 +6,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/api'
-import type { AmountMode, ApiError, Order, QuoteRequest, Quote } from '@/api/types'
-import { Button, ErrorState, Money, PageHeader, SkeletonAmount } from '@/components'
+import type { AmountMode, ApiError, Order, QuoteRequest, Quote, RiskProfile } from '@/api/types'
+import { Button, Callout, ErrorState, Money, PageHeader, SkeletonAmount } from '@/components'
 import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
 import { DEFAULT_CURRENCY, formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
-import { useMutation, useSettings } from '@/store'
+import { QK, useMutation, useQuery, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import { floorTo, formatRate, toKeypadRaw } from './cryptoFormat'
 import { useLiveAccount, useLiveAsset, useLiveHoldings, useLiveTransaction } from './hooks'
@@ -72,6 +72,7 @@ export default function TradePage({ side }: { side: Side }) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [order, setOrder] = useState<Order | null>(null)
 
+  const risk = useQuery<RiskProfile | null>(QK.risk, () => api.profile.risk(), { staleTime: 5 * 60_000 })
   const quoteM = useMutation((req: QuoteRequest) => api.crypto.quote(req))
   const orderM = useMutation((quoteId: string) => api.crypto.placeOrder(quoteId))
 
@@ -119,6 +120,23 @@ export default function TradePage({ side }: { side: Side }) {
     if (mode === 'fiat' && quantity <= 0) return `${asset?.name ?? symbol} cote ${formatMoney(price, { locale })}. Il faut de quoi en acheter au moins une unité.`
     return null
   })()
+  /**
+   * The one thing the risk profile changes: a sentence before a volatile buy.
+   *
+   * Only on a buy — nobody needs warning about getting out — only on the volatile end of
+   * the list, and only for somebody whose own answers said they might need this money soon.
+   * Somebody who has not answered is not nagged: an unfilled questionnaire is not a
+   * statement about them.
+   */
+  const riskNote = (() => {
+    if (side !== 'buy' || asset?.assetClass !== 'crypto') return null
+    const level = risk.data?.level
+    if (level !== 'prudent' && level !== 'equilibre') return null
+    return level === 'prudent'
+      ? 'Vous vous êtes décrit comme prudent, et cet actif peut perdre la moitié de sa valeur en quelques semaines. Rien ne vous en empêche.'
+      : 'Cet actif est volatil : sa valeur peut varier fortement d’une semaine à l’autre.'
+  })()
+
   const entryError = serverError?.message ?? clientError
   const insufficientFunds = side === 'buy' && (clientError === 'Solde Chèque insuffisant' || serverError?.code === 'insufficient_funds')
   const canContinue = !!asset && typed > 0 && !clientError && !quoteM.pending
@@ -244,6 +262,15 @@ export default function TradePage({ side }: { side: Side }) {
           disabled={quoteM.pending}
         />
       </div>
+
+      {/* Warn before, not after. A profile the person filled in themselves decides whether
+          this appears; it never blocks the order, and it sits beside the amount rather than
+          in the confirmation sheet, while the decision is still open. */}
+      {riskNote ? (
+        <Callout variant="note" className={styles.riskNote}>
+          {riskNote}
+        </Callout>
+      ) : null}
 
       <dl className={styles.fees} aria-label="Aperçu des frais">
         <FeeLine label="Prix du marché" value={<Money value={price} unmasked />} />
