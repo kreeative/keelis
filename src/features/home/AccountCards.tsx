@@ -4,13 +4,14 @@
  * wealth; a second, smaller curve on a tile it does not belong to competes with it and
  * says less. Direction on a card is carried by the signed figure alone.
  *
- * The order is fixed, and `Actifs` sits between Épargne and Crypto: the holdings are what
- * this app is principally about, so they come before the wallet that happens to hold some
- * of them.
+ * **There used to be a separate « Actifs » row above the Crypto card, and it printed the
+ * same number twice.** The holdings book *is* the investment account, so the row's total
+ * and the card's balance were the identical figure, eleven millimetres apart. They are one
+ * card now: « Actifs », carrying the marks of what is held — which was the only thing the
+ * row said that the card did not.
  */
-import { Fragment, type ReactNode } from 'react'
-import type { Account, AccountKind } from '@/api/types'
-import { Badge, Card, Delta, Money, MoneyDelta, Skeleton } from '@/components'
+import type { Account, AccountKind, Holding } from '@/api/types'
+import { AvatarStack, Badge, Card, Delta, Money, MoneyDelta, Skeleton } from '@/components'
 import { formatPercent } from '@/lib/format'
 import { useSettings } from '@/store'
 import styles from './AccountCards.module.css'
@@ -24,17 +25,20 @@ const ORDER: ReadonlyArray<{ kind: AccountKind; to: string }> = [
 
 const SKELETON_HEIGHT = 132
 
-function AccountCard({ account, to }: { account: Account; to: string }) {
+function AccountCard({ account, to, holdings }: { account: Account; to: string; holdings?: Holding[] }) {
   const { locale } = useSettings()
-  const isCrypto = account.kind === 'crypto'
+  const isInvest = account.kind === 'crypto'
   const isSavings = account.kind === 'savings'
+  const marks = isInvest ? holdings : undefined
   return (
     <Card to={to} className={styles.card}>
       <span className={styles.inner}>
         <span className={styles.head}>
           <span className="t-name">{account.name}</span>
           {isSavings && account.apy !== undefined ? <Badge>APY {formatPercent(account.apy, { locale, signed: false })}</Badge> : null}
-
+          {/* What is held, as marks: a logo is how somebody finds Sonatel in a list without
+              reading, and it is the one thing the card could not say in figures. */}
+          {marks && marks.length > 0 ? <AvatarStack assets items={marks.map((h) => h.symbol)} label={`${marks.length} actifs détenus`} /> : null}
         </span>
         <span className={styles.balance}>
           <Money value={account.balance} currency={account.currency} />
@@ -42,14 +46,14 @@ function AccountCard({ account, to }: { account: Account; to: string }) {
         <span className={styles.sub}>
           {/* Money *and* percent: a percentage on its own does not say whether the move was
               worth 4 000 F CFA or 400 000. */}
-          {isCrypto ? <Delta value={account.change24hPct} amount={account.change24h} suffix="24 h" variant="pill" /> : <MoneyDelta value={account.change24h} suffix="aujourd'hui" />}
+          {isInvest ? <Delta value={account.change24hPct} amount={account.change24h} suffix="24 h" variant="pill" /> : <MoneyDelta value={account.change24h} suffix="aujourd'hui" />}
         </span>
       </span>
     </Card>
   )
 }
 
-export function AccountCards({ accounts, loading, beforeCrypto }: { accounts: Account[] | undefined; loading: boolean; beforeCrypto?: ReactNode }) {
+export function AccountCards({ accounts, loading, holdings }: { accounts: Account[] | undefined; loading: boolean; holdings?: Holding[] }) {
   if (!accounts) {
     return (
       <section className={styles.grid} aria-busy={loading || undefined} aria-label="Comptes">
@@ -64,12 +68,7 @@ export function AccountCards({ accounts, loading, beforeCrypto }: { accounts: Ac
       {ORDER.map((o) => {
         const account = accounts.find((a) => a.kind === o.kind)
         if (!account) return null
-        return (
-          <Fragment key={o.kind}>
-            {o.kind === 'crypto' ? beforeCrypto : null}
-            <AccountCard account={account} to={o.to} />
-          </Fragment>
-        )
+        return <AccountCard key={o.kind} account={account} to={o.to} holdings={holdings} />
       })}
     </section>
   )

@@ -246,6 +246,15 @@ export const seedAssets: CryptoAsset[] = assetSeeds.map((a, i) => {
    the same ~1:1 scale. Leaving it behind while `price` moved made every holding show a
    five-figure percentage gain: the cost basis was 656 times too small. */
 export const seedHoldingsRaw: Array<Pick<Holding, 'assetId' | 'quantity' | 'avgCost'>> = [
+  /* African shares first, and the larger half of the book. The demonstration account used
+     to hold four coins and not one of the seven listed equities — in an application whose
+     own roadmap opens « l'app porte principalement sur l'achat d'actions africaines ». A
+     product that lists Sonatel and Dangote and then shows you a portfolio of bitcoin is
+     arguing against itself on its own home screen. */
+  { assetId: 'sonatel', quantity: 160, avgCost: 41.2 * XOF_PER_EUR },
+  { assetId: 'dangcem', quantity: 9_000, avgCost: 0.575 * XOF_PER_EUR },
+  { assetId: 'safaricom', quantity: 25_000, avgCost: 0.168 * XOF_PER_EUR },
+  { assetId: 'nsiabrvm', quantity: 250, avgCost: 11.95 * XOF_PER_EUR },
   { assetId: 'btc', quantity: 0.0428, avgCost: 131_200 * XOF_PER_EUR },
   { assetId: 'eth', quantity: 0.85, avgCost: 5_980 * XOF_PER_EUR },
   { assetId: 'sol', quantity: 12.5, avgCost: 310.5 * XOF_PER_EUR },
@@ -253,8 +262,10 @@ export const seedHoldingsRaw: Array<Pick<Holding, 'assetId' | 'quantity' | 'avgC
 ]
 
 export const seedRecurring: RecurringBuy[] = [
-  { id: 'rec_01', assetId: 'btc', symbol: 'BTC', amount: Math.round(50 * XOF_PER_EUR), frequency: 'weekly', nextRun: daysAhead(3), active: true, createdAt: daysAgo(70) },
-  { id: 'rec_02', assetId: 'eth', symbol: 'ETH', amount: Math.round(100 * XOF_PER_EUR), frequency: 'monthly', nextRun: daysAhead(12), active: true, createdAt: daysAgo(45) },
+  /* Round francs: a standing order is an amount somebody chose, and nobody chooses to buy
+     32,798 F CFA of bitcoin every week. */
+  { id: 'rec_01', assetId: 'sonatel', symbol: 'SNTS', amount: 50_000, frequency: 'monthly', nextRun: daysAhead(12), active: true, createdAt: daysAgo(70) },
+  { id: 'rec_02', assetId: 'btc', symbol: 'BTC', amount: 25_000, frequency: 'weekly', nextRun: daysAhead(3), active: true, createdAt: daysAgo(45) },
 ]
 
 // ---------- Accounts ----------
@@ -271,7 +282,7 @@ export function makeAccounts(cryptoValue: number, cryptoChange: number, cryptoCh
   return [
     { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, change24h: -56_675, change24hPct: -2.0, openedAt: daysAgo(112) },
     { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: 912, change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
-    { id: IDS.crypto, kind: 'crypto', name: 'Crypto', currency: 'XOF', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
+    { id: IDS.crypto, kind: 'crypto', name: 'Actifs', currency: 'XOF', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
   ]
 }
 
@@ -387,26 +398,34 @@ export function makeTransactions(): Transaction[] {
   add({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: 125_000, counterparty: 'Depuis Épargne', category: 'savings', date: daysAgo(19, 11), postedAt: daysAgo(19, 11), channel: 'app' })
 
   // Crypto: buys/sells + recurring
-  const cryptoTrades: Array<[number, 'crypto_buy' | 'crypto_sell' | 'recurring_buy', string, string, number, number]> = [
-    [85, 'crypto_buy', 'btc', 'BTC', 0.02, 128_400],
-    [78, 'crypto_buy', 'eth', 'ETH', 0.5, 5_820],
-    [60, 'crypto_buy', 'sol', 'SOL', 12.5, 310.5],
-    [52, 'crypto_buy', 'btc', 'BTC', 0.015, 133_100],
-    [44, 'crypto_buy', 'link', 'LINK', 40, 28.9],
-    [38, 'crypto_sell', 'eth', 'ETH', 0.15, 6_150],
-    [30, 'crypto_buy', 'eth', 'ETH', 0.5, 6_210],
+  /* The buys that produced the book above — shares included, so the activity list shows
+     the thing this app is principally for happening. */
+  const trades: Array<[number, 'asset_buy' | 'asset_sell' | 'recurring_buy', string, string, number, number]> = [
+    [88, 'asset_buy', 'sonatel', 'SNTS', 100, 40.8],
+    [74, 'asset_buy', 'dangcem', 'DANGCEM', 6_000, 0.57],
+    [57, 'asset_buy', 'safaricom', 'SCOM', 25_000, 0.168],
+    [49, 'asset_buy', 'nsiabrvm', 'NSBC', 250, 11.95],
+    [26, 'asset_buy', 'sonatel', 'SNTS', 60, 42.0],
+    [18, 'asset_buy', 'dangcem', 'DANGCEM', 3_000, 0.585],
+    [85, 'asset_buy', 'btc', 'BTC', 0.02, 128_400],
+    [78, 'asset_buy', 'eth', 'ETH', 0.5, 5_820],
+    [60, 'asset_buy', 'sol', 'SOL', 12.5, 310.5],
+    [52, 'asset_buy', 'btc', 'BTC', 0.015, 133_100],
+    [44, 'asset_buy', 'link', 'LINK', 40, 28.9],
+    [38, 'asset_sell', 'eth', 'ETH', 0.15, 6_150],
+    [30, 'asset_buy', 'eth', 'ETH', 0.5, 6_210],
     [21, 'recurring_buy', 'btc', 'BTC', 0.00038, 131_500],
     [14, 'recurring_buy', 'btc', 'BTC', 0.00036, 138_900],
     [7, 'recurring_buy', 'btc', 'BTC', 0.00035, 141_200],
-    [7, 'crypto_buy', 'btc', 'BTC', 0.0035, 141_200],
+    [7, 'asset_buy', 'btc', 'BTC', 0.0035, 141_200],
   ]
-  for (const [day, type, assetId, symbol, qty, price] of cryptoTrades) {
+  for (const [day, type, assetId, symbol, qty, price] of trades) {
     // The price above is on the asset scale (one unit ≈ one euro), like every other price
     // in this file; the francs that leave the account are that, crossed once.
     const fiat = Math.round(qty * price * XOF_PER_EUR)
-    const sell = type === 'crypto_sell'
+    const sell = type === 'asset_sell'
     add({ accountId: IDS.crypto, type, status: 'posted', amount: sell ? fiat : -fiat, counterparty: `${sell ? 'Vente' : 'Achat'} ${symbol}`, category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app', asset: { assetId, symbol, quantity: qty, price } })
-    add({ accountId: IDS.checking, type: sell ? 'transfer_in' : 'transfer_out', status: 'posted', amount: sell ? fiat : -fiat, counterparty: sell ? 'Depuis Crypto' : 'Vers Crypto', category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app' })
+    add({ accountId: IDS.checking, type: sell ? 'transfer_in' : 'transfer_out', status: 'posted', amount: sell ? fiat : -fiat, counterparty: sell ? 'Depuis Actifs' : 'Vers Actifs', category: 'crypto', date: daysAgo(day, 9, 30), postedAt: daysAgo(day, 9, 31), channel: 'app' })
   }
 
   txs.sort((a, b) => (a.date < b.date ? 1 : -1))

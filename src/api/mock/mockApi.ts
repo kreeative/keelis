@@ -623,7 +623,7 @@ export const mockApi: KeewalApi = {
       const now = new Date().toISOString()
       const tx = state.addTransaction({
         accountId: IDS.crypto,
-        type: q.side === 'buy' ? 'crypto_buy' : 'crypto_sell',
+        type: q.side === 'buy' ? 'asset_buy' : 'asset_sell',
         status: 'pending',
         amount: q.side === 'buy' ? -q.total : q.total,
         counterparty: `${q.side === 'buy' ? 'Achat' : 'Vente'} ${a.symbol}`,

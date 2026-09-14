@@ -8,14 +8,13 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, PriceHistory } from '@/api/types'
 import { AmountDisplay, AppBar, Button, Card, Chart, EmptyState, ErrorState, Icon, List, SectionHeader, SegmentedControl, SkeletonRow } from '@/components'
-import { TransactionRow, useAccounts, useTransactions } from '@/features/shared'
+import { TransactionRow, useAccounts, useHoldings, useTransactions } from '@/features/shared'
 import { formatDate, formatDateTime, formatMoney } from '@/lib/format'
 import { QK, useDesktop, useQuery, useSettings } from '@/store'
 import { useSession } from '@/store/session'
 import { AccountCards } from './AccountCards'
 import { AuroraGround } from './AuroraGround'
 import { HoldingsPanel } from './HoldingsPanel'
-import { HoldingsRow } from './HoldingsRow'
 import styles from './HomePage.module.css'
 
 const RECENT_COUNT = 5
@@ -44,6 +43,8 @@ export default function HomePage() {
   const [hover, setHover] = useState<{ t: number; p: number } | null>(null)
 
   const accounts = useAccounts()
+  // Only for the marks on the Actifs card — the figures all come from the account itself.
+  const holdings = useHoldings()
   const recent = useTransactions('recent')
   const history = useQuery<PriceHistory>(QK.accountsHistory(range), () => api.accounts.history(range), { staleTime: 30_000 })
 
@@ -135,9 +136,7 @@ export default function HomePage() {
             <span className={styles.grab} aria-hidden="true" />
 
             <div className={styles.asideMobile}>
-              {/* Actifs sits between Épargne and Crypto, not after it: the holdings are what
-                  this app is principally about. */}
-              <AccountCards accounts={accounts.data} loading={accounts.loading} beforeCrypto={<HoldingsRow />} />
+              <AccountCards accounts={accounts.data} loading={accounts.loading} holdings={holdings.data} />
             </div>
 
             <section className={styles.section} aria-busy={recent.loading || undefined}>
@@ -172,7 +171,7 @@ export default function HomePage() {
         </div>
 
         <aside className={styles.aside}>
-          <AccountCards accounts={accounts.data} loading={accounts.loading} />
+          <AccountCards accounts={accounts.data} loading={accounts.loading} holdings={holdings.data} />
           <HoldingsPanel />
         </aside>
       </div>

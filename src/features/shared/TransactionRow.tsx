@@ -10,7 +10,7 @@ import { useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import styles from './TransactionRow.module.css'
 
-const INCOMING: Transaction['type'][] = ['transfer_in', 'etransfer_in', 'deposit', 'interest', 'crypto_sell', 'crypto_receive', 'refund']
+const INCOMING: Transaction['type'][] = ['transfer_in', 'etransfer_in', 'deposit', 'interest', 'asset_sell', 'crypto_receive', 'refund']
 
 export function isIncoming(t: Transaction): boolean {
   return INCOMING.includes(t.type) || t.amount > 0
@@ -24,9 +24,9 @@ export function transactionIcon(t: Transaction): { name: IconName; tone: 'neutra
       return { name: 'trending-up', tone: 'accent' }
     case 'recurring_buy':
       return { name: 'repeat', tone: 'neutral' }
-    case 'crypto_buy':
+    case 'asset_buy':
       return { name: 'arrow-up-right', tone: 'neutral' }
-    case 'crypto_sell':
+    case 'asset_sell':
       return { name: 'arrow-down-left', tone: 'accent' }
     case 'deposit':
     case 'transfer_in':

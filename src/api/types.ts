@@ -130,8 +130,11 @@ export type TransactionType =
   | 'deposit'
   | 'withdrawal'
   | 'interest'
-  | 'crypto_buy'
-  | 'crypto_sell'
+  /* Buying a share of Sonatel and buying a bitcoin are the same movement from the
+     account's point of view, and the app lists both under « Actifs ». These used to be
+     `crypto_buy` / `crypto_sell`, which named half the product. */
+  | 'asset_buy'
+  | 'asset_sell'
   | 'crypto_send'
   | 'crypto_receive'
   | 'recurring_buy'
