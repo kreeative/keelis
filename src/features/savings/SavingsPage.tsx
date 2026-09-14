@@ -123,7 +123,7 @@ export default function SavingsPage() {
   const goals = useGoals()
   const history = useQuery<PriceHistory>(QK.savingsHistory(range), () => api.savings.history(range), { staleTime: 30_000 })
   const savingsId = useAccountId('savings')
-  const activity = useTransactions(savingsId ?? 'pending')
+  const activity = useTransactions(savingsId)
   const wide = useMediaQuery('(min-width: 768px)')
 
   const balance = savings.data?.balance ?? account.data?.balance

@@ -27,9 +27,17 @@ export function useAccountId(kind: AccountKind): string | undefined {
   return useAccount(kind).data?.id
 }
 
-/** scope: 'all' | accountId | 'recent' (5 most recent across accounts) */
-export function useTransactions(scope: 'all' | 'recent' | string = 'all', filter?: TransactionFilter) {
-  const key = QK.transactions(scope + (filter ? ':' + JSON.stringify(filter) : ''))
+/**
+ * scope: 'all' | accountId | 'recent' (5 most recent across accounts).
+ *
+ * `undefined` means *not yet known* — the account id is still loading — and the query is
+ * held rather than run. Screens used to pass a placeholder id, which the API answered with
+ * an empty list, so the transaction section flashed « Aucune transaction sur ce compte »
+ * before the real rows arrived. An empty state is a statement of fact; it must not be what
+ * loading looks like.
+ */
+export function useTransactions(scope: 'all' | 'recent' | string | undefined = 'all', filter?: TransactionFilter) {
+  const key = scope === undefined ? null : QK.transactions(scope + (filter ? ':' + JSON.stringify(filter) : ''))
   return useQuery<Transaction[]>(key, () => {
     if (scope === 'recent') return api.transactions.list({ limit: 5, ...filter })
     if (scope === 'all') return api.transactions.list(filter)

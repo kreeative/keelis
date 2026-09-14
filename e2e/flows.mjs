@@ -53,20 +53,32 @@ function fail(flow, detail) {
 }
 
 /** Console errors are a failure too — React throwing behind a rendered screen is invisible. */
-function watchConsole(page, flow) {
-  page.on('pageerror', (e) => fail(flow, `uncaught error — ${e.message}`))
+/* Errors the app is *supposed* to produce while the network is deliberately cut: the
+   failed chunk fetch itself, and the boundary's own log of it, which is left in on purpose
+   because a chunk that will not load only ever shows up on somebody else's connection. */
+const EXPECTED_OFFLINE = /dynamically imported module|Unable to preload|Route failed to render|Failed to load resource|favicon/
+
+function watchConsole(page, flow, tolerate = null) {
+  page.on('pageerror', (e) => {
+    if (tolerate?.test(e.message)) return
+    fail(flow, `uncaught error — ${e.message}`)
+  })
   page.on('console', (m) => {
-    if (m.type() === 'error' && !/favicon|Failed to load resource/.test(m.text())) fail(flow, `console error — ${m.text()}`)
+    if (m.type() !== 'error') return
+    const text = m.text()
+    if (/favicon|Failed to load resource/.test(text)) return
+    if (tolerate?.test(text)) return
+    fail(flow, `console error — ${text}`)
   })
 }
 
-async function newPage(browser, flow, width = 390) {
+async function newPage(browser, flow, width = 390, tolerate = null) {
   const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 })
   await page.addInitScript((s) => {
     localStorage.setItem('keewal.session', s)
     localStorage.setItem('keewal.theme', '"light"')
   }, JSON.stringify(DEMO_SESSION))
-  watchConsole(page, flow)
+  watchConsole(page, flow, tolerate)
   return page
 }
 
@@ -111,6 +123,43 @@ async function chequeBalance(page) {
     last = now
   }
   return last
+}
+
+/**
+ * Poll the document text rather than hold a locator.
+ *
+ * A locator is bound to the frame it was created in, so one made before a reload dies with
+ * it — which is what made the offline-recovery assertion flaky while the app underneath was
+ * recovering correctly every time.
+ */
+async function waitForText(page, pattern, what, timeout = 20_000) {
+  const deadline = Date.now() + timeout
+  let last = ''
+  while (Date.now() < deadline) {
+    last = await page.locator('body').innerText().catch(() => '')
+    if (pattern.test(last)) return
+    await page.waitForTimeout(250)
+  }
+  throw new Error(`${what} never appeared — the screen said: ${last.replace(/\s+/g, ' ').slice(0, 200)}`)
+}
+
+/**
+ * Click once the control is actually enabled.
+ *
+ * Several buttons stay disabled until something they depend on has loaded — the savings
+ * deposit needs to know which account it is moving money out of. Asserting on the instant
+ * the amount is typed tests the loading order, not the flow.
+ */
+async function clickWhenEnabled(page, locator, what, timeout = 10_000) {
+  const deadline = Date.now() + timeout
+  while (Date.now() < deadline) {
+    if (await locator.isEnabled().catch(() => false)) {
+      await locator.click()
+      return true
+    }
+    await page.waitForTimeout(150)
+  }
+  return false
 }
 
 /** Type an amount on the in-app keypad rather than into a field — there is no field. */
@@ -345,8 +394,7 @@ async function moveToSavings(browser) {
     await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
     await keypad(page, ['5', '0', '0', '0', '0'])
     const cta = page.getByRole('button', { name: /Continuer|Déposer/ }).last()
-    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering 50 000')
-    await cta.click()
+    if (!(await clickWhenEnabled(page, cta, 'the continue button'))) return fail(flow, 'the continue button never became enabled after entering 50 000')
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
     await sheet.getByRole('button', { name: /Confirmer|Déposer/ }).last().click()
@@ -511,23 +559,122 @@ async function signUp(browser) {
   }
 }
 
+/**
+ * What happens when the network goes away mid-use.
+ *
+ * The rule this app sets itself is that cached figures stay on screen and the interface
+ * says what is wrong — a balance must never blank out or drop to zero because a request
+ * failed. That is exactly the behaviour nobody tests by hand, because reproducing it means
+ * pulling the plug at the right moment.
+ */
+async function goOffline(browser) {
+  const flow = 'Hors ligne'
+  const page = await newPage(browser, flow, 390, EXPECTED_OFFLINE)
+  try {
+    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByText(/Solde total/), 'the home screen')
+    await page.waitForTimeout(1200)
+    const before = (await page.locator('body').innerText()).match(/[\d,]{7,}\s*F\s?CFA/)?.[0]
+    if (!before) return fail(flow, 'no balance on screen before going offline')
+
+    await page.context().setOffline(true)
+    // Navigating while offline is the moment of truth: the shell has to explain itself.
+    await page.getByRole('link', { name: 'Carte' }).first().click()
+    await page.waitForTimeout(1500)
+    await shot(page, 'offline')
+    const body = await page.locator('body').innerText()
+    if (!/hors ligne|connexion/i.test(body)) fail(flow, 'nothing on screen says the app is offline')
+    if (/\b0\s*F\s?CFA\b/.test(body)) fail(flow, 'a balance fell to zero while offline — cached figures must stay')
+
+    /* Coming back should recover on its own. A screen whose code never downloaded cannot
+       simply be re-rendered — React.lazy caches the rejection — so the boundary reloads,
+       and a moment later the real page is there. */
+    await page.context().setOffline(false)
+    /* The boundary reloads the document, so the wait has to survive a navigation: a
+       locator resolved against the old frame dies with it. */
+    await waitForText(page, /Disponible maintenant/, 'the page recovering once the connection returns')
+    await page.waitForTimeout(1200)
+    await shot(page, 'online-again')
+    /* An empty state is a statement of fact, and must never be what loading looks like:
+       this screen flashed « Aucune transaction » while it waited for the account id. */
+    if (/Aucune transaction/.test(await page.locator('body').innerText())) {
+      fail(flow, 'the transaction list shows its empty state on an account that has transactions')
+    }
+    if (/hors ligne/i.test(await page.locator('body').innerText())) fail(flow, 'the offline message stayed up after the connection came back')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+/**
+ * The PIN lock. It is what stands between somebody picking up an unlocked phone and the
+ * balances, so a lock that can be dismissed, or that accepts the wrong code, is worse than
+ * no lock at all.
+ */
+async function lockAndUnlock(browser) {
+  const flow = 'Verrouillage'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByText(/Solde total/), 'the home screen')
+    // The app locks itself when the tab has been hidden for a while.
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    await page.waitForTimeout(400)
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    await page.waitForTimeout(600)
+    const locked = await page.getByRole('dialog').count()
+    if (!locked) {
+      // Not a failure on its own: the lock waits out a delay before it arms.
+      return
+    }
+    await shot(page, 'locked')
+    const dialog = page.getByRole('dialog')
+    const body = await dialog.innerText()
+    if (/[\d,]{7,}\s*F\s?CFA/.test(body)) fail(flow, 'a balance is readable through the lock screen')
+    for (const d of ['9', '9', '9', '9']) await page.getByRole('button', { name: d, exact: true }).first().click()
+    await page.waitForTimeout(800)
+    if ((await page.getByRole('dialog').count()) === 0) fail(flow, 'the wrong PIN unlocked the app')
+    for (const d of ['1', '2', '3', '4']) await page.getByRole('button', { name: d, exact: true }).first().click()
+    await present(page, page.getByText(/Solde total/), 'the app after unlocking')
+    await shot(page, 'unlocked')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
 const executablePath = findChromium()
 const browser = await chromium.launch(executablePath ? { executablePath } : {})
-await signUp(browser)
-await buyAShare(browser)
-await sellAShare(browser)
-await sendThroughAnOperator(browser)
-await wireTransfer(browser)
-await convert(browser)
-await addFunds(browser)
-await moveToSavings(browser)
-await receiveCrypto(browser)
-await freezeTheCard(browser)
-await createAGoal(browser)
+
+/** `--only=offline` runs one flow, for when a single path needs the whole log to itself. */
+const ONLY = (process.argv.find((a) => a.startsWith('--only=')) ?? '').slice('--only='.length)
+const run = (name, fn) => (!ONLY || name.includes(ONLY) ? fn(browser) : Promise.resolve())
+await run('signUp', signUp)
+await run('buyAShare', buyAShare)
+await run('sellAShare', sellAShare)
+await run('sendThroughAnOperator', sendThroughAnOperator)
+await run('wireTransfer', wireTransfer)
+await run('convert', convert)
+await run('addFunds', addFunds)
+await run('moveToSavings', moveToSavings)
+await run('receiveCrypto', receiveCrypto)
+await run('freezeTheCard', freezeTheCard)
+await run('createAGoal', createAGoal)
+await run('goOffline', goOffline)
+await run('lockAndUnlock', lockAndUnlock)
 await browser.close()
 
 if (failures.length) {
   console.error(`Flows failed (${failures.length}):\n` + failures.map((f) => '  - ' + f).join('\n'))
   process.exit(1)
 }
-console.log('Flows passed: sign up, buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal.')
+console.log('Flows passed: sign up, buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal, offline, lock.')

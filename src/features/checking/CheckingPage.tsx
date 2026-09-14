@@ -44,7 +44,7 @@ export default function CheckingPage() {
   // skeleton until then anyway, and a query keyed on a hard-coded id would have asked the
   // back-end about an account that is not its.
   const chequeId = useAccountId('checking')
-  const txs = useTransactions(chequeId ?? 'pending', apiFilter)
+  const txs = useTransactions(chequeId, apiFilter)
 
   // Keep the previous page of results on screen while a new filter loads:
   // skeletons are for the very first load only.
@@ -70,7 +70,8 @@ export default function CheckingPage() {
     setQuery('')
   }
 
-  const firstLoad = list === undefined && !txs.error
+  // Still loading while the account id is unknown: the query has not even started.
+  const firstLoad = (list === undefined || chequeId === undefined) && !txs.error
   const status = list === undefined ? '' : items.length === 0 ? 'Aucune transaction' : `${formatNumber(items.length, { locale })} transaction${items.length > 1 ? 's' : ''}`
 
   let body

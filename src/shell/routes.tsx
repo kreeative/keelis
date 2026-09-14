@@ -7,8 +7,25 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './AppShell'
 import { RequireAuth, RequireAnonymous } from './guards'
 import { PageFallback } from './PageFallback'
+import { RouteBoundary } from './RouteBoundary'
 
-const L = (loader: () => Promise<{ default: ComponentType }>): LazyExoticComponent<ComponentType> => lazy(loader)
+/**
+ * Retry a chunk that failed to arrive.
+ *
+ * Each screen is fetched the first time it is opened, and on a mobile connection that
+ * request fails often enough to matter — a tunnel, a handover, a moment of no signal. Three
+ * attempts with a widening gap turn most of those into nothing the user ever sees; what is
+ * left reaches `RouteBoundary`, which keeps the navigation on screen instead of the app
+ * vanishing into a white page.
+ */
+function retryImport<T>(loader: () => Promise<T>, attempts = 3, delay = 500): Promise<T> {
+  return loader().catch((error: unknown) => {
+    if (attempts <= 1) throw error
+    return new Promise<void>((resolve) => setTimeout(resolve, delay)).then(() => retryImport(loader, attempts - 1, delay * 2))
+  })
+}
+
+const L = (loader: () => Promise<{ default: ComponentType }>): LazyExoticComponent<ComponentType> => lazy(() => retryImport(loader))
 
 // Home
 const HomePage = L(() => import('@/features/home/HomePage'))
@@ -55,8 +72,11 @@ const NotFoundPage = L(() => import('@/features/system/NotFoundPage'))
 
 export function AppRoutes() {
   return (
-    <Suspense fallback={<PageFallback />}>
-      <Routes>
+    /* The public routes live outside AppShell, so they get their own boundary: a failed
+       chunk on /bienvenue or /entreprise would otherwise be the same white page. */
+    <RouteBoundary>
+      <Suspense fallback={<PageFallback />}>
+        <Routes>
         {/* Public */}
         <Route element={<RequireAnonymous />}>
           <Route path="/bienvenue" element={<WelcomePage />} />
@@ -114,7 +134,8 @@ export function AppRoutes() {
 
         <Route path="/accueil" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </RouteBoundary>
   )
 }

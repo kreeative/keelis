@@ -7,6 +7,7 @@ import { QK } from '@/store/data'
 import { useQuery } from '@/store/query'
 import { useSession } from '@/store/session'
 import { LockScreen } from './LockScreen'
+import { RouteBoundary } from './RouteBoundary'
 import styles from './AppShell.module.css'
 
 export function AppShell() {
@@ -22,7 +23,13 @@ export function AppShell() {
       <div className={styles.content}>
         <OfflineBanner />
         <main id="main" className={styles.main} tabIndex={-1}>
-          <Outlet />
+          {/* The boundary is *inside* the shell on purpose: when a screen's chunk cannot be
+              fetched, the navigation, the offline banner and the lock stay on screen, so
+              the way out is one tap to a page that is already loaded. Around the shell, the
+              same failure took the whole application with it. */}
+          <RouteBoundary>
+            <Outlet />
+          </RouteBoundary>
         </main>
       </div>
       {locked ? <LockScreen /> : null}
