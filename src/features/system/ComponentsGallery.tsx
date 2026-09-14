@@ -44,6 +44,7 @@ import {
 import { ApiError } from '@/api'
 import { ConfirmSheet, SuccessScreen } from '@/features/shared'
 import { useSettings, useToast } from '@/store'
+import { formatAmountInput } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import type { ThemeChoice } from '@/lib/theme'
 import styles from './ComponentsGallery.module.css'
@@ -144,7 +145,7 @@ function Example({ caption, children, wide = false, fill = false }: { caption: s
 }
 
 export default function ComponentsGallery() {
-  const { theme, setTheme, hidden, toggleHidden } = useSettings()
+  const { theme, setTheme, hidden, toggleHidden, locale } = useSettings()
   const { toast } = useToast()
 
   const [pad, setPad] = useState('125,40')
@@ -153,7 +154,7 @@ export default function ComponentsGallery() {
   const [seg3, setSeg3] = useState('m')
   const [seg4, setSeg4] = useState('1j')
   const [on, setOn] = useState(true)
-  const [choice, setChoice] = useState('interac')
+  const [choice, setChoice] = useState('wave')
   const [chip, setChip] = useState('all')
   const [off, setOff] = useState(false)
   const [sheet, setSheet] = useState(false)
@@ -312,7 +313,7 @@ export default function ComponentsGallery() {
           </Example>
           <Example caption="block · pleine largeur" wide>
             <Button block size="lg">
-              Acheter pour 125,40 $
+              Acheter pour 125,000 F CFA
             </Button>
           </Example>
         </Section>
@@ -359,7 +360,10 @@ export default function ComponentsGallery() {
         <Section id="clavier" title="Keypad">
           <Example caption="Keypad · montant, 2 décimales" wide>
             <div className={styles.padDemo}>
-              <p className="t-h2 num">{pad || '0'} $</p>
+              {/* Through `formatAmountInput`, like the real amount screens: the keypad's
+                  internal string keeps a comma, and only the display converts it. Printing
+                  the raw value here showed « 125,40 » in an app that decimates with a point. */}
+              <p className="t-h2 num">{formatAmountInput(pad || '0', locale)} F CFA</p>
               <Keypad value={pad} onChange={setPad} />
             </div>
           </Example>
@@ -398,7 +402,7 @@ export default function ComponentsGallery() {
                 title="Compte d’épargne à intérêt élevé"
                 subtitle="Non enregistré · Géré"
                 value={<Money value={9012345.67} />}
-                valueSub="CAD"
+                valueSub="XOF"
                 chevron
               />
             </List>
@@ -412,9 +416,9 @@ export default function ComponentsGallery() {
               value={choice}
               onChange={setChoice}
               options={[
-                { value: 'interac', title: 'Virement Interac', subtitle: 'Instantané · jusqu’à 3 000 $', leading: <Avatar label="Interac" monogram="IN" /> },
-                { value: 'compte', title: 'Compte bancaire ···· 4394', subtitle: 'Dernier dépôt : 50,00 $ le 10 janvier', leading: <Avatar label="Banque" monogram="BQ" /> },
-                { value: 'carte', title: 'Carte de débit ···· 8888', subtitle: 'Frais de 1,5 % · immédiat', leading: <Avatar label="Carte" monogram="CA" /> },
+                { value: 'wave', title: 'Wave', subtitle: 'Instantané · jusqu’à 2,000,000 F CFA', leading: <Avatar label="Wave" monogram="WAV" /> },
+                { value: 'compte', title: 'Compte bancaire ···· 4394', subtitle: 'Dernier dépôt : 50,000 F CFA le 10 janvier', leading: <Avatar label="Banque" monogram="BQ" /> },
+                { value: 'carte', title: 'Carte bancaire ···· 8888', subtitle: 'Frais de 1.5 % · immédiat', leading: <Avatar label="Carte" monogram="CA" /> },
                 { value: 'cheque', title: 'Dépôt de chèque', subtitle: 'Indisponible pour ce compte', leading: <Avatar label="Chèque" monogram="CH" />, disabled: true },
               ]}
               footer={
@@ -555,7 +559,7 @@ export default function ComponentsGallery() {
             <Field label="Numéro de compte" value="4001 8827 3" disabled readOnly />
           </Example>
           <Example caption="Field · ornements avant et après" fill>
-            <Field label="Recherche" placeholder="Rechercher" leading={<Icon name="search" size={20} />} trailing={<span className="t-small t-faint">CAD</span>} />
+            <Field label="Recherche" placeholder="Rechercher" leading={<Icon name="search" size={20} />} trailing={<span className="t-small t-faint">XOF</span>} />
           </Example>
           <Example caption="SelectField" fill>
             <SelectField label="Réseau" defaultValue="btc">
