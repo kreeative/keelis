@@ -56,12 +56,34 @@ function numberFormat(locale: Locale, options: Intl.NumberFormatOptions) {
  * as in the statement someone compares it against. The *words* stay French; only the
  * punctuation of the digits is fixed.
  */
+/**
+ * The space *inside* a multi-word symbol, widened.
+ *
+ * `Intl` gives XOF's symbol as « F CFA » with U+202F between the words — a narrow no-break
+ * space, about a sixth of an em. That is correct French typography and it is invisible
+ * here, because money in this app is tracked in at `--ls-numeric` (−0.035em), and the
+ * tracking applies to that space like any other character. Measured on the home screen's
+ * hero at 40.7px: the symbol with its narrow space is 31.23px wide and « FCFA » with no
+ * space at all is 31.14px. Nine hundredths of a pixel. It was rendering as one word.
+ *
+ * So either the tracking is wrong or the space has to be wider, and the tracking is a
+ * measured decision about *digits* — display-size counters carry themselves. A currency
+ * name is letters. It takes an ordinary no-break space, which survives the tracking with
+ * about two pixels left, which is what it is for. This is the same call the app already
+ * makes on the group separator and the decimal mark: `Intl` says what the locale does, and
+ * the app decides what is legible on its own screens.
+ */
+function widenSymbol(value: string): string {
+  return value.replace(/\u202f/g, NBSP)
+}
+
 function joinParts(parts: Intl.NumberFormatPart[], _locale: Locale): string {
   return parts
     .map((p) => {
       if (p.type === 'group') return ','
       if (p.type === 'decimal') return '.'
       if (p.type === 'literal' && (p.value === ' ' || p.value === NBSP)) return NBSP
+      if (p.type === 'currency') return widenSymbol(p.value)
       return p.value
     })
     .join('')
@@ -171,7 +193,7 @@ export function splitMoney(value: number, opts: MoneyOptions = {}): { number: st
   const f = numberFormat(locale, opts.compact && tooLong ? { ...base, ...COMPACT_OPTIONS } : base)
   const parts = f.formatToParts(shown)
   const symbolIndex = parts.findIndex((p) => p.type === 'currency')
-  const symbol = symbolIndex >= 0 ? parts[symbolIndex]!.value : ''
+  const symbol = symbolIndex >= 0 ? widenSymbol(parts[symbolIndex]!.value) : ''
   /* Only the space *next to the symbol* goes: that one is the gap this function exists to
      own, since the caller sets the symbol beside the digits itself. Other literals belong to
      the number — French writes « 24,3 M » with a space before the compact suffix, and

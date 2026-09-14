@@ -256,10 +256,14 @@ async function run() {
     /* Read the arrival animation off the wrapper while it is still running. Which keyframes
        are playing is the whole claim: push slides from the right, back slides from the
        left, a tab change does neither. */
-    const arrivalOf = async () => {
-      await page.waitForTimeout(40)
-      return page.evaluate(() => {
-        const el = document.querySelector('[data-arrival]')
+    const arrivalOf = async (expected) => {
+      /* Wait for the screen being asked about, not for a stopwatch. The wrapper is keyed on
+         the path, so until React commits the new route the old one is still in the DOM with
+         the old direction on it — which is how this check once read « back » for a tab
+         change and failed on a navigation that had not happened yet. */
+      await page.waitForFunction((p) => document.querySelector(`[data-path="${p}"]`) !== null, expected, { timeout: 10_000 })
+      return page.evaluate((expected) => {
+        const el = document.querySelector(`[data-path="${expected}"]`)
         if (!el) return { name: null, x: null, running: false }
         const cs = getComputedStyle(el)
         return {
@@ -269,12 +273,13 @@ async function run() {
           running: cs.animationName !== 'none' && parseFloat(cs.animationDuration) > 0,
           x: Math.round(new DOMMatrix(cs.transform).m41),
         }
-      })
+      }, expected)
     }
 
     // Push into a sub-page.
+    const sub = await page.locator('a[href^="/crypto/"]').first().getAttribute('href')
     await page.locator('a[href^="/crypto/"]').first().click()
-    const pushed = await arrivalOf()
+    const pushed = await arrivalOf(sub)
     if (pushed.name !== 'forward') fail('arrival', `pushing into a sub-page arrives "${pushed.name}", expected "forward"`)
     else if (!pushed.running) fail('arrival', 'the forward arrival is declared but not animating')
     else if (!(pushed.x > 0)) fail('arrival', `the forward slide is not coming from the right (x ${pushed.x})`)
@@ -282,7 +287,7 @@ async function run() {
     // Back out of it.
     await page.waitForTimeout(500)
     await page.goBack()
-    const popped = await arrivalOf()
+    const popped = await arrivalOf('/crypto')
     if (popped.name !== 'back') fail('arrival', `going back arrives "${popped.name}", expected "back"`)
     else if (!popped.running) fail('arrival', 'the back arrival is declared but not animating')
     else if (!(popped.x < 0)) fail('arrival', `the back slide is not coming from the left (x ${popped.x})`)
@@ -290,7 +295,7 @@ async function run() {
     // Switch tabs: a cross-fade, never a slide.
     await page.waitForTimeout(500)
     await page.locator('nav[aria-label="Navigation principale"] a[aria-label^="Épargne"]').first().click()
-    const tabbed = await arrivalOf()
+    const tabbed = await arrivalOf('/epargne')
     if (tabbed.name !== 'fade') fail('arrival', `switching tabs arrives "${tabbed.name}", expected the cross-fade — a tab change is not a stack move`)
     else if (Math.abs(tabbed.x) > 1) fail('arrival', `a tab change is sliding ${tabbed.x}px — it should only fade`)
     else notes.push('arrival: push slides in from the right, back from the left, a tab change only fades')

@@ -3,27 +3,37 @@ import { maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatM
 
 const norm = (v: string) => v.replace(/[\u202f\u00a0]/g, ' ')
 
-const NNBSP = ' '
 const NBSP = ' '
+
+/* The space inside « F CFA ».
+ *
+ * `Intl` puts U+202F there — a narrow no-break space, correct French typography and, on
+ * this app's screens, invisible: money is tracked in at −0.035em and the tracking eats it.
+ * Measured on the home hero at 40.7px, the symbol with its narrow space is 31.23px and
+ * « FCFA » with no space at all is 31.14px. `widenSymbol` swaps it for an ordinary no-break
+ * space, which survives the tracking with about two pixels left.
+ *
+ * This constant is therefore NBSP and must stay NBSP — it is the assertion, not a detail. */
+const SYMSP = NBSP
 
 describe('formatMoney', () => {
   it('punctuates digits the same way in every locale: comma groups, point decimates', () => {
     // Deliberately not French typography. One punctuation app-wide, so a figure reads the
     // same here as on the statement someone compares it against.
-    expect(formatMoney(1234567.89, { locale: 'fr-SN' })).toBe(`1,234,568${NBSP}F${NNBSP}CFA`)
+    expect(formatMoney(1234567.89, { locale: 'fr-SN' })).toBe(`1,234,568${NBSP}F${SYMSP}CFA`)
     expect(formatMoney(1234567.89, { locale: 'fr-SN', currency: 'EUR' })).toBe(`1,234,567.89${NBSP}€`)
     // The CFA franc has no centimes, so the amount rounds to whole francs above.
   })
   it('formats en-NG, which puts the symbol first', () => {
-    expect(formatMoney(1234.5, { locale: 'en-NG' })).toBe(`F${NNBSP}CFA${NBSP}1,235`)
+    expect(formatMoney(1234.5, { locale: 'en-NG' })).toBe(`F${SYMSP}CFA${NBSP}1,235`)
     expect(formatMoney(1234.5, { locale: 'en-NG', currency: 'NGN' })).toBe('₦1,234.50')
   })
   it('adds explicit sign when requested', () => {
-    expect(formatMoney(12.4, { locale: 'fr-SN', signed: true })).toBe(`+12${NBSP}F${NNBSP}CFA`)
+    expect(formatMoney(12.4, { locale: 'fr-SN', signed: true })).toBe(`+12${NBSP}F${SYMSP}CFA`)
     expect(formatMoney(-12.4, { locale: 'fr-SN', currency: 'EUR', signed: true })).toBe(`-12.40${NBSP}€`)
   })
   it('never renders negative zero', () => {
-    expect(formatMoney(-0.001, { locale: 'fr-SN' })).toBe(`0${NBSP}F${NNBSP}CFA`)
+    expect(formatMoney(-0.001, { locale: 'fr-SN' })).toBe(`0${NBSP}F${SYMSP}CFA`)
   })
   it('asks each currency how many decimals it is quoted in', () => {
     // XOF has none, TND is quoted in millimes, most have two. Getting this from Intl per
@@ -105,10 +115,10 @@ describe('one punctuation, everywhere', () => {
 
 describe('compact money', () => {
   /* The gaps are real characters and they matter: `joinParts` emits a no-break space
-     between the figure and its suffix, and « F CFA » carries a narrow one of its own. A
-     literal typed with the space on a keyboard matches none of it. */
+     between the figure and its suffix, and « F CFA » carries one inside itself. A literal
+     typed with the space on a keyboard matches neither. */
   const NB = '\u00a0'
-  const FCFA = `F\u202fCFA`
+  const FCFA = `F${SYMSP}CFA`
   const xof = (v: number, locale: 'fr-SN' | 'en-NG' = 'fr-SN') => formatMoney(v, { locale, currency: 'XOF', compact: true })
 
   it('abbreviates on length, not on value', () => {

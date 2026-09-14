@@ -5,7 +5,8 @@
  *
  * For each route × viewport × theme it:
  *  - screenshots to e2e/out/<route>-<width>-<theme>.png
- *  - audits: horizontal overflow, text < 12px, tap targets < 44px, and WCAG contrast
+ *  - audits: horizontal overflow, text < 12px, tap targets < 44px, WCAG contrast, and
+ *    any sticky control left sitting under the floating navigation pill
  *    (< 4.5:1 for text, < 3:1 for ≥24px text), computed against the real composited
  *    background — translucent glass surfaces are blended down to the ground colour
  *
@@ -138,6 +139,55 @@ function auditScript() {
     if (el.closest('.sr-only, [aria-hidden="true"]')) return false
     return true
   }
+  /* Nothing *sticky* may sit under the floating nav.
+   *
+   * The pill is fixed and detached from the bottom edge, so a screen with something of its
+   * own down there — a sticky « Continuer », a sticky search bar — has to clear it by hand:
+   * `calc(var(--navbar-height) + var(--navbar-gap) * 2 + var(--safe-bottom) + …)`, which is
+   * a rule in CLAUDE.md that nothing checked. Get it wrong and the pill covers the button
+   * the screen exists to offer, and it covers it *silently*: the button is present,
+   * focusable and reachable by keyboard, so the keyboard walk passes and a screenshot shows
+   * a page that looks fine apart from one control being half a pill short.
+   *
+   * **Only sticky and fixed elements count.** An ordinary control that happens to be at
+   * that height right now is not covered by anything — the page scrolls and it moves. The
+   * first version of this check ignored that and reported 54 « violations », almost all of
+   * them accordion rows on /profil/aide that scroll out from under the pill the moment
+   * anybody touches the screen. A check that cries wolf on a scrollable page is worse than
+   * no check, because the two real ones were in the middle of it.
+   *
+   * The test is the element's own centre, not its box: a sticky bar whose top edge slides
+   * under the pill's bottom by a pixel is fine, and one whose middle is under it is not. */
+  const nav = Array.from(document.querySelectorAll('nav')).find((n) => {
+    const r = n.getBoundingClientRect()
+    return r.width > 0 && r.height > 0 && getComputedStyle(n).position === 'fixed'
+  })
+  if (nav) {
+    const nb = nav.getBoundingClientRect()
+    const pinned = (el) => {
+      for (let n = el; n instanceof Element; n = n.parentElement) {
+        if (n === nav) return null
+        const pos = getComputedStyle(n).position
+        if (pos === 'sticky' || pos === 'fixed') return n
+      }
+      return null
+    }
+    const covered = new Set()
+    for (const el of document.querySelectorAll('a,button,input,select,textarea,[role="button"],[role="tab"],[role="switch"]')) {
+      if (nav.contains(el)) continue
+      const r = el.getBoundingClientRect()
+      if (r.width === 0 || r.height === 0) continue
+      const cx = r.x + r.width / 2
+      const cy = r.y + r.height / 2
+      if (cx <= nb.x || cx >= nb.right || cy <= nb.y || cy >= nb.bottom) continue
+      if (!pinned(el)) continue
+      const name = (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 32)
+      if (covered.has(name)) continue
+      covered.add(name)
+      out.push({ kind: 'under-nav', detail: `sticky "${name}" sits under the floating nav (nav ${Math.round(nb.y)}–${Math.round(nb.bottom)}, control centre ${Math.round(cy)}) — it cannot be scrolled out` })
+    }
+  }
+
   const seen = new Set()
   const all = Array.from(document.body.querySelectorAll('*'))
   for (const el of all) {

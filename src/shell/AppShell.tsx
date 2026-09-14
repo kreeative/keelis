@@ -68,8 +68,11 @@ export function AppShell() {
                 /crypto/btc to /crypto/sonatel is the same component — still arrives. */}
             {/* `data-arrival` is not styling — CSS-module class names are hashed, so it is
                 the only stable handle e2e/motion.mjs has to check that the direction a
-                screen arrives from is the direction you actually went. */}
-            <div key={pathname} data-arrival={arrival(pathname, navType)} className={ARRIVAL_CLASS[arrival(pathname, navType)]}>
+                screen arrives from is the direction you actually went. `data-path` goes
+                with it because the audit was reading the *previous* screen's wrapper in the
+                beat before React committed the new route, and calling a stale « back » a
+                failure of the tab change that had not rendered yet. */}
+            <div key={pathname} data-arrival={arrival(pathname, navType)} data-path={pathname} className={ARRIVAL_CLASS[arrival(pathname, navType)]}>
               <Outlet />
             </div>
           </RouteBoundary>
