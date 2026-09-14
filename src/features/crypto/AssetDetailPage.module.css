@@ -149,3 +149,9 @@
   .about { grid-area: about; margin-top: var(--sp-6); }
   .bar { grid-area: bar; margin-top: 0; align-self: end; max-width: none; }
 }
+
+/* Sits under the market facts, quiet: it is an offer to explain, not a call to action. */
+.learn {
+  align-self: start;
+  margin-block-start: var(--sp-2);
+}

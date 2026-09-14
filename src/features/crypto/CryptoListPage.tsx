@@ -10,6 +10,7 @@ import { MASKED, formatCrypto, formatMoney } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import { RANGES, monthlyTotal, rangePeriod } from './cryptoFormat'
+import { LearnSheet, type LearnTopic } from './LearnSheet'
 import { useLiveAccount, useLiveAssets, useLiveHoldings, useLiveRecurring } from './hooks'
 import styles from './CryptoListPage.module.css'
 
@@ -68,6 +69,8 @@ export default function CryptoListPage() {
   const holdings = useLiveHoldings()
   const recurring = useLiveRecurring()
   const [filter, setFilter] = useState<Filter>('all')
+  // Which explanation is open, if any — see LearnSheet.
+  const [learn, setLearn] = useState<LearnTopic | null>(null)
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query)
 
@@ -145,7 +148,9 @@ export default function CryptoListPage() {
           met des parts d’une entreprise en vente pour la première fois&nbsp;; le prix d’ouverture est fixé à l’avance,
           puis le marché décide. Rien à faire pour l’instant.
         </p>
-        <Button variant="secondary" icon={<Icon name="file-text" size={18} />} className={styles.ipoAction}>
+        {/* This used to be a button with neither an onClick nor a `to`: it explained
+            nothing and did nothing. */}
+        <Button variant="secondary" icon={<Icon name="file-text" size={18} />} className={styles.ipoAction} onClick={() => setLearn('ipo')}>
           Comprendre une IPO
         </Button>
       </Card>
@@ -199,6 +204,8 @@ export default function CryptoListPage() {
           )}
         </section>
       </Card>
+
+      {learn ? <LearnSheet topic={learn} open onClose={() => setLearn(null)} /> : null}
     </div>
   )
 }

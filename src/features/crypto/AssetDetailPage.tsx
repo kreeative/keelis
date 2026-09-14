@@ -14,6 +14,7 @@ import { cn } from '@/lib/cn'
 import { RANGES, formatCompactMoney, formatCompactQuantity, rangePeriod } from './cryptoFormat'
 import { patchQuery, useDesktop, useLiveAsset, useLiveHistory, useLiveHoldings } from './hooks'
 import { useLargeScreen } from '@/store'
+import { LearnSheet } from './LearnSheet'
 import styles from './AssetDetailPage.module.css'
 
 function toneOf(n: number): 'pos' | 'neg' | 'ink' {
@@ -66,7 +67,7 @@ function HoldingsSection({ asset, holding, loading }: { asset: CryptoAsset; hold
   )
 }
 
-function AboutSection({ asset }: { asset: CryptoAsset }) {
+function AboutSection({ asset, onLearn }: { asset: CryptoAsset; onLearn: () => void }) {
   const { locale } = useSettings()
   const facts: Stat[] = [
     { label: 'Capitalisation', value: formatCompactMoney(asset.marketCap, locale) },
@@ -84,6 +85,11 @@ function AboutSection({ asset }: { asset: CryptoAsset }) {
       </h2>
       <p className={styles.description}>{asset.description}</p>
       <StatGrid stats={facts} label={`Données de marché — ${asset.name}`} className={styles.facts} />
+      {/* Most people buying their first share on the BRVM have never bought one anywhere;
+          the words on this screen are what stops them, not the buttons. */}
+      <Button variant="ghost" icon={<Icon name="help-circle" size={18} />} onClick={onLearn} className={styles.learn}>
+        Comment lire un cours
+      </Button>
     </section>
   )
 }
@@ -106,6 +112,7 @@ export default function AssetDetailPage() {
   const hasHolding = !!holding && holding.quantity > 0
   // An asset that settles on a chain. Equities do not, and `networks` is empty for them.
   const onChain = (asset?.networks.length ?? 0) > 0
+  const [learn, setLearn] = useState(false)
 
   const [range, setRange] = useState<ChartRange>('1D')
   const history = useLiveHistory(id, range)
@@ -242,7 +249,7 @@ export default function AssetDetailPage() {
       </div>
 
       <HoldingsSection asset={asset} holding={holding} loading={holdings.data === undefined && holdings.loading} />
-      <AboutSection asset={asset} />
+      <AboutSection asset={asset} onLearn={() => setLearn(true)} />
 
       <div className={styles.bar}>
         <Button size="lg" block onClick={() => navigate(`/crypto/${id}/acheter`)}>
@@ -252,6 +259,7 @@ export default function AssetDetailPage() {
           Vendre
         </Button>
       </div>
-    </div>
+          {learn ? <LearnSheet topic="cours" open onClose={() => setLearn(false)} /> : null}
+</div>
   )
 }
