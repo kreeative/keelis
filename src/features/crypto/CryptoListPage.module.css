@@ -38,6 +38,11 @@
 }
 .spark { display: none; }
 
+/* The subtitle gives its width to the facts and truncates the name. */
+.assetSub { display: flex; min-width: 0; max-width: 100%; }
+.assetName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.assetFacts { flex-shrink: 0; white-space: nowrap; }
+
 /* The venue, on a row whose subtitle also has to carry a holding. Hidden on a phone, where
    three facts do not fit and the quantity is the one worth keeping; back from 768px, where
    they do. Only rows the reader holds pay this — an unheld row has two facts and shows both

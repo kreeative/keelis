@@ -53,12 +53,25 @@ function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | u
      the head of the row and again at the end of its own subtitle, and that repetition was
      85px of the width the line did not have. */
   const quantity = held ? (hidden ? MASKED : formatCrypto(holding.quantity, undefined, { locale })) : null
+  /* The *name* takes the ellipsis, not the tail. `.value` never shrinks, so all the pressure
+     lands on this line, and a single `text-overflow` on the whole string cuts whatever is
+     last — which is the quantity, the one fact here that is the reader's rather than the
+     market's. « Dangote Cement · 9,000 » still wants ten more pixels than a 390px row has;
+     it now spends them on « Dangote Cem… · 9,000 » instead of « Dangote Cement · 9,… ».
+     The name is the disambiguator for a ticker the row has already shown, so it is the part
+     that can afford to be shortened. */
   const subtitle = (
-    <>
-      {asset.name}
-      {market ? <span className={held ? styles.venueWide : undefined}> · {market}</span> : null}
-      {quantity ? <> · {quantity}</> : null}
-    </>
+    <span className={styles.assetSub}>
+      <span className={styles.assetName}>{asset.name}</span>
+      {/* A no-break space before the first separator. `.assetSub` is a flex container, so
+          each span is a flex item and an ordinary leading space is collapsed as the start of
+          its line box — the rows read « Sonatel· 160 ». The separators *inside* the item are
+          ordinary spaces, which survive because they are not leading. */}
+      <span className={styles.assetFacts}>
+        {market ? <span className={held ? styles.venueWide : undefined}>{'\u00a0· '}{market}</span> : null}
+        {quantity ? <>{market && !held ? ' · ' : '\u00a0· '}{quantity}</> : null}
+      </span>
+    </span>
   )
   return (
     <ListRow
