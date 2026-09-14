@@ -1,0 +1,52 @@
+# Everything that can be checked without a browser runs on every push; everything that
+# needs one runs against the real build, the way somebody actually opens the app.
+#
+# The last three jobs are the ones worth having. `check:design` refuses a colour, a shadow
+# or a bare Intl formatter written outside the token layer. `e2e` walks 28 routes at four
+# widths in both themes and measures *composited* contrast, tap targets and overflow.
+# `e2e:flows` drives the money flows — buy, send, convert, deposit — and fails on a button
+# that stays disabled or a balance that does not move. `e2e:csp` serves the app under the
+# exact Content-Security-Policy in vercel.json, because a policy nobody has exercised is a
+# policy that breaks the application for everyone on the day it ships.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Types
+        run: pnpm typecheck
+      - name: Tests
+        run: pnpm test
+      - name: Design rules
+        run: pnpm check:design
+      - name: Build
+        run: pnpm build
+
+      - name: Install a browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Serve the build
+        run: |
+          pnpm preview &
+          npx wait-on http://localhost:4173 --timeout 60000
+
+      - name: Screens and runtime audit
+        run: pnpm e2e -- --no-shots
+      - name: Money flows
+        run: pnpm e2e:flows
+      - name: Content-Security-Policy
+        run: pnpm e2e:csp

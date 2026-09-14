@@ -16,9 +16,13 @@
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
     <script>
-      // Apply the stored theme before first paint to avoid a flash.
+      /* Apply the stored theme before first paint, so a dark-theme user never sees a white
+         page for a frame. It has to be inline and blocking to beat the paint — which is why
+         the deployed Content-Security-Policy carries this script's sha256 rather than
+         allowing inline script in general; `e2e/csp.mjs` recomputes that hash and fails if
+         it has drifted. The `keelis.` fallback carries the theme across the rename. */
       try {
-        var t = localStorage.getItem('keewal.theme');
+        var t = localStorage.getItem('keewal.theme') || localStorage.getItem('keelis.theme');
         if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
       } catch (e) {}
     </script>
