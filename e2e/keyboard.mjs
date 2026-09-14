@@ -283,7 +283,11 @@ async function walkRoute(browser, route) {
   if (!route.anonymous) {
     await page.addInitScript((s) => {
       localStorage.setItem('keewal.session', s)
-      localStorage.setItem('keewal.theme', '"light"')
+      /* Raw, not JSON. `readTheme` compares the stored string to 'light' / 'dark' directly, so
+         a quoted '"light"' matched nothing and the walk silently fell back to « système » —
+         which happened to look the same, and meant no walk had ever rendered the explicit
+         `data-theme` path at all. */
+      localStorage.setItem('keewal.theme', 'light')
     }, JSON.stringify(DEMO_SESSION))
   }
   let where = route.path

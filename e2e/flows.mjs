@@ -76,7 +76,11 @@ async function newPage(browser, flow, width = 390, tolerate = null) {
   const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 })
   await page.addInitScript((s) => {
     localStorage.setItem('keewal.session', s)
-    localStorage.setItem('keewal.theme', '"light"')
+    /* Raw, not JSON. `readTheme` compares the stored string to 'light' / 'dark' directly, so
+       a quoted '"light"' matched nothing and the walk silently fell back to « système » —
+       which happened to look the same, and meant no walk had ever rendered the explicit
+       `data-theme` path at all. */
+    localStorage.setItem('keewal.theme', 'light')
   }, JSON.stringify(DEMO_SESSION))
   watchConsole(page, flow, tolerate)
   return page
@@ -555,7 +559,7 @@ async function signUp(browser) {
   const page = await browser.newPage({ viewport: { width: 390, height: 900 } })
   await page.addInitScript(() => {
     localStorage.clear()
-    localStorage.setItem('keewal.theme', '"light"')
+    localStorage.setItem('keewal.theme', 'light')
   })
   watchConsole(page, flow)
   try {

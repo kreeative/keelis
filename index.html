@@ -26,7 +26,22 @@
          it has drifted. The `keelis.` fallback carries the theme across the rename. */
       try {
         var t = localStorage.getItem('keewal.theme') || localStorage.getItem('keelis.theme');
-        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+        if (t === 'dark' || t === 'light') {
+          document.documentElement.dataset.theme = t;
+          /* The bar too, and for the same reason. Those two theme-color tags answer for the
+             *system*, so an explicit choice against it paints the browser's own strip in the
+             other theme — and doing it from React instead would flash that strip on every
+             load. Copied from the meta that already holds the colour, never retyped. */
+          var src = document.querySelector('meta[name="theme-color"][media*="' + t + '"]');
+          var first = document.querySelector('meta[name="theme-color"]');
+          if (src && first) {
+            var m = document.createElement('meta');
+            m.setAttribute('name', 'theme-color');
+            m.setAttribute('data-override', '');
+            m.setAttribute('content', src.getAttribute('content'));
+            first.parentNode.insertBefore(m, first);
+          }
+        }
       } catch (e) {}
     </script>
   </head>
