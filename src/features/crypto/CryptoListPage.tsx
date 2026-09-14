@@ -39,8 +39,27 @@ function normalise(s: string): string {
 function AssetRow({ asset, holding }: { asset: CryptoAsset; holding: Holding | undefined }) {
   const { locale, hidden } = useSettings()
   const held = holding && holding.quantity > 0
-  const where = asset.assetClass === 'equity' ? `${asset.name} · ${asset.market}` : asset.name
-  const subtitle = held ? `${where} · ${hidden ? MASKED : formatCrypto(holding.quantity, undefined, { locale })} ${asset.symbol}` : where
+  /* Two facts on a phone, three from 768px — rather than three always and a truncation.
+     A held equity wanted « Dangote Cement · NGX · 9,000 DANGCEM »: 274px of subtitle in the
+     154 a 390px row can give it, so the tail was always cut, and the tail is the quantity —
+     the one fact on the row that belongs to the reader rather than to the market. Dropping
+     the venue below 768px is the cheapest thing to lose: it is reference data, identical on
+     every visit, and it is on the asset's own page. The name disambiguates the ticker, the
+     quantity says this holding is yours, and the market returns as soon as there is room.
+     It is done in CSS rather than with a breakpoint hook so there is no second render and
+     nothing to get out of step with the layout. */
+  const market = asset.assetClass === 'equity' ? asset.market : null
+  /* The quantity carries no unit, because the row's title *is* the unit: « DANGCEM » sat at
+     the head of the row and again at the end of its own subtitle, and that repetition was
+     85px of the width the line did not have. */
+  const quantity = held ? (hidden ? MASKED : formatCrypto(holding.quantity, undefined, { locale })) : null
+  const subtitle = (
+    <>
+      {asset.name}
+      {market ? <span className={held ? styles.venueWide : undefined}> · {market}</span> : null}
+      {quantity ? <> · {quantity}</> : null}
+    </>
+  )
   return (
     <ListRow
       to={`/crypto/${asset.id}`}

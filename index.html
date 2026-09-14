@@ -25,7 +25,11 @@
          allowing inline script in general; `e2e/csp.mjs` recomputes that hash and fails if
          it has drifted. The `keelis.` fallback carries the theme across the rename. */
       try {
-        var t = localStorage.getItem('keewal.theme') || localStorage.getItem('keelis.theme');
+        /* Light unless told otherwise — the app's default is not the system's preference,
+           so an unset key resolves to 'light' here exactly as it does in readTheme(). Only
+           the explicit 'system' choice leaves the attribute off and lets the media query
+           decide, which is why that choice is now stored rather than implied by absence. */
+        var t = localStorage.getItem('keewal.theme') || localStorage.getItem('keelis.theme') || 'light';
         if (t === 'dark' || t === 'light') {
           document.documentElement.dataset.theme = t;
           /* The bar too, and for the same reason. Those two theme-color tags answer for the

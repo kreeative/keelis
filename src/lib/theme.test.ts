@@ -83,6 +83,29 @@ describe('applyTheme', () => {
   })
 })
 
+describe('the default', () => {
+  it('is light, not the system’s preference', () => {
+    /* The owner asked for it. A phone set to dark would otherwise open the app in a theme
+       nobody chose for it, on the first screen most people ever see. */
+    localStorage.clear()
+    expect(readTheme()).toBe('light')
+  })
+
+  it('still lets « système » be chosen, and remembers it', () => {
+    /* It used to be represented by the key's absence — which now means light, so all three
+       choices are written down. Without this, picking « système » would read back as light
+       on the next load and the option would be unusable. */
+    applyTheme('system')
+    expect(readTheme()).toBe('system')
+    expect(document.documentElement.dataset.theme).toBeUndefined()
+  })
+
+  it('falls back to light on a value it does not recognise', () => {
+    localStorage.setItem('keewal.theme', 'chartreuse')
+    expect(readTheme()).toBe('light')
+  })
+})
+
 describe('the stored choice', () => {
   it('round-trips through localStorage as a bare string', () => {
     /* Not JSON: three e2e harnesses stored '"light"' and matched nothing, so every walk
@@ -92,6 +115,7 @@ describe('the stored choice', () => {
     expect(localStorage.getItem('keewal.theme')).toBe('dark')
     expect(readTheme()).toBe('dark')
     applyTheme('system')
+    expect(localStorage.getItem('keewal.theme')).toBe('system')
     expect(readTheme()).toBe('system')
   })
 

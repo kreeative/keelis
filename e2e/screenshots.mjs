@@ -14,7 +14,7 @@
  *                 sweep already and choose their own session; this forces the rest too.
  */
 import { chromium } from 'playwright-core'
-import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => {
@@ -37,7 +37,18 @@ const ROUTES = (args.routes ? String(args.routes).split(',') : [
  * been through the contrast audit at four widths in two themes. The session is chosen per
  * route now, so one run covers both.
  */
-const ANON_ROUTES = new Set(['/bienvenue', '/inscription/courriel', '/inscription/code', '/inscription/identite', '/inscription/adresse', '/inscription/piece', '/inscription/2fa', '/inscription/nip', '/inscription/produit'])
+/* The wizard's steps are **read out of the app**, not typed here. Typed, two of them were
+   wrong — `identite` and `2fa`, which are not routes — and a wrong slug does not fail: the
+   wizard's catch-all redirects it to step one, so step one got audited twice more under
+   names that do not exist while two real steps went unvisited. A route list that can be
+   wrong without saying so is worse than a shorter one that cannot. */
+const STEP_SLUGS = (() => {
+  const src = readFileSync(new URL('../src/features/onboarding/steps.ts', import.meta.url), 'utf8')
+  const m = src.match(/export const STEPS = \[([^\]]+)\]/)
+  if (!m) throw new Error('could not read the wizard steps out of src/features/onboarding/steps.ts')
+  return [...m[1].matchAll(/'([^']+)'/g)].map((x) => `/inscription/${x[1]}`)
+})()
+const ANON_ROUTES = new Set(['/bienvenue', ...STEP_SLUGS])
 if (!args.routes) for (const r of ANON_ROUTES) ROUTES.push(r)
 const WIDTHS = (args.widths ? String(args.widths).split(',').map(Number) : [320, 390, 768, 1440])
 const THEMES = (args.themes ? String(args.themes).split(',') : ['light', 'dark'])

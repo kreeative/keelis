@@ -38,6 +38,12 @@
 }
 .spark { display: none; }
 
+/* The venue, on a row whose subtitle also has to carry a holding. Hidden on a phone, where
+   three facts do not fit and the quantity is the one worth keeping; back from 768px, where
+   they do. Only rows the reader holds pay this — an unheld row has two facts and shows both
+   at every width. */
+.venueWide { display: none; }
+
 @media (min-width: 768px) {
   .hero { padding-block: var(--sp-3) var(--sp-6); }
   .controls {
@@ -48,6 +54,7 @@
   .controls > :first-child { flex: 0 1 360px; }
   .tabs.tabs.tabs { flex: 0 0 auto; display: inline-flex; width: auto; }
   .spark { display: inline-flex; }
+  .venueWide { display: inline; }
 }
 
 /* The education card: a claim, a plain explanation, a way to learn more. No number —

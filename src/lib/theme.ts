@@ -1,15 +1,31 @@
-/** Theme: system (default) | light | dark. Persisted; applied via data-theme on <html>. */
+/**
+ * Theme: light (default) | dark | system. Persisted; applied via `data-theme` on `<html>`.
+ *
+ * **The default is light, not the system's preference.** It used to be « système », and that
+ * is the polite default for an app with no opinion — but this one has a reference, and the
+ * owner asked for light. A phone set to dark would otherwise open the app in a theme its
+ * owner never chose for it, and be the first thing most people ever see.
+ *
+ * Which forces a change in how the choice is stored: « système » used to be represented by
+ * the key's *absence*, and absence now means light. So all three choices are written down,
+ * and only a value that is none of them falls back.
+ */
 export type ThemeChoice = 'system' | 'light' | 'dark'
 const KEY = 'keewal.theme'
+const DEFAULT: ThemeChoice = 'light'
+
+function isChoice(v: string | null): v is ThemeChoice {
+  return v === 'light' || v === 'dark' || v === 'system'
+}
 
 export function readTheme(): ThemeChoice {
   try {
     const v = localStorage.getItem(KEY) ?? localStorage.getItem('keelis.theme')
-    if (v === 'light' || v === 'dark') return v
+    if (isChoice(v)) return v
   } catch {
     /* ignore */
   }
-  return 'system'
+  return DEFAULT
 }
 
 /**
@@ -57,8 +73,8 @@ export function applyTheme(choice: ThemeChoice) {
   else root.dataset.theme = choice
   syncThemeColor(choice)
   try {
-    if (choice === 'system') localStorage.removeItem(KEY)
-    else localStorage.setItem(KEY, choice)
+    // All three are written, « système » included: absence means the default, which is light.
+    localStorage.setItem(KEY, choice)
   } catch {
     /* ignore */
   }
