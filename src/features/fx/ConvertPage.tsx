@@ -8,24 +8,40 @@
  * if all three are on screen.
  */
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { api } from '@/api'
+import { ApiError } from '@/api/types'
 import { Button, Callout, Card, Icon, PageHeader, SelectField, Sheet, StatGrid } from '@/components'
-import { AmountEntry } from '@/features/shared'
-import { CURRENCIES, CURRENCY_ORDER, type Currency } from '@/lib/currency'
+import { AmountEntry, SuccessScreen, useAccount } from '@/features/shared'
+import { CURRENCIES, CURRENCY_ORDER, isCurrency, type Currency } from '@/lib/currency'
 import { TIER_LABEL, quote } from '@/lib/fx'
 import { formatMoney, formatNumber, parseAmountInput } from '@/lib/format'
-import { useSettings, useToast } from '@/store'
+import { QK, invalidate, useSettings } from '@/store'
 import styles from './ConvertPage.module.css'
 
 export default function ConvertPage() {
-  const navigate = useNavigate()
   const { locale } = useSettings()
-  const { toast } = useToast()
+  const account = useAccount('checking')
 
-  const [from, setFrom] = useState<Currency>('XOF')
-  const [to, setTo] = useState<Currency>('EUR')
+  /* A pocket row on Chèque links here with `?de=EUR`: arriving on the wrong currency and
+     making the person change it is the sort of small rudeness that adds up. */
+  const [params] = useSearchParams()
+  const initial = params.get('de')
+  const [from, setFrom] = useState<Currency>(initial && isCurrency(initial) ? initial : 'XOF')
+  const [to, setTo] = useState<Currency>(initial === 'XOF' || !initial ? 'EUR' : 'XOF')
   const [raw, setRaw] = useState('')
   const [confirming, setConfirming] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<ApiError | null>(null)
+  const [done, setDone] = useState<{ gave: number; got: number; from: Currency; to: Currency } | null>(null)
+
+  /** What the account actually holds in the currency being sold. */
+  const held = useMemo(() => {
+    const a = account.data
+    if (!a) return undefined
+    if (a.currency === from) return a.balance
+    return a.pockets?.find((p) => p.currency === from)?.amount ?? 0
+  }, [account.data, from])
 
   const amount = parseAmountInput(raw)
   const q = useMemo(() => quote(from, to, amount), [from, to, amount])
@@ -60,13 +76,54 @@ export default function ConvertPage() {
   }
 
   const sameCurrency = from === to
-  const canConvert = amount > 0 && !sameCurrency
+  const tooMuch = held !== undefined && amount > held
+  const canConvert = amount > 0 && !sameCurrency && !tooMuch && !!account.data
 
-  const confirm = () => {
-    setConfirming(false)
-    setRaw('')
-    toast(`${money(q.amountIn, from)} converti en ${money(q.amountOut, to)}`)
-    navigate('/accueil')
+  /**
+   * This used to close the sheet, show a toast reading « converti », and navigate home —
+   * **without moving anything**. No balance changed and no transaction was recorded: the
+   * app told somebody their money had moved when it had not, which is the one thing a
+   * money product may never do. It calls the API now, and the success screen is the
+   * receipt for something that happened.
+   */
+  const confirm = async () => {
+    if (!account.data) return
+    setPending(true)
+    setError(null)
+    try {
+      await api.fx.convert({ accountId: account.data.id, from, to, amount })
+      invalidate(QK.accounts)
+      setConfirming(false)
+      setDone({ gave: q.amountIn, got: q.amountOut, from, to })
+      setRaw('')
+    } catch (e) {
+      setError(e instanceof ApiError ? e : new ApiError('La conversion n’a pas pu être effectuée.', 'unknown'))
+    } finally {
+      setPending(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="page">
+        <SuccessScreen
+          title="Conversion effectuée"
+          hero={money(done.got, done.to)}
+          caption={`Depuis ${money(done.gave, done.from)}`}
+          details={[
+            { label: 'Taux appliqué', value: rateText },
+            { label: 'Marge', value: money(q.feeIn, done.from) },
+          ]}
+          primaryLabel="Terminé"
+          primaryTo="/carte"
+          secondaryLabel="Convertir encore"
+          /* Not `secondaryTo="/convertir"`: we are already on that route, so navigating to
+             it changes nothing and the button appears dead. The receipt is local state,
+             and clearing it is what actually goes back to the form. */
+          onSecondary={() => setDone(null)}
+        />
+      </div>
+    )
   }
 
   return (
@@ -102,8 +159,10 @@ export default function ConvertPage() {
         onChange={setRaw}
         unit={from}
         maxDecimals={CURRENCIES[from].decimals}
-        secondary={sameCurrency ? undefined : `Vous recevez ${money(q.amountOut, to)}`}
-        error={sameCurrency ? 'Choisissez deux devises différentes.' : null}
+        calculator
+        secondary={sameCurrency ? undefined : held !== undefined ? `Disponible : ${money(held, from)} · vous recevez ${money(q.amountOut, to)}` : `Vous recevez ${money(q.amountOut, to)}`}
+        onMax={held !== undefined && held > 0 ? () => setRaw(String(held).replace('.', ',')) : undefined}
+        error={sameCurrency ? 'Choisissez deux devises différentes.' : tooMuch ? `Vous détenez ${money(held ?? 0, from)} en ${from}.` : (error?.message ?? null)}
       />
 
       <Card padding="md" elevation={1} className={styles.detail}>
@@ -139,8 +198,8 @@ export default function ConvertPage() {
       <Sheet open={confirming} onClose={() => setConfirming(false)} title="Confirmer la conversion"
         footer={
           <>
-            <Button variant="secondary" onClick={() => setConfirming(false)}>Annuler</Button>
-            <Button onClick={confirm}>Confirmer</Button>
+            <Button variant="secondary" onClick={() => setConfirming(false)} disabled={pending}>Annuler</Button>
+            <Button onClick={() => void confirm()} loading={pending}>Confirmer</Button>
           </>
         }
       >

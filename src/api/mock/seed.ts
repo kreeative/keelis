@@ -21,6 +21,7 @@ import type {
   TaxDocument,
   Transaction,
   TransactionCategory,
+  Pocket,
   User,
 } from '../types'
 
@@ -277,11 +278,24 @@ export const seedBalances = {
   savings: 8_290_000,
 }
 
+/**
+ * What the chequing account holds beside its francs.
+ *
+ * The demonstration account belongs to somebody in Dakar who is paid partly from abroad —
+ * which is most of the people this app is for — so it holds euros and a little naira. It
+ * also gives a conversion somewhere to land: before pockets existed, `/convertir` quoted a
+ * rate, announced « converti », and moved nothing at all.
+ */
+export const seedPockets: Pocket[] = [
+  { currency: 'EUR', amount: 1_240.5 },
+  { currency: 'NGN', amount: 185_000 },
+]
+
 export const SAVINGS_APY = 4.0
 
-export function makeAccounts(cryptoValue: number, cryptoChange: number, cryptoChangePct: number, cryptoSparkline: number[], balances = seedBalances): Account[] {
+export function makeAccounts(cryptoValue: number, cryptoChange: number, cryptoChangePct: number, cryptoSparkline: number[], balances = seedBalances, pockets: Pocket[] = seedPockets): Account[] {
   return [
-    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, change24h: -56_675, change24hPct: -2.0, openedAt: daysAgo(112) },
+    { id: IDS.checking, kind: 'checking', name: 'Chèque', currency: 'XOF', balance: balances.checking, pockets: pockets.map((p) => ({ ...p })), change24h: -56_675, change24hPct: -2.0, openedAt: daysAgo(112) },
     { id: IDS.savings, kind: 'savings', name: 'Épargne', currency: 'XOF', balance: balances.savings, change24h: 912, change24hPct: 0.011, apy: SAVINGS_APY, openedAt: daysAgo(110) },
     { id: IDS.crypto, kind: 'crypto', name: 'Actifs', currency: 'XOF', balance: cryptoValue, change24h: cryptoChange, change24hPct: cryptoChangePct, sparkline: cryptoSparkline, openedAt: daysAgo(98) },
   ]

@@ -65,13 +65,29 @@ export interface OnboardingState {
 
 // ---------- Accounts ----------
 
+/** A balance held in one currency. An account can hold several. */
+export interface Pocket {
+  currency: Currency
+  amount: number
+}
+
 export interface Account {
   id: string
   kind: AccountKind
   name: string
+  /** The account's home currency — what its `balance` is in, and what it is quoted in. */
   currency: Currency
-  /** Fiat value in CAD. For crypto: total market value of holdings. */
+  /** Value in `currency`. For an investment account: the market value of the holdings. */
   balance: number
+  /**
+   * Other currencies this account holds, beside the home one.
+   *
+   * Somebody paid in naira who saves in francs needs both to exist at once, which is what
+   * the roadmap means by « multidevise, XOF/USD côte à côte ». Before this, every account
+   * was XOF and a conversion had nowhere to land — so `/convertir` showed a rate, said
+   * « converti », and moved nothing at all.
+   */
+  pockets?: Pocket[]
   /** Change over the last 24h (fiat) */
   change24h: number
   /** Change over the last 24h (%) */
@@ -168,7 +184,7 @@ export interface Transaction {
   accountId: string
   type: TransactionType
   status: TransactionStatus
-  /** Signed amount in CAD: negative = money out */
+  /** Signed amount in `currency`: negative = money out. */
   amount: number
   currency: Currency
   /** Merchant or counterparty display name */
@@ -209,7 +225,7 @@ export interface CryptoAsset {
   id: string
   symbol: string
   name: string
-  /** Price in CAD */
+  /** Price in the account's home currency. */
   price: number
   change24h: number
   change24hPct: number
@@ -472,6 +488,14 @@ export interface TransferRequest {
   method: 'internal' | 'operator' | 'wire'
 }
 
+export interface FxConvertRequest {
+  accountId: string
+  from: Currency
+  to: Currency
+  /** In `from`. */
+  amount: number
+}
+
 export interface MoneyMovementResult {
   /** What the operator charged, in the sending currency. Shown, never buried. */
   fee?: number
@@ -621,6 +645,10 @@ export interface KeewalApi {
       contribute(id: string, amount: number): Promise<SavingsGoal>
       remove(id: string): Promise<void>
     }
+  }
+  fx: {
+    /** Move money between two currencies inside the same account. */
+    convert(req: FxConvertRequest): Promise<MoneyMovementResult>
   }
   funding: {
     sources(): Promise<FundingSource[]>

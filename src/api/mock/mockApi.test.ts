@@ -214,3 +214,49 @@ describe('sending through an operator', () => {
     await expect(mockApi.transfers.send(wave({ providerId: undefined }))).rejects.toMatchObject({ code: 'validation' })
   })
 })
+
+describe('converting between currencies', () => {
+  it('moves money out of one pocket and into another', async () => {
+    // « Confirmer » used to close a sheet, show a toast reading « converti », and move
+    // nothing at all — no balance, no transaction. The app told somebody their money had
+    // moved when it had not, which is the one thing a money product may never do.
+    const before = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!
+    const euroBefore = before.pockets?.find((p) => p.currency === 'EUR')?.amount ?? 0
+
+    const r = await mockApi.fx.convert({ accountId: IDS.checking, from: 'XOF', to: 'EUR', amount: 100_000 })
+
+    const after = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!
+    expect(after.balance).toBe(before.balance - 100_000)
+    expect(after.pockets?.find((p) => p.currency === 'EUR')?.amount).toBeGreaterThan(euroBefore)
+    // One African leg: 1.2 % of what was sold, in what was sold.
+    expect(r.fee).toBe(1_200)
+  })
+
+  it('records both legs, each in its own currency', async () => {
+    await mockApi.fx.convert({ accountId: IDS.checking, from: 'XOF', to: 'EUR', amount: 50_000 })
+    const txs = await mockApi.transactions.list({ accountId: IDS.checking, limit: 4 })
+    const out = txs.find((t) => t.counterparty.includes('vers EUR'))
+    const back = txs.find((t) => t.counterparty.includes('depuis XOF'))
+    // A single row could only show one side of a conversion.
+    expect(out?.currency).toBe('XOF')
+    expect(back?.currency).toBe('EUR')
+    expect(out?.amount).toBe(-50_000)
+  })
+
+  it('refuses to sell a currency the account does not hold enough of', async () => {
+    await expect(mockApi.fx.convert({ accountId: IDS.checking, from: 'NGN', to: 'XOF', amount: 10_000_000 })).rejects.toMatchObject({ code: 'insufficient_funds' })
+  })
+
+  it('refuses a conversion into the same currency', async () => {
+    await expect(mockApi.fx.convert({ accountId: IDS.checking, from: 'XOF', to: 'XOF', amount: 1_000 })).rejects.toMatchObject({ code: 'validation' })
+  })
+
+  it('drops a pocket once it is emptied', async () => {
+    const account = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!
+    const naira = account.pockets!.find((p) => p.currency === 'NGN')!.amount
+    await mockApi.fx.convert({ accountId: IDS.checking, from: 'NGN', to: 'XOF', amount: naira })
+    const after = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!
+    // Fifteen zero balances would be a filing cabinet, not a wallet.
+    expect(after.pockets?.some((p) => p.currency === 'NGN')).toBe(false)
+  })
+})

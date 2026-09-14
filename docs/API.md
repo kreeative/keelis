@@ -184,6 +184,22 @@ déguisé, et l'application ne le présente jamais ainsi.
 | POST | `/savings/goals/:id/contribute` | `SavingsGoal` pour `{ amount }` |
 | DELETE | `/savings/goals/:id` | `204` |
 
+### Change
+
+| Méthode | Chemin | Réponse |
+| --- | --- | --- |
+| POST | `/fx/conversions` | `MoneyMovementResult` pour `FxConvertRequest` |
+
+Une conversion déplace de l'argent **entre les devises d'un même compte**. `Account.pockets`
+porte ce que le compte détient hors de sa devise principale ; une poche apparaît à la
+première arrivée et disparaît une fois vidée — quinze soldes à zéro seraient un classeur,
+pas un portefeuille.
+
+Le back-end doit inscrire **deux lignes** au grand livre, une par devise : une seule ligne
+ne pourrait montrer qu'un côté de l'opération. L'arrondi se fait **une seule fois, à la
+fin**, à l'unité mineure de la devise reçue, et la marge est rendue dans `fee`, exprimée
+dans la devise vendue.
+
 ### Alimentation et envois
 
 | Méthode | Chemin | Réponse |

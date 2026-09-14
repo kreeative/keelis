@@ -11,6 +11,7 @@ import { formatDayHeading, formatMoney, formatNumber } from '@/lib/format'
 import { useSettings } from '@/store'
 import { cn } from '@/lib/cn'
 import { CardPanel } from './CardPanel'
+import { Pockets } from './Pockets'
 import { FilterSheet } from './FilterSheet'
 import { EMPTY_FILTER, describeFilter, isEmptyFilter, narrow, toApiFilter, type FilterState } from './filters'
 import styles from './CheckingPage.module.css'
@@ -146,6 +147,8 @@ export default function CheckingPage() {
 
         <aside className={styles.side}>
           <CardPanel />
+          {/* Under the card: the other currencies this account holds. */}
+          <Pockets account={account.data} />
           <QuickActions
             className={styles.actions}
             actions={[

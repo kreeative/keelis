@@ -40,6 +40,7 @@ import type {
   CryptoSendRequest,
   Device,
   FundingSource,
+  FxConvertRequest,
   GoalInput,
   Holding,
   KeewalApi,
@@ -246,6 +247,10 @@ export function createRestApi(opts: HttpOptions): KeewalApi {
         contribute: (id, amount) => http.post<SavingsGoal>(`/savings/goals/${encodeURIComponent(id)}/contribute`, { amount }),
         remove: (id) => http.del<void>(`/savings/goals/${encodeURIComponent(id)}`),
       },
+    },
+
+    fx: {
+      convert: (req: FxConvertRequest) => http.post<MoneyMovementResult>('/fx/conversions', req),
     },
 
     funding: {

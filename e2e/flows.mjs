@@ -88,6 +88,31 @@ async function present(page, locator, what, timeout = 8000) {
   }
 }
 
+/**
+ * The chequing balance, read off its own hero rather than the first franc figure on the
+ * page — a transaction row or another account's card would otherwise answer instead.
+ */
+async function chequeBalance(page) {
+  await page.goto(`${BASE}/carte`, { waitUntil: 'domcontentloaded' })
+  await present(page, page.getByText('Disponible maintenant'), 'the chequing balance')
+  /* Wait for it to stop moving. The hero counts into place over 650 ms, so reading it the
+     moment it appears returns a frame of the animation — which is how this assertion first
+     reported a balance that had *risen* after money left it. */
+  const read = async () => {
+    const hero = await page.getByText('Disponible maintenant').first().locator('xpath=..').innerText()
+    const m = hero.match(/([\d,]+)\s*F\s?CFA/)
+    return m ? Number(m[1].replace(/,/g, '')) : undefined
+  }
+  let last = await read()
+  for (let i = 0; i < 12; i += 1) {
+    await page.waitForTimeout(120)
+    const now = await read()
+    if (now !== undefined && now === last) return now
+    last = now
+  }
+  return last
+}
+
 /** Type an amount on the in-app keypad rather than into a field — there is no field. */
 async function keypad(page, digits) {
   for (const d of digits) {
@@ -171,14 +196,62 @@ async function convert(browser) {
     await keypad(page, ['1', '0', '0', '0', '0', '0'])
     await page.waitForTimeout(300)
     await shot(page, 'convert')
+
     const body = await page.locator('body').innerText()
     // Both rates and the margin, before anything is committed.
     for (const required of ['Taux du marché', 'Taux appliqué', 'Marge']) {
       if (!body.includes(required)) fail(flow, `« ${required} » is not shown before confirming`)
     }
     if (/\d,\d{2}\s*%/.test(body)) fail(flow, 'a percentage is using a comma decimal — the app uses a point')
+
+    /* Read what the account holds straight off this screen. Everything below stays inside
+       the running app: a `goto` would reload it, and the mock's state lives in memory —
+       which is how this assertion first compared two freshly seeded balances and concluded
+       nothing had moved. */
+    const available = async () => {
+      const line = await page.getByText(/Disponible :/).first().innerText()
+      const m = line.match(/([\d,]+)\s*F\s?CFA/)
+      return m ? Number(m[1].replace(/,/g, '')) : undefined
+    }
+    /* The figure is already on screen with its old value when the form comes back, and the
+       refetch lands a moment later — so wait for it to differ rather than reading whatever
+       is there. Reading too early is how this first reported that nothing had moved. */
+    const availableOnceChangedFrom = async (previous) => {
+      for (let i = 0; i < 25; i += 1) {
+        const now = await available()
+        if (now !== undefined && now !== previous) return now
+        await page.waitForTimeout(120)
+      }
+      return available()
+    }
+    const before = await available()
+    if (before === undefined) return fail(flow, 'the convert screen does not say what the account holds')
+
     const cta = page.getByRole('button', { name: /Continuer|Convertir/ }).last()
-    if (await cta.isDisabled()) fail(flow, 'the continue button stayed disabled after entering 100 000')
+    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering 100 000')
+    await cta.click()
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    await sheet.getByRole('button', { name: /Confirmer/ }).last().click()
+    await present(page, page.getByText(/Conversion effectuée/i), 'the success state')
+    await shot(page, 'convert-done')
+
+    /* The whole point of this flow. « Confirmer » used to close the sheet, show a toast
+       reading « converti », and move nothing at all — no balance, no transaction. The
+       receipt is only true if the money actually went somewhere. */
+    /* « Convertir encore » clears the receipt in place rather than navigating — the route
+       is already /convertir, so a navigation there would change nothing and the button
+       would look dead. */
+    await page.getByRole('button', { name: /Convertir encore/ }).first().click()
+    await present(page, page.getByText(/Disponible :/), 'the convert screen again')
+    const after = await availableOnceChangedFrom(before)
+    if (after === undefined) return fail(flow, 'could not read the balance after converting')
+    if (after >= before) fail(flow, `the francs balance did not fall after converting 100 000 (${before} → ${after})`)
+
+    // And it has to have landed somewhere visible.
+    await page.getByRole('link', { name: 'Carte' }).first().click()
+    await present(page, page.getByText('Autres devises'), 'the other currencies on the account')
+    await shot(page, 'convert-pockets')
   } catch (e) {
     fail(flow, e.message)
   } finally {

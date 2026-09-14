@@ -8,6 +8,8 @@
 import { createPrng } from '@/lib/prng'
 import { readJson, remove, writeJson } from '@/lib/storage'
 import { formatMoney } from '@/lib/format'
+import { roundTo, type Currency } from '@/lib/currency'
+import { quote } from '@/lib/fx'
 import { handleRule } from '@/lib/transferHandle'
 import {
   ApiError,
@@ -22,6 +24,7 @@ import {
   type Holding,
   type KeewalApi,
   type OnboardingState,
+  type Pocket,
   type Order,
   type PriceHistory,
   type PricePoint,
@@ -55,6 +58,7 @@ import {
   seedStatements,
   seedTaxDocuments,
   seedUser,
+  seedPockets,
   seedTransferProviders,
 } from './seed'
 
@@ -101,6 +105,9 @@ function uid(prefix: string) {
 /** Money inside an error sentence, in the account's own currency. */
 const money = (n: number) => formatMoney(n, { locale: 'fr-SN', currency: 'XOF' })
 
+/** The account's home currency: what `balances` are in. Every other holding is a pocket. */
+const HOME_CURRENCY: Currency = 'XOF'
+
 function round2(n: number) {
   return Math.round(n * 100) / 100
 }
@@ -117,6 +124,29 @@ class MockState {
   recurring: RecurringBuy[] = seedRecurring.map((r) => ({ ...r }))
   notifications: AppNotification[] = seedNotifications.map((n) => ({ ...n }))
   balances = { ...seedBalances }
+  /* Currencies the chequing account holds beside its home francs. Somebody paid in naira
+     who saves in francs needs both at once — and without them a conversion had nowhere to
+     land, which is why `/convertir` used to say « converti » and move nothing. */
+  pockets: Pocket[] = seedPockets.map((p) => ({ ...p }))
+
+  /** What the account holds in one currency — the home balance included. */
+  pocketAmount(currency: Currency): number {
+    if (currency === HOME_CURRENCY) return this.balances.checking
+    return this.pockets.find((p) => p.currency === currency)?.amount ?? 0
+  }
+
+  setPocketAmount(currency: Currency, amount: number) {
+    if (currency === HOME_CURRENCY) {
+      this.balances.checking = amount
+      return
+    }
+    const existing = this.pockets.find((p) => p.currency === currency)
+    if (existing) existing.amount = amount
+    // A pocket appears the first time money lands in it, and is not kept once empty:
+    // fifteen zero balances is a filing cabinet, not a wallet.
+    else if (amount > 0) this.pockets.push({ currency, amount })
+    this.pockets = this.pockets.filter((p) => p.amount > 0)
+  }
   /* Francs, matching the interest transactions in the seed. These were euro figures used
      raw, so the savings screen reported earning 42 F CFA this month on a balance of eight
      million — six centimes of interest on twelve thousand euros. */
@@ -182,7 +212,7 @@ class MockState {
 
   accounts(): Account[] {
     const { change, pct } = this.cryptoChange24h()
-    return makeAccounts(this.cryptoValue(), change, pct, this.cryptoSparkline(), this.balances)
+    return makeAccounts(this.cryptoValue(), change, pct, this.cryptoSparkline(), this.balances, this.pockets)
   }
 
   /** Random-walk price tick */
@@ -213,7 +243,8 @@ class MockState {
     this.tickerHandle = null
   }
 
-  addTransaction(t: Omit<Transaction, 'id' | 'currency'>): Transaction {
+  /** `currency` defaults to the account's home francs; a conversion passes its own. */
+  addTransaction(t: Omit<Transaction, 'id' | 'currency'> & { currency?: Currency }): Transaction {
     const tx: Transaction = { id: uid('tx'), currency: 'XOF', ...t }
     this.transactions.unshift(tx)
     this.emit({ type: 'transaction', transaction: tx })
@@ -864,6 +895,31 @@ export const mockApi: KeewalApi = {
         state.goals = state.goals.filter((x) => x.id !== id)
         state.emit({ type: 'goals' })
       },
+    },
+  },
+
+  fx: {
+    async convert(req) {
+      await simulate()
+      if (req.from === req.to) throw new ApiError('Choisissez deux devises différentes.', 'validation')
+      if (!(req.amount > 0)) throw new ApiError('Entrez un montant.', 'validation')
+      if (req.accountId !== IDS.checking) throw new ApiError('Seul le compte Chèque peut convertir.', 'validation')
+
+      const available = state.pocketAmount(req.from)
+      if (req.amount > available + 1e-9) throw new ApiError(`Solde insuffisant en ${req.from}.`, 'insufficient_funds')
+
+      /* The rate, the tier and the fee come from `lib/fx` — the same module the screen
+         quoted from, so what was shown is what is charged. */
+      const q = quote(req.from, req.to, req.amount)
+      state.setPocketAmount(req.from, roundTo(available - req.amount, req.from))
+      state.setPocketAmount(req.to, roundTo(state.pocketAmount(req.to) + q.amountOut, req.to))
+
+      /* Two lines in the ledger, not one: a conversion is money leaving one currency and
+         arriving in another, and a single row could only show one of them. */
+      const out = state.addTransaction({ accountId: IDS.checking, type: 'transfer_out', status: 'posted', amount: -req.amount, currency: req.from, counterparty: `Conversion vers ${req.to}`, category: 'transfer', date: new Date().toISOString(), postedAt: new Date().toISOString(), channel: 'app' })
+      state.addTransaction({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: q.amountOut, currency: req.to, counterparty: `Conversion depuis ${req.from}`, category: 'transfer', date: new Date().toISOString(), postedAt: new Date().toISOString(), channel: 'app' })
+      state.emit({ type: 'accounts' })
+      return { fee: q.feeIn, transactionId: out.id, status: 'posted', eta: 'Instantané', etaMinutes: 0 }
     },
   },
 
