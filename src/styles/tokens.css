@@ -261,6 +261,13 @@
   --dur-fast: 150ms;
   --dur: 200ms;
   --dur-slow: 250ms;
+  /* A figure settling, and a chart line drawing itself. Deliberately outside the 150–250 ms
+     band above, which governs *transitions* — a control answering a touch. A number
+     arriving is a different thing and reads as hurried at 250 ms. These two are the only
+     motion in the app that asks to be looked at rather than getting out of the way, and
+     they are on the balance and its curve, which are what the screen is for. */
+  --dur-figure: 650ms;
+  --dur-draw: 900ms;
   --skeleton-pulse: 1.4s;
   --toast-duration: 3000ms;
 
@@ -452,6 +459,8 @@
     --dur-fast: 0ms;
     --dur: 0ms;
     --dur-slow: 0ms;
+    --dur-figure: 0ms;
+    --dur-draw: 0ms;
     --skeleton-pulse: 0ms;
     --lift: none;
     --press: none;

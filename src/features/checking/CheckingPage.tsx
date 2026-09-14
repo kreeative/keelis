@@ -139,7 +139,7 @@ export default function CheckingPage() {
             {account.error && !account.data ? (
               <ErrorState compact error={account.error} onRetry={() => void account.refetch()} />
             ) : (
-              <AmountDisplay value={account.data?.balance} caption="Disponible maintenant" />
+              <AmountDisplay value={account.data?.balance} caption="Disponible maintenant" animate />
             )}
           </section>
         </Card>

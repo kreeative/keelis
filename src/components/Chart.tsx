@@ -24,6 +24,12 @@ export interface ChartProps {
   /** Called with the hovered point (or null) so the header can mirror it */
   onHover?: (p: PricePoint | null) => void
   label: string
+  /**
+   * What identifies *this series*. The draw-in restarts when it changes — a new asset, a
+   * new period — and not when the points move under a price tick. Defaults to `label`,
+   * which already carries the period on every screen that shows a range.
+   */
+  drawKey?: string | number
   className?: string
   loading?: boolean
 }
@@ -80,7 +86,7 @@ export function smoothPath(xs: number[], ys: number[]): string {
   return d
 }
 
-export function Chart({ points, height = 200, tone, formatValue, formatTime, onHover, label, className, loading }: ChartProps) {
+export function Chart({ points, height = 200, tone, formatValue, formatTime, onHover, label, drawKey, className, loading }: ChartProps) {
   const id = useId()
   const { locale } = useSettings()
   const ref = useRef<SVGSVGElement>(null)
@@ -200,9 +206,13 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, onH
             again clipped to everything left of the cursor. What you have scrubbed past
             stays lit and what you have not yet reached recedes, so the eye is held at the
             point being read rather than at the end of the line. */}
-        <g className={ai !== null ? styles.ahead : undefined}>
-          <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" mask={`url(#${id}-fademask)`} />
-          <path d={path} className={styles.line} />
+        {/* Keyed on the series identity, so the draw-in runs when the asset or the period
+            changes and **not** on every price tick: a curve that redrew itself every ten
+            seconds would be moving exactly when someone is reading it. Remounting the group
+            is what restarts the CSS animation. */}
+        <g key={drawKey ?? label} className={cn(styles.drawing, ai !== null && styles.ahead)}>
+          <path d={`${path}L${W} ${H}L0 ${H}Z`} fill={`url(#${id}-stipple)`} stroke="none" mask={`url(#${id}-fademask)`} className={styles.stippleArea} />
+          <path d={path} className={styles.line} pathLength={1} />
           <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={3} className={styles.nowDot} />
         </g>
         {ai !== null ? (

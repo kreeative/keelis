@@ -4,6 +4,7 @@
  */
 import type { CSSProperties } from 'react'
 import { DEFAULT_CURRENCY, MASKED, formatMoney, formatNumber, formatPercent, moneyAriaLabel, percentAriaLabel, splitMoney } from '@/lib/format'
+import { useCountUp } from '@/lib/useCountUp'
 import { useSettings } from '@/store/settings'
 import { cn } from '@/lib/cn'
 import { SkeletonAmount } from './Skeleton'
@@ -34,18 +35,27 @@ export interface AmountDisplayProps {
   className?: string
   /** Ignore privacy mask */
   unmasked?: boolean
+  /**
+   * Let the figure count into place when it lands. Off by default, and it must stay off
+   * wherever the value changes continuously — scrubbing a chart, above all: animating
+   * between scrubbed values would lag the finger and make the number unreadable.
+   */
+  animate?: boolean
 }
 
-export function AmountDisplay({ value, currency = DEFAULT_CURRENCY, delta, deltaPct, period, caption, unit, maxFraction, signed = false, tone = false, size = 'display', loading, align = 'start', className, unmasked }: AmountDisplayProps) {
+export function AmountDisplay({ value, currency = DEFAULT_CURRENCY, delta, deltaPct, period, caption, unit, maxFraction, signed = false, tone = false, size = 'display', loading, align = 'start', className, unmasked, animate = false }: AmountDisplayProps) {
   const { hidden, locale } = useSettings()
-  if (loading || value === undefined) return <SkeletonAmount />
+  /* Hooks run before the early return: a masked balance still has a value underneath, and
+     unmasking it should not restart the animation from nothing. */
+  const shown = useCountUp(value, animate && !hidden)
+  if (loading || value === undefined || shown === undefined) return <SkeletonAmount />
   const masked = hidden && !unmasked
 
   // The symbol is set as part of the figure, so it is split off rather than stripped:
   // "F CFA", "₦" and "€" are not "$", and some locales put the symbol first.
-  const money = unit ? undefined : splitMoney(value, { locale, currency, signed })
+  const money = unit ? undefined : splitMoney(shown, { locale, currency, signed })
   const symbol = money?.symbol ?? ''
-  const number = unit ? formatNumber(value, { locale, maxFraction: maxFraction ?? 8, signed }) : money!.number
+  const number = unit ? formatNumber(shown, { locale, maxFraction: maxFraction ?? 8, signed }) : money!.number
 
   const hasDelta = delta !== undefined || deltaPct !== undefined
   const deltaTone = (deltaPct ?? delta ?? 0) > 0 ? styles.pos : (deltaPct ?? delta ?? 0) < 0 ? styles.neg : styles.flat
@@ -65,7 +75,9 @@ export function AmountDisplay({ value, currency = DEFAULT_CURRENCY, delta, delta
       <div
         style={{ '--amount-fit': fit } as CSSProperties}
         className={cn(styles.amount, size === 'h1' && styles.h1, tone && value > 0 && styles.amountPos, tone && value < 0 && styles.amountNeg)}
-        aria-label={masked ? 'Montant masqué' : unit ? `${number} ${unit}` : moneyAriaLabel(value, { locale, currency })}
+        /* The label reads the real value, never the animated one: a screen reader should
+           hear the balance, not a frame of it on its way there. */
+        aria-label={masked ? 'Montant masqué' : unit ? `${formatNumber(value, { locale, maxFraction: maxFraction ?? 8, signed })} ${unit}` : moneyAriaLabel(value, { locale, currency })}
         role="text"
       >
         {money?.prefix && !masked ? <span className={styles.symbolFirst}>{symbol}</span> : null}

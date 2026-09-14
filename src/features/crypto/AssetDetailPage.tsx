@@ -192,7 +192,9 @@ export default function AssetDetailPage() {
 
       <section className={styles.hero} aria-label={`Prix de ${asset.name}`}>
         <p className="t-name">{asset.symbol}</p>
-        <AmountDisplay value={heroValue} delta={delta} deltaPct={deltaPct} period={delta !== undefined ? rangePeriod(range) : undefined} caption={caption} unmasked />
+        {/* Not while scrubbing: the hero mirrors the chart under the finger, and a counting
+            number cannot keep up with it. */}
+        <AmountDisplay value={heroValue} delta={delta} deltaPct={deltaPct} period={delta !== undefined ? rangePeriod(range) : undefined} caption={caption} unmasked animate={!hover} />
       </section>
 
       <div className={styles.chartBlock}>

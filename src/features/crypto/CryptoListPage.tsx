@@ -119,7 +119,7 @@ export default function CryptoListPage() {
           {account.error && account.data === undefined ? (
             <ErrorState error={account.error} onRetry={() => void account.refetch()} compact />
           ) : (
-            <AmountDisplay value={account.data?.balance} delta={account.data?.change24h} deltaPct={account.data?.change24hPct} period="24 h" loading={account.data === undefined} />
+            <AmountDisplay value={account.data?.balance} delta={account.data?.change24h} deltaPct={account.data?.change24hPct} period="24 h" loading={account.data === undefined} animate />
           )}
           {/* This section's own curve. The one on Accueil summarises the whole wealth; this
               one is the book alone, computed from the holdings' real series so the two

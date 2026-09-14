@@ -101,7 +101,9 @@ export default function HomePage() {
             {accounts.error && !accounts.data ? (
               <ErrorState compact error={accounts.error} onRetry={() => void accounts.refetch()} />
             ) : (
-              <AmountDisplay value={heroValue} delta={heroDelta} deltaPct={heroPct} period={hover ? undefined : period?.period} caption={heroCaption} />
+              /* `animate` off while scrubbing: between two scrubbed values the number has
+                 to keep up with the finger, and counting would lag it into nonsense. */
+              <AmountDisplay value={heroValue} delta={heroDelta} deltaPct={heroPct} period={hover ? undefined : period?.period} caption={heroCaption} animate={!hover} />
             )}
 
             <div className={styles.chartBlock} aria-label="Évolution du solde total">

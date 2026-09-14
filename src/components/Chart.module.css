@@ -21,6 +21,39 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+/* The curve draws itself once, left to right, when the series first appears.
+   `pathLength="1"` on the path normalises its length, so one dash covers the whole line
+   whatever its real geometry and the offset needs no measuring. Under reduced motion the
+   global rule collapses the duration to 0 ms and the line is simply there — which is why
+   the animation ends on the visible state rather than starting from it. */
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.drawing .line {
+  stroke-dasharray: 1;
+  animation: draw var(--dur-draw) var(--ease) forwards;
+}
+/* The texture and the end dot follow the line rather than appearing under it: the area is
+   something the curve casts, so it cannot arrive first. */
+.drawing .stippleArea,
+.drawing .nowDot {
+  animation: rise var(--dur-slow) var(--ease) both;
+  animation-delay: calc(var(--dur-draw) * 0.55);
+}
 /* The area, as texture. This is the density at the top; the mask thins it with depth. */
 .stipple { fill: var(--chart-color); opacity: 0.3; }
 
@@ -57,3 +90,8 @@
 }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 .spark { display: inline-block; flex-shrink: 0; }
+
+/* The area path itself, so the draw-in can bring it up after the line. */
+.stippleArea {
+  pointer-events: none;
+}
