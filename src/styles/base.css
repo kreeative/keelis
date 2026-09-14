@@ -257,28 +257,35 @@ img, svg {
     filter var(--dur-smooth) var(--ease-smooth),
     border-radius var(--dur-smooth) var(--ease-smooth);
 }
-html[data-sheet] .app-view {
-  position: fixed;
-  inset-inline: 0;
-  top: 0;
-  height: 100dvh;
-  overflow: hidden;
-}
-/* The page keeps showing what it was showing. `--view-scroll` is negative. */
-html[data-sheet] .app-view > * { margin-top: var(--view-scroll, 0px); }
+/* Below the desktop breakpoint only. Up there the sheet is a centred dialog, and a centred
+   dialog over a dimmed page is what a desktop does — pushing the whole window back for it is
+   a phone gesture applied to a shape that never had it, and on a 900px-tall screen the scaled
+   page leaves a visible empty band along the bottom that the bottom sheet was covering. No
+   transform up there also means no containing block, so none of the freeze below is needed. */
+@media (max-width: 767px) {
+  html[data-sheet] .app-view {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  /* The page keeps showing what it was showing. `--view-scroll` is negative. */
+  html[data-sheet] .app-view > * { margin-top: var(--view-scroll, 0px); }
 
-html[data-sheet='open'] .app-view {
-  transform: scale(0.94) translateY(var(--sp-2));
-  border-radius: var(--r-sheet);
-  /* Brightness, not an overlay: a full-screen scrim of our own would sit between the page
-     and the sheet's own backdrop, and the two would compound into something much darker
-     than either was designed to be. */
-  filter: brightness(0.86);
-}
-/* Coming back is an exit — the page is returning, the sheet is the thing that left. */
-html[data-sheet='closing'] .app-view {
-  transition-duration: var(--dur-exit);
-  transition-timing-function: var(--ease-exit);
+  html[data-sheet='open'] .app-view {
+    transform: scale(0.94) translateY(var(--sp-2));
+    border-radius: var(--r-sheet);
+    /* Brightness, not an overlay: a full-screen scrim of our own would sit between the page
+       and the sheet's own backdrop, and the two would compound into something much darker
+       than either was designed to be. */
+    filter: brightness(0.86);
+  }
+  /* Coming back is an exit — the page is returning, the sheet is the thing that left. */
+  html[data-sheet='closing'] .app-view {
+    transition-duration: var(--dur-exit);
+    transition-timing-function: var(--ease-exit);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

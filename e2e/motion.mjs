@@ -56,7 +56,10 @@ const SHEET_ROUTE = '/carte'
  */
 async function ready(page, path) {
   await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' })
-  await page.waitForSelector('nav', { timeout: 15_000 })
+  /* `nav:visible`, not `nav`: there are two — the phone's floating pill and the desktop
+     rail — and exactly one of them is displayed at any width. Waiting on the first in tree
+     order hangs at 1440px, where that one is the hidden mobile pill. */
+  await page.waitForSelector('nav:visible', { timeout: 15_000 })
   await page.waitForFunction(() => document.body.innerText.trim().length > 200, null, { timeout: 15_000 })
 }
 
@@ -309,6 +312,40 @@ async function run() {
       fail('nav', `the capsule is not on the active tab (capsule at ${capsule.pill}, tab at ${capsule.active})`)
     } else notes.push(`nav: the capsule slid to the active tab at x=${capsule.pill}`)
     await page.close()
+  }
+
+  // ---- 5. A desktop dialog does not push the window back ----
+  {
+    /* The recession is a phone gesture. Up here the sheet is a centred dialog, and a centred
+       dialog over a dimmed page is what a desktop does; scaling the whole window for it
+       leaves a visible empty band along the bottom and reads as a phone shape stretched. It
+       still has to arrive and leave, though — that part is not about width. */
+    const wide = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+    const page = await newPage(wide)
+    await ready(page, SHEET_ROUTE)
+    const opener = await openASheet(page)
+    if (!opener) fail('desktop', `found nothing on ${SHEET_ROUTE} that opens a dialog at 1440px`)
+    else {
+      await page.waitForSelector('[role="dialog"]')
+      await page.waitForTimeout(500)
+      const view = await page.evaluate(() => {
+        const v = document.querySelector('.app-view')
+        const cs = v ? getComputedStyle(v) : null
+        return { transform: cs?.transform, filter: cs?.filter, position: cs?.position }
+      })
+      if (view.transform !== 'none') fail('desktop', `the window is receding behind a centred dialog (${view.transform})`)
+      if (view.filter !== 'none') fail('desktop', `the window is being dimmed behind a centred dialog (${view.filter})`)
+      if (view.position === 'fixed') fail('desktop', 'the view is frozen at 1440px, where nothing needs freezing')
+
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(70)
+      if (!(await page.locator('[role="dialog"]').count())) fail('desktop', 'the dialog is dismissed instantly — the exit is phone-only')
+      await page.waitForTimeout(400)
+      if (await page.locator('[role="dialog"]').count()) fail('desktop', 'the dialog is still in the tree after its exit')
+      notes.push('desktop: a centred dialog arrives and leaves without moving the window behind it')
+    }
+    await page.close()
+    await wide.close()
   }
 
   await context.close()

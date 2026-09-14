@@ -15,15 +15,20 @@
   gap: var(--sp-3);
   margin-top: var(--sp-2);
 }
+/* A dot that only changes colour gives no feedback under a thumb: at 12px, grey to ink is
+   the smallest change on the screen, and it is the one place someone needs to be certain a
+   key registered. It fills *and* swells, with the snappy spring — a digit landing is a
+   control answering a finger, which is exactly what that curve is for. */
 .dot {
   width: 12px;
   height: 12px;
   border-radius: var(--r-pill);
   background: var(--line);
-  transition: background-color var(--dur-smooth) var(--ease-smooth);
+  transition: background-color var(--dur-smooth) var(--ease-smooth), transform var(--dur-snappy) var(--ease-snappy);
 }
 .dotOn {
   background: var(--ink-900);
+  transform: scale(1.18);
 }
 .error {
   min-height: 20px;
