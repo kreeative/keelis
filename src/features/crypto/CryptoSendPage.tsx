@@ -5,15 +5,50 @@
 import { useState, type ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '@/api'
-import type { ApiError, CryptoSendPreview, CryptoSendRequest, MoneyMovementResult } from '@/api/types'
+import type { ApiError, CryptoAsset, CryptoSendPreview, CryptoSendRequest, Locale, MoneyMovementResult } from '@/api/types'
 import { Button, Callout, ChoiceList, ErrorState, Field, Icon, PageHeader, SkeletonAmount } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, SuccessScreen, useTransaction } from '@/features/shared'
 import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { abbreviateAddress, floorTo, toKeypadRaw } from './cryptoFormat'
 import { useLiveAsset, useLiveHoldings } from './hooks'
 import styles from './CryptoSendPage.module.css'
+
+/**
+ * The receipt, which follows the transaction.
+ *
+ * A chain send is the one movement in this app that genuinely *is* pending for a while, so
+ * « En attente » is honest here in a way it was not on the internal transfer. What was
+ * wrong is that it stayed that way: the send confirms within the minutes the screen itself
+ * quotes, the event reaches the cache, and the page that told you to wait never said it was
+ * over. The word is « Confirmé » rather than « Réglé » — a network confirms a send; a ledger
+ * settles a payment.
+ */
+function SendSuccess({ result, asset, locale }: { result: { res: MoneyMovementResult; req: CryptoSendRequest; preview: CryptoSendPreview }; asset: CryptoAsset; locale: Locale }) {
+  const tx = useTransaction(result.res.transactionId)
+  const net = asset.networks.find((n) => n.id === result.req.networkId)
+  const confirmed = tx.data?.status === 'posted'
+  const failed = tx.data?.status === 'failed' || tx.data?.status === 'reversed'
+  return (
+    <SuccessScreen
+      title={confirmed ? 'Envoi confirmé' : 'Envoi en cours'}
+      hero={formatCrypto(result.preview.quantity, asset.symbol, { locale })}
+      caption={`vers ${abbreviateAddress(result.req.address)}`}
+      status={failed ? 'Échouée' : confirmed ? 'Confirmé' : `En attente · ${result.res.eta}`}
+      details={[
+        { label: 'Adresse', value: <span className={styles.mono}>{abbreviateAddress(result.req.address)}</span> },
+        { label: 'Réseau', value: net?.name ?? result.req.networkId },
+        { label: 'Frais réseau', value: formatCrypto(result.preview.networkFee, asset.symbol, { locale }) },
+        { label: 'Total débité', value: formatCrypto(result.preview.totalDebit, asset.symbol, { locale }) },
+      ]}
+      primaryLabel={`Voir ${asset.symbol}`}
+      primaryTo={`/crypto/${result.req.assetId}`}
+      secondaryLabel="Retour à l’accueil"
+      secondaryTo="/"
+    />
+  )
+}
 
 function FeeLine({ label, value, sub, strong = false }: { label: string; value: ReactNode; sub?: ReactNode; strong?: boolean }) {
   return (
@@ -126,25 +161,9 @@ export default function CryptoSendPage() {
   }
 
   if (result && asset) {
-    const net = asset.networks.find((n) => n.id === result.req.networkId)
     return (
       <div className={cn('page', styles.send)}>
-        <SuccessScreen
-          title="Envoi en cours"
-          hero={formatCrypto(result.preview.quantity, asset.symbol, { locale })}
-          caption={`vers ${abbreviateAddress(result.req.address)}`}
-          status={`En attente · ${result.res.eta}`}
-          details={[
-            { label: 'Adresse', value: <span className={styles.mono}>{abbreviateAddress(result.req.address)}</span> },
-            { label: 'Réseau', value: net?.name ?? result.req.networkId },
-            { label: 'Frais réseau', value: formatCrypto(result.preview.networkFee, asset.symbol, { locale }) },
-            { label: 'Total débité', value: formatCrypto(result.preview.totalDebit, asset.symbol, { locale }) },
-          ]}
-          primaryLabel={`Voir ${asset.symbol}`}
-          primaryTo={`/crypto/${id}`}
-          secondaryLabel="Retour à l'accueil"
-          secondaryTo="/"
-        />
+        <SendSuccess result={result} asset={asset} locale={locale} />
       </div>
     )
   }

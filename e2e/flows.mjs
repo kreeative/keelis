@@ -165,7 +165,10 @@ async function clickWhenEnabled(page, locator, what, timeout = 10_000) {
 /** Type an amount on the in-app keypad rather than into a field — there is no field. */
 async function keypad(page, digits) {
   for (const d of digits) {
-    const key = page.getByRole('button', { name: d === '.' ? 'Virgule' : d, exact: true })
+    /* « Point décimal », not « Virgule » — the app's punctuation rule put a point on that
+       key, and this helper still asked for the old label. No flow happened to press it, so
+       the mismatch sat here silently waiting for the first one that did. */
+    const key = page.getByRole('button', { name: d === '.' ? 'Point décimal' : d, exact: true })
     if ((await key.count()) === 0) throw new Error(`keypad key ${d} not found`)
     await key.first().click()
   }
@@ -400,6 +403,66 @@ async function moveToSavings(browser) {
     await sheet.getByRole('button', { name: /Confirmer|Déposer/ }).last().click()
     await present(page, page.getByText(/Dépôt|effectué|confirmé/i), 'the success state')
     await shot(page, 'savings-done')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+/**
+ * The internal transfer — the one money flow no walk had ever driven.
+ *
+ * It is also the flow where the receipt used to contradict itself: the sheet promised
+ * « Instantané », and the screen after it said « En attente » and stayed that way. So this
+ * checks the thing that matters and the thing that is easy to get wrong — the money really
+ * moves between the two accounts, and the receipt reaches « Réglé » on its own.
+ *
+ * Every step after the first load is in-app navigation. A `goto` reloads the page, and the
+ * mock's state lives in memory, so re-reading a balance that way reads the seed and reports
+ * that nothing moved.
+ */
+async function internalTransfer(browser) {
+  const flow = 'Virement interne'
+  const page = await newPage(browser, flow)
+  const francs = (text) => Number((text.match(/([\d,]+)\s*F/)?.[1] ?? '').replace(/,/g, ''))
+  try {
+    await page.goto(`${BASE}/epargne`, { waitUntil: 'domcontentloaded' })
+    await waitForText(page, /Solde/, 'the savings screen')
+    await page.waitForTimeout(800)
+    const before = francs((await page.locator('body').innerText()).match(/Solde.{0,60}/s)?.[0] ?? '')
+    if (!before) return fail(flow, 'could not read the savings balance before the transfer')
+
+    await page.getByRole('link', { name: 'Carte', exact: true }).first().click()
+    await waitForText(page, /Disponible/, 'the chequing screen')
+    await page.getByRole('link', { name: /Virement/ }).first().click()
+    await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
+    await keypad(page, ['2', '5', '0', '0', '0'])
+
+    const cta = page.getByRole('button', { name: /Continuer/ }).last()
+    if (!(await clickWhenEnabled(page, cta, 'the continue button'))) return fail(flow, 'the continue button never became enabled after entering 25 000')
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+
+    /* The destination is the caption under the amount; a second row repeating it word for
+       word read as two facts until you noticed it was one. */
+    const sheetText = (await sheet.innerText()).replace(/\s+/g, ' ')
+    const mentions = (sheetText.match(/Compte Épargne/g) ?? []).length
+    if (mentions > 1) fail(flow, `the confirmation sheet names the destination ${mentions} times`)
+
+    await sheet.getByRole('button', { name: /^Envoyer$/ }).last().click()
+    await waitForText(page, /Envoi confirmé/, 'the receipt')
+    // It settles a second and a half later, and the receipt has to notice.
+    await waitForText(page, /Réglé/i, 'the receipt never left « En attente » — it is not listening for the settlement')
+    await shot(page, 'internal-settled')
+
+    await page.getByRole('button', { name: /Terminé/ }).last().click()
+    await waitForText(page, /Disponible/, 'the chequing screen after the transfer')
+    await page.getByRole('link', { name: 'Épargne', exact: true }).first().click()
+    await waitForText(page, /Solde/, 'the savings screen after the transfer')
+    await page.waitForTimeout(1200)
+    const after = francs((await page.locator('body').innerText()).match(/Solde.{0,60}/s)?.[0] ?? '')
+    if (after !== before + 25_000) fail(flow, `the savings balance went from ${before} to ${after}; 25 000 F CFA should have arrived`)
   } catch (e) {
     fail(flow, e.message)
   } finally {
@@ -709,7 +772,15 @@ const browser = await chromium.launch(executablePath ? { executablePath } : {})
 
 /** `--only=offline` runs one flow, for when a single path needs the whole log to itself. */
 const ONLY = (process.argv.find((a) => a.startsWith('--only=')) ?? '').slice('--only='.length)
-const run = (name, fn) => (!ONLY || name.includes(ONLY) ? fn(browser) : Promise.resolve())
+/* What actually ran, so the summary at the end reports the run rather than the file. With
+   `--only` it used to print the whole list of flows as passed, which is a false all-clear
+   from the one tool whose job is to tell the truth about what was exercised. */
+const ran = []
+const run = (name, fn) => {
+  if (ONLY && !name.includes(ONLY)) return Promise.resolve()
+  ran.push(name)
+  return fn(browser)
+}
 await run('signUp', signUp)
 await run('buyAShare', buyAShare)
 await run('sellAShare', sellAShare)
@@ -718,6 +789,7 @@ await run('wireTransfer', wireTransfer)
 await run('convert', convert)
 await run('addFunds', addFunds)
 await run('moveToSavings', moveToSavings)
+await run('internalTransfer', internalTransfer)
 await run('receiveCrypto', receiveCrypto)
 await run('freezeTheCard', freezeTheCard)
 await run('createAGoal', createAGoal)
@@ -730,4 +802,4 @@ if (failures.length) {
   console.error(`Flows failed (${failures.length}):\n` + failures.map((f) => '  - ' + f).join('\n'))
   process.exit(1)
 }
-console.log('Flows passed: sign up, buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal, risk, offline, lock.')
+console.log(`Flows passed (${ran.length}): ${ran.join(', ')}.`)

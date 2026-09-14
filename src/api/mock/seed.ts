@@ -484,7 +484,7 @@ export const seedNotifications: AppNotification[] = [
   {
     id: 'ntf_02',
     kind: 'market',
-    title: `SOL en hausse de ${formatPercent(solAsset?.change24hPct ?? 0, { locale: 'fr-SN', signed: false })} aujourd’hui`,
+    title: `SOL en hausse de ${formatPercent(solAsset?.change24hPct ?? 0, { locale: 'fr-SN', signed: false })} sur 24 h`,
     body: `Votre position vaut maintenant ${xof(solValue)}.`,
     date: daysAgo(0, 7, 15),
     read: false,

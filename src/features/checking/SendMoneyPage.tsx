@@ -8,7 +8,7 @@ import { api } from '@/api'
 import { handleField } from './handle'
 import { ApiError, type MoneyMovementResult, type TransferProvider } from '@/api/types'
 import { Button, Field, Icon, ListRow, Money, PageHeader, SegmentedControl } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useAccountId } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useAccountId, useTransaction } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
 import { bicMatchesIban, checkIban, formatIban, isValidBic, normalizeIban, type IbanError } from '@/lib/iban'
 import { QK, useQuery, useSettings } from '@/store'
@@ -22,6 +22,43 @@ const MODES: ReadonlyArray<{ value: Mode; label: string; title: string; eta: str
   { value: 'bancaire', label: 'Bancaire', title: 'Virement bancaire', eta: '1 à 2 jours ouvrables', description: '1 à 2 jours ouvrables, vers une autre institution.' },
 ]
 
+
+/**
+ * The receipt, which follows the transaction rather than freezing on the word « attente ».
+ *
+ * It used to read « En attente · Instantané », which is a contradiction the person is left
+ * holding: the sheet they just confirmed promised the transfer was immediate, and the
+ * screen that follows says it has not happened. The backend settles it a second and a half
+ * later, while they are still looking at this page, and the event is already on the wire —
+ * the screen simply was not listening. `SavingsMovePage` and `TradePage` have always
+ * listened; this flow and the crypto send were the two that did not, and four money flows
+ * in one app cannot report completion two different ways.
+ */
+function SendSuccess({ result, method }: { result: { movement: MoneyMovementResult; recipient: string; amount: number }; method: string }) {
+  const tx = useTransaction(result.movement.transactionId)
+  const settled = tx.data?.status === 'posted'
+  const failed = tx.data?.status === 'failed' || tx.data?.status === 'reversed'
+  return (
+    <SuccessScreen
+      title="Envoi confirmé"
+      hero={<Money value={result.amount} unmasked />}
+      caption={`À ${result.recipient}`}
+      /* While it is pending the delay is the useful half of the status — « quelques
+         minutes » or « 1 à 2 jours ouvrables » is what somebody wants to know. Once it has
+         settled the delay is history, and repeating it beside « Réglé » would read as a
+         wait that is still to come. */
+      status={failed ? 'Échouée' : settled ? 'Réglé' : `En attente · ${result.movement.eta}`}
+      details={[
+        { label: 'Méthode', value: method },
+        { label: 'Frais', value: <Money value={result.movement.fee ?? 0} unmasked /> },
+      ]}
+      primaryLabel="Terminé"
+      primaryTo="/carte"
+      secondaryLabel="Voir la transaction"
+      secondaryTo={`/transactions/${result.movement.transactionId}`}
+    />
+  )
+}
 
 /* Each IBAN failure gets its own sentence. "IBAN invalide" on a number someone has copied
    off a statement tells them nothing about where to look. */
@@ -203,20 +240,7 @@ export default function SendMoneyPage() {
   if (result) {
     return (
       <div className={styles.page}>
-        <SuccessScreen
-          title="Envoi confirmé"
-          hero={<Money value={result.amount} unmasked />}
-          caption={`À ${result.recipient}`}
-          status={`En attente · ${result.movement.eta}`}
-          details={[
-            { label: 'Méthode', value: config.title },
-            { label: 'Frais', value: <Money value={result.movement.fee ?? 0} unmasked /> },
-          ]}
-          primaryLabel="Terminé"
-          primaryTo="/carte"
-          secondaryLabel="Voir la transaction"
-          secondaryTo={`/transactions/${result.movement.transactionId}`}
-        />
+        <SendSuccess result={result} method={config.title} />
       </div>
     )
   }
@@ -376,10 +400,16 @@ export default function SendMoneyPage() {
         hero={<Money value={value} unmasked />}
         heroCaption={`À ${recipientLabel}`}
         lines={[
-          /* On a wire the line under the name is the IBAN, not the operator handle: it is the one thing
-             worth re-reading before the money leaves, and it is what the recipient's bank
-             will act on if the name and the account disagree. */
-          { label: internal ? 'Vers' : 'Destinataire', value: recipientLabel, hint: internal ? undefined : wire ? formatIban(iban) : contact.trim() },
+          /* The destination is already the caption under the amount. This row repeats it
+             only when it can add the thing that actually identifies the account — the IBAN
+             on a wire, the handle on an operator transfer. On an internal transfer there is
+             nothing to add, and « À Compte Épargne » directly above « Vers · Compte
+             Épargne » reads as two different facts until you notice they are one.
+
+             On a wire the line under the name is the IBAN, not the operator handle: it is
+             the one thing worth re-reading before the money leaves, and it is what the
+             recipient's bank acts on if the name and the account disagree. */
+          ...(internal ? [] : [{ label: 'Destinataire', value: recipientLabel, hint: wire ? formatIban(iban) : contact.trim() }]),
           ...(wire ? [{ label: 'BIC / SWIFT', value: bic.trim().toUpperCase() }] : []),
           { label: 'Méthode', value: config.title },
           { label: 'Montant', value: <Money value={value} unmasked /> },

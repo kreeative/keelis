@@ -44,9 +44,16 @@ function AccountCard({ account, to, holdings }: { account: Account; to: string; 
           <Money value={account.balance} currency={account.currency} />
         </span>
         <span className={styles.sub}>
-          {/* Money *and* percent: a percentage on its own does not say whether the move was
-              worth 4 000 F CFA or 400 000. */}
-          {isInvest ? <Delta value={account.change24hPct} amount={account.change24h} suffix="24 h" variant="pill" /> : <MoneyDelta value={account.change24h} suffix="aujourd'hui" />}
+          {/* Money *and* percent on the investment account: a percentage on its own does not
+              say whether the move was worth 4 000 F CFA or 400 000.
+
+              The period is « 24 h » on all three, because that is what `change24h` is — a
+              rolling twenty-four hours, not a calendar day. Two of these cards used to say
+              « aujourd'hui », which reads better and is not true: at nine in the morning it
+              covers most of yesterday. Three cards stacked together also cannot label the
+              same figure two different ways without the reader assuming the difference means
+              something. */}
+          {isInvest ? <Delta value={account.change24hPct} amount={account.change24h} suffix="24 h" variant="pill" /> : <MoneyDelta value={account.change24h} suffix="24 h" />}
         </span>
       </span>
     </Card>
