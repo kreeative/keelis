@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import { api } from '@/api'
 import type { ApiError, RecurringBuy, RecurringFrequency } from '@/api/types'
 import { AmountDisplay, AssetIcon, Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SegmentedControl, SelectField, Sheet, SkeletonRow, Switch } from '@/components'
-import { formatDate, formatMoney, parseAmountInput } from '@/lib/format'
+import { DEFAULT_CURRENCY, formatDate, formatMoney, parseAmountInput, splitMoney } from '@/lib/format'
 import { QK, useMutation, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { FREQUENCIES, FREQUENCY_ORDER, floorTo, formatRate, formatShortDate, monthlyTotal } from './cryptoFormat'
@@ -41,6 +41,8 @@ function RecurringRow({ item, onOpen, onToggle }: { item: RecurringBuy; onOpen: 
 
 export default function RecurringPage() {
   const { locale } = useSettings()
+  // From Intl, never a literal: the app's currency is the franc CFA, not the dollar.
+  const { symbol: currencySymbol } = splitMoney(0, { locale, currency: DEFAULT_CURRENCY })
   const { toast } = useToast()
   const market = useLiveAssets()
   const byId = useMemo(() => new Map((market.assets ?? []).map((a) => [a.id, a] as const)), [market.assets])
@@ -265,7 +267,7 @@ export default function RecurringPage() {
             }}
             hint={`Minimum ${formatMoney(MIN_AMOUNT, { locale })}`}
             error={amountError ?? undefined}
-            trailing={<span className={styles.unit}>$</span>}
+            trailing={<span className={styles.unit}>{currencySymbol}</span>}
           />
           <div className={styles.field}>
             <p className="t-label" id="frequency-label">

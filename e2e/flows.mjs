@@ -206,16 +206,173 @@ async function addFunds(browser) {
   }
 }
 
+
+async function sellAShare(browser) {
+  const flow = 'Vendre une action'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/crypto/sonatel/vendre`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByRole('button', { name: '1', exact: true }), 'the amount keypad')
+    // Sell one share, entered as a quantity rather than an amount.
+    const toggle = page.getByRole('button', { name: /Saisir en quantité|Saisir en francs/ })
+    if ((await toggle.count()) > 0) await toggle.first().click()
+    await keypad(page, ['1'])
+    const cta = page.getByRole('button', { name: /Continuer|Vendre/ }).last()
+    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering one share')
+    await cta.click()
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    await shot(page, 'sell-confirm')
+    await sheet.getByRole('button', { name: /Confirmer|Vendre/ }).last().click()
+    await present(page, page.getByText(/Vente/i), 'the success state')
+    await shot(page, 'sell-done')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function wireTransfer(browser) {
+  const flow = 'Virement bancaire'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/envoyer?mode=bancaire`, { waitUntil: 'domcontentloaded' })
+    // A wire asks for the account holder, not a « destinataire » — the name on the account
+    // is what the receiving bank matches against the IBAN.
+    await present(page, page.getByLabel('Titulaire du compte'), 'the wire form')
+    await page.getByLabel('Titulaire du compte').fill('Moussa Sow')
+    // A published specimen Senegalese IBAN — it has to pass the app's own ISO 13616 check.
+    await page.getByLabel(/IBAN/).first().fill('SN08 SN01 0015 2000 0485 0000 3035')
+    await page.getByLabel(/BIC/).first().fill('CBAOSNDA')
+    await keypad(page, ['1', '0', '0', '0', '0', '0'])
+    await shot(page, 'wire-form')
+    const cta = page.getByRole('button', { name: /Continuer/ }).last()
+    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled with a valid IBAN and BIC')
+    await cta.click()
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    const body = await sheet.first().innerText()
+    // The IBAN is what the receiving bank acts on if the name and the account disagree.
+    if (!/SN08/.test(body.replace(/\s+/g, ''))) fail(flow, 'the confirmation sheet does not repeat the IBAN')
+    await shot(page, 'wire-confirm')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function moveToSavings(browser) {
+  const flow = 'Déposer vers l’Épargne'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/epargne/deposer`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
+    await keypad(page, ['5', '0', '0', '0', '0'])
+    const cta = page.getByRole('button', { name: /Continuer|Déposer/ }).last()
+    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering 50 000')
+    await cta.click()
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    await sheet.getByRole('button', { name: /Confirmer|Déposer/ }).last().click()
+    await present(page, page.getByText(/Dépôt|effectué|confirmé/i), 'the success state')
+    await shot(page, 'savings-done')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function receiveCrypto(browser) {
+  const flow = 'Recevoir de la crypto'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/crypto/btc/recevoir`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByText(/Réseau|Adresse/i), 'the receive screen')
+    await shot(page, 'receive')
+    const body = await page.locator('body').innerText()
+    // An address with no network beside it is how people lose money.
+    if (!/Réseau/i.test(body)) fail(flow, 'the receive screen does not name the network')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function freezeTheCard(browser) {
+  const flow = 'Geler la carte'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/carte`, { waitUntil: 'domcontentloaded' })
+    const toggle = page.getByRole('switch', { name: /Geler/i }).first()
+    await present(page, toggle, 'the freeze switch')
+    const before = await toggle.getAttribute('aria-checked')
+    await toggle.click()
+    await page.waitForTimeout(900)
+    const after = await toggle.getAttribute('aria-checked')
+    if (before === after) fail(flow, `the freeze switch did not change state (stayed ${after})`)
+    await shot(page, 'card-frozen')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function createAGoal(browser) {
+  const flow = 'Créer un objectif'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/epargne/objectifs/nouveau`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByLabel(/Nom/).first(), 'the goal form')
+    await page.getByLabel(/Nom/).first().fill('Rentrée scolaire')
+    const target = page.getByLabel(/Objectif|Montant/).first()
+    await target.fill('500000')
+    await shot(page, 'goal-form')
+    const cta = page.getByRole('button', { name: /Créer|Enregistrer/ }).last()
+    if (await cta.isDisabled()) return fail(flow, 'the create button stayed disabled with a name and a target')
+    await cta.click()
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    await shot(page, 'goal-sheet')
+    // With no monthly contribution there is no date to estimate, and the sheet has to say
+    // so rather than invent one.
+    const summary = await sheet.first().innerText()
+    if (!/Date estimée/.test(summary)) fail(flow, 'the sheet does not mention the estimated date at all')
+    await sheet.getByRole('button', { name: /Créer/ }).last().click()
+    // Landing back on Épargne with the goal in the list is the only proof it was created —
+    // the name is on the form too, so finding the text alone proves nothing.
+    await page.waitForURL((u) => !u.pathname.includes('/nouveau'), { timeout: 8000 }).catch(() => {
+      fail(flow, 'the form did not close after creating the goal')
+    })
+    await present(page, page.getByText('Rentrée scolaire'), 'the new goal in the list')
+    await shot(page, 'goal-done')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
 const executablePath = findChromium()
 const browser = await chromium.launch(executablePath ? { executablePath } : {})
 await buyAShare(browser)
+await sellAShare(browser)
 await sendThroughAnOperator(browser)
+await wireTransfer(browser)
 await convert(browser)
 await addFunds(browser)
+await moveToSavings(browser)
+await receiveCrypto(browser)
+await freezeTheCard(browser)
+await createAGoal(browser)
 await browser.close()
 
 if (failures.length) {
   console.error(`Flows failed (${failures.length}):\n` + failures.map((f) => '  - ' + f).join('\n'))
   process.exit(1)
 }
-console.log('Flows passed: buy, send through an operator, convert, add funds.')
+console.log('Flows passed: buy, sell, send through an operator, wire, convert, add funds, save, receive, freeze, goal.')

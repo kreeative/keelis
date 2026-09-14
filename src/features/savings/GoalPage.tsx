@@ -8,7 +8,7 @@ import { api } from '@/api'
 import type { ApiError, SavingsGoal } from '@/api/types'
 import { AmountDisplay, Button, EmptyState, ErrorState, Field, Icon, Money, PageHeader, ProgressBar, Sheet, Skeleton } from '@/components'
 import { AmountEntry, ConfirmSheet, useGoals, useSavings } from '@/features/shared'
-import { formatDate, formatMoney, parseAmountInput } from '@/lib/format'
+import { DEFAULT_CURRENCY, formatDate, formatMoney, parseAmountInput, splitMoney } from '@/lib/format'
 import { useMutation, useSettings, useToast } from '@/store'
 import {
   dateInMonths,
@@ -48,9 +48,13 @@ function AmountField({
   error?: string
 }) {
   const { locale } = useSettings()
+  /* Never the literal "$". The symbol comes out of Intl for the account's own currency —
+     « F CFA » here, « ₦ » in Lagos — and some locales put it before the digits. Three of
+     these fields printed a dollar sign in an app whose balances are in francs. */
+  const { symbol: sym } = splitMoney(0, { locale, currency: DEFAULT_CURRENCY })
   const symbol = (
     <span className={styles.symbol} aria-hidden="true">
-      $
+      {sym}
     </span>
   )
   return (
@@ -96,7 +100,10 @@ function NewGoal() {
   const errors = {
     name: !name.trim() ? 'Donnez un nom à votre objectif.' : details?.name,
     target: target <= 0 ? 'Entrez un montant supérieur à 0.' : details?.target,
-    monthly: monthly <= 0 ? 'Entrez un versement mensuel.' : details?.monthlyContribution,
+    /* Optional. A monthly amount is what makes the date estimable, not what makes the goal
+       valid — « je mets de côté quand je peux » is how most people save, and refusing to
+       create the goal without a plan is the app telling them they are doing it wrong. */
+    monthly: monthly < 0 ? 'Entrez un versement mensuel valide.' : details?.monthlyContribution,
     initial: free !== undefined && initial > free + 1e-9 ? 'Le dépôt initial dépasse le solde non affecté.' : undefined,
   }
   const valid = !errors.name && !errors.target && !errors.monthly && !errors.initial
