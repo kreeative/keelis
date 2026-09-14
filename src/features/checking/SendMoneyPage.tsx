@@ -68,6 +68,7 @@ export default function SendMoneyPage() {
   const providers = useQuery<TransferProvider[]>(QK.transferProviders, () => api.transfers.providers())
   const operator = providers.data?.find((p) => p.id === params.get('operateur')) ?? null
   const field = handleField(operator?.handle)
+
   /* Switching rails changes what the field *is*. Keeping « nom@exemple.sn » in a box now
      labelled « Numéro de téléphone » would hand the person an error they did not cause. */
   const lastHandle = useRef(operator?.handle)
@@ -99,6 +100,11 @@ export default function SendMoneyPage() {
   const [result, setResult] = useState<{ movement: MoneyMovementResult; recipient: string; amount: number } | null>(null)
 
   const value = useMemo(() => parseAmountInput(amount), [amount])
+  /* The operator's fee — Wave takes 1 %, MoneyGram 2.5 % plus a fixed amount. It used to
+     read « Frais 0 F CFA », under a note claiming none were charged: true of Keewal
+     Meere's own share, and irrelevant to the person paying. */
+  const operatorFee = operator && !internal && !wire ? Math.round(value * operator.feePct) + (operator.feeFixed ?? 0) : 0
+  const debited = value + operatorFee
   const recipientLabel = internal ? 'Compte Épargne' : name.trim() || (wire ? formatIban(iban) : contact.trim())
 
   const setMode = (next: Mode) => {
@@ -151,7 +157,7 @@ export default function SendMoneyPage() {
     if (!(value > 0)) {
       setAmountError('Entrez un montant.')
       ok = false
-    } else if (balance !== undefined && value > balance) {
+    } else if (balance !== undefined && debited > balance) {
       setAmountError('Solde insuffisant sur le compte Chèque.')
       setNeedsFunds(true)
       ok = false
@@ -169,18 +175,19 @@ export default function SendMoneyPage() {
       const movement = await api.transfers.send({
         fromAccountId: account.data.id,
         toAccountId: internal ? savingsId : undefined,
-        recipient: internal ? undefined : { name: name.trim(), email: wire ? undefined : contact.trim(), iban: wire ? normalizeIban(iban) : undefined, bic: wire ? bic.trim().toUpperCase() : undefined },
+        recipient: internal ? undefined : { name: name.trim(), handle: wire ? undefined : contact.trim(), iban: wire ? normalizeIban(iban) : undefined, bic: wire ? bic.trim().toUpperCase() : undefined },
         amount: value,
         note: note.trim() || undefined,
         method: internal ? 'internal' : mode === 'bancaire' ? 'wire' : 'operator',
+        providerId: internal || wire ? undefined : operator?.id,
       })
       setConfirmOpen(false)
       setResult({ movement, recipient: recipientLabel, amount: value })
     } catch (err) {
       const apiErr = err instanceof ApiError ? err : new ApiError('L’envoi n’a pas pu être effectué.', 'unknown')
-      if (apiErr.details?.email) {
+      if (apiErr.details?.handle) {
         setConfirmOpen(false)
-        setContactError(apiErr.details.email)
+        setContactError(apiErr.details.handle)
       } else if (apiErr.code === 'insufficient_funds') {
         setConfirmOpen(false)
         setAmountError(apiErr.message)
@@ -203,7 +210,7 @@ export default function SendMoneyPage() {
           status={`En attente · ${result.movement.eta}`}
           details={[
             { label: 'Méthode', value: config.title },
-            { label: 'Frais', value: <Money value={0} unmasked /> },
+            { label: 'Frais', value: <Money value={result.movement.fee ?? 0} unmasked /> },
           ]}
           primaryLabel="Terminé"
           primaryTo="/carte"
@@ -376,8 +383,8 @@ export default function SendMoneyPage() {
           ...(wire ? [{ label: 'BIC / SWIFT', value: bic.trim().toUpperCase() }] : []),
           { label: 'Méthode', value: config.title },
           { label: 'Montant', value: <Money value={value} unmasked /> },
-          { label: 'Frais', value: <Money value={0} unmasked /> },
-          { label: 'Total', value: <Money value={value} unmasked />, strong: true },
+          { label: operator ? `Frais ${operator.name}` : 'Frais', value: <Money value={operatorFee} unmasked /> },
+          { label: 'Total débité', value: <Money value={debited} unmasked />, strong: true },
           { label: 'Délai', value: config.eta },
         ]}
         note={
@@ -385,7 +392,9 @@ export default function SendMoneyPage() {
             ? 'Rien n’a été débité. Vos informations restent saisies : réessayez une fois la connexion rétablie.'
             : internal
               ? 'Le virement interne est immédiat et sans frais.'
-              : 'Aucuns frais ne sont prélevés par Keewal Meere pour cet envoi.'
+              : operatorFee > 0 && operator
+                ? `Les frais sont ceux de ${operator.name}. Keewal Meere n’en ajoute aucun.`
+                : 'Aucuns frais ne sont prélevés pour cet envoi.'
         }
         confirmLabel="Envoyer"
         onConfirm={() => void submit()}

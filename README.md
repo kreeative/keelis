@@ -66,6 +66,7 @@ pnpm test           # vitest (devises, change, IBAN, pavé numérique, API mock,
 pnpm check:design   # règles statiques : aucune couleur/ombre/dégradé/emoji/texte < 12px hors tokens
 pnpm build && pnpm preview &
 pnpm e2e            # Playwright : captures 320/390/768/1440 × clair/sombre + audit contraste, cibles 44px, débordement
+pnpm e2e:flows      # Playwright : parcours d'argent réels — acheter, envoyer par opérateur, convertir, déposer
 ```
 
 ## Architecture

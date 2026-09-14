@@ -1,0 +1,221 @@
+/**
+ * Walks the money flows the way somebody actually uses them, and fails loudly when one of
+ * them does not complete.
+ *
+ * Screenshots catch what a screen *looks* like on arrival. They cannot catch a button that
+ * stays disabled, a field that rejects what its own label asks for, or a confirmation
+ * sheet that never opens — and those are the defects that matter most in an app that moves
+ * money. This drives the real build in a real browser: sign in, buy a share, send through
+ * an operator, convert, and add funds.
+ *
+ * Usage: node e2e/flows.mjs [--keep] (--keep leaves screenshots of each step in e2e/out/)
+ */
+import { existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
+import { join } from 'node:path'
+import { chromium } from 'playwright-core'
+
+const BASE = process.env.BASE_URL ?? 'http://localhost:4173'
+const KEEP = process.argv.includes('--keep')
+const OUT = new URL('./out/', import.meta.url).pathname
+mkdirSync(OUT, { recursive: true })
+
+function findChromium() {
+  const root = process.env.PLAYWRIGHT_BROWSERS_PATH ?? '/opt/pw-browsers'
+  if (!existsSync(root)) return undefined
+  for (const dir of readdirSync(root)) {
+    if (!dir.startsWith('chromium')) continue
+    for (const candidate of ['chrome-linux/chrome', 'chrome-linux64/chrome', 'chrome']) {
+      const p = join(root, dir, candidate)
+      if (existsSync(p) && statSync(p).isFile()) return p
+    }
+  }
+  return undefined
+}
+
+const DEMO_SESSION = {
+  user: { id: 'usr_01', firstName: 'Aïssatou', lastName: 'Ndiaye', email: 'aissatou.ndiaye@exemple.sn', verified: true, twoFactorEnabled: true, biometricsEnabled: false, pinSet: true, locale: 'fr-SN', createdAt: new Date(Date.now() - 100 * 86400000).toISOString() },
+  token: 'e2e',
+  expiresAt: new Date(Date.now() + 86400000).toISOString(),
+}
+
+const failures = []
+let stepCount = 0
+
+async function shot(page, name) {
+  if (!KEEP) return
+  stepCount += 1
+  await page.screenshot({ path: join(OUT, `flow-${String(stepCount).padStart(2, '0')}-${name}.png`), fullPage: true })
+}
+
+function fail(flow, detail) {
+  failures.push(`${flow}: ${detail}`)
+}
+
+/** Console errors are a failure too — React throwing behind a rendered screen is invisible. */
+function watchConsole(page, flow) {
+  page.on('pageerror', (e) => fail(flow, `uncaught error — ${e.message}`))
+  page.on('console', (m) => {
+    if (m.type() === 'error' && !/favicon|Failed to load resource/.test(m.text())) fail(flow, `console error — ${m.text()}`)
+  })
+}
+
+async function newPage(browser, flow, width = 390) {
+  const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 })
+  await page.addInitScript((s) => {
+    localStorage.setItem('keewal.session', s)
+    localStorage.setItem('keewal.theme', '"light"')
+  }, JSON.stringify(DEMO_SESSION))
+  watchConsole(page, flow)
+  return page
+}
+
+/**
+ * Wait for something to actually be on screen.
+ *
+ * `networkidle` is not enough here: the mock API answers from memory after a simulated
+ * delay, so there is no request to be idle about and the page is still all skeletons when
+ * the navigation resolves. Waiting on the thing itself is the only honest signal — and a
+ * step that fails this way is a flaky test, not a broken app, which is worth keeping
+ * distinct.
+ */
+async function present(page, locator, what, timeout = 8000) {
+  try {
+    await locator.first().waitFor({ state: 'visible', timeout })
+    return true
+  } catch {
+    throw new Error(`${what} never appeared`)
+  }
+}
+
+/** Type an amount on the in-app keypad rather than into a field — there is no field. */
+async function keypad(page, digits) {
+  for (const d of digits) {
+    const key = page.getByRole('button', { name: d === '.' ? 'Virgule' : d, exact: true })
+    if ((await key.count()) === 0) throw new Error(`keypad key ${d} not found`)
+    await key.first().click()
+  }
+}
+
+async function buyAShare(browser) {
+  const flow = 'Acheter une action'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/crypto/sonatel/acheter`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
+    await shot(page, 'buy-open')
+    await keypad(page, ['5', '0', '0', '0', '0'])
+    const cta = page.getByRole('button', { name: /Continuer|Aperçu|Acheter/ }).last()
+    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering 50 000')
+    await cta.click()
+    await shot(page, 'buy-confirm')
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    const body = await sheet.first().innerText()
+    // The spread is the product's promise: stated before the commitment, never buried.
+    if (!/cart|spread|frais/i.test(body)) fail(flow, `the confirmation sheet does not state the spread — it said: ${body.replace(/\s+/g, ' ').slice(0, 160)}`)
+    const confirm = sheet.getByRole('button', { name: /Confirmer|Acheter/ }).last()
+    await confirm.click()
+    await present(page, page.getByText(/Achat effectué/i), 'the success state')
+    await shot(page, 'buy-done')
+    // The quantity on the receipt has to be the quantity the sheet promised.
+    const receipt = await page.locator('body').innerText()
+    if (/\d+\.\d+ SNTS/.test(receipt)) fail(flow, 'a fractional number of shares was bought — SNTS trades in whole units')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function sendThroughAnOperator(browser) {
+  const flow = 'Envoyer par opérateur'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/envoyer/operateurs`, { waitUntil: 'domcontentloaded' })
+    await shot(page, 'operators')
+    const wave = page.getByText('Wave', { exact: true }).first()
+    await present(page, wave, 'Wave on the operators page')
+    await wave.click()
+    await present(page, page.getByLabel('Nom du destinataire'), 'the send form')
+    await shot(page, 'send-form')
+    // The field must be the one Wave actually needs: a phone number.
+    const label = await page.locator('label', { hasText: /Numéro de téléphone|Adresse courriel|Identifiant/ }).first().innerText().catch(() => '')
+    if (!/téléphone/i.test(label)) fail(flow, `after choosing Wave the recipient field asks for « ${label.trim()} », not a phone number`)
+    await page.getByLabel('Nom du destinataire').fill('Amina Diallo')
+    const contact = page.getByLabel(/Numéro de téléphone|Adresse courriel|Identifiant/).first()
+    await contact.fill('+221 77 555 01 48')
+    await keypad(page, ['2', '5', '0', '0', '0'])
+    const cta = page.getByRole('button', { name: /Continuer/ }).last()
+    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled with a name, a phone number and an amount')
+    await cta.click()
+    await shot(page, 'send-confirm')
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    await sheet.getByRole('button', { name: /Confirmer|Envoyer/ }).last().click()
+    await present(page, page.getByText(/envoyé|succès|En route|Terminé/i), 'the success state')
+    await shot(page, 'send-done')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function convert(browser) {
+  const flow = 'Convertir'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/convertir`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByRole('button', { name: '1', exact: true }), 'the amount keypad')
+    await keypad(page, ['1', '0', '0', '0', '0', '0'])
+    await page.waitForTimeout(300)
+    await shot(page, 'convert')
+    const body = await page.locator('body').innerText()
+    // Both rates and the margin, before anything is committed.
+    for (const required of ['Taux du marché', 'Taux appliqué', 'Marge']) {
+      if (!body.includes(required)) fail(flow, `« ${required} » is not shown before confirming`)
+    }
+    if (/\d,\d{2}\s*%/.test(body)) fail(flow, 'a percentage is using a comma decimal — the app uses a point')
+    const cta = page.getByRole('button', { name: /Continuer|Convertir/ }).last()
+    if (await cta.isDisabled()) fail(flow, 'the continue button stayed disabled after entering 100 000')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+async function addFunds(browser) {
+  const flow = 'Ajouter des fonds'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/fonds`, { waitUntil: 'domcontentloaded' })
+    const momo = page.getByText('Mobile Money', { exact: false }).first()
+    await present(page, momo, 'Mobile Money as a funding source')
+    await shot(page, 'funds-source')
+    await momo.click()
+    await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
+    await keypad(page, ['5', '0', '0', '0', '0'])
+    await shot(page, 'funds-amount')
+    const cta = page.getByRole('button', { name: /Continuer|Aperçu/ }).last()
+    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering 50 000')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+const executablePath = findChromium()
+const browser = await chromium.launch(executablePath ? { executablePath } : {})
+await buyAShare(browser)
+await sendThroughAnOperator(browser)
+await convert(browser)
+await addFunds(browser)
+await browser.close()
+
+if (failures.length) {
+  console.error(`Flows failed (${failures.length}):\n` + failures.map((f) => '  - ' + f).join('\n'))
+  process.exit(1)
+}
+console.log('Flows passed: buy, send through an operator, convert, add funds.')

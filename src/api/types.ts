@@ -447,8 +447,21 @@ export interface AddFundsRequest {
 export interface TransferRequest {
   fromAccountId: string
   toAccountId?: string
-  /** An operator reaches a phone, tag or email; a wire reaches bank coordinates. Both carry a name. */
-  recipient?: { name: string; email?: string; iban?: string; bic?: string }
+  /**
+   * The rail this is going out on — Wave, Orange Money, MoneyGram… It was not sent at all:
+   * the picker set it in the URL and the request left without it, so the back-end could
+   * not know which operator to route to, nor whose fee applied. Required when
+   * `method` is `operator`.
+   */
+  providerId?: string
+  /**
+   * `handle` is whatever the chosen operator identifies people by — a phone number for
+   * Mobile Money, a tag for Revolut, an email for Wise. It was called `email`, and the
+   * back-end validated it as one, so a Wave transfer addressed to a phone number was
+   * refused as « Courriel du destinataire invalide » even after the form asked for a
+   * phone. A wire carries bank coordinates instead. Both carry a name.
+   */
+  recipient?: { name: string; handle?: string; iban?: string; bic?: string }
   amount: number
   note?: string
   /**
@@ -460,6 +473,8 @@ export interface TransferRequest {
 }
 
 export interface MoneyMovementResult {
+  /** What the operator charged, in the sending currency. Shown, never buried. */
+  fee?: number
   transactionId: string
   status: TransactionStatus
   eta: string

@@ -90,8 +90,20 @@ export default function TradePage({ side }: { side: Side }) {
   const spread = asset?.spreadPct ?? 0
   const exec = side === 'buy' ? price * (1 + spread) : price * (1 - spread)
   const typed = parseAmountInput(raw)
-  const quantity = mode === 'fiat' ? (exec > 0 ? typed / exec : 0) : typed
-  const total = mode === 'fiat' ? typed : typed * exec
+  /**
+   * The preview has to agree with the order.
+   *
+   * It used to divide the amount by the price and show whatever fell out — « ≈ 1.6976
+   * SNTS » for 50 000 F CFA, with a total of 50 000 on the confirmation sheet — while the
+   * server quoted one whole share for 29 453. The sheet promised one thing and the receipt
+   * delivered another, which is the worst contradiction a money screen can carry. The
+   * asset's own `decimals` decides here exactly as it does there: rounded down on a buy,
+   * and the total recomputed from the quantity actually traded.
+   */
+  const step = 10 ** -decimals
+  const toStep = (n: number, down: boolean) => (down ? Math.floor(n / step + 1e-9) : Math.round(n / step)) * step
+  const quantity = mode === 'fiat' ? (exec > 0 ? toStep(typed / exec, true) : 0) : toStep(typed, false)
+  const total = mode === 'fiat' ? Math.round(quantity * exec * 100) / 100 : Math.round(typed * exec * 100) / 100
   const spreadAmount = Math.abs(exec - price) * quantity
   const minTrade = asset?.minTrade ?? 0
 
@@ -103,6 +115,8 @@ export default function TradePage({ side }: { side: Side }) {
       if (holding && quantity > holding.quantity + 1e-9) return 'Quantité supérieure à vos avoirs'
     }
     if (total < minTrade) return `Montant minimum : ${formatMoney(minTrade, { locale })}`
+    // An indivisible asset needs enough for one whole unit, and the sentence says how much.
+    if (mode === 'fiat' && quantity <= 0) return `${asset?.name ?? symbol} cote ${formatMoney(price, { locale })}. Il faut de quoi en acheter au moins une unité.`
     return null
   })()
   const entryError = serverError?.message ?? clientError
@@ -117,7 +131,15 @@ export default function TradePage({ side }: { side: Side }) {
       : holdings.data
         ? `Disponible : ${formatCrypto(holding?.quantity ?? 0, symbol, { locale })}`
         : undefined
-  const secondary = typed > 0 ? (mode === 'fiat' ? `≈ ${formatCrypto(quantity, symbol, { locale })}` : `≈ ${formatMoney(total, { locale })}`) : available
+  /* On an indivisible asset the quantity is exact, not approximate — and the line says
+     what it will really cost, which is not always what was typed. */
+  const exact = decimals === 0
+  const secondary =
+    typed > 0
+      ? mode === 'fiat'
+        ? `${exact ? '' : '≈ '}${formatCrypto(quantity, symbol, { locale })}${exact && total !== typed ? ` · ${formatMoney(total, { locale })}` : ''}`
+        : `≈ ${formatMoney(total, { locale })}`
+      : available
 
   const onChange = (v: string) => {
     setRaw(v)
@@ -214,7 +236,9 @@ export default function TradePage({ side }: { side: Side }) {
           secondary={secondary}
           onToggleMode={toggleMode}
           error={entryError}
-          presets={mode === 'fiat' ? [25, 50, 100, 250] : undefined}
+          /* Francs, and on the scale of the things being bought: a share of Sonatel is
+             29 190 F CFA, so presets of 25, 50, 100 and 250 bought nothing at all. */
+          presets={mode === 'fiat' ? [25_000, 50_000, 100_000, 250_000] : undefined}
           onMax={onMax}
           maxDecimals={mode === 'fiat' ? 2 : decimals}
           disabled={quoteM.pending}

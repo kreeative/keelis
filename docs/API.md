@@ -160,6 +160,12 @@ Filtres en chaîne de requête, tous facultatifs : `accountId`, `types`, `catego
 | POST | `/crypto/withdrawals/preview` | `CryptoSendPreview` |
 | POST | `/crypto/withdrawals` | `MoneyMovementResult` |
 
+Un actif indivisible se cote en unités entières. `POST /quotes` arrondit la quantité à la
+précision de l'actif (`decimals` : 0 pour une action, 8 pour le bitcoin), **vers le bas** à
+l'achat — personne ne doit être débité de plus qu'il n'a demandé — et recalcule le total à
+partir de la quantité réellement traitée. Un montant qui n'atteint pas une unité entière est
+refusé avec une phrase qui dit le cours.
+
 Le devis porte le prix, l'écart et les frais **explicitement** : l'écran de confirmation les
 affiche séparément avant l'engagement. Un écart caché dans un moins bon prix est un frais
 déguisé, et l'application ne le présente jamais ainsi.
@@ -189,6 +195,16 @@ déguisé, et l'application ne le présente jamais ainsi.
 
 `TransferProvider` porte `available` : un opérateur non encore raccordé reste dans la liste,
 grisé. Savoir qu'il arrive vaut quelque chose ; faire semblant qu'il marche ne vaut rien.
+
+`POST /transfers` porte **`providerId`** quand `method` vaut `operator` : c'est le rail
+emprunté, et c'est lui qui décide des frais. Le destinataire est identifié par `handle` —
+un numéro de téléphone pour le Mobile Money, un identifiant pour Revolut, une adresse
+courriel pour Wise — jamais par un champ nommé `email`. Le back-end **valide `handle` selon
+le `handle` de l'opérateur**, exactement comme le formulaire (`src/lib/transferHandle.ts`).
+
+La réponse porte **`fee`** : ce que l'opérateur a prélevé, dans la devise d'envoi. Le total
+débité est `amount + fee`, et les deux sont affichés avant confirmation. Les frais d'un
+opérateur ne sont pas les nôtres, et la personne qui paie ne fait pas la différence.
 
 ### Notifications
 

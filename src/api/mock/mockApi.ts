@@ -7,6 +7,8 @@
  */
 import { createPrng } from '@/lib/prng'
 import { readJson, remove, writeJson } from '@/lib/storage'
+import { formatMoney } from '@/lib/format'
+import { handleRule } from '@/lib/transferHandle'
 import {
   ApiError,
   type Account,
@@ -95,6 +97,9 @@ async function simulate() {
 function uid(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-4)}`
 }
+
+/** Money inside an error sentence, in the account's own currency. */
+const money = (n: number) => formatMoney(n, { locale: 'fr-SN', currency: 'XOF' })
 
 function round2(n: number) {
   return Math.round(n * 100) / 100
@@ -562,16 +567,40 @@ export const mockApi: KeewalApi = {
       const market = a.price
       const spreadPct = a.spreadPct
       const exec = req.side === 'buy' ? market * (1 + spreadPct) : market * (1 - spreadPct)
+
+      /* **A share of Sonatel is indivisible, and the quote has to say so.**
+       *
+       * This used to divide the amount by the price and hand back whatever fell out —
+       * « 1.6976 SNTS pour 50,000 F CFA » on a market where you buy whole shares. The
+       * asset already declares its own precision (`decimals`: 0 for an equity, 8 for
+       * bitcoin), so the quantity is rounded to it, *down* on a buy: nobody should be
+       * charged for more than they asked for, and the amount that does not fit a whole
+       * share simply is not spent. The total is then recomputed from the quantity actually
+       * traded, so the figure on the confirmation sheet is the figure that leaves the
+       * account. */
+      const step = 10 ** -a.decimals
+      const toStep = (n: number, down: boolean) => {
+        const units = n / step
+        return (down ? Math.floor(units + 1e-9) : Math.round(units)) * step
+      }
       let quantity: number
       let total: number
       if (req.mode === 'fiat') {
-        total = round2(req.amount)
-        quantity = total / exec
+        quantity = toStep(round2(req.amount) / exec, true)
+        total = round2(quantity * exec)
       } else {
-        quantity = req.amount
+        quantity = toStep(req.amount, false)
         total = round2(quantity * exec)
       }
-      if (total < a.minTrade) throw new ApiError(`Montant minimum : ${a.minTrade} $`, 'validation')
+      if (!(quantity > 0)) {
+        throw new ApiError(
+          a.decimals === 0
+            ? `${a.name} cote ${money(market)}. Il faut de quoi acheter au moins une unité entière.`
+            : `Montant trop faible pour ${a.name}.`,
+          'validation',
+        )
+      }
+      if (total < a.minTrade) throw new ApiError(`Montant minimum : ${money(a.minTrade)}`, 'validation')
       if (req.side === 'buy' && total > state.balances.checking) throw new ApiError('Solde insuffisant sur le compte Chèque.', 'insufficient_funds')
       if (req.side === 'sell') {
         const h = state.holdings.find((x) => x.assetId === a.id)
@@ -887,17 +916,33 @@ export const mockApi: KeewalApi = {
       if (state.card.frozen && req.method !== 'internal') {
         // frozen card doesn't block transfers, but keep the code path explicit
       }
-      if (req.amount > state.balances.checking) throw new ApiError('Solde insuffisant sur le compte Chèque.', 'insufficient_funds')
       if (req.method === 'internal') {
+        if (req.amount > state.balances.checking) throw new ApiError('Solde insuffisant sur le compte Chèque.', 'insufficient_funds')
         if (req.toAccountId !== IDS.savings) throw new ApiError('Compte destination non pris en charge.', 'validation')
         return mockApi.savings.deposit(req.amount, IDS.checking)
       }
-      if (!req.recipient?.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(req.recipient.email)) throw new ApiError('Courriel du destinataire invalide.', 'validation', { email: 'Entrez une adresse courriel valide.' })
-      state.balances.checking = round2(state.balances.checking - req.amount)
-      const tx = state.addTransaction({ accountId: IDS.checking, type: req.method === 'wire' ? 'transfer_out' : 'etransfer_out', status: 'pending', amount: -req.amount, counterparty: req.recipient.name || req.recipient.email, category: 'transfer', date: new Date().toISOString(), channel: 'app', note: req.note })
+      const provider = req.method === 'operator' ? seedTransferProviders.find((p) => p.id === req.providerId) : undefined
+      if (req.method === 'operator') {
+        if (!provider) throw new ApiError('Choisissez un opérateur.', 'validation', { providerId: 'Choisissez par quel opérateur envoyer.' })
+        if (!provider.available) throw new ApiError(`${provider.name} n’est pas encore raccordé.`, 'validation')
+      }
+      /* The handle is checked against the rail's own rule — the same rule the form applies,
+         from `lib/transferHandle`. This used to be an email regex whatever the operator
+         was, so a Wave transfer addressed to a phone number was refused outright. */
+      const rule = handleRule(provider?.handle ?? (req.method === 'wire' ? 'account' : 'phone'))
+      const given = req.recipient?.handle ?? ''
+      if (req.method !== 'wire' && !rule.test(given)) throw new ApiError(rule.error, 'validation', { handle: rule.error })
+      /* The operator's fee, stated rather than absorbed. `feeFixed` is what the remittance
+         counters add on top of their percentage. */
+      const fee = provider ? Math.round(req.amount * provider.feePct) + (provider.feeFixed ?? 0) : 0
+      const debit = req.amount + fee
+      if (debit > state.balances.checking) throw new ApiError('Solde insuffisant sur le compte Chèque.', 'insufficient_funds')
+      if (provider && req.amount > provider.limitPerDay) throw new ApiError(`Limite quotidienne ${provider.name} : ${money(provider.limitPerDay)}.`, 'validation')
+      state.balances.checking = round2(state.balances.checking - debit)
+      const tx = state.addTransaction({ accountId: IDS.checking, type: req.method === 'wire' ? 'transfer_out' : 'etransfer_out', status: 'pending', amount: -debit, counterparty: req.recipient?.name || given, category: 'transfer', date: new Date().toISOString(), channel: 'app', note: req.note })
       state.emit({ type: 'accounts' })
       state.settle(tx.id, req.method === 'wire' ? 6_000 : 3_000)
-      return { transactionId: tx.id, status: 'pending', eta: req.method === 'wire' ? '1 à 2 jours ouvrables' : 'Quelques minutes', etaMinutes: req.method === 'wire' ? 1_440 : 15 }
+      return { fee, transactionId: tx.id, status: 'pending', eta: provider?.eta ?? (req.method === 'wire' ? '1 à 2 jours ouvrables' : 'Quelques minutes'), etaMinutes: provider?.etaMinutes ?? (req.method === 'wire' ? 1_440 : 15) }
     },
   },
 

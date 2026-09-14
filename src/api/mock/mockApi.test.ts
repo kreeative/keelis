@@ -15,11 +15,15 @@ beforeEach(() => {
 describe('crypto quotes', () => {
   it('applies the spread explicitly on a buy', async () => {
     const q = await mockApi.crypto.quote({ assetId: 'btc', side: 'buy', mode: 'fiat', amount: 100 })
-    expect(q.total).toBe(100)
     expect(q.executionPrice).toBeGreaterThan(q.marketPrice)
     expect(q.spreadPct).toBe(0.015)
     expect(q.spreadAmount).toBeGreaterThan(0)
-    expect(q.quantity * q.executionPrice).toBeCloseTo(100, 6)
+    // The total is what is actually bought, not what was typed. Bitcoin is divisible to
+    // the satoshi and no further, so a buy lands on a whole number of them and the dust
+    // that does not reach the next one is not charged: at most one satoshi's worth.
+    expect(q.total).toBeLessThanOrEqual(100)
+    expect(q.total).toBeGreaterThan(100 - q.executionPrice * 1e-8 - 0.01)
+    expect(q.quantity * q.executionPrice).toBeCloseTo(q.total, 2)
   })
   it('rejects buys above the checking balance', async () => {
     // Derived from the balance, not a literal: "more than the account holds" is the thing
@@ -39,7 +43,9 @@ describe('crypto quotes', () => {
     const order = await mockApi.crypto.placeOrder(q.id)
     expect(order.status).toBe('pending')
     const after = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!.balance
-    expect(after).toBeCloseTo(before - 50, 2)
+    // Against the quote's own total, not the amount typed: the two differ by the dust that
+    // does not reach a whole unit of the asset, and the account is debited what it bought.
+    expect(after).toBeCloseTo(before - q.total, 2)
     expect(events).toContain('tx:pending')
     await new Promise((r) => setTimeout(r, 60))
     expect(events).toContain('tx:posted')
@@ -127,4 +133,84 @@ describe('auth', () => {
     expect((await mockApi.auth.verifyPin('1234')).ok).toBe(false)
   })
   vi.useRealTimers()
+})
+
+describe('an indivisible asset', () => {
+  it('quotes whole shares, and charges only for them', async () => {
+    // A share of Sonatel cannot be split on the BRVM, and the asset says so itself with
+    // `decimals: 0`. The quote used to divide the amount by the price and hand back
+    // « 1.6976 SNTS » — a quantity no exchange would accept.
+    const q = await mockApi.crypto.quote({ assetId: 'sonatel', side: 'buy', mode: 'fiat', amount: 50_000 })
+    expect(Number.isInteger(q.quantity)).toBe(true)
+    expect(q.quantity).toBe(1)
+    // The total is what actually leaves the account, not what was typed: the francs that
+    // do not buy a whole share are not spent.
+    expect(q.total).toBeLessThan(50_000)
+    expect(q.total).toBeCloseTo(q.quantity * q.executionPrice, 2)
+  })
+
+  it('rounds down rather than up, so nobody is charged for more than they asked', async () => {
+    const q = await mockApi.crypto.quote({ assetId: 'sonatel', side: 'buy', mode: 'fiat', amount: 59_000 })
+    // 59 000 buys two shares at ~29 450 and leaves the rest unspent; it must never round
+    // up to a third and take more than was offered.
+    expect(q.quantity).toBe(2)
+    expect(q.total).toBeLessThanOrEqual(59_000)
+    expect(q.total).toBeGreaterThan(58_000)
+  })
+
+  it('refuses an amount that does not reach one share, and says the price', async () => {
+    const err = await mockApi.crypto
+      .quote({ assetId: 'sonatel', side: 'buy', mode: 'fiat', amount: 5_000 })
+      .catch((e) => e as ApiError)
+    expect(err).toBeInstanceOf(ApiError)
+    expect((err as ApiError).code).toBe('validation')
+    // Its own sentence: "montant invalide" would not tell anyone how much is needed.
+    expect((err as ApiError).message).toMatch(/cote/)
+  })
+
+  it('still lets bitcoin be bought in fractions', async () => {
+    const q = await mockApi.crypto.quote({ assetId: 'btc', side: 'buy', mode: 'fiat', amount: 25_000 })
+    expect(q.quantity).toBeGreaterThan(0)
+    expect(Number.isInteger(q.quantity)).toBe(false)
+  })
+})
+
+describe('sending through an operator', () => {
+  const wave = (over: Record<string, unknown> = {}) => ({
+    fromAccountId: IDS.checking,
+    method: 'operator' as const,
+    providerId: 'wave',
+    recipient: { name: 'Amina Diallo', handle: '+221 77 555 01 48' },
+    amount: 25_000,
+    ...over,
+  })
+
+  it('accepts a phone number on a Mobile Money rail', async () => {
+    // This was refused as « Courriel du destinataire invalide » — the back-end validated
+    // every handle as an email, whatever rail the money was going out on.
+    const r = await mockApi.transfers.send(wave())
+    expect(r.status).toBe('pending')
+  })
+
+  it('charges the operator’s fee and says what it was', async () => {
+    const before = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!.balance
+    const r = await mockApi.transfers.send(wave())
+    // Wave takes 1 %. The fee was reported as zero and never debited.
+    expect(r.fee).toBe(250)
+    const after = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!.balance
+    expect(after).toBeCloseTo(before - 25_250, 2)
+  })
+
+  it('refuses an email where the rail wants a phone number', async () => {
+    await expect(mockApi.transfers.send(wave({ recipient: { name: 'A', handle: 'nom@exemple.sn' } }))).rejects.toMatchObject({ code: 'validation' })
+  })
+
+  it('refuses to send through an operator that is not connected', async () => {
+    // M-Pesa is listed but not yet wired up. Listing it is honest; pretending is not.
+    await expect(mockApi.transfers.send(wave({ providerId: 'mpesa' }))).rejects.toMatchObject({ code: 'validation' })
+  })
+
+  it('refuses a transfer with no operator at all', async () => {
+    await expect(mockApi.transfers.send(wave({ providerId: undefined }))).rejects.toMatchObject({ code: 'validation' })
+  })
 })
