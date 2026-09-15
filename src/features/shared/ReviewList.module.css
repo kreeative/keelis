@@ -1,0 +1,23 @@
+.root { display: flex; flex-direction: column; gap: var(--space-block); }
+
+/* The amount, where the eye lands first. Same anatomy as the confirmation sheet's hero, so
+   the two screens read as one statement rather than two. */
+.hero { text-align: center; }
+.heroValue {
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--ls-numeric);
+  font-weight: var(--fw-numeric);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+}
+.heroCaption {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+}
+.note {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ink-600);
+}

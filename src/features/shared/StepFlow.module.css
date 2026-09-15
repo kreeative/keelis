@@ -1,0 +1,37 @@
+/* One step per screen: its heading, its content, its action. The rhythm is the kit's —
+   `--space-block` from a section's header to its content, `--space-section` between one
+   section and the next when they are grouped on a large screen. */
+.section { margin-top: var(--space-block); }
+.section > h2 { margin-bottom: var(--space-block); }
+.section + .section { margin-top: var(--space-section); }
+
+/* A step's heading uses `.t-section` — the app's one section title, so this cannot drift
+   away from `SectionHeader`. Nothing to declare here but the space under it. */
+
+/* The step's action stays in view.
+   On the amount step the keypad is taller than the screen, so a button in normal flow lands
+   at the fold — measured, it sat half under the floating nav pill on arrival, which is a
+   button you have to scroll to find on the one screen whose whole job is « type, then
+   continue ». Sticky solves it without costing anything on the short steps: `bottom` sticky
+   only engages once the element's natural position would be below the line, so on the
+   méthode screen it still sits right under the options.
+
+   The offset is the pill's own clearance — `pnpm e2e` fails a sticky control that does not
+   have it, which is exactly what this is. The negative inline margin lets the background
+   run to the screen edges so the keypad does not show through beside the button. */
+.footer {
+  position: sticky;
+  bottom: calc(var(--navbar-height) + var(--navbar-gap) * 2 + var(--safe-bottom) + var(--sp-2));
+  z-index: var(--z-sticky);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--space-section);
+  margin-inline: calc(-1 * var(--gutter));
+  padding: var(--sp-3) var(--gutter);
+  background: var(--surface);
+}
+@media (min-width: 768px) {
+  /* No floating pill to clear at this width — the rail is down the side. */
+  .footer { bottom: var(--sp-4); }
+}

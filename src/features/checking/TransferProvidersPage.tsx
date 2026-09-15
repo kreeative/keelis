@@ -11,6 +11,7 @@
  * each one needs, what it costs and how long it takes, and lets the sender decide.
  */
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { TransferProvider } from '@/api/types'
 import { Avatar, Badge, Card, ChipBar, EmptyState, ErrorState, Field, Icon, List, ListRow, PageHeader, SkeletonRow } from '@/components'
@@ -24,6 +25,13 @@ const FAMILY_ORDER: ReadonlyArray<TransferProvider['family']> = ['mobile_money',
 const FILTERS = [{ value: 'all', label: 'Tous' }, ...FAMILY_ORDER.map((f) => ({ value: f, label: TRANSFER_FAMILY_LABEL[f] }))]
 
 export default function TransferProvidersPage() {
+  /* The form's state arrives as the query string and goes back out with it. */
+  const [carried] = useSearchParams()
+  const back = (id: string) => {
+    const p = new URLSearchParams(carried)
+    p.set('operateur', id)
+    return p.toString()
+  }
   const { locale } = useSettings()
   const providers = useQuery<TransferProvider[]>(QK.transferProviders, () => api.transfers.providers())
   const [filter, setFilter] = useState('all')
@@ -89,7 +97,11 @@ export default function TransferProvidersPage() {
                     stack
                     /* An operator that is not connected yet is shown, because knowing it is
                        coming is worth something — but it does not pretend to be tappable. */
-                    to={p.available ? `/envoyer?operateur=${p.id}` : undefined}
+                    /* Back to the form with everything it sent, plus the rail. It used to
+                       link to a bare `/envoyer?operateur=…`, which threw away the name, the
+                       method and the amount the person had already typed — a picker that
+                       costs you the form you opened it from. */
+                    to={p.available ? `/envoyer?${back(p.id)}` : undefined}
                     static={!p.available}
                     leading={<Avatar label={p.name} monogram={p.mark} size={36} />}
                     title={p.name}

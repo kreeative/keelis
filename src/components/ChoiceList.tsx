@@ -22,6 +22,15 @@ export interface ChoiceOption {
   detail?: ReactNode
   detailSub?: ReactNode
   disabled?: boolean
+  /**
+   * Let the subtitle wrap instead of truncating.
+   *
+   * For an option whose secondary line *is* the deciding fact — « Vers Wave, Orange Money,
+   * MoneyGram, Interac et une douzaine d'autres » on the send method — an ellipsis cuts
+   * exactly the part someone is reading in order to choose. Off by default: in a list of
+   * accounts or cards the subtitle is a mask or a balance and one line is right.
+   */
+  wrap?: boolean
   /** Spoken name, when the title is not a plain string */
   label?: string
 }
@@ -83,6 +92,7 @@ export function ChoiceList({ options, value, onChange, label, footer, className 
               disabled={o.disabled}
               onClick={() => onChange(o.value)}
               leading={o.leading}
+              wrap={o.wrap}
               title={o.title}
               subtitle={o.subtitle}
               value={o.detail}

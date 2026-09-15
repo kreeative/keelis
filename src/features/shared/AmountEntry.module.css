@@ -43,7 +43,38 @@
 /* The glyph, not the ink, is what makes this read as a refusal rather than a hint. */
 .error { color: var(--neg); display: flex; align-items: center; justify-content: center; gap: var(--sp-1); }
 .errorIcon { flex-shrink: 0; }
-.presets { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+/* One row that scrolls, not two that wrap.
+   « 5,000 F CFA » chips are wide and three fit across a 390px screen, so five of them
+   wrapped to two rows — 96px on the one screen in the app that is fighting for vertical
+   space. Measured at 390×844 with the keypad on its own step, that second row was exactly
+   what pushed the last key row (·, 0, ⌫) under the sticky « Continuer ».
+
+   Scrolling is the app's own answer to this shape: « more chips than fit on a phone →
+   ChipBar », and the chip half off the edge is the affordance saying there are more. The
+   negative margin lets them run past the gutter so that is visible; `justify-content` only
+   applies when they all fit, which is what happens from 768px. */
+.presets {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  margin-inline: calc(-1 * var(--gutter));
+  padding-inline: var(--gutter);
+  /* `min-width: 0`, or the row does not scroll — it *overflows*. A flex item defaults to
+     `min-width: auto`, which refuses to shrink below its content, so `overflow-x: auto` had
+     nothing to clip and the chips pushed the page sideways instead. Measured: the row
+     reported clientWidth 580 inside a 390px screen. */
+  min-width: 0;
+  max-width: calc(100% + var(--gutter) * 2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.presets::-webkit-scrollbar { display: none; }
+/* No scroll-snap: with the gutter as scroll padding it snapped the first chip flush to the
+   screen edge (scrollLeft settled at 16 rather than 0), and five quick amounts are a row to
+   glance along, not a carousel to page through. */
+.chip { flex-shrink: 0; }
 .chip {
   min-height: var(--tap);
   padding-inline: var(--sp-4);
@@ -59,4 +90,6 @@
 .chip:disabled { opacity: 0.45; cursor: not-allowed; }
 @media (min-width: 768px) {
   .wrap { max-width: 420px; margin-inline: auto; }
+  /* They all fit here, so they centre and stop bleeding past the gutter. */
+  .presets { flex-wrap: wrap; justify-content: center; margin-inline: 0; padding-inline: 0; overflow-x: visible; }
 }

@@ -178,6 +178,42 @@ async function keypad(page, digits) {
   }
 }
 
+/**
+ * Advance a stepped money flow by one screen.
+ *
+ * Every flow is now a wizard — one step per screen, the keypad alone on its own, then the
+ * aperçu — so a walker that filled one form and pressed one button no longer describes what
+ * anybody does.
+ *
+ * Scoped to `<main>` on purpose. The confirmation sheet portals to `document.body`, outside
+ * it, and the aperçu's button and the sheet's button both say « Envoyer » — clicking the
+ * wrong one is a pass that proves nothing.
+ *
+ * Returns the step it landed on, read off the « Étape N sur M » eyebrow, so a caller can
+ * assert it actually moved rather than trusting the click.
+ */
+async function advance(page, name = /Continuer|Envoyer|Convertir|Acheter|Vendre|Déposer|Retirer|Confirmer/) {
+  const button = page.locator('main').getByRole('button', { name }).last()
+  if ((await button.count()) === 0) throw new Error(`no step action matching ${name}`)
+  if (await button.isDisabled()) throw new Error(`the step action stayed disabled on step ${(await stepNumber(page)) ?? '?'}`)
+  await button.click()
+  await page.waitForTimeout(350)
+  return stepNumber(page)
+}
+
+/**
+ * « Étape 3 sur 4 » → 3. Null when the flow is not stepped — grouped at ≥1024px, or done.
+ *
+ * Case-insensitive, because `innerText()` returns what is *rendered* and `.t-label` is
+ * uppercased in CSS: the eyebrow reads « ÉTAPE 1 SUR 4 » to this regex, and a case-sensitive
+ * one matched nothing and reported every step as null.
+ */
+async function stepNumber(page) {
+  const text = await page.locator('header .t-label').first().innerText().catch(() => '')
+  const m = /étape\s+(\d+)\s+sur\s+(\d+)/i.exec(text)
+  return m ? Number(m[1]) : null
+}
+
 async function buyAShare(browser) {
   const flow = 'Acheter une action'
   const page = await newPage(browser, flow)
@@ -218,7 +254,14 @@ async function sendThroughAnOperator(browser) {
     const wave = page.getByText('Wave', { exact: true }).first()
     await present(page, wave, 'Wave on the operators page')
     await wave.click()
-    await present(page, page.getByLabel('Nom du destinataire'), 'the send form')
+    /* Choosing a rail lands back on the flow's *method* step, with Wave already set. Step
+       one is the three methods; the default is a transfer, so this only has to continue. */
+    await present(page, page.getByText('Virement interne'), 'the method step')
+    if ((await stepNumber(page)) !== 1) fail(flow, `choosing an operator landed on step ${await stepNumber(page)}, not step 1`)
+    await shot(page, 'send-method')
+    if ((await advance(page)) !== 2) return fail(flow, 'the method step did not lead to the recipient')
+
+    await present(page, page.getByLabel('Nom du destinataire'), 'the recipient step')
     await shot(page, 'send-form')
     // The field must be the one Wave actually needs: a phone number.
     const label = await page.locator('label', { hasText: /Numéro de téléphone|Adresse courriel|Identifiant/ }).first().innerText().catch(() => '')
@@ -226,10 +269,23 @@ async function sendThroughAnOperator(browser) {
     await page.getByLabel('Nom du destinataire').fill('Amina Diallo')
     const contact = page.getByLabel(/Numéro de téléphone|Adresse courriel|Identifiant/).first()
     await contact.fill('+221 77 555 01 48')
+    if ((await advance(page)) !== 3) return fail(flow, 'the recipient step did not lead to the amount')
+
+    /* The keypad screen, and nothing else on it: that is the whole point of the flow being
+       stepped, so check it rather than assume it. */
+    await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
+    if (await page.getByLabel('Nom du destinataire').count()) fail(flow, 'the recipient form is on screen with the keypad')
     await keypad(page, ['2', '5', '0', '0', '0'])
-    const cta = page.getByRole('button', { name: /Continuer/ }).last()
-    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled with a name, a phone number and an amount')
-    await cta.click()
+    await shot(page, 'send-amount')
+    if ((await advance(page)) !== 4) return fail(flow, 'the amount step did not lead to the aperçu')
+
+    /* The aperçu says the same thing the sheet will. Both are built from one array. */
+    const preview = await page.locator('main').innerText()
+    for (const required of ['Total débité', 'Frais']) {
+      if (!preview.includes(required)) fail(flow, `« ${required} » is missing from the aperçu`)
+    }
+    await shot(page, 'send-review')
+    await advance(page, /Envoyer/)
     await shot(page, 'send-confirm')
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
@@ -370,16 +426,19 @@ async function wireTransfer(browser) {
     await page.goto(`${BASE}/envoyer?mode=bancaire`, { waitUntil: 'domcontentloaded' })
     // A wire asks for the account holder, not a « destinataire » — the name on the account
     // is what the receiving bank matches against the IBAN.
+    // `?mode=bancaire` selects the method; step one is still the picker, so continue past it.
+    await present(page, page.getByText('Virement bancaire'), 'the method step')
+    await advance(page)
     await present(page, page.getByLabel('Titulaire du compte'), 'the wire form')
     await page.getByLabel('Titulaire du compte').fill('Moussa Sow')
     // A published specimen Senegalese IBAN — it has to pass the app's own ISO 13616 check.
     await page.getByLabel(/IBAN/).first().fill('SN08 SN01 0015 2000 0485 0000 3035')
     await page.getByLabel(/BIC/).first().fill('CBAOSNDA')
-    await keypad(page, ['1', '0', '0', '0', '0', '0'])
     await shot(page, 'wire-form')
-    const cta = page.getByRole('button', { name: /Continuer/ }).last()
-    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled with a valid IBAN and BIC')
-    await cta.click()
+    if ((await advance(page)) !== 3) return fail(flow, 'the wire form did not lead to the amount with a valid IBAN and BIC')
+    await keypad(page, ['1', '0', '0', '0', '0', '0'])
+    if ((await advance(page)) !== 4) return fail(flow, 'the amount step did not lead to the aperçu')
+    await advance(page, /Envoyer/)
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
     const body = await sheet.first().innerText()
@@ -440,11 +499,15 @@ async function internalTransfer(browser) {
     await page.getByRole('link', { name: 'Carte', exact: true }).first().click()
     await waitForText(page, /Disponible/, 'the chequing screen')
     await page.getByRole('link', { name: /Virement/ }).first().click()
+    /* Three steps here, not four: an internal transfer has no recipient to fill in, so the
+       flow skips that screen and the counter says « sur 3 ». */
+    await present(page, page.getByText('Virement interne'), 'the method step')
+    await page.getByText('Virement interne').first().click()
+    if ((await advance(page)) !== 2) return fail(flow, 'choosing « Virement interne » did not lead straight to the amount — the recipient step should be skipped')
     await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
     await keypad(page, ['2', '5', '0', '0', '0'])
-
-    const cta = page.getByRole('button', { name: /Continuer/ }).last()
-    if (!(await clickWhenEnabled(page, cta, 'the continue button'))) return fail(flow, 'the continue button never became enabled after entering 25 000')
+    if ((await advance(page)) !== 3) return fail(flow, 'the amount step did not lead to the aperçu')
+    await advance(page, /Envoyer/)
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
 

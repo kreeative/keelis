@@ -9,8 +9,12 @@ export interface PageHeaderProps {
   title?: ReactNode
   /** Small label above the title */
   eyebrow?: string
-  /** Back button target; -1 = history back */
-  back?: string | -1
+  /**
+   * Back button target; -1 = history back. A function is a back that stays on the page —
+   * `StepFlow` needs one, because inside a stepped flow « back » means the previous step
+   * and leaving the route would throw away everything typed on the way here.
+   */
+  back?: string | -1 | (() => void)
   /** Close (X) instead of back arrow */
   close?: boolean
   actions?: ReactNode
@@ -28,7 +32,7 @@ export function PageHeader({ title, eyebrow, back, close = false, actions, level
     <header className={cn(styles.header, className)}>
       <div className={styles.bar}>
         {back !== undefined ? (
-          <Button variant="ghost" iconOnly aria-label={close ? 'Fermer' : 'Retour'} onClick={() => (back === -1 ? navigate(-1) : navigate(back))} className={styles.back}>
+          <Button variant="ghost" iconOnly aria-label={close ? 'Fermer' : 'Retour'} onClick={() => (typeof back === 'function' ? back() : back === -1 ? navigate(-1) : navigate(back))} className={styles.back}>
             <Icon name={close ? 'x' : 'arrow-left'} />
           </Button>
         ) : (
