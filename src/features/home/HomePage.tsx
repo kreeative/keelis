@@ -71,25 +71,21 @@ export default function HomePage() {
     <div className={styles.page}>
       <div className={styles.layout}>
         <div className={styles.main}>
-          <header className={styles.head}>
-            <h1 className={`t-h2 ${styles.greeting}`}>{hello}</h1>
-            <div className={styles.headActions}>
-              <Button variant="secondary" icon={<Icon name="plus" size={18} />} onClick={() => navigate('/fonds')}>
-                Ajouter des fonds
-              </Button>
-              <Button variant="secondary" icon={<Icon name="send" size={18} />} onClick={() => navigate('/envoyer')} className={styles.headSend}>
-                Envoyer
-              </Button>
-            </div>
-          </header>
-
           {/* The canvas: a dark island that holds the balance, the two actions people
               actually take, and the curve. It redefines the tokens its children read, so
               everything inside behaves as it would on a dark theme. */}
           <section className={styles.canvas} aria-busy={accounts.loading || undefined}>
             {/* The bar lives on the canvas, not above it: the bell and the avatar belong
-                to the dark ground. Below 768px it carries the greeting; from there up the
-                rail carries those links and the greeting is the page's own heading. */}
+                to the dark ground. From 768px the rail carries those two links and the bar
+                keeps only the greeting, which is the page's heading at every width.
+
+                There used to be a second copy of the greeting in a desktop-only <header>
+                above the canvas, with « Ajouter des fonds » and « Envoyer » beside it — and
+                none of the three was ever visible: `.canvas::before` carries the canvas
+                colour 100vh up past its own top edge so an iOS overscroll shows more canvas
+                instead of a seam, and being positioned it paints over a static sibling. Two
+                buttons that were focusable, clickable and invisible, duplicating the two at
+                the canvas's foot. */}
             <AppBar title={hello} className={styles.canvasBar} />
 
             <div className={styles.heroTop}>

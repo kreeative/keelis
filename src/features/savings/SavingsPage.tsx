@@ -8,7 +8,7 @@ import { api } from '@/api'
 import type { ChartRange, PriceHistory, PricePoint, SavingsGoal } from '@/api/types'
 import { AmountDisplay, AppBar, Button, Card, Chart, EmptyState, ErrorState, Icon, List, Money, ProgressBar, QuickActions, SectionHeader, SegmentedControl, Skeleton, SkeletonRow } from '@/components'
 import { TransactionRow, useAccount, useAccountId, useGoals, useSavings, useTransactions } from '@/features/shared'
-import { MASKED, formatDate, formatDateTime, formatMoney } from '@/lib/format'
+import { MASKED, formatDate, formatDateTime, formatMoney, moneyAriaLabel, moneyPair } from '@/lib/format'
 import { QK, useQuery, useSettings } from '@/store'
 import { formatMonthYear, formatWholePercent, goalPercent, goalProgress, inlineMoney, unallocated } from './savingsUtils'
 import { useMediaQuery } from './hooks'
@@ -51,6 +51,7 @@ function StatsPanel({ thisMonth, allTime, failed }: { thisMonth: number | undefi
 function GoalCard({ goal }: { goal: SavingsGoal }) {
   const { locale, hidden } = useSettings()
   const pct = goalPercent(goal.current, goal.target)
+  const pair = moneyPair(goal.current, goal.target, hidden, { locale })
   const meta = [
     formatWholePercent(pct, locale),
     `${inlineMoney(goal.monthlyContribution, hidden, { locale })} par mois`,
@@ -61,10 +62,11 @@ function GoalCard({ goal }: { goal: SavingsGoal }) {
       <span className={styles.goalInner}>
         <span className={styles.goalTop}>
           <span className={styles.goalName}>{goal.name}</span>
-          <span className={styles.goalAmount}>
-            <Money value={goal.current} />
-            <span className={styles.goalTarget}> / </span>
-            <Money value={goal.target} className={styles.goalTarget} />
+          {/* One currency, one symbol — see `moneyPair`. The label is spelled out, because
+              « 1,850,000 / 3,000,000 F CFA » read aloud is two bare numbers and a unit. */}
+          <span className={styles.goalAmount} aria-label={`${moneyAriaLabel(goal.current, { locale })} sur ${moneyAriaLabel(goal.target, { locale })}`}>
+            {pair.first}
+            <span className={styles.goalTarget}> / {pair.second}</span>
           </span>
         </span>
         <ProgressBar value={goalProgress(goal.current, goal.target)} label={`${goal.name} : ${pct} %`} />

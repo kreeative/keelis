@@ -49,7 +49,25 @@
   letter-spacing: 0.02em;
 }
 
-/* From 768px the rail carries the bell, the theme switch and the profile. */
+/* From 768px the rail carries the bell, the theme switch and the profile — so the two
+   round buttons go, and the **name stays**.
+
+   The whole bar used to go with them, and it took the screen's name with it: at 1440px
+   /carte, /crypto and /epargne opened on a balance with nothing anywhere saying which
+   account it belonged to, and the document had no visible <h1> at all. The rail's lit icon
+   is not a substitute — it is 20px of outline with the name only in an aria-label. Left-
+   aligned here rather than centred: a centred title between two buttons is a phone's top
+   bar, and with the buttons gone there is nothing to centre it between. */
 @media (min-width: 768px) {
-  .bar { display: none; }
+  .bar {
+    margin-bottom: var(--space-block);
+  }
+  .button,
+  .end {
+    display: none;
+  }
+  .title {
+    flex: 0 1 auto;
+    text-align: start;
+  }
 }

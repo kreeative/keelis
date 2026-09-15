@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatNumber, formatPercent, moneyAriaLabel, parseAmountInput, splitMoney } from './format'
+import { MASKED, maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatNumber, formatPercent, moneyAriaLabel, moneyPair, parseAmountInput, splitMoney } from './format'
 
 const norm = (v: string) => v.replace(/[\u202f\u00a0]/g, ' ')
 
@@ -177,5 +177,28 @@ describe('compact money', () => {
   it('carries the sign on a negative', () => {
     expect(xof(-12_345_678_901)).toContain(`12.3${NB}Md`)
     expect(xof(-12_345_678_901).startsWith('-')).toBe(true)
+  })
+})
+
+describe('moneyPair', () => {
+  it('writes the currency once, at the end, where the locale puts it at the end', () => {
+    const { first, second } = moneyPair(1_850_000, 3_000_000, false, { locale: 'fr-SN', currency: 'XOF' })
+    expect(first).toBe('1,850,000')
+    expect(second).toBe(formatMoney(3_000_000, { locale: 'fr-SN', currency: 'XOF' }))
+    // and never twice — this is the whole point of the helper
+    expect(`${first} / ${second}`.match(/CFA/g)?.length).toBe(1)
+  })
+
+  it('writes it once at the *front* where the locale puts it at the front', () => {
+    const { first, second } = moneyPair(1_850_000, 3_000_000, false, { locale: 'en-NG', currency: 'NGN' })
+    expect(first).toBe(formatMoney(1_850_000, { locale: 'en-NG', currency: 'NGN' }))
+    expect(first.startsWith('\u20a6')).toBe(true)
+    expect(second).toBe('3,000,000')
+  })
+
+  it('keeps the symbol on exactly one side when masked, too', () => {
+    const { first, second } = moneyPair(1, 2, true, { locale: 'fr-SN', currency: 'XOF' })
+    expect(first).toBe(MASKED)
+    expect(second).toBe(maskedMoney({ locale: 'fr-SN', currency: 'XOF' }))
   })
 })

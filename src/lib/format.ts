@@ -203,6 +203,28 @@ export function splitMoney(value: number, opts: MoneyOptions = {}): { number: st
   return { number: joinParts(rest, locale).trim(), symbol, prefix: symbolIndex === 0 }
 }
 
+/**
+ * Two amounts in the same currency written as a pair — « 1,850,000 / 3,000,000 F CFA ».
+ *
+ * The currency is stated **once**, on the side the locale puts it: a suffix locale closes
+ * the pair with it, a prefix locale opens with it. Repeating it says the same word twice
+ * about the same money, and it is not free. Measured on the savings goal card in the 340px
+ * desktop aside: « 1,850,000 F CFA / 3,000,000 F CFA » takes 210px of the 328px line, and
+ * the 38px the second « F CFA » spends comes out of the goal's *name* — the one thing on
+ * that card the person wrote themselves. « Fonds d’urgence » rendered as « Fonds d’… ».
+ *
+ * Both sides go through the ordinary formatters — `formatMoney` for the side that keeps
+ * the symbol, `splitMoney` for the bare digits — so a pair cannot punctuate itself
+ * differently from every other figure on the screen.
+ */
+export function moneyPair(a: number, b: number, hidden: boolean, opts: MoneyOptions = {}): { first: string; second: string } {
+  const { prefix } = splitMoney(0, opts)
+  if (hidden) return prefix ? { first: maskedMoney(opts), second: MASKED } : { first: MASKED, second: maskedMoney(opts) }
+  return prefix
+    ? { first: formatMoney(a, opts), second: splitMoney(b, opts).number }
+    : { first: splitMoney(a, opts).number, second: formatMoney(b, opts) }
+}
+
 /** Plain number, e.g. 12 345,6 */
 export function formatNumber(value: number, opts: { locale?: Locale; maxFraction?: number; minFraction?: number; signed?: boolean } = {}): string {
   const locale = opts.locale ?? currentLocale
