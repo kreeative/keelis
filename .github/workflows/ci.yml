@@ -47,6 +47,8 @@ jobs:
         run: pnpm check:design
       - name: Motion tokens match the spring equation
         run: pnpm check:springs
+      - name: Brand marks match the artwork they are tinted from
+        run: pnpm check:marks
       - name: Build
         run: pnpm build
 

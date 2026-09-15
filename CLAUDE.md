@@ -30,7 +30,7 @@ and the old wordmark only escaped that by shipping as outlines rather than as ty
   away. `public/brand/mark-ink.png` and `mark-paper.png` are the sheet's own two versions,
   **tinted into the palette**: both exports were pure greyscale, which was invisible while
   the app was monochrome and read as a cold patch once it turned warm — the same failure the
-  token guard now catches for `oklch(L 0 0)`. `scripts/tint-mark.py` maps each grey to the
+  token guard now catches for `oklch(L 0 0)`. `scripts/tint-mark.mjs` maps each grey to the
   same *lightness* in the warm family, so the emboss is untouched (measured: a maximum
   luminance shift of 0.006 and identical alpha) and only the hue moves. The greyscale
   exports stay in `brand-src/`, which is not served, so a different warmth is one edit and a
@@ -48,7 +48,8 @@ and the old wordmark only escaped that by shipping as outlines rather than as ty
 
 ## Commands
 - `pnpm dev` — dev server · `pnpm build` — typecheck + build · `pnpm preview` — serve `dist/` on :4173
-- `pnpm typecheck` · `pnpm test` (vitest) · `pnpm check:design` (static design-rule check) · `pnpm check:springs` (the easings still match the spring equation that generated them) · `pnpm check` (all four)
+- `pnpm typecheck` · `pnpm test` (vitest) · `pnpm check:design` (static design-rule check) · `pnpm check:springs` (the easings still match the spring equation that generated them) · `pnpm check:marks` (the brand discs still match the artwork they are tinted from) · `pnpm check` (all five)
+- **The repository is JavaScript and TypeScript, and nothing else.** `scripts/tint-mark.mjs` was Python — Pillow and numpy — for one 85-line script: a second toolchain and a second set of packages, in a repo that is otherwise entirely TS. It is Node with no dependencies now (`node:zlib` plus the PNG filtering, since the artwork is 8-bit RGBA and not interlaced), and it produces the committed discs byte-identically — verified pixel by pixel against the Python's output, 0 differing bytes of 102,400. Do not reach for a second language for a build step.
 - `pnpm e2e` — Playwright screenshots + runtime audit (contrast, tap targets, overflow, shadows, and any **sticky** control left under the floating nav) against the preview server. Takes `--routes=`, `--widths=`, `--themes=` and `--no-shots` to narrow a run.
 - `pnpm e2e:motion` — **measures the motion**, which is the one thing a screenshot cannot see at all: that the easings overshoot (a spring that never passes 1 is a bezier in a costume), that a sheet arrives *and leaves*, that the page behind it recedes without taking the floating nav off the bottom of the screen, that closing it hands the scroll back, and that a screen arrives from the direction you actually went.
 - `pnpm e2e:flows` — **drives the money flows in a real browser**: buy a share, send through an operator, convert, add funds. Screenshots catch what a screen looks like on arrival; they cannot catch a button that stays disabled, a field that rejects what its own label asks for, or a back-end that refuses a phone number because it validates every handle as an email. All three of those were live defects this found.

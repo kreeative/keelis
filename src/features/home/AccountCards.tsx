@@ -21,8 +21,8 @@
  * regulated security on a local exchange, the other is not.
  */
 import type { Account, AccountKind } from '@/api/types'
-import { Badge, Card, Money, Skeleton } from '@/components'
-import { formatPercent, formatRate } from '@/lib/format'
+import { Card, Money, Skeleton } from '@/components'
+import { formatPercent } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { useSettings } from '@/store'
 import styles from './AccountCards.module.css'
@@ -58,13 +58,18 @@ function AccountCard({ account, to }: { account: Account; to: string }) {
           <span className={styles.balance}>
             <Money value={account.balance} currency={account.currency} compact />
           </span>
-          {/* The second line of the right column: a rate for Épargne, a direction for the two
-              investment accounts, nothing for Chèque. Direction is a sign and a colour and
+          {/* The second line of the right column: a direction for the two investment
+              accounts, nothing for the two cash ones. Direction is a sign and a colour and
               nothing else — the money figure that used to accompany it repeated the
-              percentage in another unit. */}
-          {account.kind === 'savings' && account.apy !== undefined ? (
-            <Badge>{formatRate(account.apy, locale)} par an</Badge>
-          ) : invests ? (
+              percentage in another unit.
+
+              Épargne used to carry a « 4,00 % par an » badge here and the owner asked for
+              it to go. It was the only thing on any row that was not this account's own
+              money: a rate is a property of the product, identical on every visit, and it
+              sat where the eye goes for the balance. It is still said where it is being
+              acted on — the deposit preview computes what a deposit earns at that rate, in
+              a sentence, at the moment somebody is deciding. */}
+          {invests ? (
             <span className={cn(styles.change, up ? styles.up : styles.down)}>{formatPercent(account.change24hPct, { locale, signed: true })}</span>
           ) : null}
         </span>
