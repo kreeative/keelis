@@ -6,7 +6,7 @@
 
 .topbar {
   position: sticky;
-  top: 0;
+  top: var(--safe-top);
   z-index: 20;
   background: var(--surface);
   border-bottom: 1px solid var(--line);
@@ -37,7 +37,7 @@
    measurements the reference kit uses for its own component pages. */
 .page {
   padding-inline: var(--gutter);
-  padding-block: var(--sp-5) var(--sp-7);
+  padding-block: var(--page-top) var(--sp-7);
   max-width: var(--doc-max);
   margin-inline: 0;
   width: 100%;

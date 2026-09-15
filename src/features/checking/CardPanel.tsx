@@ -160,6 +160,11 @@ export function CardPanel({ className }: { className?: string }) {
         {card ? (
           <ListRow
             title="Geler la carte"
+            /* `wrap`, because the sentence is the whole point of the row: a switch that
+               freezes a card has to say what freezing does, and truncated it read « Bloque
+               les paiements instantané… ». It needs 258px and the row gives it 238 at 390px
+               and 168 at 320 — cut at every width the app supports. */
+            wrap
             subtitle="Bloque les paiements instantanément"
             leading={
               <span className={styles.freezeIcon} aria-hidden="true">

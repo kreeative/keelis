@@ -2,11 +2,11 @@
    28px preview row, a hand-rolled fee list — existed because the keypad and the aperçu were
    fighting for one screen at 390×844. They are two screens now, so the cramming is gone and
    the rows come from `ReviewList` like every other flow's. */
-:global(.page).move { padding-block: var(--sp-3) var(--sp-4); }
+:global(.page).move { padding-block: calc(var(--safe-top) + var(--sp-3)) var(--sp-4); }
 
 @media (min-width: 768px) {
   :global(.page).move {
     max-width: calc(480px + 2 * var(--gutter));
-    padding-block: var(--sp-5) var(--sp-7);
+    padding-block: var(--page-top) var(--sp-7);
   }
 }

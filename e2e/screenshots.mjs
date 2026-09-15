@@ -220,6 +220,54 @@ function auditScript() {
   return out
 }
 
+/**
+ * Nothing sits under the notch.
+ *
+ * `env(safe-area-inset-top)` is 0 in headless Chromium, and 47–59px on the phones this app
+ * is for — so every page but Accueil started its content 24px from the top with no
+ * allowance, and the virtual card, the page titles and the AppBar all sat under the clock
+ * and the battery. Not one check here could see it. It took a photograph of a real phone.
+ *
+ * So the inset is *simulated*: the token is overridden to a real iPhone's value and the
+ * page is asked what is now in the band. Anything a person reads or touches must be below
+ * it. A background may bleed up through — Accueil's dark canvas is supposed to run behind
+ * the status bar — so this looks only at text and controls.
+ */
+const NOTCH = 47
+
+async function notchViolations(page) {
+  const tag = await page.addStyleTag({
+    content: `:root { --safe-top: ${NOTCH}px !important; --safe-bottom: 34px !important; }`,
+  })
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.waitForTimeout(250)
+  const found = await page.evaluate((inset) => {
+    const out = []
+    const seen = new Set()
+    for (const el of document.querySelectorAll('a,button,input,select,textarea,h1,h2,h3,p,span,li,[role="button"]')) {
+      const cs = getComputedStyle(el)
+      if (cs.visibility === 'hidden' || cs.display === 'none' || cs.position === 'fixed') continue
+      const text = Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim())
+      const control = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName) || el.getAttribute('role') === 'button'
+      if (!text && !control) continue
+      const r = el.getBoundingClientRect()
+      if (r.width < 2 || r.height < 2) continue
+      /* Entirely above the viewport is off-screen, not covered: the skip link parks itself
+         at `top: -100px` until it is focused, which is the whole point of it. */
+      if (r.bottom <= 0) continue
+      // Its *middle* under the inset: a box whose top edge grazes it is not covered.
+      if (r.top + r.height / 2 >= inset) continue
+      const name = (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 32)
+      if (seen.has(name)) continue
+      seen.add(name)
+      out.push({ kind: 'under-notch', detail: `"${name}" sits under the status bar (its middle is ${Math.round(r.top + r.height / 2)}px, the inset is ${inset}px)` })
+    }
+    return out
+  }, NOTCH)
+  await tag.evaluate((node) => node.remove())
+  return found
+}
+
 const exe = findChromium()
 const browser = await chromium.launch({ executablePath: exe, headless: true })
 const summary = []
@@ -265,6 +313,8 @@ try {
           await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), null, { timeout: 5000 }).catch(() => {})
           await page.waitForTimeout(300)
           const violations = await page.evaluate(auditScript)
+          /* A notch is a phone thing; a 1440px window has no status bar over the page. */
+          if (width < 768) violations.push(...(await notchViolations(page)))
           const name = (route === '/' ? 'home' : route.replace(/^\//, '').replace(/[\/:]/g, '_')) + `-${width}-${theme}`
           if (SHOTS) await page.screenshot({ path: join(OUT, name + '.png'), fullPage: true })
           total += violations.length

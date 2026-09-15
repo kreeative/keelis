@@ -2,6 +2,9 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  /* The notch: the progress bar is the first thing on this screen and it is sticky, so
+     without this it sits under the clock on every step of signing up. */
+  padding-top: var(--safe-top);
   background: var(--surface);
 }
 .progress {

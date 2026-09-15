@@ -232,6 +232,14 @@
   --navbar-gap: 12px;      /* space between the pill and the screen edge */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
+  /* A page's own top padding, notch included.
+     Every page but Accueil started its content 24px from the top with no safe-area
+     allowance, so on a notched phone the first thing on the screen — the virtual card, a
+     page title, an AppBar — sat under the clock and the battery. It is invisible to every
+     check the app has, because headless Chromium reports `env(safe-area-inset-top)` as 0;
+     it took a photograph of a real phone. Accueil is the exception and always was: its dark
+     canvas bleeds up *through* this padding on purpose and pads itself instead. */
+  --page-top: calc(var(--safe-top) + var(--sp-5));
 
   /* ---- Radii ---- */
   /* The kit puts every card at 16px and reserves 24px for the large container that holds

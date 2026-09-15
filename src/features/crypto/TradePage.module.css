@@ -1,13 +1,13 @@
 /* The compressed rhythm and the hand-rolled fee list that used to live here existed because
    the keypad and the fee preview were sharing one screen at 390×844. They are two steps now,
    and the rows come from `ReviewList` like every other flow's. */
-:global(.page).trade { padding-block: var(--sp-3) var(--sp-4); }
+:global(.page).trade { padding-block: calc(var(--safe-top) + var(--sp-3)) var(--sp-4); }
 .trade .head { margin-bottom: var(--sp-3); }
 
 @media (min-width: 768px) {
   :global(.page).trade {
     max-width: calc(480px + 2 * var(--gutter));
-    padding-block: var(--sp-5) var(--sp-7);
+    padding-block: var(--page-top) var(--sp-7);
   }
   .trade .head { margin-bottom: var(--sp-5); }
 }

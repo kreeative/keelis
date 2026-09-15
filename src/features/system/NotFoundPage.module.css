@@ -1,6 +1,6 @@
 .page {
   padding-inline: var(--gutter);
-  padding-block: var(--sp-8) var(--sp-7);
+  padding-block: calc(var(--safe-top) + var(--sp-8)) var(--sp-7);
   max-width: var(--content-max);
   margin-inline: 0;
   width: 100%;

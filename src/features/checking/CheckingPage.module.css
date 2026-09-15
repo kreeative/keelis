@@ -1,6 +1,6 @@
 .page {
   padding-inline: var(--gutter);
-  padding-block: var(--sp-5) var(--sp-7);
+  padding-block: var(--page-top) var(--sp-7);
   max-width: var(--content-max);
   margin-inline: 0;
   width: 100%;
@@ -103,7 +103,7 @@
 }
 .dayHead {
   position: sticky;
-  top: 0;
+  top: var(--safe-top);
   z-index: 2;
   display: block;
   padding-block: var(--sp-3) var(--sp-2);

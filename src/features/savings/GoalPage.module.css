@@ -1,6 +1,6 @@
 .page {
   padding-inline: var(--gutter);
-  padding-block: var(--sp-4) var(--sp-7);
+  padding-block: calc(var(--safe-top) + var(--sp-4)) var(--sp-7);
   max-width: calc(520px + 2 * var(--gutter));
   margin-inline: 0;
   width: 100%;
@@ -65,7 +65,7 @@
 .skeletonLine { margin-top: var(--sp-3); }
 
 @media (min-width: 768px) {
-  .page { padding-block: var(--sp-5) var(--sp-7); }
+  .page { padding-block: var(--page-top) var(--sp-7); }
   .head { margin-bottom: var(--sp-5); }
   .stats { flex-direction: row; gap: var(--sp-2); }
   .cell {

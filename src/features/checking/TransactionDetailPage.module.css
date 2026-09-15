@@ -2,7 +2,7 @@
    centres itself instead of hugging the left edge of a 1440px canvas. */
 .page {
   padding-inline: var(--gutter);
-  padding-block: var(--sp-5) var(--sp-7);
+  padding-block: var(--page-top) var(--sp-7);
   max-width: 640px;
   margin-inline: 0;
   width: 100%;
