@@ -2,12 +2,12 @@
  * /crypto/:id/envoyer — network → address → quantity → network fee preview → confirm → send.
  * Sends are irreversible: the confirmation sheet repeats the destination, network and total.
  */
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ApiError, CryptoAsset, CryptoSendPreview, CryptoSendRequest, Locale, MoneyMovementResult } from '@/api/types'
 import { Button, Callout, ChoiceList, ErrorState, Field, Icon, PageHeader, SkeletonAmount } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen, useTransaction } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, ReviewList, StepFlow, SuccessScreen, useTransaction, type FlowStep, type SummaryLine } from '@/features/shared'
 import { formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
@@ -50,17 +50,7 @@ function SendSuccess({ result, asset, locale }: { result: { res: MoneyMovementRe
   )
 }
 
-function FeeLine({ label, value, sub, strong = false }: { label: string; value: ReactNode; sub?: ReactNode; strong?: boolean }) {
-  return (
-    <div className={cn(styles.line, strong && styles.lineStrong)}>
-      <dt className={styles.lineLabel}>{label}</dt>
-      <dd className={styles.lineValue}>
-        <span>{value}</span>
-        {sub ? <span className={styles.lineSub}>{sub}</span> : null}
-      </dd>
-    </div>
-  )
-}
+
 
 export default function CryptoSendPage() {
   const { id = '' } = useParams()
@@ -177,71 +167,90 @@ export default function CryptoSendPage() {
     )
   }
 
-  return (
-    <div className={cn('page', styles.send)}>
-      <PageHeader close back={`/crypto/${id}`} title={`Envoyer ${asset.symbol}`} />
+  /* The aperçu's lines. The sheet re-states them from the server's `preview`, which is the
+     figure that will actually be signed — this is the indicative one, and the step says so. */
+  const lines: SummaryLine[] = [
+    { label: 'Destination', value: <span className={styles.mono}>{abbreviateAddress(address)}</span> },
+    { label: 'Réseau', value: network.name },
+    { label: 'Quantité', value: formatCrypto(quantity, asset.symbol, { locale }) },
+    { label: 'Frais réseau', value: formatCrypto(fee, asset.symbol, { locale }), hint: `≈ ${formatMoney(fee * price, { locale })}` },
+    { label: 'Total débité', value: formatCrypto(totalDebit, asset.symbol, { locale }), strong: true },
+    { label: 'Délai estimé', value: `≈ ${network.etaMinutes} min` },
+  ]
 
-      <section className={styles.block} aria-labelledby="network-title">
-        <h2 id="network-title" className="t-section">
-          Réseau
-        </h2>
-        {networks.length > 1 ? (
-          <ChoiceList
-            label="Réseau d’envoi"
-            value={network.id}
-            onChange={(v) => {
-              setNetworkId(v)
-              setAddressError(null)
-              setEntryError(null)
+  const steps: FlowStep[] = [
+    {
+      id: 'send-destination',
+      title: 'Destination',
+      validate: () => {
+        /* The address and the network are one decision — an address is only valid *for* a
+           network — so they share a screen, and the irreversibility warning is on it. */
+        if (!address.trim()) {
+          setAddressError('Entrez une adresse de destination.')
+          return false
+        }
+        return !addressError
+      },
+      content: (
+        <>
+          {networks.length > 1 ? (
+            <ChoiceList
+              label="Réseau d’envoi"
+              value={network.id}
+              onChange={(v) => {
+                setNetworkId(v)
+                setAddressError(null)
+                setEntryError(null)
+              }}
+              options={networks.map((n) => ({
+                value: n.id,
+                title: n.name,
+                subtitle: `Frais ${formatCrypto(n.feeEstimate, asset.symbol, { locale })} · ~${n.etaMinutes} min`,
+                label: `${n.name}, frais ${formatCrypto(n.feeEstimate, asset.symbol, { locale })}, environ ${n.etaMinutes} minutes`,
+              }))}
+            />
+          ) : (
+            <p className={styles.networkName}>{network.name}</p>
+          )}
+          <Callout icon="circle-alert" className={styles.networkWarning}>
+            {network.warning}
+          </Callout>
+          <Field
+            label={`Adresse ${network.name}`}
+            hideLabel
+            className={styles.address}
+            value={address}
+            onChange={(e) => {
+              setAddress(e.target.value)
+              if (addressError) setAddressError(null)
             }}
-            options={networks.map((n) => ({
-              value: n.id,
-              title: n.name,
-              subtitle: `Frais ${formatCrypto(n.feeEstimate, asset.symbol, { locale })} · ~${n.etaMinutes} min`,
-              label: `${n.name}, frais ${formatCrypto(n.feeEstimate, asset.symbol, { locale })}, environ ${n.etaMinutes} minutes`,
-            }))}
+            placeholder={network.addressPrefix ? `${network.addressPrefix}…` : 'Adresse de destination'}
+            autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
+            inputMode="text"
+            error={addressError ?? undefined}
+            warning={addressWarning ?? undefined}
+            trailing={
+              <span className={styles.addressActions}>
+                <Button variant="ghost" onClick={() => void onPaste()}>
+                  Coller
+                </Button>
+                <Button variant="ghost" iconOnly aria-label="Scanner un code QR" title="Caméra non disponible dans cette version" disabled className={styles.scan}>
+                  <Icon name="scan" />
+                </Button>
+              </span>
+            }
           />
-        ) : (
-          <p className={styles.networkName}>{network.name}</p>
-        )}
-        <Callout icon="circle-alert">{network.warning}</Callout>
-      </section>
-
-      <section className={styles.block} aria-labelledby="address-title">
-        <h2 id="address-title" className="t-section">
-          Adresse
-        </h2>
-        <Field
-          label={`Adresse ${network.name}`}
-          hideLabel
-          className={styles.address}
-          value={address}
-          onChange={(e) => {
-            setAddress(e.target.value)
-            if (addressError) setAddressError(null)
-          }}
-          placeholder={network.addressPrefix ? `${network.addressPrefix}…` : 'Adresse de destination'}
-          autoComplete="off"
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck={false}
-          inputMode="text"
-          error={addressError ?? undefined}
-          warning={addressWarning ?? undefined}
-          trailing={
-            <span className={styles.addressActions}>
-              <Button variant="ghost" onClick={() => void onPaste()}>
-                Coller
-              </Button>
-              <Button variant="ghost" iconOnly aria-label="Scanner un code QR" title="Caméra non disponible dans cette version" disabled className={styles.scan}>
-                <Icon name="scan" />
-              </Button>
-            </span>
-          }
-        />
-      </section>
-
-      <section className={cn(styles.block, styles.entry)} aria-label="Quantité">
+        </>
+      ),
+    },
+    {
+      id: 'send-quantity',
+      title: 'Quantité à envoyer',
+      nextDisabled: !canContinue,
+      content: (
         <AmountEntry
           label="Quantité à envoyer"
           value={raw}
@@ -257,19 +266,32 @@ export default function CryptoSendPage() {
           maxDecimals={decimals}
           disabled={previewM.pending}
         />
-      </section>
+      ),
+    },
+    {
+      id: 'send-review',
+      title: 'Aperçu',
+      content: (
+        <ReviewList
+          hero={formatCrypto(quantity, asset.symbol, { locale })}
+          heroCaption={quantity > 0 ? `≈ ${formatMoney(quantity * price, { locale })}` : undefined}
+          lines={lines}
+          note="Les envois sont irréversibles. Vérifiez l’adresse et le réseau."
+        />
+      ),
+    },
+  ]
 
-      <dl className={styles.fees} aria-label="Frais réseau estimés">
-        <FeeLine label="Frais réseau" value={`${formatCrypto(fee, asset.symbol, { locale })} ≈ ${formatMoney(fee * price, { locale })}`} />
-        <FeeLine label="Délai estimé" value={`≈ ${network.etaMinutes} min`} />
-        <FeeLine label="Total débité" value={formatCrypto(totalDebit, asset.symbol, { locale })} sub={quantity > 0 ? `≈ ${formatMoney(totalDebit * price, { locale })}` : undefined} strong />
-      </dl>
-
-      <div className={styles.cta}>
-        <Button size="lg" block disabled={!canContinue} loading={previewM.pending} onClick={() => void onContinue()}>
-          Continuer
-        </Button>
-      </div>
+  return (
+    <div className={cn('page', styles.send)}>
+      <StepFlow
+        title={`Envoyer ${asset.symbol}`}
+        exit={`/crypto/${id}`}
+        steps={steps}
+        onFinish={() => void onContinue()}
+        finishLabel="Envoyer"
+        finishDisabled={!canContinue}
+      />
 
       {preview ? (
         <ConfirmSheet

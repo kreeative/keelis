@@ -1,53 +1,12 @@
-/* Tight rhythm so the keypad stays visible at 390×844. */
+/* The page's own width. Everything that used to be here — a compressed vertical rhythm, a
+   28px preview row, a hand-rolled fee list — existed because the keypad and the aperçu were
+   fighting for one screen at 390×844. They are two screens now, so the cramming is gone and
+   the rows come from `ReviewList` like every other flow's. */
 :global(.page).move { padding-block: var(--sp-3) var(--sp-4); }
-.move .head { margin-bottom: var(--sp-3); }
-
-/* The shared quick-amount chips are 36px: lift them to the tap target. */
-.entry button { min-height: var(--tap); }
-
-.preview {
-  display: flex;
-  flex-direction: column;
-  margin-top: var(--sp-4);
-}
-/* 28px rows: the deposit preview carries five lines, and « Continuer » must stay
-   above the mobile bar at 390×844 without a scroll. */
-.line {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--sp-4);
-  min-height: 28px;
-  padding-block: var(--sp-1);
-  font-size: var(--fs-small);
-  color: var(--ink-600);
-}
-.line + .line { border-top: 1px solid var(--line); }
-.lineStrong {
-  color: var(--ink-900);
-  font-size: var(--fs-body);
-  font-weight: var(--fw-medium);
-}
-.lineLabel { flex-shrink: 0; }
-.lineValue {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-900);
-  overflow-wrap: anywhere;
-}
-
-.cta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  margin-top: var(--sp-4);
-}
 
 @media (min-width: 768px) {
-  .line { min-height: 36px; padding-block: var(--sp-2); }
   :global(.page).move {
     max-width: calc(480px + 2 * var(--gutter));
     padding-block: var(--sp-5) var(--sp-7);
   }
-  .move .head { margin-bottom: var(--sp-5); }
 }

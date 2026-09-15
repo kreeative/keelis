@@ -1,14 +1,14 @@
 /**
  * /crypto/:id/acheter · /crypto/:id/vendre
- * AmountEntry (fiat ↔ crypto) → fee preview (always visible) → quote → ConfirmSheet with a 30 s
+ * Montant (le clavier seul, fiat ↔ crypto) → aperçu → quote → ConfirmSheet with a 30 s
  * countdown → order → SuccessScreen whose status settles live via the transaction cache.
  */
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { AmountMode, ApiError, Order, QuoteRequest, Quote, RiskProfile } from '@/api/types'
 import { Button, Callout, ErrorState, Money, PageHeader, SkeletonAmount } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen } from '@/features/shared'
+import { AmountEntry, ConfirmSheet, ReviewList, StepFlow, SuccessScreen, type FlowStep, type SummaryLine } from '@/features/shared'
 import { DEFAULT_CURRENCY, formatCrypto, formatMoney, parseAmountInput } from '@/lib/format'
 import { QK, useMutation, useQuery, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
@@ -18,14 +18,7 @@ import styles from './TradePage.module.css'
 
 type Side = 'buy' | 'sell'
 
-function FeeLine({ label, value, strong = false }: { label: string; value: ReactNode; strong?: boolean }) {
-  return (
-    <div className={cn(styles.line, strong && styles.lineStrong)}>
-      <dt className={styles.lineLabel}>{label}</dt>
-      <dd className={styles.lineValue}>{value}</dd>
-    </div>
-  )
-}
+
 
 function TradeSuccess({ order, side, assetId }: { order: Order; side: Side; assetId: string }) {
   const { locale } = useSettings()
@@ -240,11 +233,24 @@ export default function TradePage({ side }: { side: Side }) {
   const rate = formatRate(spread, locale)
   const verb = side === 'buy' ? 'Acheter' : 'Vendre'
 
-  return (
-    <div className={cn('page', styles.trade)}>
-      <PageHeader close back={`/crypto/${id}`} title={`${verb} ${asset.symbol}`} eyebrow={`Prix : ${formatMoney(asset.price, { locale })}`} className={styles.head} />
+  /* The aperçu's lines, which the confirmation sheet then re-states from the *quote* — the
+     one place in the app where the two legitimately differ, because the quote is the
+     server's execution price and this is the indicative one. Which is exactly why the
+     aperçu says « indicatif » on its face: the trade screen once showed « ≈ 1.6976 SNTS »
+     for an order the server filled as one share. */
+  const lines: SummaryLine[] = [
+    { label: 'Prix du marché', value: <Money value={price} unmasked /> },
+    { label: 'Écart (spread)', value: `${rate} · ${formatMoney(spreadAmount, { locale })}` },
+    { label: 'Frais', value: <Money value={0} unmasked /> },
+    { label: 'Total', value: <Money value={total} unmasked />, strong: true },
+  ]
 
-      <div className={styles.entry}>
+  const steps: FlowStep[] = [
+    {
+      id: 'trade-amount',
+      title: `Montant à ${side === 'buy' ? 'acheter' : 'vendre'}`,
+      nextDisabled: !canContinue,
+      content: (
         <AmountEntry
           label={`Montant à ${side === 'buy' ? 'acheter' : 'vendre'}`}
           value={raw}
@@ -261,34 +267,47 @@ export default function TradePage({ side }: { side: Side }) {
           maxDecimals={mode === 'fiat' ? 2 : decimals}
           disabled={quoteM.pending}
         />
-      </div>
-
-      {/* Warn before, not after. A profile the person filled in themselves decides whether
-          this appears; it never blocks the order, and it sits beside the amount rather than
-          in the confirmation sheet, while the decision is still open. */}
-      {riskNote ? (
-        <Callout variant="note" className={styles.riskNote}>
-          {riskNote}
-        </Callout>
-      ) : null}
-
-      <dl className={styles.fees} aria-label="Aperçu des frais">
-        <FeeLine label="Prix du marché" value={<Money value={price} unmasked />} />
-        <FeeLine label="Écart (spread)" value={`${rate} · ${formatMoney(spreadAmount, { locale })}`} />
-        <FeeLine label="Frais" value={<Money value={0} unmasked />} />
-        <FeeLine label="Total" value={<Money value={total} unmasked />} strong />
-      </dl>
-
-      <div className={styles.cta}>
-        {insufficientFunds ? (
-          <Button variant="ghost" block onClick={() => navigate('/fonds')}>
-            Ajouter des fonds
-          </Button>
-        ) : null}
-        <Button size="lg" block disabled={!canContinue} loading={quoteM.pending && !sheetOpen} onClick={() => void onContinue()}>
-          Continuer
+      ),
+      footer: insufficientFunds ? (
+        <Button variant="ghost" block onClick={() => navigate('/fonds')}>
+          Ajouter des fonds
         </Button>
-      </div>
+      ) : undefined,
+    },
+    {
+      id: 'trade-review',
+      title: 'Aperçu',
+      content: (
+        <>
+          {/* Warn before, not after. A profile the person filled in themselves decides
+              whether this appears; it never blocks the order, and it sits above the figures
+              rather than in the confirmation sheet, while the decision is still open. */}
+          {riskNote ? (
+            <Callout variant="note" className={styles.riskNote}>
+              {riskNote}
+            </Callout>
+          ) : null}
+          <ReviewList
+            hero={<Money value={total} unmasked />}
+            heroCaption={`${verb} ${asset.symbol} · prix indicatif`}
+            lines={lines}
+            note={`Le prix définitif est fixé au moment de la confirmation : l’étape suivante bloque une cotation valable 30 s.`}
+          />
+        </>
+      ),
+    },
+  ]
+
+  return (
+    <div className={cn('page', styles.trade)}>
+      <StepFlow
+        title={`${verb} ${asset.symbol}`}
+        exit={`/crypto/${id}`}
+        steps={steps}
+        onFinish={() => void onContinue()}
+        finishLabel={side === 'buy' ? 'Acheter' : 'Vendre'}
+        finishDisabled={!canContinue}
+      />
 
       {quote ? (
         <ConfirmSheet

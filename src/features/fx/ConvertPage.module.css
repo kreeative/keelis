@@ -21,13 +21,7 @@
   }
 }
 
-.detail { margin-top: var(--space-block); }
-
-.actions {
-  display: flex;
-  margin-top: var(--space-block);
-}
-.actions > * { flex: 1; }
+.detail { margin-bottom: var(--space-block); }
 
 .intro {
   font-size: var(--fs-small);

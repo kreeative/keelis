@@ -11,8 +11,8 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
 import { ApiError } from '@/api/types'
-import { Button, Callout, Card, Icon, PageHeader, SelectField, Sheet, StatGrid } from '@/components'
-import { AmountEntry, SuccessScreen, useAccount } from '@/features/shared'
+import { Button, Callout, Card, Icon, SelectField, Sheet, StatGrid } from '@/components'
+import { AmountEntry, StepFlow, SuccessScreen, useAccount, type FlowStep } from '@/features/shared'
 import { CURRENCIES, CURRENCY_ORDER, isCurrency, type Currency } from '@/lib/currency'
 import { TIER_LABEL, quote } from '@/lib/fx'
 import { formatMoney, formatNumber, parseAmountInput } from '@/lib/format'
@@ -25,7 +25,7 @@ export default function ConvertPage() {
 
   /* A pocket row on Chèque links here with `?de=EUR`: arriving on the wrong currency and
      making the person change it is the sort of small rudeness that adds up. */
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const initial = params.get('de')
   const [from, setFrom] = useState<Currency>(initial && isCurrency(initial) ? initial : 'XOF')
   const [to, setTo] = useState<Currency>(initial === 'XOF' || !initial ? 'EUR' : 'XOF')
@@ -120,80 +120,114 @@ export default function ConvertPage() {
           /* Not `secondaryTo="/convertir"`: we are already on that route, so navigating to
              it changes nothing and the button appears dead. The receipt is local state,
              and clearing it is what actually goes back to the form. */
-          onSecondary={() => setDone(null)}
+          /* Clearing the receipt starts a *new* conversion, so it starts at step one.
+             Without this the flow came back on the aperçu of the conversion just made —
+             the step is in the URL, and the URL still said so. */
+          onSecondary={() => {
+            setDone(null)
+            setParams(
+              (prev) => {
+                const p = new URLSearchParams(prev)
+                p.delete('etape')
+                return p
+              },
+              { replace: true },
+            )
+          }}
         />
       </div>
     )
   }
 
+  const steps: FlowStep[] = [
+    {
+      id: 'convert-pair',
+      title: 'Devises',
+      content: (
+        <>
+          <p className={styles.intro}>Le taux appliqué et la marge sont affichés avant que vous confirmiez.</p>
+          <Card padding="md" elevation={1} className={styles.pair}>
+            <SelectField label="De" value={from} onChange={(e) => setFrom(e.target.value as Currency)}>
+              {CURRENCY_ORDER.map((c) => (
+                <option key={c} value={c}>
+                  {c} — {CURRENCIES[c].name}
+                </option>
+              ))}
+            </SelectField>
+
+            <Button variant="secondary" iconOnly aria-label="Inverser les devises" onClick={swap} className={styles.swap}>
+              <Icon name="transfer" />
+            </Button>
+
+            <SelectField label="Vers" value={to} onChange={(e) => setTo(e.target.value as Currency)}>
+              {CURRENCY_ORDER.map((c) => (
+                <option key={c} value={c}>
+                  {c} — {CURRENCIES[c].name}
+                </option>
+              ))}
+            </SelectField>
+          </Card>
+        </>
+      ),
+      nextDisabled: sameCurrency,
+    },
+    {
+      id: 'convert-amount',
+      title: 'Montant à convertir',
+      content: (
+        <AmountEntry
+          label="Montant à convertir"
+          value={raw}
+          onChange={setRaw}
+          unit={from}
+          maxDecimals={CURRENCIES[from].decimals}
+          calculator
+          secondary={sameCurrency ? undefined : held !== undefined ? `Disponible : ${money(held, from)} · vous recevez ${money(q.amountOut, to)}` : `Vous recevez ${money(q.amountOut, to)}`}
+          onMax={held !== undefined && held > 0 ? () => setRaw(String(held).replace('.', ',')) : undefined}
+          error={sameCurrency ? 'Choisissez deux devises différentes.' : tooMuch ? `Vous détenez ${money(held ?? 0, from)} en ${from}.` : (error?.message ?? null)}
+        />
+      ),
+      nextDisabled: !canConvert,
+    },
+    {
+      id: 'convert-review',
+      title: 'Aperçu',
+      content: (
+        <>
+          {/* Both rates and the margin, before anything is committed. This is the page's
+              whole promise: « the spread is stated, never buried in a worse rate ». */}
+          <Card padding="md" elevation={1} className={styles.detail}>
+            <StatGrid
+              label="Détail de la conversion"
+              stats={[
+                { label: 'Taux du marché', value: rateLine(q.midRate, exactPeg) },
+                { label: 'Taux appliqué', value: rateText },
+                { label: `Marge (${formatNumber(q.spread * 100, { locale, maxFraction: 2 })} %)`, value: money(q.feeIn, from) },
+                { label: 'Vous donnez', value: money(q.amountIn, from) },
+                { label: 'Vous recevez', value: money(q.amountOut, to) },
+              ]}
+            />
+          </Card>
+
+          {q.pegged && CURRENCIES[from].pegged && CURRENCIES[to].pegged ? (
+            <Callout variant="panel" icon="info" title="Parité fixe">
+              Le franc CFA d’Afrique de l’Ouest (XOF) et celui d’Afrique centrale (XAF) partagent le même
+              arrimage à l’euro : le taux entre eux est exactement 1 pour 1 et ne bouge pas. Ils sont
+              toutefois émis par deux banques centrales différentes, d’où la marge de transfert.
+            </Callout>
+          ) : (
+            <Callout variant="note" icon="info">
+              {TIER_LABEL[q.tier]}. Les taux affichés sont des taux de démonstration, pas une cotation de marché.
+            </Callout>
+          )}
+        </>
+      ),
+    },
+  ]
+
   return (
     <div className="page">
-      <PageHeader title="Convertir" back={-1} />
-      <p className={styles.intro}>Le taux appliqué et la marge sont affichés avant que vous confirmiez.</p>
-
-      <Card padding="md" elevation={1} className={styles.pair}>
-        <SelectField label="De" value={from} onChange={(e) => setFrom(e.target.value as Currency)}>
-          {CURRENCY_ORDER.map((c) => (
-            <option key={c} value={c}>
-              {c} — {CURRENCIES[c].name}
-            </option>
-          ))}
-        </SelectField>
-
-        <Button variant="secondary" iconOnly aria-label="Inverser les devises" onClick={swap} className={styles.swap}>
-          <Icon name="transfer" />
-        </Button>
-
-        <SelectField label="Vers" value={to} onChange={(e) => setTo(e.target.value as Currency)}>
-          {CURRENCY_ORDER.map((c) => (
-            <option key={c} value={c}>
-              {c} — {CURRENCIES[c].name}
-            </option>
-          ))}
-        </SelectField>
-      </Card>
-
-      <AmountEntry
-        label="Montant à convertir"
-        value={raw}
-        onChange={setRaw}
-        unit={from}
-        maxDecimals={CURRENCIES[from].decimals}
-        calculator
-        secondary={sameCurrency ? undefined : held !== undefined ? `Disponible : ${money(held, from)} · vous recevez ${money(q.amountOut, to)}` : `Vous recevez ${money(q.amountOut, to)}`}
-        onMax={held !== undefined && held > 0 ? () => setRaw(String(held).replace('.', ',')) : undefined}
-        error={sameCurrency ? 'Choisissez deux devises différentes.' : tooMuch ? `Vous détenez ${money(held ?? 0, from)} en ${from}.` : (error?.message ?? null)}
-      />
-
-      <Card padding="md" elevation={1} className={styles.detail}>
-        <StatGrid
-          label="Détail de la conversion"
-          stats={[
-            { label: 'Taux du marché', value: rateLine(q.midRate, exactPeg) },
-            { label: 'Taux appliqué', value: rateText },
-            { label: `Marge (${formatNumber(q.spread * 100, { locale, maxFraction: 2 })} %)`, value: money(q.feeIn, from) },
-            { label: 'Vous recevez', value: money(q.amountOut, to) },
-          ]}
-        />
-      </Card>
-
-      {q.pegged && CURRENCIES[from].pegged && CURRENCIES[to].pegged ? (
-        <Callout variant="panel" icon="info" title="Parité fixe">
-          Le franc CFA d’Afrique de l’Ouest (XOF) et celui d’Afrique centrale (XAF) partagent le même
-          arrimage à l’euro : le taux entre eux est exactement 1 pour 1 et ne bouge pas. Ils sont
-          toutefois émis par deux banques centrales différentes, d’où la marge de transfert.
-        </Callout>
-      ) : (
-        <Callout variant="note" icon="info">
-          {TIER_LABEL[q.tier]}. Les taux affichés sont des taux de démonstration, pas une cotation de marché.
-        </Callout>
-      )}
-
-      <div className={styles.actions}>
-        <Button size="lg" disabled={!canConvert} onClick={() => setConfirming(true)}>
-          Continuer
-        </Button>
-      </div>
+      <StepFlow title="Convertir" exit="/" steps={steps} onFinish={() => setConfirming(true)} finishLabel="Convertir" finishDisabled={!canConvert} />
 
       <Sheet open={confirming} onClose={() => setConfirming(false)} title="Confirmer la conversion"
         footer={

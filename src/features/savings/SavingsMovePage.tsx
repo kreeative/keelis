@@ -1,14 +1,17 @@
 /**
  * /epargne/deposer · /epargne/retirer
- * AmountEntry → aperçu (frais et délai toujours visibles) → ConfirmSheet → SuccessScreen
+ * Montant (le clavier seul) → aperçu → ConfirmSheet → SuccessScreen.
+ *
+ * The keypad and the aperçu used to be the same screen: the fee, the delay and the
+ * estimated interest sat under a total that was still being typed. `StepFlow` splits them.
  * dont le statut passe de « En attente » à « Réglé » via le cache des transactions.
  */
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/api'
 import type { ApiError, MoneyMovementResult } from '@/api/types'
-import { Button, Money, PageHeader } from '@/components'
-import { AmountEntry, ConfirmSheet, SuccessScreen, useAccount, useAccountId, useSavings, useTransaction } from '@/features/shared'
+import { Button, Money } from '@/components'
+import { AmountEntry, ConfirmSheet, ReviewList, StepFlow, SuccessScreen, useAccount, useAccountId, useSavings, useTransaction, type FlowStep, type SummaryLine } from '@/features/shared'
 import { formatMoney, formatRate, parseAmountInput } from '@/lib/format'
 import { useMutation, useSettings } from '@/store'
 import { cn } from '@/lib/cn'
@@ -17,14 +20,6 @@ import styles from './SavingsMovePage.module.css'
 
 type Direction = 'deposit' | 'withdraw'
 
-function Line({ label, value, strong = false }: { label: string; value: ReactNode; strong?: boolean }) {
-  return (
-    <div className={cn(styles.line, strong && styles.lineStrong)}>
-      <dt className={styles.lineLabel}>{label}</dt>
-      <dd className={styles.lineValue}>{value}</dd>
-    </div>
-  )
-}
 
 function MoveSuccess({ result, amount, deposit }: { result: MoneyMovementResult; amount: number; deposit: boolean }) {
   const tx = useTransaction(result.transactionId)
@@ -123,18 +118,28 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
     )
   }
 
-  return (
-    <div className={cn('page', styles.move)}>
-      <PageHeader
-        close
-        back="/epargne"
-        title={deposit ? 'Déposer dans l’Épargne' : 'Retirer de l’Épargne'}
-        eyebrow={deposit ? 'Depuis Chèque' : 'Vers Chèque'}
-        level="h2"
-        className={styles.head}
-      />
+  /* One array, rendered on the aperçu screen and again in the sheet over it, so the two
+     cannot describe the same movement differently. */
+  const lines: SummaryLine[] = [
+    { label: 'De', value: deposit ? 'Chèque' : 'Épargne' },
+    { label: 'Vers', value: deposit ? 'Épargne' : 'Chèque' },
+    { label: 'Montant', value: <Money value={typed} unmasked /> },
+    { label: 'Frais', value: <Money value={0} unmasked /> },
+    { label: 'Total', value: <Money value={typed} unmasked />, strong: true },
+    { label: 'Délai', value: 'Instantané' },
+    ...(deposit ? [{ label: 'Intérêts estimés sur 12 mois', value: <Money value={interest} unmasked /> }] : []),
+  ]
 
-      <div className={styles.entry}>
+  const note = deposit
+    ? `Aucuns frais. Au taux actuel de ${formatRate(apy, locale)}, ce dépôt rapporte environ ${formatMoney(interest, { locale })} sur 12 mois.`
+    : `Aucuns frais. Les fonds retirés cessent de rapporter le taux de ${formatRate(apy, locale)}.`
+
+  const steps: FlowStep[] = [
+    {
+      id: 'move-amount',
+      title: deposit ? 'Montant à déposer' : 'Montant à retirer',
+      nextDisabled: !canContinue,
+      content: (
         <AmountEntry
           label={deposit ? 'Montant à déposer' : 'Montant à retirer'}
           value={raw}
@@ -145,26 +150,30 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
           onMax={source !== undefined ? onMax : undefined}
           disabled={move.pending}
         />
-      </div>
-
-      <dl className={styles.preview} aria-label="Aperçu du virement">
-        <Line label="De" value={deposit ? 'Chèque' : 'Épargne'} />
-        <Line label="Vers" value={deposit ? 'Épargne' : 'Chèque'} />
-        <Line label="Frais" value={<Money value={0} unmasked />} />
-        <Line label="Délai" value="Instantané" />
-        {deposit ? <Line label="Intérêts estimés sur 12 mois" value={<Money value={interest} unmasked />} /> : null}
-      </dl>
-
-      <div className={styles.cta}>
-        {insufficient ? (
-          <Button variant="ghost" block onClick={() => navigate('/fonds')}>
-            Ajouter des fonds
-          </Button>
-        ) : null}
-        <Button size="lg" block disabled={!canContinue} onClick={() => setSheetOpen(true)}>
-          Continuer
+      ),
+      footer: insufficient ? (
+        <Button variant="ghost" block onClick={() => navigate('/fonds')}>
+          Ajouter des fonds
         </Button>
-      </div>
+      ) : undefined,
+    },
+    {
+      id: 'move-review',
+      title: 'Aperçu',
+      content: <ReviewList hero={<Money value={typed} unmasked />} heroCaption={deposit ? 'de Chèque vers Épargne' : 'd’Épargne vers Chèque'} lines={lines} note={note} />,
+    },
+  ]
+
+  return (
+    <div className={cn('page', styles.move)}>
+      <StepFlow
+        title={deposit ? 'Déposer dans l’Épargne' : 'Retirer de l’Épargne'}
+        exit="/epargne"
+        steps={steps}
+        onFinish={() => setSheetOpen(true)}
+        finishLabel={deposit ? 'Confirmer le dépôt' : 'Confirmer le retrait'}
+        finishDisabled={!canContinue}
+      />
 
       <ConfirmSheet
         open={sheetOpen}
@@ -175,19 +184,8 @@ export default function SavingsMovePage({ direction }: { direction: Direction })
         title={deposit ? 'Confirmer le dépôt' : 'Confirmer le retrait'}
         hero={<Money value={typed} unmasked />}
         heroCaption={deposit ? 'de Chèque vers Épargne' : 'd’Épargne vers Chèque'}
-        lines={[
-          { label: 'De', value: deposit ? 'Chèque' : 'Épargne' },
-          { label: 'Vers', value: deposit ? 'Épargne' : 'Chèque' },
-          { label: 'Montant', value: <Money value={typed} unmasked /> },
-          { label: 'Frais', value: <Money value={0} unmasked /> },
-          { label: 'Total', value: <Money value={typed} unmasked />, strong: true },
-          { label: 'Délai', value: 'Instantané' },
-        ]}
-        note={
-          deposit
-            ? `Aucuns frais. Au taux actuel de ${formatRate(apy, locale)}, ce dépôt rapporte environ ${formatMoney(interest, { locale })} sur 12 mois.`
-            : `Aucuns frais. Les fonds retirés cessent de rapporter le taux de ${formatRate(apy, locale)}.`
-        }
+        lines={lines}
+        note={note}
         confirmLabel={deposit ? 'Confirmer le dépôt' : 'Confirmer le retrait'}
         onConfirm={() => void onConfirm()}
         pending={move.pending}

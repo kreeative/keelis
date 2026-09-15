@@ -222,9 +222,13 @@ async function buyAShare(browser) {
     await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
     await shot(page, 'buy-open')
     await keypad(page, ['5', '0', '0', '0', '0'])
-    const cta = page.getByRole('button', { name: /Continuer|Aperçu|Acheter/ }).last()
-    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering 50 000')
-    await cta.click()
+    /* The keypad is alone on its step: the fee lines must not be on this screen. */
+    if ((await page.locator('main').innerText()).includes('Écart (spread)')) fail(flow, 'the fee preview is on screen with the keypad')
+    if ((await advance(page)) !== 2) return fail(flow, 'the amount step did not lead to the aperçu')
+    const preview = await page.locator('main').innerText()
+    if (!/cart|spread/i.test(preview)) fail(flow, 'the aperçu does not state the spread')
+    await shot(page, 'buy-review')
+    await advance(page, /^Acheter$/)
     await shot(page, 'buy-confirm')
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
@@ -299,15 +303,76 @@ async function sendThroughAnOperator(browser) {
   }
 }
 
+/**
+ * Sending crypto out — a movement no walk had ever driven.
+ *
+ * It is the one flow in the app that cannot be undone: the money leaves for an address on
+ * a public network and nothing brings it back. It also just went from one screen to three
+ * without a single check watching, which is how the address field and the network warning
+ * could have ended up on different steps from each other.
+ */
+async function sendCrypto(browser) {
+  const flow = 'Envoyer du BTC'
+  const page = await newPage(browser, flow)
+  try {
+    await page.goto(`${BASE}/crypto/btc/envoyer`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByPlaceholder(/Adresse|…/).first(), 'the destination step')
+
+    /* The network and the address are one decision — an address is only valid *for* a
+       network — so the warning about that has to be on the screen where the address is
+       typed, not two steps later beside a total. */
+    const destination = await page.locator('main').innerText()
+    if (!/réseau/i.test(destination)) fail(flow, 'the destination step does not name the network the address must match')
+
+    // A published specimen bech32 address.
+    await page.getByPlaceholder(/Adresse|…/).first().fill('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq')
+    if ((await advance(page)) !== 2) return fail(flow, 'the destination step did not lead to the quantity')
+
+    await present(page, page.getByRole('button', { name: '1', exact: true }), 'the amount keypad')
+    if (await page.getByPlaceholder(/Adresse|…/).count()) fail(flow, 'the address field is on screen with the keypad')
+    await keypad(page, ['.', '0', '0', '1'])
+    if ((await advance(page)) !== 3) return fail(flow, 'the quantity step did not lead to the aperçu')
+
+    const review = await page.locator('main').innerText()
+    // What it costs and that it cannot be taken back, before the sheet rather than in it.
+    for (const required of ['Frais réseau', 'Total débité', 'irréversibles']) {
+      if (!review.includes(required)) fail(flow, `« ${required} » is missing from the aperçu`)
+    }
+    await shot(page, 'crypto-send-review')
+
+    await advance(page, /^Envoyer$/)
+    const sheet = page.getByRole('dialog')
+    await present(page, sheet, 'the confirmation sheet')
+    const body = await sheet.innerText()
+    if (!/bc1qar/i.test(body)) fail(flow, 'the confirmation sheet does not repeat the destination address')
+    await shot(page, 'crypto-send-confirm')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
 async function convert(browser) {
   const flow = 'Convertir'
   const page = await newPage(browser, flow)
   try {
     await page.goto(`${BASE}/convertir`, { waitUntil: 'domcontentloaded' })
+    /* Step one is the pair of currencies; the keypad is on its own step after it. */
+    await present(page, page.getByLabel('De'), 'the currency pair')
+    if ((await advance(page)) !== 2) return fail(flow, 'the currency step did not lead to the amount')
     await present(page, page.getByRole('button', { name: '1', exact: true }), 'the amount keypad')
     await keypad(page, ['1', '0', '0', '0', '0', '0'])
     await page.waitForTimeout(300)
     await shot(page, 'convert')
+    /* « Disponible : … » is the keypad step's own secondary line, so it has to be read
+       here — the aperçu that follows states what you give and receive, not what you hold. */
+    const beforeBalance = await (async () => {
+      const line = await page.getByText(/Disponible :/).first().innerText()
+      const m = line.match(/([\d,]+)\s*F\s?CFA/)
+      return m ? Number(m[1].replace(/,/g, '')) : undefined
+    })()
+    if ((await advance(page)) !== 3) return fail(flow, 'the amount step did not lead to the aperçu')
 
     const body = await page.locator('body').innerText()
     // Both rates and the margin, before anything is committed.
@@ -336,12 +401,10 @@ async function convert(browser) {
       }
       return available()
     }
-    const before = await available()
+    const before = beforeBalance
     if (before === undefined) return fail(flow, 'the convert screen does not say what the account holds')
 
-    const cta = page.getByRole('button', { name: /Continuer|Convertir/ }).last()
-    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering 100 000')
-    await cta.click()
+    await advance(page, /^Convertir$/)
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
     await sheet.getByRole('button', { name: /Confirmer/ }).last().click()
@@ -355,7 +418,15 @@ async function convert(browser) {
        is already /convertir, so a navigation there would change nothing and the button
        would look dead. */
     await page.getByRole('button', { name: /Convertir encore/ }).first().click()
-    await present(page, page.getByText(/Disponible :/), 'the convert screen again')
+    /* A cleared receipt starts a new conversion at step one, so walk forward to the keypad
+       — that is where « Disponible : … » is. Landing on the aperçu of the conversion just
+       made would be the bug this checks against. */
+    await present(page, page.getByLabel('De'), 'the convert form again')
+    await page.waitForTimeout(400)
+    const restarted = await stepNumber(page)
+    if (restarted !== 1) fail(flow, `« Convertir encore » came back on step ${restarted}, not step 1`)
+    await advance(page)
+    await present(page, page.getByText(/Disponible :/), 'the amount step again')
     const after = await availableOnceChangedFrom(before)
     if (after === undefined) return fail(flow, 'could not read the balance after converting')
     if (after >= before) fail(flow, `the francs balance did not fall after converting 100 000 (${before} → ${after})`)
@@ -403,9 +474,8 @@ async function sellAShare(browser) {
     const toggle = page.getByRole('button', { name: /Saisir en quantité|Saisir en francs/ })
     if ((await toggle.count()) > 0) await toggle.first().click()
     await keypad(page, ['1'])
-    const cta = page.getByRole('button', { name: /Continuer|Vendre/ }).last()
-    if (await cta.isDisabled()) return fail(flow, 'the continue button stayed disabled after entering one share')
-    await cta.click()
+    if ((await advance(page)) !== 2) return fail(flow, 'the amount step did not lead to the aperçu after entering one share')
+    await advance(page, /^Vendre$/)
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
     await shot(page, 'sell-confirm')
@@ -459,8 +529,8 @@ async function moveToSavings(browser) {
     await page.goto(`${BASE}/epargne/deposer`, { waitUntil: 'domcontentloaded' })
     await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
     await keypad(page, ['5', '0', '0', '0', '0'])
-    const cta = page.getByRole('button', { name: /Continuer|Déposer/ }).last()
-    if (!(await clickWhenEnabled(page, cta, 'the continue button'))) return fail(flow, 'the continue button never became enabled after entering 50 000')
+    if ((await advance(page)) !== 2) return fail(flow, 'the amount step did not lead to the aperçu after entering 50 000')
+    await advance(page, /Confirmer le dépôt/)
     const sheet = page.getByRole('dialog')
     await present(page, sheet, 'the confirmation sheet')
     await sheet.getByRole('button', { name: /Confirmer|Déposer/ }).last().click()
@@ -813,9 +883,13 @@ async function riskProfile(browser) {
     await page.goto(`${BASE}/crypto/btc/acheter`, { waitUntil: 'domcontentloaded' })
     await present(page, page.getByRole('button', { name: '5', exact: true }), 'the buy screen')
     await keypad(page, ['5', '0', '0', '0', '0'])
+    /* The warning lives on the aperçu now, because the amount step holds the keypad and
+       nothing else. Still *before* the commitment rather than inside the confirmation
+       sheet, which is what the rule is about. */
+    if ((await advance(page)) !== 2) return fail(flow, 'the amount step did not lead to the aperçu')
     await present(page, page.getByText(/prudent/i), 'the warning before a volatile buy')
     await shot(page, 'risk-warning')
-    const cta = page.getByRole('button', { name: /Continuer|Acheter/ }).last()
+    const cta = page.locator('main').getByRole('button', { name: /Acheter/ }).last()
     // Warn before, not forbid: refusing an adult their own money is a posture.
     if (await cta.isDisabled()) fail(flow, 'the risk profile blocked the order instead of warning')
 
@@ -823,6 +897,7 @@ async function riskProfile(browser) {
     await page.goto(`${BASE}/crypto/sonatel/acheter`, { waitUntil: 'domcontentloaded' })
     await present(page, page.getByRole('button', { name: '5', exact: true }), 'the equity buy screen')
     await keypad(page, ['5', '0', '0', '0', '0'])
+    await advance(page)
     await page.waitForTimeout(500)
     if (/vous êtes décrit comme prudent/i.test(await page.locator('body').innerText())) {
       fail(flow, 'the volatility warning appears on an African equity, where it is noise')
@@ -853,6 +928,7 @@ await run('buyAShare', buyAShare)
 await run('sellAShare', sellAShare)
 await run('sendThroughAnOperator', sendThroughAnOperator)
 await run('wireTransfer', wireTransfer)
+await run('sendCrypto', sendCrypto)
 await run('convert', convert)
 await run('addFunds', addFunds)
 await run('moveToSavings', moveToSavings)

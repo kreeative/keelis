@@ -1,57 +1,17 @@
+/* The hand-rolled fee list that used to live here is gone: the aperçu is its own step now
+   and its rows come from `ReviewList`, like every other flow's. */
 .send { display: flex; flex-direction: column; }
 
-.block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-block);
-}
-.block + .block { margin-top: var(--space-section); }
-
 .networkName { font-size: var(--fs-body); }
+/* The network's own warning sits between the choice and the address, because an address is
+   only valid *for* a network and that is the mistake this sentence is about. */
+.networkWarning { margin-block: var(--space-block); }
 
 .address input { font-family: var(--font-mono); font-size: var(--fs-small); }
 .addressActions { display: inline-flex; align-items: center; gap: var(--sp-1); }
 .scan { color: var(--ink-600); }
 
-.entry button { min-height: var(--tap); }
-
-.fees {
-  display: flex;
-  flex-direction: column;
-  margin-top: var(--sp-5);
-}
-.line {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--sp-4);
-  min-height: 44px;
-  padding-block: var(--sp-3);
-  font-size: var(--fs-small);
-  color: var(--ink-600);
-}
-.line + .line { border-top: 1px solid var(--line); }
-.lineStrong {
-  color: var(--ink-900);
-  font-size: var(--fs-body);
-  font-weight: var(--fw-medium);
-}
-.lineLabel { flex-shrink: 0; }
-.lineValue {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-900);
-  overflow-wrap: anywhere;
-}
-.lineSub { font-size: var(--fs-small); font-weight: var(--fw-body); color: var(--ink-600); }
-
 .mono { font-family: var(--font-mono); }
-
-.cta { margin-top: var(--sp-5); }
 
 @media (min-width: 768px) {
   :global(.page).send { max-width: calc(480px + 2 * var(--gutter)); }
