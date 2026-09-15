@@ -22,12 +22,34 @@ import { Button, PageHeader } from '@/components'
 import { useLargeScreen } from '@/store'
 import styles from './StepFlow.module.css'
 
+/** What a step's content is handed when it needs to drive the flow itself. */
+export interface StepContext {
+  /**
+   * Move to the next step, optionally writing other query parameters in the same go.
+   *
+   * The `extra` matters: the step lives in the query string and so does the send method,
+   * and two `setParams` calls in one handler race — the second updater reads a location
+   * that has not committed the first, so whichever lands second wins and the other is
+   * lost. `next({ mode: 'interne' })` is one write.
+   */
+  next: (extra?: Record<string, string>) => void
+  /** True at ≥1024px, where every step is on screen at once and nothing advances. */
+  grouped: boolean
+}
+
 export interface FlowStep {
   /** Stable id — the flow's own name for this step, used as the heading's id. */
   id: string
   /** The step's heading. Also the section header when the steps are grouped. */
   title: string
-  content: ReactNode
+  /**
+   * A function when the step drives the flow itself — the send method is three buttons, and
+   * tapping one chooses *and* continues; asking somebody to pick a radio and then press
+   * « Continuer » is two taps for one decision. It also gets `grouped`, because at ≥1024px
+   * every step is on screen at once: there is nothing to advance to, so the same choice has
+   * to show a selection instead.
+   */
+  content: ReactNode | ((ctx: StepContext) => ReactNode)
   /**
    * Runs when the person tries to leave this step. Return false to keep them on it — the
    * step is responsible for having said why, in its own fields.
@@ -41,6 +63,8 @@ export interface FlowStep {
   skip?: boolean
   /** Rendered under the primary action (an « Ajouter des fonds » escape hatch, a note). */
   footer?: ReactNode
+  /** No « Continuer » on this step: its own content is what moves the flow on. */
+  hideAction?: boolean
 }
 
 export interface StepFlowProps {
@@ -79,11 +103,12 @@ export function StepFlow({ title, exit, steps, onFinish, finishLabel, finishDisa
   const index = Number.isFinite(raw) ? Math.round(raw) - 1 : 0
   const at = Math.min(Math.max(0, index), Math.max(0, visible.length - 1))
 
-  const goTo = (next: number) =>
+  const goTo = (next: number, extra?: Record<string, string>) =>
     setParams(
       (prev) => {
         const p = new URLSearchParams(prev)
         p.set(param, String(next + 1))
+        for (const [k, v] of Object.entries(extra ?? {})) p.set(k, v)
         return p
       },
       { replace: true },
@@ -99,6 +124,7 @@ export function StepFlow({ title, exit, steps, onFinish, finishLabel, finishDisa
   const step = visible[at]
   if (!step) return null
   const last = at === visible.length - 1
+  const render = (s: FlowStep, ctx: StepContext) => (typeof s.content === 'function' ? s.content(ctx) : s.content)
 
   function advance() {
     if (!step) return
@@ -119,7 +145,7 @@ export function StepFlow({ title, exit, steps, onFinish, finishLabel, finishDisa
             <h2 id={`${s.id}-title`} className="t-section">
               {s.title}
             </h2>
-            {s.content}
+            {render(s, { next: () => {}, grouped: true })}
           </section>
         ))}
         <div className={styles.footer}>
@@ -155,14 +181,18 @@ export function StepFlow({ title, exit, steps, onFinish, finishLabel, finishDisa
         <h2 id={`${step.id}-title`} className="t-section">
           {step.title}
         </h2>
-        {step.content}
+        {render(step, { next: (extra) => goTo(at + 1, extra), grouped: false })}
       </section>
-      <div className={styles.footer}>
-        <Button size="lg" block disabled={last ? finishDisabled : step.nextDisabled} onClick={advance}>
-          {last ? finishLabel : (step.nextLabel ?? 'Continuer')}
-        </Button>
-        {step.footer}
-      </div>
+      {step.hideAction && !last ? (
+        step.footer ? <div className={styles.footer}>{step.footer}</div> : null
+      ) : (
+        <div className={styles.footer}>
+          <Button size="lg" block disabled={last ? finishDisabled : step.nextDisabled} onClick={advance}>
+            {last ? finishLabel : (step.nextLabel ?? 'Continuer')}
+          </Button>
+          {step.footer}
+        </div>
+      )}
     </div>
   )
 }

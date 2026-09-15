@@ -13,7 +13,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
 import { handleField } from './handle'
 import { ApiError, type MoneyMovementResult, type TransferProvider } from '@/api/types'
-import { Button, ChoiceList, Field, Icon, ListRow, Money } from '@/components'
+import { Button, Card, ChoiceList, Field, Icon, List, ListRow, Money } from '@/components'
 import { AmountEntry, ConfirmSheet, ReviewList, StepFlow, SuccessScreen, useAccount, useAccountId, useTransaction, type FlowStep, type SummaryLine } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
 import { bicMatchesIban, checkIban, formatIban, isValidBic, normalizeIban, type IbanError } from '@/lib/iban'
@@ -326,23 +326,46 @@ export default function SendMoneyPage() {
     {
       id: 'send-method',
       title: 'Méthode',
-      /* Three separate options, not three segments of one control. The owner asked for it
-         and the app's own rule agrees: « choosing among options is a ChoiceList », because
-         each option can then carry the facts that decide the choice — what it reaches and
-         how long it takes. A segmented control has room for a word each, and « Transfert »
-         next to « Interne » next to « Bancaire » tells somebody nothing about which of the
-         three is the one they want. */
-      content: (
-        <ChoiceList
-          label="Méthode d’envoi"
-          value={mode}
-          onChange={(v) => setMode(v as Mode)}
-          /* `wrap`, because the description is what decides the choice: truncated, « Vers
-             Wave, Orange Money, MoneyGram, Int… » cuts the list of rails at the point it
-             stops being a list. */
-          options={MODES.map((m) => ({ value: m.value, title: m.title, subtitle: m.description, detail: m.eta, wrap: true }))}
-        />
-      ),
+      /* Three buttons, not a picker. Tapping a method chooses it *and* continues — a radio
+         beside a « Continuer » is two taps for one decision, and the owner asked for
+         buttons. The chevron is the affordance saying so.
+
+         At ≥1024px every step is on screen at once, so there is nothing to continue *to*:
+         the same three become a `ChoiceList`, where the job is to show which one is
+         selected because the fields below depend on it. */
+      hideAction: true,
+      content: ({ next, grouped }) =>
+        grouped ? (
+          <ChoiceList
+            label="Méthode d’envoi"
+            value={mode}
+            onChange={(v) => setMode(v as Mode)}
+            options={MODES.map((m) => ({ value: m.value, title: m.title, subtitle: m.description, detail: m.eta, wrap: true }))}
+          />
+        ) : (
+          <Card padding="none" elevation={1}>
+            <List>
+              {MODES.map((m) => (
+                <ListRow
+                  key={m.value}
+                  wrap
+                  chevron
+                  title={m.title}
+                  subtitle={m.description}
+                  value={m.eta}
+                  stack
+                  /* One write: the method and the step together — see `StepContext.next`. */
+                  onClick={() => {
+                    next({ mode: m.value })
+                    setNameError(null)
+                    setContactError(null)
+                    setSendError(null)
+                  }}
+                />
+              ))}
+            </List>
+          </Card>
+        ),
     },
     {
       id: 'send-recipient',

@@ -214,6 +214,21 @@ async function stepNumber(page) {
   return m ? Number(m[1]) : null
 }
 
+/**
+ * Tap one of the three send methods. It chooses *and* continues — there is no « Continuer »
+ * on that step, which is the whole point of them being buttons rather than a picker.
+ */
+async function chooseMethod(page, name) {
+  /* `locator('button', {hasText})`, not `getByRole('button', {hasText})` — `getByRole`
+     takes `name` and silently ignores `hasText`, so that matched every button in <main>
+     and `.first()` clicked the header's ✕ instead of a method. */
+  const row = page.locator('main').locator('button', { hasText: name }).first()
+  if ((await row.count()) === 0) throw new Error(`no « ${name} » method button`)
+  await row.click()
+  await page.waitForTimeout(400)
+  return stepNumber(page)
+}
+
 async function buyAShare(browser) {
   const flow = 'Acheter une action'
   const page = await newPage(browser, flow)
@@ -261,9 +276,14 @@ async function sendThroughAnOperator(browser) {
     /* Choosing a rail lands back on the flow's *method* step, with Wave already set. Step
        one is the three methods; the default is a transfer, so this only has to continue. */
     await present(page, page.getByText('Virement interne'), 'the method step')
-    if ((await stepNumber(page)) !== 1) fail(flow, `choosing an operator landed on step ${await stepNumber(page)}, not step 1`)
+    const landed = await stepNumber(page)
+    if (landed !== 1) fail(flow, `choosing an operator landed on step ${landed}, not step 1`)
+    /* Three buttons, no « Continuer » — tapping the method is the whole decision. */
+    if ((await page.locator('main').getByRole('button', { name: /^Continuer$/ }).count()) > 0) {
+      fail(flow, 'the method step still has a « Continuer » — it should be three buttons')
+    }
     await shot(page, 'send-method')
-    if ((await advance(page)) !== 2) return fail(flow, 'the method step did not lead to the recipient')
+    if ((await chooseMethod(page, 'Transfert')) !== 2) return fail(flow, 'tapping « Transfert » did not lead to the recipient')
 
     await present(page, page.getByLabel('Nom du destinataire'), 'the recipient step')
     await shot(page, 'send-form')
@@ -496,9 +516,8 @@ async function wireTransfer(browser) {
     await page.goto(`${BASE}/envoyer?mode=bancaire`, { waitUntil: 'domcontentloaded' })
     // A wire asks for the account holder, not a « destinataire » — the name on the account
     // is what the receiving bank matches against the IBAN.
-    // `?mode=bancaire` selects the method; step one is still the picker, so continue past it.
     await present(page, page.getByText('Virement bancaire'), 'the method step')
-    await advance(page)
+    if ((await chooseMethod(page, 'Virement bancaire')) !== 2) return fail(flow, 'tapping « Virement bancaire » did not lead to the wire form')
     await present(page, page.getByLabel('Titulaire du compte'), 'the wire form')
     await page.getByLabel('Titulaire du compte').fill('Moussa Sow')
     // A published specimen Senegalese IBAN — it has to pass the app's own ISO 13616 check.
@@ -572,8 +591,7 @@ async function internalTransfer(browser) {
     /* Three steps here, not four: an internal transfer has no recipient to fill in, so the
        flow skips that screen and the counter says « sur 3 ». */
     await present(page, page.getByText('Virement interne'), 'the method step')
-    await page.getByText('Virement interne').first().click()
-    if ((await advance(page)) !== 2) return fail(flow, 'choosing « Virement interne » did not lead straight to the amount — the recipient step should be skipped')
+    if ((await chooseMethod(page, 'Virement interne')) !== 2) return fail(flow, 'tapping « Virement interne » did not lead straight to the amount — the recipient step should be skipped')
     await present(page, page.getByRole('button', { name: '5', exact: true }), 'the amount keypad')
     await keypad(page, ['2', '5', '0', '0', '0'])
     if ((await advance(page)) !== 3) return fail(flow, 'the amount step did not lead to the aperçu')
