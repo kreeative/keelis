@@ -96,14 +96,9 @@
 .chartBlock { display: flex; flex-direction: column; gap: var(--sp-2); align-items: stretch; }
 
 .asideMobile { margin-top: 0; }
-.holdings { margin-top: var(--sp-3); }
 .aside { display: none; }
 
 .section { margin-top: var(--space-section); }
-
-@media (min-width: 768px) {
-  .hero { padding-block: var(--sp-6) var(--sp-5); }
-}
 
 @media (min-width: 1120px) {
   .layout { flex-direction: row; align-items: flex-start; gap: var(--sp-6); }

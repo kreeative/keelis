@@ -3,7 +3,7 @@
  */
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Keypad, keypadReduce } from '@/components/Keypad'
+import { Keypad } from '@/components/Keypad'
 import { Button } from '@/components/Button'
 import { Wordmark } from '@/components/Wordmark'
 import { Icon } from '@/components/Icon'
@@ -34,16 +34,12 @@ export function LockScreen() {
     }
   }, [pin, unlock])
 
-  const onKey = (e: React.KeyboardEvent) => {
-    if (/^\d$/.test(e.key) || e.key === 'Backspace') {
-      e.preventDefault()
-      setError(null)
-      setPin((p) => keypadReduce(p, e.key === 'Backspace' ? 'back' : e.key, { integerOnly: true, maxLength: 4 }))
-    }
-  }
+  /* Typing the NIP is `Keypad`'s own business now. This screen used to re-implement it,
+     as did the NIP sheet and the onboarding step — three copies of digits-and-Backspace,
+     and the pad itself, which is the thing on screen, had none. */
 
   return createPortal(
-    <div className={styles.root} role="dialog" aria-modal="true" aria-labelledby="lock-title" onKeyDown={onKey} tabIndex={-1} ref={(el) => el?.focus()}>
+    <div className={styles.root} role="dialog" aria-modal="true" aria-labelledby="lock-title" tabIndex={-1} ref={(el) => el?.focus()}>
       <div className={styles.inner}>
         <Wordmark size="sm" className="mark-clear" />
         <div className={styles.center}>

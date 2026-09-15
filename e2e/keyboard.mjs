@@ -27,9 +27,9 @@
  *   presses; and if the arrows did nothing, that single stop would be a control a keyboard
  *   user can reach and never change.
  *
- * And three things a full sweep cannot see, checked by hand: the skip link actually moves
+ * And four things a full sweep cannot see, checked by hand: the skip link actually moves
  * focus to the main region, a Sheet traps focus while it is open and returns it to whatever
- * opened it, and Escape closes it.
+ * opened it, Escape closes it, and an amount can be *typed* rather than only tabbed to.
  *
  * Usage: node e2e/keyboard.mjs [--only=/carte]
  */
@@ -411,6 +411,58 @@ async function checkSheet(browser) {
   }
 }
 
+/**
+ * You can **type** an amount, not only tab to a lozenge and press Enter.
+ *
+ * The walk above proves every keypad key is reachable and ringed, and it was — which is
+ * exactly why it never noticed that the number row did nothing. Entering 250,000 F CFA on a
+ * computer meant clicking six keys one at a time with a keyboard under your hands, on the
+ * one screen whose entire job is typing a number. « Keyboard-complete » has to mean the
+ * keyboard, not only the Tab key.
+ *
+ * Three things, because each one broke a different way while this was being built:
+ * the digits reach the figure; the four operators do too (`x` as well as `*`, because that
+ * is what people type); and a keystroke aimed at a text field on the same page stays in
+ * that field — the grouped desktop form puts a recipient's name beside the pad, and a « 7 »
+ * typed into a name belongs to the name.
+ */
+async function checkTypedAmount(browser) {
+  const where = 'La saisie au clavier'
+  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
+  await page.addInitScript((s) => localStorage.setItem('keewal.session', s), JSON.stringify(DEMO_SESSION))
+  const figure = () => page.locator('[class*=amount]').first().getAttribute('aria-label')
+  try {
+    await page.goto(`${BASE}/envoyer?etape=2&mode=interne`, { waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(2000)
+    await page.keyboard.type('25000')
+    await page.waitForTimeout(250)
+    if (!/25\D?000/.test((await figure()) ?? '')) fail(where, `typing « 25000 » left the figure at « ${await figure()} »`)
+    await page.keyboard.press('Backspace')
+    await page.waitForTimeout(200)
+    if (!/2\D?500/.test((await figure()) ?? '')) fail(where, `Backspace left the figure at « ${await figure()} »`)
+    await page.keyboard.type('0x3')
+    await page.waitForTimeout(300)
+    if (!/75\D?000/.test((await figure()) ?? '')) fail(where, `« 25000 x 3 » gave « ${await figure()} » rather than 75 000`)
+
+    /* And the same page's text fields keep their own digits. The recipient step is where a
+       name, a phone number and the pad are on screen together at this width. */
+    await page.goto(`${BASE}/envoyer?mode=transfert`, { waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(2000)
+    const name = page.getByLabel('Nom du destinataire')
+    if (await name.count()) {
+      await name.fill('')
+      await name.type('777')
+      await page.waitForTimeout(250)
+      if (await name.inputValue() !== '777') fail(where, 'the recipient field did not keep the digits typed into it')
+      if (!/^\D*0\D/.test((await figure()) ?? '0')) fail(where, `digits typed into the recipient's name reached the amount: « ${await figure()} »`)
+    }
+  } catch (e) {
+    fail(where, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
 const browser = await chromium.launch(findChromium() ? { executablePath: findChromium() } : {})
 let total = 0
 try {
@@ -421,6 +473,7 @@ try {
   if (!ONLY) {
     await checkSkipLink(browser)
     await checkSheet(browser)
+    await checkTypedAmount(browser)
   }
 } finally {
   await browser.close()

@@ -46,6 +46,17 @@
   transition-duration: var(--dur-press);
   transition-timing-function: var(--ease-exit);
 }
+/* A key struck on the physical keyboard sinks exactly as a tapped one does. Same
+   declarations as `:active` rather than a shared class, because `:active` cannot be put
+   on an element from script and a keystroke has to look like a press, not like a number
+   appearing out of nowhere. */
+.key.struck:not(:disabled) {
+  background: var(--key-press);
+  transform: var(--press);
+  box-shadow: none;
+  transition-duration: var(--dur-press);
+  transition-timing-function: var(--ease-exit);
+}
 .key:focus-visible { box-shadow: var(--focus-ring), var(--elev-1); }
 .key:disabled { color: var(--ink-300); cursor: not-allowed; box-shadow: none; background: none; border-color: transparent; }
 
@@ -89,4 +100,11 @@
   border-top-color: var(--glass-border);
   box-shadow: var(--elev-1);
   color: var(--ink-900);
+}
+/* Same, for an operator typed rather than tapped. It is not `.opActive`: that one means
+   « this operation is waiting for its second number » and stays until it is resolved. */
+.op.opStruck:not(:disabled) {
+  background: var(--key-press);
+  color: var(--ink-900);
+  transition-duration: var(--dur-press);
 }

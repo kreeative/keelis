@@ -47,7 +47,6 @@
     gap: var(--sp-3) var(--sp-4);
   }
   .search { flex: 1 1 280px; max-width: 480px; }
-  .tabs { width: auto; flex: 0 0 auto; }
 }
 
 .resultsCard { margin-top: var(--sp-4); min-width: 0; }

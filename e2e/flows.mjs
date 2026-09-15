@@ -858,20 +858,32 @@ async function lockAndUnlock(browser) {
   try {
     await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
     await present(page, page.getByText(/Solde total/), 'the home screen')
-    // The app locks itself when the tab has been hidden for a while.
+    /* The app locks itself when the tab has come back after HIDDEN_LOCK_MS in the
+       background — twenty seconds. This used to hide the tab for four hundred milliseconds
+       and then let itself off: « not a failure on its own: the lock waits out a delay before
+       it arms. » It never armed, so every assertion below it — that a balance cannot be read
+       through the lock, that a wrong PIN does not open it — had never once run, and the flow
+       reported itself as passing on every sweep. A check that returns early on the very
+       condition it exists to test is worse than no check: it is a green tick for nothing.
+
+       So the clock is moved instead of waited out: hide the tab, push `Date.now` twenty-one
+       seconds forward, and come back. If the lock still does not arm, that is the failure. */
     await page.evaluate(() => {
       Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
       document.dispatchEvent(new Event('visibilitychange'))
     })
-    await page.waitForTimeout(400)
+    await page.waitForTimeout(300)
+    await page.evaluate(() => {
+      const real = Date.now
+      Date.now = () => real.call(Date) + 21_000
+    })
     await page.evaluate(() => {
       Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
       document.dispatchEvent(new Event('visibilitychange'))
     })
-    await page.waitForTimeout(600)
-    const locked = await page.getByRole('dialog').count()
-    if (!locked) {
-      // Not a failure on its own: the lock waits out a delay before it arms.
+    await page.waitForTimeout(700)
+    if ((await page.locator('#lock-title').count()) === 0) {
+      fail(flow, 'the app did not lock after coming back from twenty-one seconds in the background')
       return
     }
     await shot(page, 'locked')
@@ -880,8 +892,15 @@ async function lockAndUnlock(browser) {
     if (/[\d,]{7,}\s*F\s?CFA/.test(body)) fail(flow, 'a balance is readable through the lock screen')
     for (const d of ['9', '9', '9', '9']) await page.getByRole('button', { name: d, exact: true }).first().click()
     await page.waitForTimeout(800)
-    if ((await page.getByRole('dialog').count()) === 0) fail(flow, 'the wrong PIN unlocked the app')
-    for (const d of ['1', '2', '3', '4']) await page.getByRole('button', { name: d, exact: true }).first().click()
+    if ((await page.locator('#lock-title').count()) === 0) fail(flow, 'the wrong PIN unlocked the app')
+    /* Typed, not tapped. The pad takes the physical keyboard, and four keystrokes must put
+       in four digits — three handlers used to re-implement this, so a fifth would have
+       doubled every one of them. */
+    await page.keyboard.type('12')
+    await page.waitForTimeout(250)
+    const entered = await page.locator('[aria-label*="chiffres saisis"]').first().getAttribute('aria-label')
+    if (!/^2 /.test(entered ?? '')) fail(flow, `typing two digits of the PIN entered "${entered}"`)
+    await page.keyboard.type('34')
     await present(page, page.getByText(/Solde total/), 'the app after unlocking')
     await shot(page, 'unlocked')
   } catch (e) {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/api'
-import { Button, Keypad, keypadReduce } from '@/components'
+import { Button, Keypad } from '@/components'
 import { StepShell } from './StepShell'
 import { stepEyebrow } from './steps'
 import { asApiError, useWizard } from './wizard'
@@ -63,20 +63,6 @@ export function StepPin() {
     sent.current = true
     void submit(confirm)
   }, [phase, confirm, pin, restart, submit])
-
-  // Physical keyboard entry, same rules as the on-screen keypad.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (busy) return
-      if (/^\d$/.test(e.key) || e.key === 'Backspace') {
-        e.preventDefault()
-        setError(null)
-        setValue((prev) => keypadReduce(prev, e.key === 'Backspace' ? 'back' : e.key, { integerOnly: true, maxLength: LENGTH }))
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [busy, setValue])
 
   return (
     <StepShell

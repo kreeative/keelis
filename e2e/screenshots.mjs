@@ -268,6 +268,92 @@ async function notchViolations(page) {
   return found
 }
 
+/**
+ * Anything present, focusable and **painted over** — a control or a heading that is in the
+ * DOM, visible by every CSS measure, and contributes not one pixel to the screen.
+ *
+ * This is the one failure mode none of the other checks here can see, because what it looks
+ * like is *nothing*. Accueil carried a desktop-only header above its canvas with the
+ * greeting and two buttons in it; `.canvas::before` carries the canvas colour 100vh up past
+ * its own top edge so an iOS overscroll shows more canvas instead of a seam, and being
+ * positioned it painted straight over its static sibling. The contrast audit had nothing to
+ * measure. The tap-target audit measured a 44px button that was there. The keyboard walk
+ * stopped on both buttons and found them visible, ringed and reversible — they were. The
+ * screenshot showed an empty band, which is what an empty band looks like.
+ *
+ * It is found by hit-testing rather than by pixels, which makes it cheap: `pointer-events`
+ * is forced on for every element *and every pseudo-element*, so `elementFromPoint` returns
+ * whatever is really on top — a `::before` reports its owner — and five points across each
+ * target are asked. A target is only flagged if every point lands on something that is
+ * neither it nor a relation of it, and that something paints an opaque fill.
+ *
+ * **Overlays are excluded, and that is what keeps it quiet.** A `fixed` or `sticky`
+ * ancestor means the thing on top is meant to be on top and moves independently — the
+ * floating nav pill sits over the foot of every page, and the control under it scrolls out
+ * the moment anybody touches the screen. That is the under-nav check's business, and it
+ * counts only sticky elements for exactly the same reason.
+ *
+ * Alpha is parsed rather than matched against `rgba(…)`: Chromium reports a computed
+ * `background-color` in the colour space it was authored in, so every token in this app
+ * comes back as `oklch(…)` and an `rgba`-shaped regex reads every surface as transparent.
+ * The first version of this check did exactly that and found nothing at all.
+ */
+async function paintedOverViolations(page) {
+  return page.evaluate(() => {
+    const style = document.createElement('style')
+    style.textContent = '*, *::before, *::after { pointer-events: auto !important; }'
+    document.head.appendChild(style)
+    const alpha = (c) => {
+      if (!c || c === 'transparent' || c === 'none') return 0
+      const m = /\(([^)]*)\)/.exec(c)
+      if (!m) return 1
+      const inner = m[1]
+      if (inner.includes('/')) return parseFloat(inner.split('/')[1]) || 0
+      const parts = inner.split(',')
+      return parts.length > 3 ? parseFloat(parts[3]) || 0 : 1
+    }
+    const opaque = (el) => [null, '::before', '::after'].some((pseudo) => {
+      const s = getComputedStyle(el, pseudo)
+      return alpha(s.backgroundColor) >= 0.9 || (s.backgroundImage && s.backgroundImage !== 'none')
+    })
+    const overlay = (el) => {
+      for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+        const pos = getComputedStyle(n).position
+        if (pos === 'fixed' || pos === 'sticky') return true
+      }
+      return false
+    }
+    const out = []
+    const seen = new Set()
+    for (const el of document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"]), h1, h2')) {
+      const r = el.getBoundingClientRect()
+      if (r.width < 4 || r.height < 4) continue
+      if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) continue
+      let covered = null
+      let asked = 0
+      for (const [fx, fy] of [[0.5, 0.5], [0.2, 0.5], [0.8, 0.5], [0.5, 0.2], [0.5, 0.8]]) {
+        const x = r.left + r.width * fx
+        const y = r.top + r.height * fy
+        if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) continue
+        asked++
+        const top = document.elementFromPoint(x, y)
+        if (!top) continue
+        // One point showing through is enough: the element is on screen.
+        if (top === el || el.contains(top) || top.contains(el)) { covered = null; break }
+        if (opaque(top) && !overlay(top)) covered = top
+      }
+      if (!asked || !covered) continue
+      const name = (el.getAttribute('aria-label') || el.textContent || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 32)
+      if (seen.has(name)) continue
+      seen.add(name)
+      const by = covered.tagName.toLowerCase() + (covered.className ? '.' + String(covered.className).split(/\s+/).pop() : '')
+      out.push({ kind: 'painted-over', detail: `"${name}" is in the DOM and focusable but paints nothing — ${by} covers it` })
+    }
+    style.remove()
+    return out
+  })
+}
+
 const exe = findChromium()
 const browser = await chromium.launch({ executablePath: exe, headless: true })
 const summary = []
@@ -315,6 +401,7 @@ try {
           const violations = await page.evaluate(auditScript)
           /* A notch is a phone thing; a 1440px window has no status bar over the page. */
           if (width < 768) violations.push(...(await notchViolations(page)))
+          violations.push(...(await paintedOverViolations(page)))
           const name = (route === '/' ? 'home' : route.replace(/^\//, '').replace(/[\/:]/g, '_')) + `-${width}-${theme}`
           if (SHOTS) await page.screenshot({ path: join(OUT, name + '.png'), fullPage: true })
           total += violations.length

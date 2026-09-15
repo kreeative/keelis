@@ -54,19 +54,3 @@
   padding-block: var(--sp-6);
 }
 
-/* The toast viewport is positioned for the app shell (above the bottom bar).
-   There is no bottom bar here, so this transformed box becomes its containing
-   block and lifts the toast clear of the step's primary button. */
-.toasts {
-  position: fixed;
-  inset: 0 0 var(--sp-9) 0;
-  transform: translateZ(0);
-  pointer-events: none;
-}
-/* The viewport offsets itself by the desktop icon rail; there is no rail on the
-   public pages, so mirror the offset on the right to keep the toast centred. */
-@media (min-width: 768px) {
-  .toasts {
-    right: var(--rail-width);
-  }
-}

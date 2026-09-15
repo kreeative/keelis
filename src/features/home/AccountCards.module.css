@@ -59,12 +59,6 @@
 .up { color: var(--pos); }
 .down { color: var(--neg); }
 
-/* The marks are the first thing to go when the row runs out of width: at 320px they were
-   squeezing « Actifs » to twelve pixels, and a name is worth more than a row of logos. */
-@media (max-width: 359px) {
-  .marks { display: none; }
-}
-
 /* Two columns once the rail leaves room, and back to one when the column itself is wide
    enough that a stretched row would put the name and the money a hand's width apart. */
 @media (min-width: 1024px) {

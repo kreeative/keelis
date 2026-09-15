@@ -25,9 +25,6 @@
   gap: var(--sp-3);
   margin-top: var(--sp-6);
 }
-/* SegmentedControl tabs stretch to the control height; 52px makes each tab a 44px target. */
-.tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
-
 .listCard { margin-top: var(--sp-4); }
 .listSection { min-width: 0; }
 
@@ -57,7 +54,6 @@
     justify-content: space-between;
   }
   .controls > :first-child { flex: 0 1 360px; }
-  .tabs.tabs.tabs { flex: 0 0 auto; display: inline-flex; width: auto; }
   .spark { display: inline-flex; }
   .venueWide { display: inline; }
 }

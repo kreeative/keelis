@@ -9,13 +9,6 @@
 .layout { display: flex; flex-direction: column; gap: var(--space-section); }
 .main { display: flex; flex-direction: column; min-width: 0; }
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  min-height: var(--tap);
-}
 .eye { color: var(--ink-400); }
 .eye:hover { color: var(--ink-900); }
 

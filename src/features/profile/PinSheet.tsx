@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, ApiError } from '@/api'
-import { Button, Keypad, Sheet, keypadReduce } from '@/components'
+import { Button, Keypad, Sheet } from '@/components'
 import { cn } from '@/lib/cn'
 import styles from './PinSheet.module.css'
 
@@ -76,12 +76,6 @@ export function PinSheet({ open, onClose, onSaved }: { open: boolean; onClose: (
     [pending, step, first, save],
   )
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (!/^\d$/.test(e.key) && e.key !== 'Backspace') return
-    e.preventDefault()
-    commit(keypadReduce(value, e.key === 'Backspace' ? 'back' : e.key, { integerOnly: true, maxLength: LENGTH }))
-  }
-
   return (
     <Sheet
       open={open}
@@ -94,7 +88,7 @@ export function PinSheet({ open, onClose, onSaved }: { open: boolean; onClose: (
         </Button>
       }
     >
-      <div className={styles.body} onKeyDown={onKeyDown}>
+      <div className={styles.body}>
         <p className={styles.step} aria-live="polite">
           {step === 'first' ? 'Choisissez un NIP de quatre chiffres.' : 'Entrez-le une seconde fois.'}
         </p>
