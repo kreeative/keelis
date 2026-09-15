@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api, CATEGORY_LABELS, TYPE_LABELS } from '@/api'
 import type { Transaction, TransactionStatus } from '@/api/types'
 import type { BadgeTone, IconName } from '@/components'
-import { AmountDisplay, Avatar, Badge, Button, EmptyState, ErrorState, Icon, List, ListRow, PageHeader, SelectField, Sheet, Skeleton, TextAreaField } from '@/components'
+import { AmountDisplay, Avatar, Badge, Button, EmptyState, ErrorState, Icon, List, ListRow, PageHeader, Picker, Sheet, Skeleton, TextAreaField } from '@/components'
 import { transactionIcon, useTransaction } from '@/features/shared'
 import { formatCrypto, formatDateTime, formatMoney } from '@/lib/format'
 import { useSettings, useToast } from '@/store'
@@ -261,13 +261,7 @@ export default function TransactionDetailPage() {
           {tx.counterparty} · {formatMoney(tx.amount, { locale })}
         </p>
         <div className={styles.sheetFields}>
-          <SelectField label="Motif" value={reason} onChange={(e) => setReason(e.target.value)}>
-            {REPORT_REASONS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </SelectField>
+          <Picker label="Motif" value={reason} onChange={setReason} options={REPORT_REASONS.map((r) => ({ value: r, title: r }))} sheetTitle="Motif du signalement" />
           <TextAreaField label="Détails" hint="Facultatif" value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} />
         </div>
         {reportError ? (

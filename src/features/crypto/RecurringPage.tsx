@@ -5,7 +5,7 @@
 import { useMemo, useState } from 'react'
 import { api } from '@/api'
 import type { ApiError, RecurringBuy, RecurringFrequency } from '@/api/types'
-import { AmountDisplay, AssetIcon, Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, SegmentedControl, SelectField, Sheet, SkeletonRow, Switch } from '@/components'
+import { AmountDisplay, AssetIcon, Button, EmptyState, ErrorState, Field, Icon, List, Money, PageHeader, Picker, SegmentedControl, Sheet, SkeletonRow, Switch } from '@/components'
 import { DEFAULT_CURRENCY, formatDate, formatMoney, parseAmountInput, splitMoney } from '@/lib/format'
 import { QK, useMutation, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
@@ -248,13 +248,22 @@ export default function RecurringPage() {
         }
       >
         <div className={styles.form}>
-          <SelectField label="Actif" value={chosenAsset?.id ?? ''} onChange={(e) => setAssetId(e.target.value)} disabled={assets.length === 0}>
-            {assets.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name} · {a.symbol}
-              </option>
-            ))}
-          </SelectField>
+          {/* The ticker leads, because that is how a market list is scanned, and the mark
+              is how somebody finds Bitcoin without reading. Neither fits in a `<select>`. */}
+          <Picker
+            label="Actif"
+            value={chosenAsset?.id ?? ''}
+            onChange={setAssetId}
+            disabled={assets.length === 0}
+            sheetTitle="Choisir un actif"
+            options={assets.map((a) => ({
+              value: a.id,
+              title: a.symbol,
+              subtitle: a.name,
+              leading: <AssetIcon symbol={a.symbol} size="sm" />,
+              label: `${a.symbol}, ${a.name}`,
+            }))}
+          />
           <Field
             label="Montant"
             inputMode="decimal"

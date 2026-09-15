@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Field, Icon, SelectField } from '@/components'
+import { Field, Picker } from '@/components'
 import { StepShell } from './StepShell'
 import { useStepFocus } from './useStepFocus'
 import { stepEyebrow } from './steps'
@@ -68,33 +68,26 @@ export function StepAddress() {
     >
       <div className={styles.fields}>
         {/* Country first: it decides what the two fields below even are. */}
-        <div className={styles.select}>
-          <SelectField label="Pays" autoComplete="country-name" value={countryCode} onChange={(e) => onCountry(e.target.value)}>
-            {COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.name}
-              </option>
-            ))}
-          </SelectField>
-          <Icon name="chevron-down" size={18} className={styles.selectChevron} />
-        </div>
+        {/* Two hundred and fifty countries: the sheet's search box is the whole reason this
+            is not a wheel somebody has to spin past Afghanistan to reach Sénégal. */}
+        <Picker
+          label="Pays"
+          value={countryCode}
+          onChange={onCountry}
+          sheetTitle="Pays de résidence"
+          options={COUNTRIES.map((c) => ({ value: c.code, title: c.name }))}
+        />
         <Field label="Adresse" autoComplete="address-line1" ref={focusRef} value={line1} onChange={(e) => setLine1(e.target.value)} />
         <Field label="Appartement" hint="Facultatif" autoComplete="address-line2" value={line2} onChange={(e) => setLine2(e.target.value)} />
         <Field label="Ville" autoComplete="address-level2" value={city} onChange={(e) => setCity(e.target.value)} />
         {place.regions ? (
-          <div className={styles.select}>
-            <SelectField label={place.regionLabel} autoComplete="address-level1" value={province} onChange={(e) => setProvince(e.target.value)}>
-              <option value="" disabled>
-                Choisir
-              </option>
-              {place.regions.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </SelectField>
-            <Icon name="chevron-down" size={18} className={styles.selectChevron} />
-          </div>
+          <Picker
+            label={place.regionLabel}
+            value={province}
+            onChange={setProvince}
+            sheetTitle={place.regionLabel}
+            options={place.regions.map((r) => ({ value: r, title: r }))}
+          />
         ) : (
           /* No list for this country: a free field beats a wrong list. */
           <Field label={place.regionLabel} autoComplete="address-level1" value={province} onChange={(e) => setProvince(e.target.value)} />

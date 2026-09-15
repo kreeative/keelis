@@ -39,21 +39,6 @@
 .input:focus-visible { box-shadow: none; }
 .input::placeholder { color: var(--ink-400); }
 .input:disabled { color: var(--ink-400); cursor: not-allowed; }
-.selectWrap { position: relative; display: flex; flex: 1; min-width: 0; }
-.select {
-  appearance: none;
-  padding-right: var(--sp-7);
-  background-image: none;
-  cursor: pointer;
-}
-.selectChevron {
-  position: absolute;
-  right: var(--sp-4);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--ink-600);
-  pointer-events: none;
-}
 .textarea { min-height: 96px; resize: vertical; line-height: var(--lh-body); }
 .adornment {
   display: inline-flex;

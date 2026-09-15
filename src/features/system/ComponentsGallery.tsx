@@ -30,7 +30,7 @@ import {
   QuickActions,
   Refreshing,
   SegmentedControl,
-  SelectField,
+  Picker,
   Sheet,
   Skeleton,
   SkeletonAmount,
@@ -155,6 +155,7 @@ export default function ComponentsGallery() {
   const { theme, setTheme, hidden, toggleHidden, locale } = useSettings()
   const { toast } = useToast()
 
+  const [network, setNetwork] = useState('btc')
   const [pad, setPad] = useState('125,40')
   const [pin, setPin] = useState('12')
   const [seg2, setSeg2] = useState('a')
@@ -568,11 +569,16 @@ export default function ComponentsGallery() {
           <Example caption="Field · ornements avant et après" fill>
             <Field label="Recherche" placeholder="Rechercher" leading={<Icon name="search" size={20} />} trailing={<span className="t-small t-faint">XOF</span>} />
           </Example>
-          <Example caption="SelectField" fill>
-            <SelectField label="Réseau" defaultValue="btc">
-              <option value="btc">Bitcoin</option>
-              <option value="ltn">Lightning</option>
-            </SelectField>
+          <Example caption="Picker — il n’y a plus de SelectField" fill>
+            <Picker
+              label="Réseau"
+              value={network}
+              onChange={setNetwork}
+              options={[
+                { value: 'btc', title: 'Bitcoin', subtitle: 'Frais 0.00004 BTC · ~30 min' },
+                { value: 'ltn', title: 'Lightning', subtitle: 'Frais négligeables · instantané' },
+              ]}
+            />
           </Example>
           <Example caption="TextAreaField" wide fill>
             <TextAreaField label="Note" placeholder="Ajouter une note au virement" />

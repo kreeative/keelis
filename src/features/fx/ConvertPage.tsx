@@ -11,13 +11,24 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
 import { ApiError } from '@/api/types'
-import { Button, Callout, Card, Icon, SelectField, Sheet, StatGrid } from '@/components'
+import { Button, Callout, Card, Icon, Picker, Sheet, StatGrid } from '@/components'
 import { AmountEntry, StepFlow, SuccessScreen, useAccount, type FlowStep } from '@/features/shared'
 import { CURRENCIES, CURRENCY_ORDER, isCurrency, type Currency } from '@/lib/currency'
 import { TIER_LABEL, quote } from '@/lib/fx'
 import { formatMoney, formatNumber, parseAmountInput } from '@/lib/format'
 import { QK, invalidate, useSettings } from '@/store'
 import styles from './ConvertPage.module.css'
+
+/* Built once: the same sixteen rows serve both ends of the pair. The code leads because a
+   currency list is scanned by code; the zone is the thing that actually disambiguates the
+   two CFA francs, and `CurrencyInfo.zone` was written for exactly this row. */
+const CURRENCY_OPTIONS = CURRENCY_ORDER.map((c) => ({
+  value: c,
+  title: c,
+  subtitle: CURRENCIES[c].name,
+  detail: CURRENCIES[c].zone,
+  label: `${c}, ${CURRENCIES[c].name}, ${CURRENCIES[c].zone}`,
+}))
 
 export default function ConvertPage() {
   const { locale } = useSettings()
@@ -147,25 +158,15 @@ export default function ConvertPage() {
         <>
           <p className={styles.intro}>Le taux appliqué et la marge sont affichés avant que vous confirmiez.</p>
           <Card padding="md" elevation={1} className={styles.pair}>
-            <SelectField label="De" value={from} onChange={(e) => setFrom(e.target.value as Currency)}>
-              {CURRENCY_ORDER.map((c) => (
-                <option key={c} value={c}>
-                  {c} — {CURRENCIES[c].name}
-                </option>
-              ))}
-            </SelectField>
+            {/* A picker, not a dropdown: sixteen currencies each with a name and a symbol,
+                and a `<select>` could only ever render one truncating line per option. */}
+            <Picker label="De" value={from} onChange={(v) => setFrom(v as Currency)} options={CURRENCY_OPTIONS} sheetTitle="Devise de départ" />
 
             <Button variant="secondary" iconOnly aria-label="Inverser les devises" onClick={swap} className={styles.swap}>
               <Icon name="transfer" />
             </Button>
 
-            <SelectField label="Vers" value={to} onChange={(e) => setTo(e.target.value as Currency)}>
-              {CURRENCY_ORDER.map((c) => (
-                <option key={c} value={c}>
-                  {c} — {CURRENCIES[c].name}
-                </option>
-              ))}
-            </SelectField>
+            <Picker label="Vers" value={to} onChange={(v) => setTo(v as Currency)} options={CURRENCY_OPTIONS} sheetTitle="Devise d’arrivée" />
           </Card>
         </>
       ),

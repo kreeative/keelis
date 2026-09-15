@@ -1,0 +1,72 @@
+/* The trigger wears `Field`'s anatomy — same label, same control height, same fill, same
+   focus ring — because it stands in a form beside real fields and a control that looked
+   different would read as a different kind of thing. It is a button, not an input. */
+.root { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+.label {
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  letter-spacing: var(--ls-label);
+  font-weight: var(--fw-label);
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: var(--control-md);
+  padding-inline: var(--sp-4);
+  text-align: left;
+  background: var(--surface-alt);
+  border: 1px solid transparent;
+  border-radius: var(--r-field);
+  color: var(--ink-900);
+  font-size: var(--fs-body);
+  transition:
+    background-color var(--dur-smooth) var(--ease-smooth),
+    box-shadow var(--dur-smooth) var(--ease-smooth),
+    border-color var(--dur-smooth) var(--ease-smooth);
+}
+.trigger:hover:not(:disabled) { background: var(--fill-subtle); }
+.trigger:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+.trigger:disabled { opacity: 0.55; cursor: not-allowed; }
+.invalid { border-color: var(--neg); }
+
+/* Two lines when the option has a secondary — « XOF » over « Franc CFA (UEMOA) ». A
+   `<select>` could only ever show one, which is why the currency rows used to read
+   « XOF — Franc CFA … » as a single truncating string. */
+.chosen { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.chosenTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chosenSub {
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.placeholder { color: var(--ink-400); }
+.chevron { color: var(--ink-600); flex-shrink: 0; }
+
+.search { margin-bottom: var(--space-block); }
+
+.hint { font-size: var(--fs-small); color: var(--ink-600); }
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--neg);
+}
+.errorIcon { flex-shrink: 0; margin-top: 1px; }
+
+.empty {
+  padding-block: var(--sp-5);
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--ink-600);
+}

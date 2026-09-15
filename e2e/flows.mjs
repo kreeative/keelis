@@ -229,6 +229,25 @@ async function chooseMethod(page, name) {
   return stepNumber(page)
 }
 
+/**
+ * Choose from a `Picker` — the row that replaced every `<select>`.
+ *
+ * The trigger is named by its label *and* its current value, the way a `<select>` announces
+ * itself, so `getByRole('button', { name: /Pays/ })` finds it. Opens the sheet, uses the
+ * search box when the list is long enough to have one, taps the option.
+ */
+async function pick(page, label, option) {
+  const trigger = page.getByRole('button', { name: label }).first()
+  if ((await trigger.count()) === 0) throw new Error(`no picker labelled ${label}`)
+  await trigger.click()
+  const sheet = page.getByRole('dialog')
+  await present(page, sheet, `the ${option} picker sheet`)
+  const search = sheet.getByPlaceholder('Rechercher…')
+  if ((await search.count()) > 0) await search.fill(option)
+  await sheet.getByRole('radio', { name: new RegExp(option, 'i') }).first().click()
+  await page.waitForTimeout(400)
+}
+
 async function buyAShare(browser) {
   const flow = 'Acheter une action'
   const page = await newPage(browser, flow)
@@ -735,13 +754,15 @@ async function signUp(browser) {
     await page.getByLabel('Date de naissance').fill('1994-03-22')
     await next().click()
 
-    // The step that used to be impossible from Dakar.
-    await present(page, page.getByLabel('Pays'), 'the address step')
-    const country = await page.getByLabel('Pays').inputValue()
-    if (country !== 'SN') fail(flow, `the address step opens on « ${country} » rather than Senegal, the home market`)
+    /* The step that used to be impossible from Dakar. Country and région are `Picker`s now,
+       not dropdowns — a row that opens a searchable sheet — so this reads the row's own
+       text and picks from the sheet rather than calling `selectOption`. */
+    await present(page, page.getByRole('button', { name: /Pays/ }).first(), 'the address step')
+    const country = await page.getByRole('button', { name: /Pays/ }).first().innerText()
+    if (!/Sénégal/i.test(country)) fail(flow, `the address step opens on « ${country.replace(/\s+/g, ' ').trim()} » rather than Senegal, the home market`)
     await page.getByLabel('Adresse').first().fill('12, rue Carnot')
     await page.getByLabel('Ville').fill('Dakar')
-    await page.getByLabel(/Région/).selectOption('Dakar')
+    await pick(page, /Région|Region/, 'Dakar')
     await page.getByLabel(/Code postal/).fill('11000')
     await shot(page, 'signup-address')
     if (await next().isDisabled()) return fail(flow, 'the address step could not be completed with a Dakar address')

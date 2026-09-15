@@ -61,6 +61,12 @@ function check(file) {
     if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return
     if (emoji.test(line)) violations.push(`${where}: emoji found`)
     if (/new Intl\.NumberFormat/.test(line) && file !== FORMAT) violations.push(`${where}: bare Intl.NumberFormat — format numbers through src/lib/format.ts, or the app's punctuation drifts`)
+    /* No dropdowns. The owner asked for none anywhere, and a `<select>` is the one control
+       in the app that cannot be themed, cannot show what an option costs or takes, and on a
+       phone opens the OS's own wheel over the form. `Picker` replaced all five. */
+    /* Backtick spans come out first: a line *about* `<select>` — and this file is full of
+       them — is prose, not a dropdown. Without this the rule fired on its own rationale. */
+    if (/<select[\s>]/.test(line.replace(/`[^`]*`/g, ''))) violations.push(`${where}: <select> — use Picker; a native dropdown cannot be themed and hides the form behind an OS wheel`)
     if (/gradient\(/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: gradient — surfaces are plain colours`)
     if (file.endsWith('.css')) {
       if (!allowedColourFiles.includes(file) && colourLiteral.test(line) && !/currentColor|transparent|inherit/.test(line)) violations.push(`${where}: hard-coded colour → use a token`)
@@ -150,5 +156,5 @@ if (violations.length) {
   console.error(`Design check failed (${violations.length}):\n` + violations.map((v) => '  - ' + v).join('\n'))
   process.exit(1)
 } else {
-  console.log('Design check passed: one warm family, plain fills, no gradient or blur anywhere, elevation from the token layer; no emoji or sub-12px text.')
+  console.log('Design check passed: one warm family, plain fills, no gradient, blur or dropdown anywhere, elevation from the token layer; no emoji or sub-12px text.')
 }

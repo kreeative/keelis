@@ -45,19 +45,6 @@
   text-align: center;
 }
 
-/* The shared SelectField draws no affordance of its own. */
-.select {
-  position: relative;
-}
-.selectChevron {
-  position: absolute;
-  right: var(--sp-4);
-  /* vertically centred on the 44px control that sits at the bottom of the field */
-  bottom: calc((var(--control-md) - 18px) / 2);
-  color: var(--ink-600);
-  pointer-events: none;
-}
-
 /* ---- Pièce d’identité ---- */
 .drop {
   display: flex;

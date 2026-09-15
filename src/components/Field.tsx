@@ -1,12 +1,15 @@
 /**
  * Labelled input. Label above (12px label style). Focus = 2px accent ring.
- * Supports input/select/textarea.
+ * Supports input and textarea. **There is no `SelectField`** — the owner asked for no
+ * dropdowns anywhere, and `Picker` replaced the five that existed: a native `<select>` is
+ * the one control in the app that cannot be themed, cannot show what an option costs or
+ * takes, and on a phone opens an OS wheel over the form.
  *
  * A message under the field carries an icon, as the kit's field states do: with no hue
  * in the palette, « Success message » and « Error message » would otherwise be the same
  * grey line of 14px text. The glyph is the difference.
  */
-import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
+import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 import { Icon, type IconName } from './Icon'
 import styles from './Field.module.css'
@@ -69,53 +72,6 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ l
       <div className={styles.control}>
         {leading ? <span className={styles.adornment}>{leading}</span> : null}
         <input ref={ref} id={inputId} className={styles.input} aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...rest} />
-        {trailing ? <span className={cn(styles.adornment, styles.trailing)}>{trailing}</span> : null}
-      </div>
-      {hint && !error && !success && !warning ? (
-        <Message id={`${inputId}-hint`} kind="hint">
-          {hint}
-        </Message>
-      ) : null}
-      {success && !error ? (
-        <Message id={`${inputId}-success`} kind="success">
-          {success}
-        </Message>
-      ) : null}
-      {warning && !error ? (
-        <Message id={`${inputId}-warning`} kind="warning">
-          {warning}
-        </Message>
-      ) : null}
-      {error ? (
-        <Message id={`${inputId}-error`} kind="error">
-          {error}
-        </Message>
-      ) : null}
-    </div>
-  )
-})
-
-export interface SelectFieldProps extends BaseProps, Omit<SelectHTMLAttributes<HTMLSelectElement>, 'className'> {
-  children: ReactNode
-}
-
-export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(function SelectField({ label, hint, error, success, warning, hideLabel, leading, trailing, className, id, children, ...rest }, ref) {
-  const auto = useId()
-  const inputId = id ?? auto
-  const describedBy = [hint ? `${inputId}-hint` : null, success ? `${inputId}-success` : null, warning ? `${inputId}-warning` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
-  return (
-    <div className={cn(styles.field, error && styles.hasError, className)}>
-      <label htmlFor={inputId} className={cn(styles.label, hideLabel && 'sr-only')}>
-        {label}
-      </label>
-      <div className={styles.control}>
-        {leading ? <span className={styles.adornment}>{leading}</span> : null}
-        <span className={styles.selectWrap}>
-          <select ref={ref} id={inputId} className={cn(styles.input, styles.select)} aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...rest}>
-            {children}
-          </select>
-          <Icon name="chevron-down" size={18} className={styles.selectChevron} />
-        </span>
         {trailing ? <span className={cn(styles.adornment, styles.trailing)}>{trailing}</span> : null}
       </div>
       {hint && !error && !success && !warning ? (
