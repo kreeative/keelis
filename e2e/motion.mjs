@@ -348,6 +348,32 @@ async function run() {
       await page.waitForTimeout(400)
       if (await page.locator('[role="dialog"]').count()) fail('desktop', 'the dialog is still in the tree after its exit')
       notes.push('desktop: a centred dialog arrives and leaves without moving the window behind it')
+
+      /* The rail is the mobile pill stood on its end, so it carries the same capsule. It
+         did not until now, and the reason was a bug: « Rechercher un actif » and « Actifs »
+         both lead to /crypto, and `NavLink` wrote `aria-current="page"` on both — so two
+         rows lit at once and there was no single thing to measure. */
+      await ready(page, '/crypto')
+      const rail = await page.evaluate(() => {
+        const nav = [...document.querySelectorAll('nav')].find((n) => {
+          const r = n.getBoundingClientRect()
+          return r.width > 0 && r.height > 300
+        })
+        if (!nav) return { missing: true }
+        const lit = [...nav.querySelectorAll('[aria-current="page"]')]
+        const pill = nav.querySelector('li[aria-hidden="true"]')
+        const top = (e) => (e ? Math.round(e.getBoundingClientRect().top) : null)
+        return {
+          lit: lit.map((a) => a.getAttribute('aria-label')),
+          pill: top(pill),
+          active: top(lit[0]?.closest('li') ?? null),
+        }
+      })
+      if (rail.missing) fail('desktop', 'no rail to measure at 1440px')
+      else if (rail.lit.length !== 1) fail('desktop', `the rail lights ${rail.lit.length} destinations at once on /crypto: ${rail.lit.join(', ')}`)
+      else if (rail.pill === null) fail('desktop', 'the rail has no capsule under its active destination')
+      else if (Math.abs(rail.pill - rail.active) > 1) fail('desktop', `the rail's capsule is not on the active destination (capsule ${rail.pill}, row ${rail.active})`)
+      else notes.push(`rail: one lit destination (${rail.lit[0]}), capsule on it at y=${rail.pill}`)
     }
     await page.close()
     await wide.close()

@@ -20,7 +20,9 @@
   font-family: var(--font-mono);
   font-size: var(--fs-small);
   line-height: 1.6;
-  text-align: center;
+  /* Left, not centred: it breaks across three lines and centring makes each one start
+     somewhere different — the worst possible shape for checking an address character by
+     character, which is the only thing anybody does with it. */
   word-break: break-all;
   overflow-wrap: anywhere;
   transition: opacity var(--dur-smooth) var(--ease-smooth);

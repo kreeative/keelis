@@ -221,7 +221,10 @@
   --space-edge: var(--sp-5);       /* 24 — margin to the top and bottom of the screen */
 
   --gutter: 16px;          /* mobile — the kit's left/right margin to the screen edge */
-  --content-max: 1120px;   /* desktop centring */
+  /* How wide the content may run. Left-aligned from the rail rather than centred, so this
+     is a ceiling on the line length, not a column to centre — raised at 1024px below,
+     where there is room for a list and its detail side by side. */
+  --content-max: 1120px;
   --doc-max: 880px;        /* documentation column (/composants), from the kit's own page */
   --doc-gap: 72px;         /* rhythm between documentation sections */
   --rail-width: 72px;      /* desktop icon rail */
@@ -465,6 +468,14 @@
   :root {
     --gutter: 32px;
     --fs-display: 64px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    /* Room for two columns and their gutters, once the rail is paid for. Left-aligned, so
+       what this buys is content further *right*, not a wider band of empty margin. */
+    --content-max: 1280px;
   }
 }
 

@@ -2,7 +2,7 @@
   padding-inline: var(--gutter);
   padding-block: var(--sp-5) var(--sp-7);
   max-width: 480px;
-  margin-inline: auto;
+  margin-inline: 0;
   width: 100%;
 }
 .body {
@@ -13,10 +13,9 @@
 .hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--sp-2);
   padding-block: var(--sp-5) var(--sp-2);
-  text-align: center;
 }
 .live {
   display: flex;

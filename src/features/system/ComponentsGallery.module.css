@@ -19,7 +19,7 @@
   gap: var(--sp-3);
   padding: var(--sp-3) var(--gutter);
   max-width: var(--doc-max);
-  margin-inline: auto;
+  margin-inline: 0;
   width: 100%;
 }
 .brand {
@@ -39,7 +39,7 @@
   padding-inline: var(--gutter);
   padding-block: var(--sp-5) var(--sp-7);
   max-width: var(--doc-max);
-  margin-inline: auto;
+  margin-inline: 0;
   width: 100%;
 }
 

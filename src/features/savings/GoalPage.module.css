@@ -2,7 +2,7 @@
   padding-inline: var(--gutter);
   padding-block: var(--sp-4) var(--sp-7);
   max-width: calc(520px + 2 * var(--gutter));
-  margin-inline: auto;
+  margin-inline: 0;
   width: 100%;
 }
 .head { margin-bottom: var(--sp-4); }

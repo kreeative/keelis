@@ -129,13 +129,34 @@
   .brand:focus-visible { box-shadow: var(--focus-ring); }
 
   .railList {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--sp-1);
     width: 100%;
   }
+  .railItem { position: relative; z-index: 1; display: flex; }
   .railBottom { margin-top: auto; }
+
+  /* The rail is the mobile pill stood on its end, so it gets the pill's capsule: the same
+     gold, sliding on the same spring, down instead of across. It used to be a veil of
+     `--fill-subtle` under whichever link was active — one state drawn two different ways on
+     two widths of the same navigation, and the owner asked why the motion had not reached
+     the menu. Measured on both axes so the one hook serves both orientations. */
+  .railPill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    border-radius: var(--r-field);
+    background: var(--cta);
+    box-shadow: var(--glass-rim);
+    transition:
+      transform var(--dur-snappy) var(--ease-snappy),
+      width var(--dur-snappy) var(--ease-snappy),
+      height var(--dur-snappy) var(--ease-snappy);
+  }
 
   .railLink {
     position: relative;
@@ -150,8 +171,10 @@
   }
   .railLink:hover { background: var(--fill-subtle); color: var(--ink-900); }
   .railLink:focus-visible { box-shadow: var(--focus-ring); }
-  /* The selection sits *into* the page, not on top of it: a veil of ink, not a white card. */
-  .railActive { background: var(--fill-subtle); color: var(--ink-900); box-shadow: var(--glass-rim); }
+  /* The fill moved to `.railPill`, which slides; what is left is the ink that has to change
+     with it — fast, because a glyph that fades over the capsule's whole travel spends most
+     of it as neither colour. */
+  .railActive { color: var(--on-cta); transition-duration: var(--dur-press); }
 
 
   /* The dot anchors to the glyph's corner, not to the 44px control around it. */
