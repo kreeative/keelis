@@ -2,13 +2,13 @@
  * /crypto/:id — live price as the hero, chart mirrored into the hero on hover,
  * holdings, facts, and a sticky Acheter / Vendre bar on mobile.
  */
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/api'
 import type { ChartRange, CryptoAsset, Holding, PriceHistory, PricePoint } from '@/api/types'
 import type { Stat } from '@/components'
 import { AmountDisplay, Button, CandleChart, Chart, Delta, ErrorState, Icon, Money, QuickActions, SegmentedControl, Skeleton, SkeletonAmount, StatGrid } from '@/components'
-import { MASKED, formatCrypto, formatDateTime } from '@/lib/format'
+import { MASKED, formatCrypto, formatDate, formatDateTime, formatTime, moneyAriaLabel, splitMoney } from '@/lib/format'
 import { QK, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { RANGES, formatCompactMoney, formatCompactQuantity, rangePeriod } from './cryptoFormat'
@@ -121,6 +121,40 @@ export default function AssetDetailPage() {
   if (history.data && history.data !== shown) setShown(history.data)
   const chartHistory = history.data ?? (shown && shown.assetId === id ? shown : undefined)
 
+  /* Above the `if (!asset)` below, and that is not tidiness: a hook after an early return
+     runs on some renders and not others, and React counts them. Put here first, the asset
+     page threw #310 — « rendered more hooks than during the previous render » — on its very
+     first paint, when `asset` is still undefined. `RouteBoundary` caught it, which is why
+     the screen said « Impossible de charger » instead of going white.
+
+     One pass over the very points the chart draws. Not `useMemo` for speed — a thousand
+     points is nothing — but so the four figures are computed from one array in one place
+     and cannot drift from the curve the way a second query would. */
+  const ohlc = useMemo(() => {
+    const pts = chartHistory?.points
+    if (!pts || pts.length < 2) return null
+    let lo = Infinity
+    let hi = -Infinity
+    for (const pt of pts) {
+      if (pt.p < lo) lo = pt.p
+      if (pt.p > hi) hi = pt.p
+    }
+    /* The digits without the symbol, through `splitMoney` — the same tool `moneyPair` uses
+       for the side of a pair that does not carry the unit. Four repetitions of « F CFA » on
+       one line is twenty-four characters spent saying what the hero says once directly
+       above, and the chart's own scale under this row is bare for the same reason. Full
+       precision, not the compact form: on a market screen the difference between 92,391,220
+       and 92,4 M is the part somebody came to read. */
+    const digits = (v: number) => splitMoney(v, { locale }).number
+    const full = (v: number) => moneyAriaLabel(v, { locale })
+    return [
+      { key: 'O', name: 'Ouverture', value: digits(pts[0]!.p), label: full(pts[0]!.p) },
+      { key: 'H', name: 'Plus haut', value: digits(hi), label: full(hi) },
+      { key: 'B', name: 'Plus bas', value: digits(lo), label: full(lo) },
+      { key: 'C', name: 'Clôture', value: digits(pts[pts.length - 1]!.p), label: full(pts[pts.length - 1]!.p) },
+    ]
+  }, [chartHistory, locale])
+
   const [hover, setHover] = useState<PricePoint | null>(null)
   const onHover = useCallback((p: PricePoint | null) => setHover(p), [])
 
@@ -195,6 +229,36 @@ export default function AssetDetailPage() {
         {/* Not while scrubbing: the hero mirrors the chart under the finger, and a counting
             number cannot keep up with it. */}
         <AmountDisplay value={heroValue} delta={delta} deltaPct={deltaPct} period={delta !== undefined ? rangePeriod(range) : undefined} caption={caption} unmasked animate={!hover} />
+        {/* Open, high, low, close for the period on screen — the four numbers the reference
+            puts on the same line as the price, and the four a person actually asks for:
+            where it started, how far it got either way, where it ended. Every one is read
+            off the series the chart is drawing, never a second source, so the row cannot
+            disagree with the curve above it.
+
+            Abbreviated, because at 390px « 92,001,332 F CFA » four times is 700px of a
+            358px row. The symbol is written once, at the end, for the same reason
+            `moneyPair` does: four repetitions of « F CFA » say the unit three times too
+            many. */}
+        {ohlc ? (
+          <dl className={styles.ohlc} aria-label={`Ouverture, plus haut, plus bas et clôture sur ${rangePeriod(range)}`}>
+            {ohlc.map((cell) => (
+              <div key={cell.key} className={styles.ohlcCell}>
+                {/* The letter is a French abbreviation — Ouverture, Haut, Bas, Clôture — and
+                    a single letter is not something a screen reader can do anything with,
+                    so the word is on the pair and the whole figure with its currency is on
+                    the value. The eye gets the letter; the ear gets the sentence. */}
+                <dt className={styles.ohlcKey} title={cell.name}>
+                  <abbr title={cell.name} className={styles.ohlcAbbr}>
+                    {cell.key}
+                  </abbr>
+                </dt>
+                <dd className={styles.ohlcValue} aria-label={`${cell.name} : ${cell.label}`}>
+                  {cell.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
       </section>
 
       <div className={styles.chartBlock}>
@@ -214,6 +278,14 @@ export default function AssetDetailPage() {
             tone={chartTone}
             onHover={onHover}
             label={`Évolution du prix de ${asset.name} sur ${rangePeriod(range)}`}
+            /* The scale belongs on a market screen and not on the home hero: here the levels
+               *are* the question — how near the top of the day this is, how far the drop
+               went, where the price has been sitting — while on Accueil the figure is
+               printed directly above the curve and the scrub swaps into it. */
+            axes
+            /* A day is read in hours and anything longer in days. `formatDateTime` gives
+               « 10 sept. 2026, 14:32 », which is four labels' worth of width for one. */
+            formatAxisTime={(t) => (range === '1D' ? formatTime(t, { locale }) : formatDate(t, { locale, style: 'short' }))}
             className={styles.chart}
           />
         )}

@@ -95,3 +95,50 @@
 .stippleArea {
   pointer-events: none;
 }
+
+/* ---------- The scale ----------
+
+   Hairlines at round price levels with their labels down the right, and a few times along
+   the foot. It is the thing the reference has that a bare line does not: without it a curve
+   says « it went up », and with it a curve says how far, from what, and when.
+
+   The one rule is that it must stay quiet. A grid drawn at the ink of the line competes
+   with it, so these sit at --line, the same hairline that separates a card from the page,
+   and the labels take --ink-400, the token for a label rather than for running text. */
+.grid {
+  stroke: var(--line);
+  stroke-width: 1;
+  fill: none;
+}
+/* The foot closes the plot box. It is the same hairline: an axis drawn darker than its own
+   gridlines reads as a baseline, and a baseline through a price chart is chart junk. */
+.axis {
+  stroke: var(--line);
+  stroke-width: 1;
+  fill: none;
+}
+
+.scale {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-400);
+}
+/* Right-aligned against the plot's edge, and centred *on* its own gridline rather than
+   sitting under it — a label whose top edge is the line reads as belonging to the gap. */
+.priceTick {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  padding-inline-start: var(--sp-2);
+  text-align: end;
+  white-space: nowrap;
+}
+.timeTick {
+  position: absolute;
+  bottom: 0;
+  white-space: nowrap;
+}

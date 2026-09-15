@@ -73,14 +73,31 @@ async function newPage(context, { reducedMotion = 'no-preference' } = {}) {
   return page
 }
 
-/** Open the first control on the page that puts up a `role="dialog"`. */
+/**
+ * Click whatever on this page opens a sheet, and say which.
+ *
+ * **It waits for the dialog rather than asking in the same breath.** It used to click and
+ * read `count()` on the next line, which is a race it loses whenever the machine is busy:
+ * a `Sheet` mounts on a state change and paints on the next frame, so a loaded runner
+ * reports « found nothing that opens a dialog » on a page where the button is right there.
+ * That failure is indistinguishable from a real one, which makes it worse than no check —
+ * this run said exactly that about /carte at 1440px while three browsers were fighting over
+ * the same preview server. A second is far longer than the sheet needs and still fails fast
+ * when nothing opens.
+ */
 async function openASheet(page) {
   const buttons = await page.locator('button:visible').all()
   for (const b of buttons) {
     const label = ((await b.getAttribute('aria-label')) ?? (await b.textContent()) ?? '').trim()
     if (!/filtr|trier|détail|options/i.test(label)) continue
     await b.click().catch(() => {})
-    if (await page.locator('[role="dialog"]').count()) return label
+    const opened = await page
+      .locator('[role="dialog"]')
+      .first()
+      .waitFor({ state: 'visible', timeout: 1000 })
+      .then(() => true)
+      .catch(() => false)
+    if (opened) return label
   }
   return null
 }

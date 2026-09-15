@@ -155,3 +155,41 @@
   align-self: start;
   margin-block-start: var(--sp-2);
 }
+
+/* Open · plus haut · plus bas · clôture, on one line under the price — the reference puts
+   them on the *same* line as the price, which works at $760 and does not at 93,703,457.
+   Four content-sized cells that wrap rather than shrink: a figure that has to be read
+   against three others cannot be the thing that gives up width. */
+.ohlc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+}
+.ohlcCell {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+/* The letter is the label and recedes; the figure is what is being read. */
+.ohlcKey {
+  color: var(--ink-400);
+  font-weight: var(--fw-medium);
+}
+.ohlcValue {
+  margin: 0;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ls-numeric);
+  white-space: nowrap;
+}
+/* No dotted underline: the letter is decoration for the eye and a word for the ear, and a
+   dotted rule under a single capital reads as a typo. */
+.ohlcAbbr {
+  text-decoration: none;
+  cursor: help;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MASKED, maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatNumber, formatPercent, moneyAriaLabel, moneyPair, parseAmountInput, splitMoney } from './format'
+import { MASKED, maskedMoney, formatAmountInput, formatCrypto, formatDayHeading, formatMoney, formatNumber, formatPercent, formatTick, moneyAriaLabel, moneyPair, parseAmountInput, splitMoney, tickDecimals } from './format'
 
 const norm = (v: string) => v.replace(/[\u202f\u00a0]/g, ' ')
 
@@ -200,5 +200,77 @@ describe('moneyPair', () => {
     const { first, second } = moneyPair(1, 2, true, { locale: 'fr-SN', currency: 'XOF' })
     expect(first).toBe(MASKED)
     expect(second).toBe(maskedMoney({ locale: 'fr-SN', currency: 'XOF' }))
+  })
+})
+
+describe('tickDecimals', () => {
+  it('asks the step how much precision the label needs', () => {
+    // 93,500,000 read in millions with a 250,000 step is « 93.75 M » — exact, not rounded.
+    expect(tickDecimals(250_000, 1_000_000)).toBe(2)
+    expect(tickDecimals(5_000_000, 1_000_000)).toBe(0)
+    expect(tickDecimals(0.5, 1)).toBe(1)
+  })
+
+  it('never claims a tick sits where it does not', () => {
+    for (const step of [250_000, 500_000, 2_500_000, 1_000_000]) {
+      const d = tickDecimals(step, 1_000_000)
+      const shown = Number(((3 * step) / 1_000_000).toFixed(d))
+      expect(shown * 1_000_000).toBeCloseTo(3 * step, 6)
+    }
+  })
+})
+
+describe('formatTick', () => {
+  const NB = '\u00a0'
+  const xof = (v: number, step: number) => formatTick(v, step, { locale: 'fr-SN' })
+
+  it('carries no currency symbol — an axis is all one unit', () => {
+    expect(xof(93_500_000, 250_000)).not.toMatch(/CFA/)
+  })
+
+  it('abbreviates a franc price, exactly', () => {
+    // The gridline is at 93,750,000 and the label says so. Rounding it to « 93.8 M » would
+    // put the number in a different place from the line it names.
+    expect(xof(93_750_000, 250_000)).toBe(`93.75${NB}M`)
+    expect(xof(93_500_000, 500_000)).toBe(`93.5${NB}M`)
+    expect(xof(95_000_000, 5_000_000)).toBe(`95${NB}M`)
+  })
+
+  it('leaves a short number alone', () => {
+    expect(xof(761.5, 0.5)).toBe('761.5')
+    expect(xof(761, 1)).toBe('761')
+  })
+
+  it('keeps the app’s punctuation: comma groups, point decimal', () => {
+    // Straight through formatNumber, so an axis cannot punctuate itself differently from
+    // the figure above it.
+    // Comma groups on the plain form, point decimal on the abbreviated one — both go
+    // through formatNumber, so neither can drift from the figure above the chart.
+    expect(xof(12_500, 2_500)).toBe('12,500')
+    expect(xof(93_250_000, 250_000)).toBe(`93.25${NB}M`)
+    expect(xof(875.25, 0.25)).toBe('875.25')
+  })
+
+  it('takes the suffix from the locale, not from a table', () => {
+    expect(formatTick(2_000_000_000, 1_000_000_000, { locale: 'fr-SN' })).toBe(`2${NB}Md`)
+    expect(formatTick(2_000_000_000, 1_000_000_000, { locale: 'en-NG' })).toBe(`2${NB}B`)
+  })
+
+  it('spells the number out rather than abbreviate it to more characters', () => {
+    // A step that needs four decimals in millions is not shorter abbreviated.
+    expect(xof(93_000_100, 100)).toBe('93,000,100')
+  })
+})
+
+describe('formatTick — the abbreviation has to earn itself', () => {
+  const NB = ' '
+  it('leaves a BRVM share price alone', () => {
+    // Sonatel trades around 29,000 F CFA. « 29.00 k » is seven characters to replace six,
+    // and it abbreviates a number nobody needed abbreviated. Measured on the real scale.
+    expect(formatTick(29_000, 50, { locale: 'fr-SN' })).toBe('29,000')
+    expect(formatTick(29_150, 50, { locale: 'fr-SN' })).toBe('29,150')
+  })
+  it('still abbreviates where it genuinely saves the width', () => {
+    expect(formatTick(93_000_000, 1_000_000, { locale: 'fr-SN' })).toBe(`93${NB}M`)
   })
 })

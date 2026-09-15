@@ -225,6 +225,70 @@ export function moneyPair(a: number, b: number, hidden: boolean, opts: MoneyOpti
     : { first: splitMoney(a, opts).number, second: formatMoney(b, opts) }
 }
 
+/**
+ * How many decimals a tick needs to print *exactly* at a given step.
+ *
+ * An axis may not round. A gridline labelled « 93.7 M » sitting at 93,750,000 is a scale
+ * that lies about where its own line is, and the compact form elsewhere in this app is
+ * truncated for a related reason. Since `niceTicks` picks the step, the step is what says
+ * how much precision is enough: a step of 250,000 read in millions needs two decimals, a
+ * step of 5,000,000 needs none.
+ */
+export function tickDecimals(step: number, unit: number): number {
+  if (!(step > 0) || !(unit > 0)) return 0
+  for (let d = 0; d <= 6; d++) {
+    const scaled = (step / unit) * 10 ** d
+    if (Math.abs(scaled - Math.round(scaled)) < 1e-9) return d
+  }
+  return 6
+}
+
+/**
+ * A price-axis label: short enough to leave the plot its width, and **exact**.
+ *
+ * The scale carries no currency symbol, for the same reason `moneyPair` writes one once —
+ * every tick on an axis is the same unit, and printing « F CFA » six times down the side of
+ * a chart spends sixty pixels saying nothing new. The symbol is in the figure above the
+ * chart, which is where the reference puts it too.
+ *
+ * A franc price runs to eight digits, so a tick is abbreviated where that would otherwise
+ * crowd the plot — and only when the step divides the unit exactly, so « 93.75 M » is where
+ * the gridline actually is. An axis that rounds is an axis that lies about its own lines,
+ * and it is worse than no axis, because a person reads it as fact.
+ */
+export function formatTick(value: number, step: number, opts: { locale?: Locale } = {}): string {
+  const locale = opts.locale ?? currentLocale
+  const abs = Math.abs(value)
+  /* The plain figure is what an abbreviation has to beat, so it is written first and the
+     two are compared. Guessing at the threshold instead got it wrong twice: a share at
+     29,190 F CFA drew a scale reading « 29.00 k » — seven characters to replace six, and
+     the abbreviation of a number nobody needed abbreviated. */
+  const plainDecimals = tickDecimals(step, 1)
+  const plain = formatNumber(value, { locale, minFraction: plainDecimals, maxFraction: plainDecimals })
+  for (const unit of [1e9, 1e6, 1e3]) {
+    if (abs < unit) continue
+    const d = tickDecimals(step, unit)
+    /* Past two decimals it stops reading as an abbreviation — « 93.0001 M » is shorter than
+       93,000,100 by one character and harder to read by a mile. */
+    if (d > 2) continue
+    const suffix = compactSuffix(unit, locale)
+    if (!suffix) continue
+    const short = `${formatNumber(value / unit, { locale, minFraction: d, maxFraction: d })}${NBSP}${suffix}`
+    if (short.length < plain.length) return short
+  }
+  return plain
+}
+
+/**
+ * The locale's own abbreviation for a power of ten — k / M / Md in French, K / M / B in
+ * English — read out of `Intl` rather than kept in a table this app would have to maintain
+ * for sixteen currencies and two locales.
+ */
+function compactSuffix(unit: number, locale: Locale): string {
+  const parts = numberFormat(locale, { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 0 }).formatToParts(unit)
+  return parts.find((p) => p.type === 'compact')?.value ?? ''
+}
+
 /** Plain number, e.g. 12 345,6 */
 export function formatNumber(value: number, opts: { locale?: Locale; maxFraction?: number; minFraction?: number; signed?: boolean } = {}): string {
   const locale = opts.locale ?? currentLocale

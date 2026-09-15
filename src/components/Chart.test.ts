@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { smoothPath } from './Chart'
+import { niceTicks, smoothPath } from './Chart'
 
 /** Walk every cubic in the path and sample it, so we can assert on the drawn curve. */
 function sample(d: string, steps = 24): Array<{ x: number; y: number }> {
@@ -63,5 +63,47 @@ describe('smoothPath', () => {
     expect(smoothPath([], [])).toBe('')
     expect(smoothPath([0], [5])).toBe('')
     expect(smoothPath([0, 10], [5, 7])).toBe('M0.0 5.0L10.0 7.0')
+  })
+})
+
+describe('niceTicks', () => {
+  it('steps in round numbers, not in quarters of the range', () => {
+    // The SPY range in the reference. A quarter of it is 0.70, and the nice step at or
+    // above that is a whole dollar — so four *asked for* is three drawn, which is the
+    // point: the count bends to keep the numbers round, never the other way.
+    expect(niceTicks(758.6, 761.4)).toEqual([759, 760, 761])
+    // Ask for more lines and it finds the half-dollar levels the reference shows.
+    expect(niceTicks(758.6, 761.4, 7)).toEqual([759, 759.5, 760, 760.5, 761])
+  })
+
+  it('stays inside the data — a scale never invents headroom', () => {
+    for (const t of niceTicks(93_210_000, 93_790_000)) {
+      expect(t).toBeGreaterThanOrEqual(93_210_000)
+      expect(t).toBeLessThanOrEqual(93_790_000)
+    }
+  })
+
+  it('picks a step of 1, 2, 2.5 or 5 times a power of ten', () => {
+    for (const [lo, hi] of [[0, 1], [0, 7], [0, 3], [0, 43], [0, 0.004], [12, 12.9], [-8, 8]] as const) {
+      const ticks = niceTicks(lo, hi)
+      if (ticks.length < 2) continue
+      const step = ticks[1]! - ticks[0]!
+      const mantissa = step / 10 ** Math.floor(Math.log10(step))
+      expect([1, 2, 2.5, 5, 10].some((m) => Math.abs(m - mantissa) < 1e-9)).toBe(true)
+    }
+  })
+
+  it('is evenly spaced — accumulating the step would drift', () => {
+    const ticks = niceTicks(0, 3)
+    const gaps = ticks.slice(1).map((t, i) => t - ticks[i]!)
+    for (const g of gaps) expect(g).toBeCloseTo(gaps[0]!, 9)
+    // and the labels are the numbers, not 0.30000000000000004
+    for (const t of niceTicks(0, 1)) expect(String(t).length).toBeLessThan(6)
+  })
+
+  it('gives nothing back for a range that is not one', () => {
+    expect(niceTicks(5, 5)).toEqual([])
+    expect(niceTicks(9, 4)).toEqual([])
+    expect(niceTicks(NaN, 4)).toEqual([])
   })
 })
