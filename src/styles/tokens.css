@@ -159,6 +159,42 @@
   --focus-ring-neg: 0 0 0 2px var(--neg);
   --sheet-shadow: 0 -1px 40px oklch(0.20 0.03 66 / 0.12);
 
+  /* ---- Gradients ----
+
+     The owner asked for plain colours once and asked for « des dégradés » later; the later
+     instruction is the one in force, and this block is where the reversal lives so that
+     going back is one file rather than forty. `scripts/check-design.mjs` no longer forbids a
+     gradient outright — it forbids one written anywhere *but here*, which is the half of the
+     old rule that was actually protecting anything: what the owner rejected came back one
+     component at a time, and a token cannot do that.
+
+     **They are value-falls, not sheens, and the distinction is the whole design.** What read
+     as generated was `--glass-sheen`: a *diagonal* highlight across a corner, implying a lamp
+     the screen does not have, on a surface that is not an object. These run top to bottom,
+     the direction light actually falls, and only on things that are objects — a button you
+     press, a card in a wallet, a key on a pad. A flat panel of text stays flat.
+
+     Every one is centred on the flat token it replaces, so the mid-point of `--grad-cta` is
+     `--cta` to three decimal places: the gradient adds material, it does not restate the
+     palette. The travel is 0.06 of lightness, about a sixth of what a decorative gradient
+     uses — measured against the reference, which is emphatic that these surfaces are nearly
+     neutral. `tokens.test.ts` pins the ink against **both ends**, because a gradient is two
+     backgrounds and a contrast figure taken on the average is a figure taken on neither. */
+  --grad-cta: linear-gradient(180deg, oklch(0.830 0.118 92) 0%, oklch(0.770 0.130 88) 100%);
+  --grad-cta-hover: linear-gradient(180deg, oklch(0.770 0.124 90) 0%, oklch(0.710 0.134 86) 100%);
+  /* The payment card is the one object with a diagonal, because a real one is milled metal
+     or laminate held at an angle — it is the only surface here that is a physical thing in
+     a hand rather than a pane on a screen. It is always dark, in both themes. */
+  --grad-card: linear-gradient(148deg, oklch(0.272 0.030 72) 0%, oklch(0.215 0.024 66) 52%, oklch(0.184 0.020 62) 100%);
+  /* The canvas **starts at exactly `--canvas-bg`** and only darkens downward. The top of the
+     page is what `index.html`'s `theme-color` is measured from, and a gradient that began a
+     shade off would put a seam above the app — the very seam that meta exists to remove. */
+  --grad-canvas: linear-gradient(180deg, var(--canvas-bg) 0%, oklch(0.972 0.011 88) 100%);
+  /* A key is raised, so its face catches more light at the top. This is the smallest travel
+     in the set — 0.015 — because twelve keys repeating a visible gradient is a texture, and
+     the keypad is meant to read as twelve of the same object. */
+  --grad-key: linear-gradient(180deg, oklch(0.997 0.007 90) 0%, oklch(0.982 0.009 90) 100%);
+
   /* ---- Typography ---- */
   /* Poppins, self-hosted (see fonts.css). No system fallback comes close to it, so the
      stack lists geometric neighbours only as a last resort before the platform sans. */
@@ -381,6 +417,10 @@
   --canvas-glass-strong: oklch(0.285 0.028 67);
   --canvas-glass-border: oklch(0.36 0.028 68);
   --key-face: oklch(0.35 0.030 68);
+  --grad-cta: linear-gradient(180deg, oklch(0.928 0.080 97) 0%, oklch(0.872 0.096 93) 100%);
+  --grad-cta-hover: linear-gradient(180deg, oklch(0.868 0.090 95) 0%, oklch(0.812 0.104 91) 100%);
+  --grad-canvas: linear-gradient(180deg, var(--canvas-bg) 0%, oklch(0.182 0.020 64) 100%);
+  --grad-key: linear-gradient(180deg, oklch(0.365 0.031 68) 0%, oklch(0.335 0.029 68) 100%);
   --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.255 0.026 67);
@@ -448,6 +488,10 @@
     --canvas-glass-strong: oklch(0.285 0.028 67);
     --canvas-glass-border: oklch(0.36 0.028 68);
     --key-face: oklch(0.35 0.030 68);
+    --grad-cta: linear-gradient(180deg, oklch(0.928 0.080 97) 0%, oklch(0.872 0.096 93) 100%);
+    --grad-cta-hover: linear-gradient(180deg, oklch(0.868 0.090 95) 0%, oklch(0.812 0.104 91) 100%);
+    --grad-canvas: linear-gradient(180deg, var(--canvas-bg) 0%, oklch(0.182 0.020 64) 100%);
+    --grad-key: linear-gradient(180deg, oklch(0.365 0.031 68) 0%, oklch(0.335 0.029 68) 100%);
     --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
   --glass-fallback: oklch(0.255 0.026 67);

@@ -37,7 +37,9 @@
 /* Gold rather than ink: in a warm palette the selected filter is the one the eye should
    land on, and the reference says that with its accent rather than with more darkness. */
 .on {
-  background: var(--cta);
+  /* The same material as the primary button and the nav capsule: gold appears in exactly
+     three places in this app, and three different renderings of it would be drift. */
+  background: var(--grad-cta);
   color: var(--on-cta);
 }
 

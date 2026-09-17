@@ -212,3 +212,72 @@ describe('the focus ring can actually be seen, on every surface it can land on',
     expect(failing).toEqual([])
   })
 })
+
+describe('the ink on a gradient holds at both ends of it', () => {
+  /* **A gradient is two backgrounds, and a contrast figure taken on the average is a figure
+     taken on neither.** `--on-cta` was measured once against the flat `--cta`; the moment
+     that fill became a value-fall, the darkest stop is what the text at the bottom of the
+     button actually sits on, and that stop is the one nothing was checking. The button label
+     is `--fw-bold` at `--fs-body`, so it is ordinary text at a 4.5:1 floor, not large text.
+
+     Every stop of every gradient is read, not just the first — the same hole the design
+     check had, where `--grad-card`'s three stops were one `line.match` and stops two and
+     three were never looked at at all. */
+  const light = declarations(CSS, ':root {\n  color-scheme: light;')
+  const dark = declarations(CSS, ':root[data-theme="dark"] {')
+
+  /** Every oklch stop in a gradient declaration, in order. */
+  function stops(value: string): string[] {
+    return [...value.matchAll(/oklch\([^)]+\)/g)].map((m) => m[0])
+  }
+
+  it.each([
+    ['clair', light],
+    ['sombre', dark],
+  ] as const)('keeps --on-cta at 4.5:1 across --grad-cta and its hover in %s', (scheme, tokens) => {
+    const value = (name: string) => tokens.get(name) ?? light.get(name)!
+    const ink = value('--on-cta')
+    const failing: string[] = []
+    for (const grad of ['--grad-cta', '--grad-cta-hover']) {
+      const ends = stops(value(grad))
+      expect(ends.length, `${grad} should declare stops`).toBeGreaterThanOrEqual(2)
+      for (const end of ends) if (ratio(ink, end) < 4.5) failing.push(`${grad} @ ${end} in ${scheme}: ${ratio(ink, end).toFixed(2)}:1`)
+    }
+    expect(failing).toEqual([])
+  })
+
+  /* The card is always dark in both themes, so it is declared once and checked once. Its ink
+     is `--card-ink`, not `--on-cta`. */
+  it('keeps --card-ink at 4.5:1 across every stop of --grad-card', () => {
+    const ink = light.get('--card-ink')!
+    const failing = stops(light.get('--grad-card')!)
+      .filter((end) => ratio(ink, end) < 4.5)
+      .map((end) => `--grad-card @ ${end}: ${ratio(ink, end).toFixed(2)}:1`)
+    expect(failing).toEqual([])
+  })
+
+  /**
+   * A gradient replaces a flat token, and it has to *be* that token — otherwise the palette
+   * says one thing and the screen says another, and the flat value stays behind in the
+   * places that still read it (`--cta` is still what a disabled button and the segmented
+   * control's own pill resolve to).
+   */
+  it.each([
+    ['clair', light],
+    ['sombre', dark],
+  ] as const)('centres each gradient on the flat token it replaces, in %s', (_scheme, tokens) => {
+    const value = (name: string) => tokens.get(name) ?? light.get(name)!
+    const drift: string[] = []
+    for (const [grad, flat] of [
+      ['--grad-cta', '--cta'],
+      ['--grad-cta-hover', '--cta-hover'],
+      ['--grad-key', '--key-face'],
+    ] as const) {
+      const ends = stops(value(grad)).map((s) => oklchOf(s)[0])
+      const mid = (Math.min(...ends) + Math.max(...ends)) / 2
+      const want = oklchOf(value(flat))[0]
+      if (Math.abs(mid - want) > 0.006) drift.push(`${grad} midpoint ${mid.toFixed(3)} vs ${flat} ${want.toFixed(3)}`)
+    }
+    expect(drift).toEqual([])
+  })
+})

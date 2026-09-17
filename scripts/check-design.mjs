@@ -39,16 +39,26 @@ const ASSET_ICONS = join(ROOT, 'components/AssetIcon.tsx')
    percentage in the application read « 8,01 % » beside « 346,345 F CFA ». */
 const FORMAT = join(ROOT, 'lib/format.ts')
 const allowedColourFiles = [TOKENS, ASSET_ICONS]
-/* **No gradients, anywhere.** This used to allow them in the ground layers — the ambient
-   fields and the aurora wash — and in `--glass-sheen`, the diagonal highlight across the
-   top-left corner of every surface. The owner asked for plain colours: the sheen implies a
-   light source the screen does not have, and that is most of what made the surfaces read as
-   generated rather than designed. So there is no allowlist left. A gradient anywhere,
-   including the token layer, is now the thing this catches.
+/* **A gradient may be written in the token layer, and nowhere else.**
 
-   `backdrop-filter` goes with it. With the surfaces opaque there is nothing behind them to
-   blur, so a blur is pure cost — one composited layer per card — for no visible effect. */
-const allowedGradientFiles = []
+   This forbade them outright, and the outright version was itself a reversal: they had been
+   allowed in the ground layers — the ambient fields and the aurora wash — and in
+   `--glass-sheen`, the diagonal highlight across the top-left corner of every surface. The
+   owner asked for plain colours, because that sheen implies a light source the screen does
+   not have, and then later asked for « des dégradés ». The later instruction is the one in
+   force.
+
+   What survives is the part that was doing the work. The failure mode both times was never
+   « a gradient exists »; it was a look coming back **one component at a time**, each file
+   individually defensible and the sum of them not. A gradient in `tokens.css` is a decision
+   somebody made once, in a block with the reasoning beside it, that can be undone in one
+   edit. A `linear-gradient(...)` typed into a component is the other thing, and that is what
+   this now catches.
+
+   `backdrop-filter` does not come back with them, and that is not an oversight: it was
+   removed because the surfaces are opaque, so there is nothing behind a card to blur. A
+   value-fall on a fill does not change that — it costs a paint, not a composited layer. */
+const allowedGradientFiles = [TOKENS]
 const SHADOW_TOKENS = /var\(--(elev-1|elev-2|elev-2-hover|elev-3|elev-item|glass-rim|sheet-shadow|focus-ring|focus-ring-offset|focus-ring-neg|surface)\)/
 
 function check(file) {
@@ -67,7 +77,7 @@ function check(file) {
     /* Backtick spans come out first: a line *about* `<select>` — and this file is full of
        them — is prose, not a dropdown. Without this the rule fired on its own rationale. */
     if (/<select[\s>]/.test(line.replace(/`[^`]*`/g, ''))) violations.push(`${where}: <select> — use Picker; a native dropdown cannot be themed and hides the form behind an OS wheel`)
-    if (/gradient\(/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: gradient — surfaces are plain colours`)
+    if (/gradient\(/.test(line) && !allowedGradientFiles.includes(file)) violations.push(`${where}: gradient written outside the token layer — add a --grad-* token and use var(--grad-…)`)
     if (file.endsWith('.css')) {
       if (!allowedColourFiles.includes(file) && colourLiteral.test(line) && !/currentColor|transparent|inherit/.test(line)) violations.push(`${where}: hard-coded colour → use a token`)
       if (/box-shadow\s*:/.test(line) && !SHADOW_TOKENS.test(line) && !/box-shadow\s*:\s*none/.test(line) && file !== TOKENS) violations.push(`${where}: hand-rolled box-shadow — use the layered --elev-* tokens`)
@@ -112,7 +122,7 @@ const HUE_MIN = 55
 const HUE_MAX = 105
 /* The accent ramp is allowed to be saturated; everything else is a near-neutral that merely
    leans warm. Matched on the token's own name, so the budget is a property of the role. */
-const ACCENT_TOKENS = /--(cta|cta-hover|accent|accent-text|accent-soft|aurora-\d)\b/
+const ACCENT_TOKENS = /--(grad-)?(cta|cta-hover|accent|accent-text|accent-soft|aurora-\d)\b/
 const CHROMA_MAX_ACCENT = 0.14
 const CHROMA_MAX_SURFACE = 0.05
 
@@ -121,18 +131,26 @@ const CHROMA_MAX_SURFACE = 0.05
   src.split('\n').forEach((line, i) => {
     const where = `styles/tokens.css:${i + 1}`
     const sanctionedHue = /--[a-z-]*(pos|neg|aurora-\d)\s*:/.test(line)
-    const m = line.match(/oklch\(\s*[\d.]+\s+([\d.]+)\s+([\d.]+)/)
-    if (m && !sanctionedHue) {
-      const chroma = Number(m[1])
-      const hue = Number(m[2])
-      if (chroma > 0 && (hue < HUE_MIN || hue > HUE_MAX)) {
-        violations.push(`${where}: hue ${hue} is outside the warm band ${HUE_MIN}–${HUE_MAX} — the palette is one family`)
-      }
+    /* **Every colour on the line, not the first one.** This read `line.match`, which is one
+       match — fine while a token was a single colour, and a hole the moment a gradient token
+       exists: `--grad-card` carries three stops, and only the first was ever checked, so a
+       foreign hue or a runaway chroma could ride in on stop two of a line whose stop one was
+       impeccable. The whole point of a band this narrow is that nothing slips through it. */
+    const colours = [...line.matchAll(/oklch\(\s*[\d.]+\s+([\d.]+)\s+([\d.]+)/g)]
+    if (!sanctionedHue) {
       const budget = ACCENT_TOKENS.test(line) ? CHROMA_MAX_ACCENT : CHROMA_MAX_SURFACE
-      if (chroma > budget) {
-        violations.push(`${where}: chroma ${chroma} over the ${budget} budget for this role — only the accent ramp is saturated`)
+      for (const m of colours) {
+        const chroma = Number(m[1])
+        const hue = Number(m[2])
+        if (chroma > 0 && (hue < HUE_MIN || hue > HUE_MAX)) {
+          violations.push(`${where}: hue ${hue} is outside the warm band ${HUE_MIN}–${HUE_MAX} — the palette is one family`)
+        }
+        if (chroma > budget) {
+          violations.push(`${where}: chroma ${chroma} over the ${budget} budget for this role — only the accent ramp is saturated`)
+        }
       }
     }
+    const m = colours[0]
     /* An `oklch(L C)` with no hue at all is a grey, and a grey in a warm palette reads as a
        dead patch beside everything around it. Chroma 0 is therefore only allowed where the
        value is a shadow or a scrim — something that is an absence of light rather than a
@@ -156,5 +174,5 @@ if (violations.length) {
   console.error(`Design check failed (${violations.length}):\n` + violations.map((v) => '  - ' + v).join('\n'))
   process.exit(1)
 } else {
-  console.log('Design check passed: one warm family, plain fills, no gradient, blur or dropdown anywhere, elevation from the token layer; no emoji or sub-12px text.')
+  console.log('Design check passed: one warm family, every gradient and colour from the token layer, no blur or dropdown anywhere, elevation from the tokens; no emoji or sub-12px text.')
 }

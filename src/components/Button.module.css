@@ -80,12 +80,12 @@
 /* Variants */
 /* The single high-contrast accent, reserved for primary calls to action. */
 .primary {
-  background: var(--cta);
+  background: var(--grad-cta);
   color: var(--on-cta);
   box-shadow: var(--elev-1);
 }
 .primary:hover:not(:disabled) {
-  background: var(--cta-hover);
+  background: var(--grad-cta-hover);
   transform: var(--lift);
   box-shadow: var(--elev-2);
 }

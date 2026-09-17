@@ -4,7 +4,7 @@
   max-width: 400px;
   aspect-ratio: 1.586;
   border-radius: var(--r-card);
-  background: var(--card-surface);
+  background: var(--grad-card);
   color: var(--card-ink);
   padding: var(--sp-5);
   overflow: hidden;

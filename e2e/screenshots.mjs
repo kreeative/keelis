@@ -115,11 +115,69 @@ function auditScript() {
   function clamp(x) { return Math.max(0, Math.min(1, x)) }
   function lum(c) { return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b }
   function blend(fg, bg) { return { r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a), b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 } }
-  function effectiveBg(el) {
+  /**
+   * The stops of a gradient `background-image`, as linear-light colours, or null.
+   *
+   * **A gradient-filled element reports `background-color: rgba(0, 0, 0, 0)`**, so the walk
+   * below stepped straight past it to whatever was behind — and the moment `--grad-cta`
+   * landed, this audit measured the app's primary button against the *canvas* and called
+   * «　Envoyer　» 1.03:1. The button was fine; the instrument had gone blind to exactly the
+   * control it most needs to see, and it did so while still reporting a number, which is the
+   * worst way for a check to fail.
+   *
+   * Every stop is converted through a canvas rather than parsed, because Chromium reports a
+   * computed colour in the space it was authored in and every token here is `oklch()` —
+   * `getImageData` is always sRGB bytes. (That is the third time that trap has been paid
+   * for in this repo: once in the painted-over audit, once in a focus-ring measurement.)
+   */
+  const swatch = document.createElement('canvas')
+  swatch.width = swatch.height = 1
+  const swatchCx = swatch.getContext('2d', { willReadFrequently: true })
+  function gradientStops(cssImage) {
+    if (!cssImage || cssImage === 'none' || !/gradient\(/.test(cssImage)) return null
+    /* Colour functions only — `180deg`, `0%` and the gradient's own name are not colours. */
+    const found = cssImage.match(/(?:oklch|oklab|lab|lch|color|rgba?|hsla?)\([^()]*\)/g)
+    if (!found || !found.length) return null
+    const out = []
+    for (const c of found) {
+      try {
+        swatchCx.clearRect(0, 0, 1, 1)
+        swatchCx.fillStyle = '#000'
+        swatchCx.fillStyle = c
+        swatchCx.fillRect(0, 0, 1, 1)
+        const d = swatchCx.getImageData(0, 0, 1, 1).data
+        const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }
+        out.push({ r: lin(d[0]), g: lin(d[1]), b: lin(d[2]), a: d[3] / 255 })
+      } catch {}
+    }
+    return out.length ? out : null
+  }
+  /**
+   * The background a piece of text actually sits on.
+   *
+   * With `fg` given and a gradient underneath, it returns the **worst** stop rather than an
+   * average: a value-fall means the label at the bottom of a button is on a different colour
+   * from the label at the top, and a ratio computed on the mean is a ratio true of neither
+   * end. An audit reports the floor.
+   */
+  function effectiveBg(el, fg) {
     let node = el
     let acc = null
     while (node && node !== document.documentElement) {
       const cs = getComputedStyle(node)
+      const stops = gradientStops(cs.backgroundImage)
+      if (stops) {
+        const opaque = stops.filter((c) => c.a >= 1)
+        if (opaque.length) {
+          let worst = opaque[0]
+          if (fg) {
+            const lf = lum(fg)
+            const r = (c) => { const l = lum(c); return (Math.max(lf, l) + 0.05) / (Math.min(lf, l) + 0.05) }
+            for (const c of opaque) if (r(c) < r(worst)) worst = c
+          }
+          return acc ? blend(acc, worst) : worst
+        }
+      }
       const c = parseColor(cs.backgroundColor)
       if (c && c.a > 0) {
         if (!acc) acc = c
@@ -201,7 +259,7 @@ function auditScript() {
       const fs = parseFloat(cs.fontSize)
       if (fs < 12 && !seen.has(key('fs'))) { seen.add(key('fs')); out.push({ kind: 'font-size', detail: `${fs}px "${el.textContent.trim().slice(0, 30)}"` }) }
       const fg = parseColor(cs.color)
-      const bg = effectiveBg(el)
+      const bg = effectiveBg(el, fg)
       if (fg && bg) {
         const f = fg.a < 1 ? blend(fg, bg) : fg
         const l1 = lum(f), l2 = lum(bg)

@@ -45,7 +45,7 @@
   bottom: 0;
   z-index: 0;
   border-radius: var(--r-pill);
-  background: var(--cta);
+  background: var(--grad-cta);
   box-shadow: var(--glass-rim);
   transition: transform var(--dur-snappy) var(--ease-snappy), width var(--dur-snappy) var(--ease-snappy);
 }
@@ -150,7 +150,7 @@
     top: 0;
     z-index: 0;
     border-radius: var(--r-field);
-    background: var(--cta);
+    background: var(--grad-cta);
     box-shadow: var(--glass-rim);
     transition:
       transform var(--dur-snappy) var(--ease-snappy),
