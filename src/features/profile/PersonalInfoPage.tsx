@@ -151,54 +151,69 @@ export default function PersonalInfoPage() {
     <div className={`page ${styles.page}`}>
       <PageHeader back="/profil" title="Informations personnelles" />
 
-      <form
-        className={styles.form}
-        onSubmit={(e) => {
-          e.preventDefault()
-          void save()
-        }}
-      >
-        <section className={styles.section} aria-labelledby="pi-identity">
-          <h2 className="t-section" id="pi-identity">
-            Identité
-          </h2>
-          {nameChanged && user?.verified ? (
-            <Callout className={styles.callout}>
-              Votre compte est vérifié. Un changement de nom est revérifié avant d’apparaître sur vos relevés.
-            </Callout>
-          ) : null}
-          <div className={styles.fields}>
-            <Field label="Prénom" autoComplete="given-name" value={firstName} onChange={(e) => edit(setFirstName)(e.target.value)} />
-            <Field label="Nom" autoComplete="family-name" value={lastName} onChange={(e) => edit(setLastName)(e.target.value)} />
-            <Field
-              label="Téléphone"
-              type="tel"
-              autoComplete="tel"
-              hint="Facultatif. Sert aux alertes et à la récupération du compte."
-              value={phone}
-              onChange={(e) => edit(setPhone)(e.target.value)}
+      {/* Two columns from 1120px, one below it. The fixed facts are reference material, and
+          reference material is what this app puts *beside* a task rather than under it. */}
+      <div className={styles.layout}>
+        <form
+          id="pi-form"
+          className={styles.form}
+          onSubmit={(e) => {
+            e.preventDefault()
+            void save()
+          }}
+        >
+          <section className={styles.section} aria-labelledby="pi-identity">
+            <h2 className="t-section" id="pi-identity">
+              Identité
+            </h2>
+            {nameChanged && user?.verified ? (
+              <Callout className={styles.callout}>
+                Votre compte est vérifié. Un changement de nom est revérifié avant d’apparaître sur vos relevés.
+              </Callout>
+            ) : null}
+            {/* Prénom and nom pair on a wide enough form for the same reason région and code
+                postal do in `AddressFields`: one fact written in two boxes. The query asks the
+                form's width, not the screen's. */}
+            <div className={styles.fields}>
+              <Field className={styles.half} label="Prénom" autoComplete="given-name" value={firstName} onChange={(e) => edit(setFirstName)(e.target.value)} />
+              <Field className={styles.half} label="Nom" autoComplete="family-name" value={lastName} onChange={(e) => edit(setLastName)(e.target.value)} />
+              <Field
+                label="Téléphone"
+                type="tel"
+                autoComplete="tel"
+                hint="Facultatif. Sert aux alertes et à la récupération du compte."
+                value={phone}
+                onChange={(e) => edit(setPhone)(e.target.value)}
+              />
+            </div>
+          </section>
+
+          <section className={styles.section} aria-labelledby="pi-address">
+            <h2 className="t-section" id="pi-address">
+              Adresse
+            </h2>
+            <AddressFields
+              value={address}
+              onChange={(next) => {
+                edit(setAddress)(next)
+                setPostalError(null)
+                setError(null)
+              }}
+              postalError={postalError}
             />
-          </div>
         </section>
 
-        <section className={styles.section} aria-labelledby="pi-address">
-          <h2 className="t-section" id="pi-address">
-            Adresse
-          </h2>
-          <AddressFields
-            className={styles.fields}
-            value={address}
-            onChange={(next) => {
-              edit(setAddress)(next)
-              setPostalError(null)
-              setError(null)
-            }}
-            postalError={postalError}
-          />
-        </section>
+          {error ? (
+            <p className={styles.error} role="alert">
+              <Icon name="circle-alert" size={16} />
+              <span>{error}</span>
+            </p>
+          ) : null}
+
+        </form>
 
         {/* What this screen cannot change, and why — said out loud, not greyed out without a word. */}
-        <section className={styles.section} aria-labelledby="pi-fixed">
+        <aside className={styles.aside} aria-labelledby="pi-fixed">
           <h2 className="t-section" id="pi-fixed">
             Non modifiable ici
           </h2>
@@ -219,21 +234,21 @@ export default function PersonalInfoPage() {
               ))}
             </dl>
           </Card>
-        </section>
+        </aside>
 
-        {error ? (
-          <p className={styles.error} role="alert">
-            <Icon name="circle-alert" size={16} />
-            <span>{error}</span>
-          </p>
-        ) : null}
-
+        {/* **The action sits outside the form, and carries `form=` instead.** On a phone the
+            three blocks stack, and a primary button with a whole panel of text under it reads
+            as « there is more form below ». The one thing after the fields is the note about
+            what cannot be changed here — which somebody asks themselves while scanning for an
+            e-mail field, not after committing — so it is read first and the commit ends the
+            page. On the grid above 1120px the aside is beside the form and the button keeps
+            its own row under the fields, where it always was. */}
         <div className={styles.actions}>
-          <Button type="submit" size="lg" block disabled={!valid} loading={busy} icon={<Icon name="check" size={18} />}>
+          <Button type="submit" form="pi-form" size="lg" block disabled={!valid} loading={busy} icon={<Icon name="check" size={18} />}>
             Enregistrer
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }

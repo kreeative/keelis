@@ -13,6 +13,7 @@
 import { forwardRef, useMemo } from 'react'
 import { Field, Picker } from '@/components'
 import { COUNTRIES, DEFAULT_COUNTRY, country as countryFor } from '@/lib/places'
+import styles from './AddressFields.module.css'
 
 export interface AddressDraft {
   line1: string
@@ -66,47 +67,57 @@ export const AddressFields = forwardRef<HTMLInputElement, AddressFieldsProps>(fu
   const set = (patch: Partial<AddressDraft>) => onChange({ ...value, ...patch })
 
   return (
-    <div className={className}>
-      {/* Country first: it decides what the two fields below even are. Two hundred and fifty
-          of them, which is the whole reason the picker has a search box rather than being a
-          wheel somebody spins past Afghanistan to reach Sénégal. */}
-      <Picker
-        label="Pays"
-        value={value.country}
-        /* A région belongs to a country: keeping « Québec » selected after switching to
-           Sénégal would submit an address that exists nowhere. The postal code goes with it. */
-        onChange={(code) => set({ country: code, province: '', postalCode: '' })}
-        sheetTitle="Pays de résidence"
-        options={COUNTRIES.map((c) => ({ value: c.code, title: c.name }))}
-      />
-      <Field label="Adresse" autoComplete="address-line1" ref={ref} value={value.line1} onChange={(e) => set({ line1: e.target.value })} />
-      <Field label="Appartement" hint="Facultatif" autoComplete="address-line2" value={value.line2} onChange={(e) => set({ line2: e.target.value })} />
-      <Field label="Ville" autoComplete="address-level2" value={value.city} onChange={(e) => set({ city: e.target.value })} />
-      {place.regions ? (
+    <div className={className ? `${styles.host} ${className}` : styles.host}>
+      <div className={styles.grid}>
+        {/* Country first: it decides what the two fields below even are. Two hundred and fifty
+            of them, which is the whole reason the picker has a search box rather than being a
+            wheel somebody spins past Afghanistan to reach Sénégal. */}
         <Picker
-          label={place.regionLabel}
-          value={value.province}
-          onChange={(province) => set({ province })}
-          sheetTitle={place.regionLabel}
-          options={place.regions.map((r) => ({ value: r, title: r }))}
+          label="Pays"
+          value={value.country}
+          /* A région belongs to a country: keeping « Québec » selected after switching to
+             Sénégal would submit an address that exists nowhere. The postal code goes with it. */
+          onChange={(code) => set({ country: code, province: '', postalCode: '' })}
+          sheetTitle="Pays de résidence"
+          options={COUNTRIES.map((c) => ({ value: c.code, title: c.name }))}
         />
-      ) : (
-        /* No list for this country: a free field beats a wrong list. */
-        <Field label={place.regionLabel} autoComplete="address-level1" value={value.province} onChange={(e) => set({ province: e.target.value })} />
-      )}
-      {place.postal ? (
-        <Field
-          label={place.postal.label}
-          autoComplete="postal-code"
-          inputMode="text"
-          spellCheck={false}
-          placeholder={place.postal.placeholder}
-          maxLength={10}
-          value={value.postalCode}
-          error={postalError ?? undefined}
-          onChange={(e) => set({ postalCode: place.postal?.format ? place.postal.format(e.target.value) : e.target.value })}
-        />
-      ) : null}
+        <Field className={styles.half} label="Adresse" autoComplete="address-line1" ref={ref} value={value.line1} onChange={(e) => set({ line1: e.target.value })} />
+        <Field className={styles.half} label="Appartement" hint="Facultatif" autoComplete="address-line2" value={value.line2} onChange={(e) => set({ line2: e.target.value })} />
+        <Field className={styles.half} label="Ville" autoComplete="address-level2" value={value.city} onChange={(e) => set({ city: e.target.value })} />
+        {place.regions ? (
+          <Picker
+            className={styles.half}
+            label={place.regionLabel}
+            value={value.province}
+            onChange={(province) => set({ province })}
+            sheetTitle={place.regionLabel}
+            options={place.regions.map((r) => ({ value: r, title: r }))}
+          />
+        ) : (
+          /* No list for this country: a free field beats a wrong list. */
+          <Field
+            className={styles.half}
+            label={place.regionLabel}
+            autoComplete="address-level1"
+            value={value.province}
+            onChange={(e) => set({ province: e.target.value })}
+          />
+        )}
+        {place.postal ? (
+          <Field
+            className={styles.half}
+            label={place.postal.label}
+            autoComplete="postal-code"
+            inputMode="text"
+            spellCheck={false}
+            placeholder={place.postal.placeholder}
+            maxLength={10}
+            value={value.postalCode}
+            error={postalError ?? undefined}
+            onChange={(e) => set({ postalCode: place.postal?.format ? place.postal.format(e.target.value) : e.target.value })}
+          />
+        ) : null}
+      </div>
     </div>
   )
 })

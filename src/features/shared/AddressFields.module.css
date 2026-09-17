@@ -1,0 +1,36 @@
+/* The wrapper is the container the grid below asks about, and it has to be a *separate*
+   element: an element may not size itself from its own container query — only its
+   descendants may read it. So `.host` declares the container and `.grid` reads it. */
+.host {
+  container-type: inline-size;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-4);
+}
+
+/* **Ask the form's width, not the screen's.** This block sits in a 358px column on a phone
+   and a 520px one from 768px up — and it is also mounted inside the onboarding wizard, whose
+   card is its own width entirely. A media query would pair fields there on a wide screen
+   however narrow the card actually is. Measured: 520px gives each half 252px, which holds
+   « Tambacounda » and « 11000 » with room to spare; 358px gives 171px, which does not.
+
+   **A field spans the form unless it is explicitly half**, and only genuinely paired data is
+   paired: street and apartment are one address written on two lines, ville and région are
+   read together off an envelope. Pays keeps its own line because it is the field that decides
+   what the two below it even are. Getting this backwards — half by default — put the country
+   picker beside the street and the apartment beside the city, which is four fields in two
+   pairs that nobody reads in pairs. */
+@container (min-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .grid > * {
+    grid-column: 1 / -1;
+  }
+  .half {
+    grid-column: span 1;
+  }
+}

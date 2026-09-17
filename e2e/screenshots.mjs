@@ -363,17 +363,33 @@ try {
     const ctx = await browser.newContext({ colorScheme: theme, locale: 'fr-SN', deviceScaleFactor: 1 })
     /* Both, and the page picks. An init script runs before every navigation, so it cannot
        be the thing that decides — it reads a flag the loop sets just before each goto. */
-    await ctx.addInitScript((session) => {
-      try {
-        if (sessionStorage.getItem('e2e.anon') === '1') {
-          localStorage.removeItem('keewal.session')
-          localStorage.removeItem('keewal.onboarding')
-        } else {
-          localStorage.setItem('keewal.session', JSON.stringify(session))
-          localStorage.setItem('keewal.pin', '"1234"')
-        }
-      } catch {}
-    }, DEMO_SESSION)
+    await ctx.addInitScript(
+      ({ session, theme }) => {
+        try {
+          if (sessionStorage.getItem('e2e.anon') === '1') {
+            localStorage.removeItem('keewal.session')
+            localStorage.removeItem('keewal.onboarding')
+          } else {
+            localStorage.setItem('keewal.session', JSON.stringify(session))
+            localStorage.setItem('keewal.pin', '"1234"')
+          }
+          /* **`colorScheme` alone stopped choosing the theme, and this audit did not notice.**
+             The app defaults to light rather than to the system's preference, and « système »
+             is now a *choice* somebody makes rather than the absence of one — so a context
+             opened with `colorScheme: 'dark'` renders `data-theme="light"`, with every token
+             identical to the light pass. Measured on /bienvenue: `--surface` came back
+             `oklch(.985 .008 90)` under both schemes. Every dark run of this sweep — 42 routes
+             at four widths — was auditing the light theme a second time, so the dark theme has
+             had no contrast, overflow or notch check at all since that default changed, and
+             the screenshots in e2e/out named `-dark` were light.
+             The choice is a **bare string, not JSON**: three harnesses wrote `'"light"'`, which
+             matched nothing and fell back silently. `colorScheme` stays because `index.html`'s
+             two `theme-color` metas are still gated on the media query. */
+          localStorage.setItem('keewal.theme', theme)
+        } catch {}
+      },
+      { session: DEMO_SESSION, theme },
+    )
     for (const width of WIDTHS) {
       const page = await ctx.newPage()
       await page.setViewportSize({ width, height: width < 768 ? 844 : 900 })

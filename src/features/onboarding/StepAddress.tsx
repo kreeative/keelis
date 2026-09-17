@@ -56,9 +56,11 @@ export function StepAddress() {
       submitting={busy}
       onSubmit={() => void submit()}
     >
+      {/* No layout class: `AddressFields` owns its own grid, and it asks the *form's* width
+          rather than the screen's — so this card pairs the région and the postal code only if
+          the card itself is wide enough, which on the wizard's narrow column it is not. */}
       <AddressFields
         ref={focusRef}
-        className={styles.fields}
         value={address}
         onChange={(next) => {
           setAddress(next)

@@ -2,27 +2,95 @@
   padding-inline: var(--gutter);
   padding-block: var(--page-top) var(--sp-7);
   /* A form column, not the full content width: a name field 1,200px wide is harder to read,
-     not easier. The same measure the other sub-pages use. */
+     not easier. The aside below is what spends the rest of a desktop's width. */
   max-width: calc(520px + 2 * var(--gutter));
   margin-inline: 0;
   width: 100%;
+}
+
+/* **The read-only facts move beside the form on a wide screen, not under it.** Measured on a
+   1440px display: the single column ran 1,583px — nearly two screens to change your own name,
+   with 900px of the viewport empty beside it. They are reference material, which is exactly
+   what this app already puts in an aside (the goals panel, and the balance card on « Ajouter
+   des fonds »). 1120px is the breakpoint the goals panel uses and the aside is its 340px, so
+   this is the same shape rather than a second one. */
+@media (min-width: 1120px) {
+  .page {
+    max-width: calc(520px + var(--sp-6) + 340px + 2 * var(--gutter));
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 520px 340px;
+    gap: var(--sp-6);
+    align-items: start;
+  }
+  /* The form and the button share the left column; the aside spans both rows on the right. */
+  .form,
+  .actions {
+    grid-column: 1;
+  }
+  /* The grid's own row gap is the separation up here. */
+  .actions {
+    margin-top: 0;
+  }
+  .aside {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  /* Beside the form it needs no gap of its own, and it stays put while the form scrolls —
+     what it says about the e-mail is worth reading at the moment somebody wonders, which is
+     usually while they are halfway down the address. */
+  .aside {
+    margin-top: 0;
+    position: sticky;
+    top: calc(var(--safe-top) + var(--sp-5));
+  }
 }
 
 .form {
   display: flex;
   flex-direction: column;
   gap: var(--space-section);
+  min-width: 0;
 }
 .section {
   display: flex;
   flex-direction: column;
   gap: var(--space-block);
   min-width: 0;
+  /* The container the `.fields` grid below asks about — an element cannot size itself from
+     its own container query, only its descendants can. Same rule as `AddressFields.host`. */
+  container-type: inline-size;
 }
 .fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-4);
+}
+.half {
+  grid-column: 1 / -1;
+}
+/* 480px of *form*, not of screen: measured, 520px gives each half 252px and 358px gives 171.
+   A field spans the form unless it is explicitly half — the téléphone is one number and gets
+   the whole line, the way the street address does in `AddressFields`. */
+@container (min-width: 480px) {
+  .fields {
+    grid-template-columns: 1fr 1fr;
+  }
+  .fields > * {
+    grid-column: 1 / -1;
+  }
+  .half {
+    grid-column: span 1;
+  }
+}
+/* Stacked under the form below 1120px, it is simply the next section down. */
+.aside {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  gap: var(--space-block);
+  min-width: 0;
+  margin-top: var(--space-section);
 }
 .callout {
   margin-bottom: calc(-1 * var(--sp-1));
@@ -42,10 +110,16 @@
 /* Not sticky, and that is the point. A sticky action is right where the content is taller
    than the screen and the control must stay reachable — the keypad in a money flow. Here it
    is ten fields, and a button pinned over them covered « Ville » outright: measured on a
-   390px screen, the field sat directly under it. The button goes at the end of the form,
-   where a form's button goes. */
+   390px screen, the field sat directly under it. The button goes at the end, where a form's
+   button goes.
+
+   The margin is its own, because `.layout` is a plain block below 1120px and supplies no gap
+   — it carried a *negative* margin while it lived inside the form's `--space-section` flex,
+   and moving it out left that in place: the button painted straight over the last line of the
+   panel above it. Nothing catches that, either. The painted-over audit asks whether a control
+   is covered, not whether one covers a paragraph. */
 .actions {
-  margin-top: calc(-1 * var(--space-section) + var(--space-block));
+  margin-top: var(--space-block);
 }
 
 /* The fixed facts: a label, the value, the reason. The value wraps — an e-mail address is a
