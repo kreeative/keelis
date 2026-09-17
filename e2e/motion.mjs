@@ -61,6 +61,13 @@ async function ready(page, path) {
      order hangs at 1440px, where that one is the hidden mobile pill. */
   await page.waitForSelector('nav:visible', { timeout: 15_000 })
   await page.waitForFunction(() => document.body.innerText.trim().length > 200, null, { timeout: 15_000 })
+  /* And not while it is still mounting. Text on screen is not a settled page: /carte shows
+     its skeletons long before its filter button has a handler, and clicking one then is a
+     coin toss — measured, the desktop sheet check failed one run in two on a machine doing
+     nothing else, which is a flaky check and therefore a useless one. This is the same wait
+     `e2e/screenshots.mjs` takes, for the same reason. */
+  await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), null, { timeout: 8_000 }).catch(() => {})
+  await page.waitForTimeout(250)
 }
 
 async function newPage(context, { reducedMotion = 'no-preference' } = {}) {
@@ -90,6 +97,16 @@ async function openASheet(page) {
   for (const b of buttons) {
     const label = ((await b.getAttribute('aria-label')) ?? (await b.textContent()) ?? '').trim()
     if (!/filtr|trier|détail|options/i.test(label)) continue
+    /* Bring it into view *first*, then read where the page ended up, and only then click.
+       Playwright scrolls an element into view before clicking it, so the click itself can
+       move the page — and the scroll check below was comparing against a baseline read
+       before that happened. On /carte at 780px the filter button's bottom edge sits nine
+       pixels below the fold, so opening the sheet scrolled to 409 while the check still
+       believed 400, and reported « closing the sheet moved the page » about a sheet that
+       had handed back exactly what it took. The question is whether you get back the scroll
+       you were at **when the sheet opened**, so that is the number to hold. */
+    await b.scrollIntoViewIfNeeded().catch(() => {})
+    const scrollAtOpen = await page.evaluate(() => Math.round(window.scrollY))
     await b.click().catch(() => {})
     const opened = await page
       .locator('[role="dialog"]')
@@ -97,7 +114,7 @@ async function openASheet(page) {
       .waitFor({ state: 'visible', timeout: 1000 })
       .then(() => true)
       .catch(() => false)
-    if (opened) return label
+    if (opened) return { label, scrollAtOpen }
   }
   return null
 }
@@ -225,14 +242,15 @@ async function run() {
       if (after.sheetAttr !== null) fail('sheet', `<html data-sheet> was left set to "${after.sheetAttr}"`)
       /* The freeze clamps the document scroll to zero. Handing it back is the part a user
          would notice: dismissing a sheet must not send the page to the top. */
-      if (Math.abs(after.scroll - scrollBefore) > 2) {
-        fail('sheet', `closing the sheet moved the page (was ${scrollBefore}, now ${after.scroll})`)
+      /* Against the scroll the sheet froze, not the one set before the opener was reached. */
+      if (Math.abs(after.scroll - opener.scrollAtOpen) > 2) {
+        fail('sheet', `closing the sheet moved the page (was ${opener.scrollAtOpen} when it opened, now ${after.scroll})`)
       }
       if (after.viewTransform !== 'none') fail('sheet', `the page did not come back (transform ${after.viewTransform})`)
       if (navBefore !== null && after.navBottom !== null && Math.abs(after.navBottom - navBefore) > 2) {
         fail('sheet', `the nav did not return to where it was (${navBefore} → ${after.navBottom})`)
       }
-      notes.push(`sheet: opened from « ${opener} », receded the page, animated out, scroll restored to ${after.scroll}`)
+      notes.push(`sheet: opened from « ${opener.label} », receded the page, animated out, scroll restored to ${after.scroll}`)
     }
     await page.close()
   }
