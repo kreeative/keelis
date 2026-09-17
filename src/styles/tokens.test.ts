@@ -157,3 +157,58 @@ describe('DESIGN.md’s contrast table describes the tokens it is about', () => 
     expect(wrong).toEqual([])
   })
 })
+
+describe('the focus ring can actually be seen, on every surface it can land on', () => {
+  /* **`pnpm e2e:keyboard` proves a ring *exists*; nothing proved it was visible.** The walk
+     looks for an outline or a box-shadow and is right to — a ring may sit on a wrapper, and
+     `Field` draws it there on purpose — but a ring the same value as what is behind it passes
+     that check exactly as well as a good one. The contrast audit cannot cover it either: it
+     measures text against its background, and a ring is a border.
+
+     WCAG 2.2 SC 1.4.11 asks 3:1 for a focus indicator. Measured when this was written:
+     light 7.21 on the page, 6.41 on the sheet ground, 7.34 on a keypad key; dark 13.03,
+     14.33 and 8.43. There is plenty of room — which is exactly why it is worth pinning, since
+     the failure mode is somebody nudging `--accent` for a *text* audit (it is a bronze in
+     light and the gold in dark for precisely that reason) and taking the ring with it.
+
+     `--card-surface` is deliberately absent: it is the **virtual payment card**, which is
+     always dark in both themes, and `VirtualCard.tsx` renders no button, link, `onClick` or
+     `tabIndex` — nothing focusable can land on it. Its pair measures 2.34:1 in light and
+     asserting on it would fail the build over a combination that cannot occur. (It is also
+     not the `Card` component's fill, which is the `--surface` family. The name misleads.) */
+  const light = declarations(CSS, ':root {\n  color-scheme: light;')
+  const dark = declarations(CSS, ':root[data-theme="dark"] {')
+
+  /**
+   * Every **opaque** fill a focusable control actually sits on.
+   *
+   * `--fill-subtle` is deliberately not here, and leaving it in is how this test first failed:
+   * it is `oklch(0.22 0.026 68 / 0.08)` — an eight-percent ink wash in light and a fourteen-
+   * percent paper wash in dark — so it is not a ground at all. What sits behind a chip or a
+   * hovered row is that wash *over* whatever it is painted on, and those are already in this
+   * list. Comparing the ring to the undiluted ink gave 2.29:1 and 1.21:1, two numbers for a
+   * colour that never reaches a screen.
+   */
+  const GROUNDS = ['--surface', '--sheet-ground', '--key-face']
+
+  /* A translucent token in that list computes a ratio against a colour nobody sees, and it
+     does it silently — which is the failure this whole file exists to catch, one level up. */
+  it.each([
+    ['clair', light],
+    ['sombre', dark],
+  ] as const)('compares against opaque grounds only, in %s', (_scheme, tokens) => {
+    const value = (name: string) => tokens.get(name) ?? light.get(name)!
+    expect(GROUNDS.filter((g) => value(g).includes('/'))).toEqual([])
+  })
+
+  it.each([
+    ['clair', light],
+    ['sombre', dark],
+  ] as const)('holds 3:1 against each ground in %s', (scheme, tokens) => {
+    // The dark block redeclares only what changes; anything else is inherited from light.
+    const value = (name: string) => tokens.get(name) ?? light.get(name)!
+    const accent = value('--accent')
+    const failing = GROUNDS.filter((g) => ratio(accent, value(g)) < 3).map((g) => `${g} in ${scheme}: ${ratio(accent, value(g)).toFixed(2)}:1`)
+    expect(failing).toEqual([])
+  })
+})
