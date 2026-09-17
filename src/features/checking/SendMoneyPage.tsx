@@ -13,7 +13,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
 import { handleField } from './handle'
 import { ApiError, type MoneyMovementResult, type TransferProvider } from '@/api/types'
-import { Button, Card, ChoiceList, Field, Icon, List, ListRow, Money } from '@/components'
+import { Button, Card, ChoiceList, Field, Icon, ListRow, Money } from '@/components'
 import { AmountEntry, ConfirmSheet, ReviewList, StepFlow, SuccessScreen, useAccount, useAccountId, useTransaction, type FlowStep, type SummaryLine } from '@/features/shared'
 import { formatMoney, parseAmountInput } from '@/lib/format'
 import { bicMatchesIban, checkIban, formatIban, isValidBic, normalizeIban, type IbanError } from '@/lib/iban'
@@ -343,11 +343,17 @@ export default function SendMoneyPage() {
             options={MODES.map((m) => ({ value: m.value, title: m.title, subtitle: m.description, detail: m.eta, wrap: true }))}
           />
         ) : (
-          <Card padding="none" elevation={1}>
-            <List>
-              {MODES.map((m) => (
+          /* Three cards, not one card cut into three. They were a `List` inside a single
+             `Card`, which draws them as one object with two hairlines through it — and a
+             hairline is what this app uses to separate *rows of the same thing*, an account
+             from an account, a transaction from a transaction. These are not rows of the same
+             thing: they are three different ways to move money, and choosing one ends the
+             step. Separated, each is its own surface with its own edge and its own shadow,
+             which is what says « pick one of these » rather than « read this list ». */
+          <div className={styles.methods}>
+            {MODES.map((m) => (
+              <Card key={m.value} padding="none" elevation={1} className={styles.method}>
                 <ListRow
-                  key={m.value}
                   wrap
                   chevron
                   title={m.title}
@@ -362,9 +368,9 @@ export default function SendMoneyPage() {
                     setSendError(null)
                   }}
                 />
-              ))}
-            </List>
-          </Card>
+              </Card>
+            ))}
+          </div>
         ),
     },
     {

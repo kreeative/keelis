@@ -21,3 +21,18 @@
   color: var(--accent-text);
   flex-shrink: 0;
 }
+
+/* The three send methods, one card each. The gap is `--space-items`, the kit's step for
+   things that sit beside each other rather than inside each other. */
+.methods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-items);
+}
+/* The row is the whole card, so it takes the card's corners: `ListRow` squares its own
+   radius off because it normally sits *inside* a list, where rounding every row would draw
+   a stack of lozenges. Alone in a card, the unrounded hover fill would paint over the four
+   corners the card just rounded. */
+.method > * {
+  border-radius: var(--r-card);
+}
