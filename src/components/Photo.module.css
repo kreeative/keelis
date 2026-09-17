@@ -1,0 +1,35 @@
+.frame {
+  position: relative;
+  overflow: hidden;
+  /* The frame is the box; the picture fills it and is cropped. A photograph commissioned to
+     the brief in public/photos/README.md is dark with room around its subject, so a crop
+     loses background rather than the thing the picture is of. */
+  background: var(--card-surface);
+  isolation: isolate;
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Bottom-weighted: the references all put the subject high in the frame and the type sits
+     under it, so a crop should eat the floor, not the face. */
+  object-position: 50% 35%;
+}
+
+/* The wash that makes type on a photograph legible. It is a gradient, and gradients are the
+   token layer's business — `--scrim-hero` and `--scrim-full` carry the stops. */
+.bottom::after,
+.full::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bottom::after {
+  background: var(--scrim-hero);
+}
+.full::after {
+  background: var(--scrim-full);
+}

@@ -16,7 +16,7 @@
  * It sits outside both guards in the route map — a company page that redirects a signed-in
  * visitor to their dashboard is a company page nobody can link to.
  */
-import { Button, Card, Icon, Wordmark } from '@/components'
+import { Button, Card, Icon, Photo, Wordmark } from '@/components'
 import { cn } from '@/lib/cn'
 import { CURRENCY_ORDER, CURRENCIES, type Currency } from '@/lib/currency'
 import { CFA_PER_EUR, SPREADS } from '@/lib/fx'
@@ -130,6 +130,12 @@ export default function CompanyPage() {
             </Button>
           </div>
         </section>
+
+        {/* The band. It is `lazy` and not `priority`: it sits below the hero, so fetching it
+            eagerly would put it in front of the type somebody is already reading. Renders
+            nothing at all until the owner's licensed file exists, and the page closes up
+            around it — the same contract as the welcome screen. */}
+        <Photo name="company" className={styles.band} sizes="(min-width: 1120px) 1120px, 100vw" scrim="full" />
 
         <section className={styles.section} aria-label="En chiffres">
           <Card padding="lg" elevation={1} className={styles.facts}>

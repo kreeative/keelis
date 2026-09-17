@@ -1,25 +1,111 @@
 .root {
   min-height: 100dvh;
-  max-width: 420px;
+  /* 520 rather than 420: the hero needs room to be a picture rather than a stamp, and the
+     sentence reads at the same measure either way because `.lede` caps itself at 34ch. */
+  max-width: 520px;
   margin-inline: auto;
   padding: calc(var(--safe-top) + var(--sp-4)) var(--gutter) calc(var(--sp-6) + var(--safe-bottom));
   display: flex;
   flex-direction: column;
-  gap: var(--sp-6);
+  gap: var(--sp-5);
 }
-.top { display: flex; justify-content: flex-end; min-height: var(--tap); }
-.main {
-  flex: 1;
+
+/* The spaced micro-label row. Three items, and the middle one is centred on the *page*
+   rather than in the space left between its neighbours — a centred label that shifts when
+   the name beside it changes length is the thing that makes a row like this look assembled
+   rather than set. A three-column grid with equal outer tracks does it without measuring. */
+.top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: var(--tap);
+}
+.topName {
+  color: var(--ink-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topHere {
+  color: var(--ink-400);
+  justify-self: center;
+  white-space: nowrap;
+}
+.toggle {
+  justify-self: end;
+}
+
+.intro {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: var(--sp-5);
-  padding-block: var(--sp-6);
+  gap: var(--sp-4);
 }
-.title { text-wrap: balance; }
-.lede { max-width: 34ch; }
-.actions { display: flex; flex-direction: column; gap: var(--sp-2); }
-.footer { text-align: center; }
+/* The mark gets clear space, not paragraph spacing — it is its own height before the title
+   starts, which is `.mark-clear`'s rule applied through the flex gap rather than on top of
+   it, since this container already supplies a gap and the two would add. */
+.glyph {
+  margin-bottom: var(--sp-2);
+}
+.title {
+  text-wrap: balance;
+  margin: 0;
+}
+.lede {
+  max-width: 34ch;
+  margin: 0;
+}
+
+/* The hero. `flex: 1` so it takes whatever the type and the sheet leave, with a floor that
+   keeps it a photograph rather than a letterbox, and a ceiling so a tall desktop window does
+   not turn the front door into a poster with the actions below the fold. */
+.hero {
+  flex: 1;
+  min-height: 220px;
+  max-height: 46vh;
+  /* **Full-bleed, and unrounded.** It was inset in the gutter with `--r-panel` corners, and
+     the 24px of the frame sat directly under the sheet's 32px doing the same job a different
+     amount — two radii arguing at the one seam the eye is already on. A hero is the element
+     that bleeds: the picture runs to the edges of the screen and the only rounding in the
+     composition is the sheet riding up over it, which is what the reference does and why its
+     seam reads as one move rather than two. */
+  margin-inline: calc(-1 * var(--gutter));
+  margin-bottom: calc(-1 * var(--sp-6));
+}
+
+/* The sheet rides up over the frame, which is the whole move: the actions are on a surface,
+   the picture is behind it, and the seam between them is a radius rather than a line. With no
+   photograph there is nothing to ride over, so `.root:not(.illustrated)` lets it sit flat —
+   an overlap that overlaps nothing is a gap. */
+.sheet {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.illustrated .sheet {
+  background: var(--sheet-ground);
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  margin-inline: calc(-1 * var(--gutter));
+  padding: var(--sp-6) var(--gutter) var(--sp-2);
+}
+/* With no photograph the type block takes the room the hero would have had, so the screen
+   is composed rather than top-heavy with a hole under it. */
+.root:not(.illustrated) .intro {
+  flex: 1;
+  justify-content: center;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.footer {
+  text-align: center;
+  margin: 0;
+}
 
 /* The toast viewport offsets itself by the desktop icon rail, which does not
    exist on the public pages: this transformed box becomes its containing block

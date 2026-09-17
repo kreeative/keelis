@@ -195,6 +195,27 @@
      the keypad is meant to read as twelve of the same object. */
   --grad-key: linear-gradient(180deg, oklch(0.997 0.007 90) 0%, oklch(0.982 0.009 90) 100%);
 
+  /* **Scrims: the one place a gradient is doing load-bearing work rather than material.**
+
+     The contrast audit reads computed backgrounds, and a photograph has no colour to read —
+     so text over a picture is the one text in the app whose legibility no check can measure.
+     It has to hold by construction, and this is the construction. `--scrim-hero` is weighted
+     to the foot, where a hero's type sits: transparent through the top half so the picture is
+     still a picture, then down to 0.82 at the base, which carries `--card-ink` over any frame
+     shot to the brief (dark subject, single warm light). `--scrim-full` is the even wash for
+     a band behind a whole block.
+
+     They are brown rather than black, because a neutral scrim over a warm photograph turns it
+     grey at the edges — the same reason chroma 0 fails everywhere else in this palette. */
+  --scrim-hero: linear-gradient(
+    180deg,
+    oklch(0.16 0.018 62 / 0) 0%,
+    oklch(0.16 0.018 62 / 0.12) 46%,
+    oklch(0.16 0.018 62 / 0.55) 74%,
+    oklch(0.16 0.018 62 / 0.82) 100%
+  );
+  --scrim-full: linear-gradient(180deg, oklch(0.16 0.018 62 / 0.62) 0%, oklch(0.16 0.018 62 / 0.72) 100%);
+
   /* ---- Typography ---- */
   /* Poppins, self-hosted (see fonts.css). No system fallback comes close to it, so the
      stack lists geometric neighbours only as a last resort before the platform sans. */

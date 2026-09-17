@@ -378,3 +378,13 @@
     padding-block: var(--sp-8) var(--sp-6);
   }
 }
+
+/* The photographic band. Full-bleed, because a picture inset in a marketing column reads as
+   an illustration of the paragraph above it rather than as a change of register — and the
+   register change is the job. It carries the even scrim rather than the bottom-weighted one:
+   nothing sits on it, so the wash is there to settle the frame into the page's own value
+   rather than to carry type. */
+.band {
+  margin-inline: calc(-1 * var(--gutter));
+  height: clamp(200px, 38vw, 380px);
+}

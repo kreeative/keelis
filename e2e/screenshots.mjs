@@ -153,6 +153,67 @@ function auditScript() {
     return out.length ? out : null
   }
   /**
+   * A gradient's stops **with their positions**, for the scrim maths below.
+   *
+   * Chromium prints the percentages it computed, so `linear-gradient(180deg, C 0%, C 46%…)`
+   * comes back parseable. A stop with no position is spread evenly, which is the same rule
+   * CSS itself uses.
+   */
+  function gradientRamp(cssImage) {
+    if (!cssImage || cssImage === 'none' || !/gradient\(/.test(cssImage)) return null
+    const re = /((?:oklch|oklab|lab|lch|color|rgba?|hsla?)\([^()]*\))(?:\s+([\d.]+)%)?/g
+    const raw = []
+    let m
+    while ((m = re.exec(cssImage))) raw.push({ color: m[1], pos: m[2] === undefined ? null : Number(m[2]) / 100 })
+    if (raw.length < 2) return null
+    raw.forEach((st, i) => { if (st.pos === null) st.pos = i / (raw.length - 1) })
+    const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }
+    return raw.map((st) => {
+      swatchCx.clearRect(0, 0, 1, 1)
+      swatchCx.fillStyle = '#000'
+      swatchCx.fillStyle = st.color
+      swatchCx.fillRect(0, 0, 1, 1)
+      const d = swatchCx.getImageData(0, 0, 1, 1).data
+      return { pos: st.pos, r: lin(d[0]), g: lin(d[1]), b: lin(d[2]), a: d[3] / 255 }
+    })
+  }
+
+  /**
+   * The worst background a piece of text over a photograph can have.
+   *
+   * **No check in this repo can measure text on a picture** — every one of them reads
+   * computed styles, and a photograph has no colour to read. That is the same shape as the
+   * gradient hole above, one level worse: there, the colour existed and the walk stepped past
+   * it; here there is genuinely nothing to read, so an audit that reports a number is
+   * inventing one.
+   *
+   * It is still decidable, though, and this is how. The type sits under `Photo`'s scrim, whose
+   * alpha at the text's own height is computable; composite that scrim over **white** and you
+   * have the brightest frame that could ever be dropped into the slot. Text that clears the
+   * threshold against *that* clears it against any photograph the owner licenses — which is a
+   * real guarantee rather than a hope, and it can be checked before the photographs exist.
+   */
+  function scrimFloor(el, frame) {
+    const ramp = gradientRamp(getComputedStyle(frame, '::after').backgroundImage)
+    if (!ramp) return null
+    const fr = frame.getBoundingClientRect()
+    const er = el.getBoundingClientRect()
+    if (fr.height <= 0) return null
+    const t = Math.max(0, Math.min(1, (er.top + er.height / 2 - fr.top) / fr.height))
+    let lo = ramp[0]
+    let hi = ramp[ramp.length - 1]
+    for (let i = 0; i < ramp.length - 1; i++) {
+      if (t >= ramp[i].pos && t <= ramp[i + 1].pos) { lo = ramp[i]; hi = ramp[i + 1]; break }
+    }
+    const span = hi.pos - lo.pos
+    const k = span > 0 ? (t - lo.pos) / span : 0
+    const mix = (a, b) => a + (b - a) * k
+    const scrim = { r: mix(lo.r, hi.r), g: mix(lo.g, hi.g), b: mix(lo.b, hi.b), a: mix(lo.a, hi.a) }
+    /* White is the worst case: the brightest photograph that could sit under this scrim. */
+    return blend(scrim, { r: 1, g: 1, b: 1, a: 1 })
+  }
+
+  /**
    * The background a piece of text actually sits on.
    *
    * With `fg` given and a gradient underneath, it returns the **worst** stop rather than an
@@ -165,6 +226,13 @@ function auditScript() {
     let acc = null
     while (node && node !== document.documentElement) {
       const cs = getComputedStyle(node)
+      /* A photo frame: stop here. Whatever is behind it is irrelevant, because a picture is
+         painted over it, and the scrim is the only thing between this text and that picture. */
+      if (node.hasAttribute && node.hasAttribute('data-photo')) {
+        const floor = scrimFloor(el, node)
+        if (floor) return acc ? blend(acc, floor) : floor
+        return { unmeasurable: true }
+      }
       const stops = gradientStops(cs.backgroundImage)
       if (stops) {
         const opaque = stops.filter((c) => c.a >= 1)
@@ -260,7 +328,12 @@ function auditScript() {
       if (fs < 12 && !seen.has(key('fs'))) { seen.add(key('fs')); out.push({ kind: 'font-size', detail: `${fs}px "${el.textContent.trim().slice(0, 30)}"` }) }
       const fg = parseColor(cs.color)
       const bg = effectiveBg(el, fg)
-      if (fg && bg) {
+      if (bg && bg.unmeasurable) {
+        /* Text on a photograph with no scrim. Reporting a ratio here would be reporting a
+           number about a colour nothing knows — the failure this whole helper exists to
+           avoid — so it says so instead. Give the frame a `scrim` and it becomes measurable. */
+        if (!seen.has(key('contrast'))) { seen.add(key('contrast')); out.push({ kind: 'contrast-unmeasurable', detail: `"${el.textContent.trim().slice(0, 30)}" sits on a photograph with no scrim — nothing can measure it` }) }
+      } else if (fg && bg) {
         const f = fg.a < 1 ? blend(fg, bg) : fg
         const l1 = lum(f), l2 = lum(bg)
         const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)

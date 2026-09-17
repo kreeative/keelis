@@ -15,3 +15,11 @@ dist-live
 .env.*
 !.env.example
 dist-server
+
+# Photographs. The folder's README is the only thing in it that belongs in the repository:
+# every image is the owner's to license, and a committed photograph nobody holds the rights
+# to is a legal problem that survives the commit that removed it — the same reasoning as the
+# environment files above. `scripts/photo-placeholder.mjs` writes obviously-fake stand-ins
+# here so the illustrated layout can be exercised locally; those must never be pushed either.
+public/photos/*
+!public/photos/README.md
