@@ -80,6 +80,9 @@ export default function ProfilePage() {
               Compte
             </h2>
             <List>
+              {/* First in the group, because it is the one thing here that is *yours* rather
+                  than a setting: your name, your telephone, where you live. */}
+              <ListRow to="/profil/informations" leading={<RowIcon name="circle-user-round" />} title="Informations personnelles" subtitle="Nom, téléphone, adresse" chevron />
               <ListRow to="/profil/securite" leading={<RowIcon name="shield" />} title="Sécurité" subtitle="NIP et appareils" chevron />
               <ListRow to="/profil/notifications" leading={<RowIcon name="bell" />} title="Notifications" subtitle="Ce dont nous vous avertissons" chevron />
               <ListRow to="/profil/documents" leading={<RowIcon name="file-text" />} title="Documents et relevés" subtitle="Relevés mensuels en PDF" chevron />

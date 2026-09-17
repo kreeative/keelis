@@ -302,3 +302,46 @@ img, svg {
      making the page behind harder to read for nothing. */
   html[data-sheet='open'] .app-view { transform: none; filter: none; border-radius: 0; }
 }
+
+/* ---------- Scrollbars ----------
+
+   The app never styled one, so every scrolling surface got the operating system's: on
+   Windows and on a Mac set to « always show », a wide grey track with ▲▼ arrows — down the
+   side of the profile page, and *inside* the country picker's sheet, where it cut across the
+   rounded corner and pressed against the radio buttons.
+
+   **No check here could see it, and that is the same trap as the notch.** Headless Chromium
+   draws overlay scrollbars, which take no layout width and no pixels; `scrollbarPx` measured
+   0 on the very sheet the screenshot shows one in. It took a photograph of a real desktop.
+
+   `scrollbar-gutter: stable` is the half that is not cosmetic: without it the list jumps
+   sideways by the scrollbar's width the moment a search narrows it to a few rows, which is a
+   layout shift under somebody's typing. It reserves the gutter for a classic scrollbar and
+   is a no-op for an overlay one, so phones are untouched. */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-300) transparent;
+}
+/* Safari ignored `scrollbar-width` until 18.2, so it gets the old pseudo-elements too. The
+   thumb is inset by a transparent border rather than a smaller width, which is what keeps it
+   off the edge of the content instead of merely thin. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--ink-300);
+  border-radius: var(--r-pill);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ink-400);
+}
+/* The corner where two scrollbars meet is the one surface the OS paints white by default. */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

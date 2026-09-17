@@ -73,7 +73,7 @@ const ROUTES = (process.argv.find((a) => a.startsWith('--routes='))?.slice(9)?.s
   '/crypto/btc/envoyer', '/crypto/btc/recevoir', '/crypto/recurrents',
   '/carte', '/carte/details', '/envoyer', '/envoyer/operateurs', '/convertir',
   '/epargne', '/epargne/deposer', '/epargne/retirer', '/epargne/objectifs/nouveau',
-  '/fonds', '/profil', '/profil/securite', '/profil/notifications', '/profil/documents',
+  '/fonds', '/profil', '/profil/informations', '/profil/securite', '/profil/notifications', '/profil/documents',
   '/profil/fiscalite', '/profil/aide', '/profil/donnees', '/profil/risque', '/notifications',
 ]).map((path) => ({ path }))
 

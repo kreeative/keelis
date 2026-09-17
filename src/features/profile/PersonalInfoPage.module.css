@@ -1,0 +1,74 @@
+.page {
+  padding-inline: var(--gutter);
+  padding-block: var(--page-top) var(--sp-7);
+  /* A form column, not the full content width: a name field 1,200px wide is harder to read,
+     not easier. The same measure the other sub-pages use. */
+  max-width: calc(520px + 2 * var(--gutter));
+  margin-inline: 0;
+  width: 100%;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section);
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+  min-width: 0;
+}
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.callout {
+  margin-bottom: calc(-1 * var(--sp-1));
+}
+
+/* The glyph is what survives a greyscale screenshot; the colour is what makes the line
+   findable on a full form. */
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  color: var(--neg);
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+}
+
+/* Not sticky, and that is the point. A sticky action is right where the content is taller
+   than the screen and the control must stay reachable — the keypad in a money flow. Here it
+   is ten fields, and a button pinned over them covered « Ville » outright: measured on a
+   390px screen, the field sat directly under it. The button goes at the end of the form,
+   where a form's button goes. */
+.actions {
+  margin-top: calc(-1 * var(--space-section) + var(--space-block));
+}
+
+/* The fixed facts: a label, the value, the reason. The value wraps — an e-mail address is a
+   long unbreakable string, and at 320px it is wider than the screen. */
+.fixed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-items);
+  margin: 0;
+}
+.fixedItem + .fixedItem {
+  padding-top: var(--space-items);
+  border-top: 1px solid var(--line);
+}
+.fixedValue {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-body);
+  color: var(--ink-900);
+  overflow-wrap: anywhere;
+}
+.fixedWhy {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+}

@@ -64,6 +64,10 @@
   min-height: 0;
   flex: 1;
   overscroll-behavior: contain;
+  /* The gutter is reserved here rather than left to chance: the country picker filters 34
+     rows down to two as you type, and without it the whole list shifts sideways the moment
+     the scrollbar goes. The colours come from :root — see base.css. */
+  scrollbar-gutter: stable;
 }
 .footer {
   display: flex;

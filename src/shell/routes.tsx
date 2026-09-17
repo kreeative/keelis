@@ -61,6 +61,7 @@ const TaxPage = L(() => import('@/features/profile/TaxPage'))
 const HelpPage = L(() => import('@/features/profile/HelpPage'))
 const DataSourcePage = L(() => import('@/features/profile/DataSourcePage'))
 const RiskPage = L(() => import('@/features/profile/RiskPage'))
+const PersonalInfoPage = L(() => import('@/features/profile/PersonalInfoPage'))
 const NotificationsPage = L(() => import('@/features/notifications/NotificationsPage'))
 // Marketing
 const CompanyPage = L(() => import('@/features/marketing/CompanyPage'))
@@ -128,6 +129,7 @@ export function AppRoutes() {
             <Route path="/fonds/statut/:txId" element={<FundsStatusPage />} />
 
             <Route path="/profil" element={<ProfilePage />} />
+            <Route path="/profil/informations" element={<PersonalInfoPage />} />
             <Route path="/profil/securite" element={<SecurityPage />} />
             <Route path="/profil/notifications" element={<NotificationPrefsPage />} />
             <Route path="/profil/documents" element={<DocumentsPage />} />

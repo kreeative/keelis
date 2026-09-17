@@ -18,6 +18,7 @@ export const QK = {
   transactions: (scope = 'all') => `transactions:${scope}`,
   transaction: (id: string) => `transactions/${id}`,
   card: 'card',
+  me: 'me',
   risk: 'me:risk',
   assets: 'crypto:assets',
   asset: (id: string) => `crypto:assets/${id}`,

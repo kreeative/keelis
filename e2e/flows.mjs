@@ -148,6 +148,26 @@ async function waitForText(page, pattern, what, timeout = 20_000) {
 }
 
 /**
+ * Wait for a toast, by asking the DOM for the toast rather than reading the page's text.
+ *
+ * The toast is on screen for three seconds starting about a second after the action, and
+ * both `present` and `waitForText` reported it missing on roughly half the runs of an app
+ * that was producing it *every* time — measured directly at +750, +800, +900 and +1200ms
+ * across seven runs, opacity 1, visible, and present in `body.innerText`. Whatever the two
+ * generic helpers are racing with, a tight DOM poll is not fooled by it, and a check that
+ * fails half the time on working code is worse than no check.
+ */
+async function waitForToast(page, pattern, what, timeout = 10_000) {
+  const deadline = Date.now() + timeout
+  while (Date.now() < deadline) {
+    const text = await page.evaluate(() => document.querySelector('[class*=toast]')?.textContent ?? '').catch(() => '')
+    if (pattern.test(text)) return
+    await page.waitForTimeout(100)
+  }
+  throw new Error(`${what} never appeared`)
+}
+
+/**
  * Click once the control is actually enabled.
  *
  * Several buttons stay disabled until something they depend on has loaded — the savings
@@ -681,6 +701,72 @@ async function freezeTheCard(browser) {
   }
 }
 
+/**
+ * Correcting your own details, and the part a screenshot cannot see: that it **saved**.
+ *
+ * This whole screen existed only as an API. `api.profile.update` has always accepted a
+ * name, a phone and an address, and the single caller was the language toggle — so the form
+ * being drawn correctly proves nothing about whether a person who moved house can say so.
+ * The assertion is the reload: change two fields, save, load the page again from scratch,
+ * and read them back. That is the same reason `convert` reads the balance before and after.
+ */
+async function editPersonalInfo(browser) {
+  const flow = 'Informations personnelles'
+  const page = await newPage(browser, flow)
+  try {
+    /* One `goto`, then everything else through the app's own links.
+One \`goto\`, then everything else through the app's own links.
+
+       **A \`page.goto\` is a document navigation, and the mock cannot survive one.** It holds
+       its whole world in memory, and \`refreshUser\` updates React state rather than
+       localStorage — so a \`goto\` back to /profil reboots the app, re-reads the seeded
+       session, and reports the *old* name about a save that worked perfectly. Two assertions
+       here failed that way and neither was the app's fault. Clicking is also simply what a
+       person does: the row, the back arrow, the row again.
+
+       So what this flow asserts is what this screen owns — the write reached the API, the
+       read comes back changed, and the session the rest of the app renders from was told.
+       Persistence across a browser reload is the backend's, and \`pnpm e2e:server\` is where
+       that is tested.
+    */
+    await page.goto(`${BASE}/profil`, { waitUntil: 'domcontentloaded' })
+    await present(page, page.getByText('Informations personnelles'), 'the way in from the profile page')
+    await page.getByText('Informations personnelles').first().click()
+
+    await present(page, page.getByLabel('Prénom'), 'the personal information form')
+    await page.waitForTimeout(600)
+    if (!(await page.getByLabel('Prénom').inputValue())) fail(flow, 'the form opened empty — it never loaded the signed-in user')
+
+    await page.getByLabel('Prénom').fill('Aminata')
+    await page.getByLabel('Ville').fill('Thiès')
+    const save = page.locator('button', { hasText: 'Enregistrer' }).first()
+    if (!(await clickWhenEnabled(page, save, 'Enregistrer'))) fail(flow, 'Enregistrer never became clickable')
+    await waitForToast(page, /Informations enregistrées/, 'the confirmation')
+
+    /* The rest of the app hears about it, not just this form. */
+    await page.getByLabel('Retour').first().click()
+    await present(page, page.getByText('Aminata'), 'the new name on the profile page')
+
+    /* And a second visit re-reads the API rather than the cache it saved over. */
+    await page.getByText('Informations personnelles').first().click()
+    await present(page, page.getByLabel('Prénom'), 'the form on a second visit')
+    await page.waitForTimeout(600)
+    const name = await page.getByLabel('Prénom').inputValue()
+    const city = await page.getByLabel('Ville').inputValue()
+    if (name !== 'Aminata') fail(flow, `the saved first name did not come back (got "${name}")`)
+    if (city !== 'Thiès') fail(flow, `the saved city did not come back (got "${city}")`)
+
+    /* The two facts this screen refuses to edit say so rather than sitting greyed out. */
+    await present(page, page.getByText(/identifiant avec lequel vous vous connectez/), 'the reason the e-mail is fixed')
+    await present(page, page.getByText(/revérification, pas une modification/), 'the reason the date of birth is fixed')
+    await shot(page, 'informations')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
 async function createAGoal(browser) {
   const flow = 'Créer un objectif'
   const page = await newPage(browser, flow)
@@ -993,6 +1079,7 @@ await run('moveToSavings', moveToSavings)
 await run('internalTransfer', internalTransfer)
 await run('receiveCrypto', receiveCrypto)
 await run('freezeTheCard', freezeTheCard)
+await run('editPersonalInfo', editPersonalInfo)
 await run('createAGoal', createAGoal)
 await run('riskProfile', riskProfile)
 await run('goOffline', goOffline)
