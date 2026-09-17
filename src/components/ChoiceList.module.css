@@ -1,5 +1,9 @@
 .group { display: flex; flex-direction: column; }
-.option { padding-inline: var(--sp-1); }
+/* Defers to the card, like every other row: `--row-pad` is what an unpadded `Card` hands
+   its rows, and this rule used to override it with four pixels — which is why the risk
+   questionnaire kept its options seventeen pixels from the edge while every other unpadded
+   card gained air. Four is still the fallback, for an option inside a card that pads itself. */
+.option { padding-inline: var(--row-pad, var(--sp-1)); }
 .disabled { opacity: 0.5; cursor: not-allowed; }
 /* the kit hangs the escape hatch under the list, right-aligned and quiet */
 .footer {

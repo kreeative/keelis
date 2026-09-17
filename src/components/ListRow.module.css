@@ -8,14 +8,27 @@
   gap: var(--sp-3);
   min-height: var(--row-height);
   width: 100%;
-  padding-block: var(--sp-2);
+  /* `--row-pad` comes from an unpadded `Card` (see Card.module.css); inside a padded one it
+     is unset and the row keeps the thin block padding it has always had, because the card's
+     own padding is already the air. `max()` rather than a second variable: the floor is the
+     same 8px either way, and a row with a taller inset simply takes the taller one. */
+  padding-block: max(var(--sp-2), var(--row-pad-block, 0px));
+  padding-inline: var(--row-pad, 0px);
   text-align: left;
   color: var(--ink-900);
   border-radius: 0;
   transition: background-color var(--dur-smooth) var(--ease-smooth);
 }
 .interactive { cursor: pointer; }
-.interactive:hover { background: var(--surface-alt); margin-inline: calc(-1 * var(--sp-3)); padding-inline: var(--sp-3); width: auto; }
+/* The fill reaches the edges of whatever holds it. In a padded card it bleeds --sp-3 back
+   outward, because the row's box stops short of the card's edge; in an unpadded one the row
+   already spans the card, so it simply keeps its own inset and there is nothing to bleed. */
+.interactive:hover {
+  background: var(--surface-alt);
+  margin-inline: calc(-1 * var(--row-bleed, var(--sp-3)));
+  padding-inline: calc(var(--row-pad, 0px) + var(--row-bleed, var(--sp-3)));
+  width: auto;
+}
 .interactive:focus-visible { box-shadow: var(--focus-ring); border-radius: var(--r-field); position: relative; z-index: 1; }
 
 .leading { flex-shrink: 0; display: inline-flex; }
@@ -33,7 +46,11 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   column-gap: var(--sp-3);
-  row-gap: 2px;
+  /* Two pixels in a dense list, where the value dropping under the text is still one unit;
+     more in a row that is its own card, where three lines two pixels apart read as a slab.
+     The card that sets `--row-pad` sets this too — a row is its own card exactly when it
+     pads itself. */
+  row-gap: var(--row-gap, 2px);
 }
 .stack > .leading { grid-column: 1; grid-row: 1 / span 2; }
 .stack > .main { grid-column: 2; grid-row: 1; }

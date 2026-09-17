@@ -14,7 +14,29 @@
 }
 .md { padding: var(--sp-4); }
 .lg { padding: var(--sp-5); }
-.none { padding: 0; }
+/* `padding="none"` means **the children own their padding** — and until now nothing did.
+   A `ListRow` carries `padding-block: --sp-2` and no inline padding at all, because it is
+   built to sit inside a card that supplies the air; dropped into an unpadded one it sat
+   thirteen pixels from the edge on /envoyer and seventeen on /profil/risque, which reads as
+   text pressed against a wall.
+
+   So the card hands its rows a figure instead: `--row-pad` inherits down the DOM, `ListRow`
+   reads it, and the padded variants above leave it unset because their own padding is
+   already the air. One property, and every unpadded card in the app is fixed at once — it
+   was never a /envoyer problem. */
+/* The two axes carry different figures and render the same, which is the point. A row is a
+   three-column grid, and a row with no leading mark leaves that column zero-wide while its
+   `--sp-3` gap still counts — so 16px declared inline arrives as 28 on screen, against 24
+   declared block. Measured on /envoyer at 390px: 29px from the card's edge to the first
+   letter, 24px to the first line. Setting both to 24 would have spent another twelve pixels
+   of the subtitle's width to look *less* even. */
+.none {
+  padding: 0;
+  --row-pad: var(--sp-4);
+  --row-pad-block: var(--sp-5);
+  --row-bleed: 0px;
+  --row-gap: var(--sp-2);
+}
 
 .asButton {
   width: 100%;
