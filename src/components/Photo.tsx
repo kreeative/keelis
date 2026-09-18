@@ -17,7 +17,8 @@
  * stand-in image would mean shipping somebody else's picture, and a fintech app is the last
  * place to be casual about that.
  */
-import { PHOTO_TYPES, PHOTO_WIDTHS, photo, type PhotoName } from '@/lib/photos'
+import type { CSSProperties } from 'react'
+import { PHOTO_TYPES, photo, type PhotoName } from '@/lib/photos'
 import { cn } from '@/lib/cn'
 import styles from './Photo.module.css'
 
@@ -47,11 +48,20 @@ export function Photo({ name, sizes = '100vw', scrim = 'none', priority = false,
   const slot = photo(name)
   if (!slot) return null
 
-  const srcSet = (ext: string) => PHOTO_WIDTHS.map((w) => `/photos/${slot.name}-${w}.${ext} ${w}w`).join(', ')
-  const fallback = `/photos/${slot.name}-${PHOTO_WIDTHS[0]}.jpg`
+  /* The slot's own widths, not the wished-for ones: the importer never upscales, so a
+     narrow source has fewer files and a `srcset` naming a width that is not there sends the
+     browser after a 404. */
+  const srcSet = (ext: string) => slot.widths.map((w) => `/photos/${slot.name}-${w}.${ext} ${w}w`).join(', ')
+  const fallback = `/photos/${slot.name}-${slot.widths[0]}.jpg`
 
   return (
-    <div className={cn(styles.frame, scrim !== 'none' && styles[scrim], className)} data-photo={slot.name}>
+    <div
+      className={cn(styles.frame, scrim !== 'none' && styles[scrim], className)}
+      data-photo={slot.name}
+      /* Through a custom property rather than an inline `object-position`, so the crop stays
+         a value the stylesheet owns and a screen can still override it for its own box. */
+      style={{ '--photo-focus': slot.focus } as CSSProperties}
+    >
       <picture>
         {PHOTO_TYPES.map((t) => (
           <source key={t.ext} type={t.mime} srcSet={srcSet(t.ext)} sizes={sizes} />
@@ -61,8 +71,8 @@ export function Photo({ name, sizes = '100vw', scrim = 'none', priority = false,
           src={fallback}
           sizes={sizes}
           alt={slot.alt}
-          width={PHOTO_WIDTHS[0]}
-          height={Math.round(PHOTO_WIDTHS[0] * 1.25)}
+          width={slot.widths[0]}
+          height={Math.round((slot.widths[0] ?? 800) * 1.25)}
           loading={priority ? 'eager' : 'lazy'}
           /* `high` on the one image a screen is *about*, so it is not queued behind the
              fonts and the chunk; `auto` everywhere else. */

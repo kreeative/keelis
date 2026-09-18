@@ -16,10 +16,13 @@ dist-live
 !.env.example
 dist-server
 
-# Photographs. The folder's README is the only thing in it that belongs in the repository:
-# every image is the owner's to license, and a committed photograph nobody holds the rights
-# to is a legal problem that survives the commit that removed it — the same reasoning as the
-# environment files above. `scripts/photo-placeholder.mjs` writes obviously-fake stand-ins
-# here so the illustrated layout can be exercised locally; those must never be pushed either.
-public/photos/*
-!public/photos/README.md
+# Photographs are deliberately NOT ignored, and this reverses what was here an hour ago.
+# The site builds from this repository, so an ignored photograph is one the deployed app
+# never has: the rule would have guaranteed the app shows no pictures at all, which is the
+# opposite of the point. The owner's licensed images belong here and must ship.
+#
+# What must never ship is a *placeholder*, and a path rule cannot tell those apart, because
+# a stand-in and the real thing carry the same filenames by design. So the guard moved into
+# the bytes: `scripts/photo-placeholder.mjs` stamps every frame it writes with a PNG tEXt
+# marker, and `src/lib/photos.test.ts` fails on any image under public/photos/ carrying it.
+# A marker travels with the file; a path does not.

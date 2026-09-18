@@ -386,5 +386,8 @@
    rather than to carry type. */
 .band {
   margin-inline: calc(-1 * var(--gutter));
-  height: clamp(200px, 38vw, 380px);
+  /* Tall enough on a phone that a *portrait* source is not decapitated by a landscape box:
+     200px of a 1200×1800 frame showed the top of a head and nothing else. It flattens as the
+     column widens, where a wide band is the shape that reads as a break in the page. */
+  height: clamp(300px, 72vw, 400px);
 }

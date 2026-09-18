@@ -13,9 +13,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Bottom-weighted: the references all put the subject high in the frame and the type sits
-     under it, so a crop should eat the floor, not the face. */
-  object-position: 50% 35%;
+  /* The slot says where its own subject is; the fallback is only for a slot that forgot. */
+  object-position: var(--photo-focus, 50% 40%);
 }
 
 /* The wash that makes type on a photograph legible. It is a gradient, and gradients are the

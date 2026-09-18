@@ -1,7 +1,7 @@
 /**
  * The manifest's contract, and the two things about it that cannot be seen by reading it.
  */
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { PHOTOS, PHOTO_TYPES, PHOTO_WIDTHS, photo, photoCredits } from './photos'
@@ -45,28 +45,55 @@ describe('the photography manifest', () => {
   })
 
   /**
-   * **No image file may be committed, ever.** The rights are the owner's to hold, and an
-   * unlicensed photograph in git history is a problem that outlives the commit which removed
-   * it — the same reasoning that keeps `.env` out. `scripts/photo-placeholder.mjs` writes
-   * stand-ins into this folder for local work, so without this the first careless `git add -A`
-   * commits twelve fake JPEGs; with a real licence in hand it would commit the real ones and
-   * put them in the history for good.
+   * **A placeholder must never reach the deployed site**, and this is the guard that can
+   * actually tell one from a photograph.
+   *
+   * It used to be a `.gitignore` path over `public/photos/`, which was wrong in a way worth
+   * keeping written down: the site builds from this repository, so ignoring the folder
+   * guaranteed the deployed app had no pictures at all — the rule made the feature
+   * impossible while looking like caution. And a path could never have worked anyway, because
+   * a stand-in and the real thing share filenames *by design*: that is what makes dropping
+   * the real ones in a no-code change.
+   *
+   * So `scripts/photo-placeholder.mjs` stamps each frame with a PNG `tEXt` chunk and this
+   * reads the bytes. A marker survives being renamed, copied and re-committed; a path does
+   * not survive being moved.
    */
-  it('keeps public/photos free of committed images', () => {
-    const ignore = readFileSync(join(ROOT, '.gitignore'), 'utf8')
-    expect(ignore).toContain('public/photos/*')
-    expect(ignore).toContain('!public/photos/README.md')
+  it('has no placeholder among the committed photographs', () => {
+    const dir = join(ROOT, 'public/photos')
+    const marker = Buffer.from('KEEWAL-PLACEHOLDER')
+    const fake = readdirSync(dir)
+      .filter((f) => /\.(jpe?g|webp|avif|png)$/i.test(f))
+      .filter((f) => readFileSync(join(dir, f)).includes(marker))
+    expect(fake, 'placeholder images in public/photos — run `node scripts/photo-placeholder.mjs --clean`').toEqual([])
   })
 
-  it('names the README as the only thing the folder is allowed to carry', () => {
-    const tracked = readdirSync(join(ROOT, 'public/photos'))
-    expect(tracked).toContain('README.md')
+  /**
+   * A slot's `widths` are what is **on disk**, and a `srcset` naming a width with no file
+   * sends the browser after a 404 at the worst moment — the first paint of the front door.
+   */
+  it('has every file a live slot promises', () => {
+    const dir = join(ROOT, 'public/photos')
+    const missing: string[] = []
+    for (const slot of Object.values(PHOTOS)) {
+      if (!slot.present) continue
+      expect(slot.widths.length, `${slot.name} widths`).toBeGreaterThan(0)
+      for (const w of slot.widths) {
+        for (const t of PHOTO_TYPES) {
+          const f = `${slot.name}-${w}.${t.ext}`
+          if (!existsSync(join(dir, f))) missing.push(f)
+        }
+      }
+    }
+    expect(missing, 'files a live slot advertises but does not have').toEqual([])
   })
 
   it('asks for the formats in the order a browser should try them', () => {
     /* AVIF first, JPEG last: a <source> list is taken in order, so reversing this serves the
        heaviest file to every modern browser. */
-    expect(PHOTO_TYPES.map((t) => t.ext)).toEqual(['avif', 'webp', 'jpg'])
+    /* AVIF is absent on purpose — Chromium's canvas answers a request for it with a PNG and
+       no error, so the importer refuses it rather than write bytes whose name lies. */
+    expect(PHOTO_TYPES.map((t) => t.ext)).toEqual(['webp', 'jpg'])
     expect(PHOTO_WIDTHS).toEqual([800, 1600])
   })
 })

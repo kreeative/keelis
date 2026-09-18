@@ -134,8 +134,12 @@ export default function CompanyPage() {
         {/* The band. It is `lazy` and not `priority`: it sits below the hero, so fetching it
             eagerly would put it in front of the type somebody is already reading. Renders
             nothing at all until the owner's licensed file exists, and the page closes up
-            around it — the same contract as the welcome screen. */}
-        <Photo name="company" className={styles.band} sizes="(min-width: 1120px) 1120px, 100vw" scrim="full" />
+            around it — the same contract as the welcome screen.
+
+            **No scrim.** A wash exists so type can sit on a picture, and nothing sits on this
+            one; over a frame shot against a pale ground it only turns the ground grey, which
+            is the same reason chroma 0 fails everywhere else in this palette. */}
+        <Photo name="company" className={styles.band} sizes="(min-width: 1120px) 1120px, 100vw" />
 
         <section className={styles.section} aria-label="En chiffres">
           <Card padding="lg" elevation={1} className={styles.facts}>

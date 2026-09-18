@@ -14,7 +14,16 @@
  * reason it refuses to commit `.env`: an unlicensed image is a problem that survives the
  * commit which removed it.
  *
- * They are PNG bytes written under `.avif` / `.webp` / `.jpg` names. A browser decodes an
+ * **Every frame carries a marker in its own bytes**, a PNG `tEXt` chunk reading
+ * `KEEWAL-PLACEHOLDER`, and a test fails on any image under `public/photos/` that has one.
+ * That guard used to be a `.gitignore` path, which was wrong in a way worth remembering: the
+ * site builds from the repository, so ignoring the folder guaranteed the deployed app had no
+ * photographs at all. A stand-in and a real photograph share the same filenames on purpose —
+ * the whole point is that dropping the real ones in changes nothing else — so a path can
+ * never tell them apart. A marker inside the file can, and it survives being copied, renamed
+ * and re-committed.
+ *
+ * They are PNG bytes written under `.webp` / `.jpg` names. A browser decodes an
  * image by its content, not its extension, so a `<picture>` selects a source by the declared
  * `type` and then renders these fine — which is exactly the code path the real files will
  * take. No second toolchain and no dependency: this repository is JavaScript, and `node:zlib`
@@ -31,7 +40,7 @@ import { fileURLToPath } from 'node:url'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DIR = join(ROOT, 'public/photos')
 const WIDTHS = [800, 1600]
-const EXTS = ['avif', 'webp', 'jpg']
+const EXTS = ['webp', 'jpg']
 const SLOTS = ['welcome', 'company']
 
 // ---------- PNG ----------
@@ -50,6 +59,9 @@ function crc32(buf) {
   for (const b of buf) c = TABLE[(c ^ b) & 0xff] ^ (c >>> 8)
   return (c ^ -1) >>> 0
 }
+/** The marker that says « this is not a photograph », carried inside the file. */
+export const PLACEHOLDER_MARKER = 'KEEWAL-PLACEHOLDER'
+
 function png(width, height, pixels) {
   const stride = width * 4
   const raw = Buffer.alloc((stride + 1) * height)
@@ -70,7 +82,16 @@ function png(width, height, pixels) {
   ihdr.writeUInt32BE(height, 4)
   ihdr[8] = 8
   ihdr[9] = 6
-  return Buffer.concat([SIGNATURE, chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw, { level: 9 })), chunk('IEND', Buffer.alloc(0))])
+  /* `tEXt` is keyword\0text, Latin-1, and it may appear before IDAT. Decoders ignore what
+     they do not recognise, so this changes nothing about how the frame renders. */
+  const text = Buffer.concat([Buffer.from('Comment', 'latin1'), Buffer.from([0]), Buffer.from(PLACEHOLDER_MARKER, 'latin1')])
+  return Buffer.concat([
+    SIGNATURE,
+    chunk('IHDR', ihdr),
+    chunk('tEXt', text),
+    chunk('IDAT', deflateSync(raw, { level: 9 })),
+    chunk('IEND', Buffer.alloc(0)),
+  ])
 }
 
 /* A 5×7 stroke font, enough for the one word these frames have to say. */
@@ -158,6 +179,6 @@ if (clean) {
       }
     }
   }
-  console.log(`Wrote ${n} placeholder file(s) into public/photos/. They are gitignored; run with --clean to remove.`)
+  console.log(`Wrote ${n} placeholder file(s) into public/photos/. Each carries the KEEWAL-PLACEHOLDER marker, and a test refuses to let one be committed; run with --clean to remove.`)
   console.log('Set `present: true` in src/lib/photos.ts to render the illustrated layout.')
 }

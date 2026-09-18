@@ -32,6 +32,23 @@ export interface PhotoSlot {
   readonly alt: string
   /** Photographer · source · licence. Printed on `/entreprise`; an uncredited photo is a problem, not a gap. */
   readonly credit: string | null
+  /**
+   * The widths actually on disk, which is **not** always what the README asks for.
+   *
+   * `scripts/photo-import.mjs` never upscales: a 1000px source asked to fill a 1600px slot is
+   * the same pixels in more bytes, and a `srcset` advertising a width no file has makes the
+   * browser pick the heavier of two identical pictures. So the slot records what exists.
+   */
+  readonly widths: readonly number[]
+  /**
+   * Where the subject is, as a CSS `object-position`.
+   *
+   * A frame is cropped by whatever box it lands in, and **the right crop is a property of the
+   * picture, not of the component**. One default served the welcome hero and beheaded the
+   * mask on `/entreprise`: the same `50% 35%` that keeps a tall subject clear of the sheet
+   * cuts the face off a portrait dropped into a landscape band.
+   */
+  readonly focus: string
 }
 
 /**
@@ -42,17 +59,24 @@ export const PHOTOS = {
   welcome: {
     name: 'welcome',
     intent:
-      'The front door. One carved mask lit warm out of near-black, room around it — the app’s type sits in the frame’s empty half, so the subject must not be centred.',
-    present: false,
-    alt: '',
-    credit: null,
+      'The front door. One carved mask lit warm out of near-black, room around it — the app’s type sits above the frame, so what this needs is depth rather than a gap.',
+    present: true,
+    alt: 'Un masque dan bordé de cauris, porté par une personne qui joue d’une kora dans un couloir sombre',
+    credit: 'Fournie par le propriétaire — photographe et licence à confirmer avant la mise en ligne',
+    widths: [800, 1000],
+    /* The mask sits high in the frame and the sheet covers the lower third, so the crop is
+       weighted up — the hands on the kora are lost to the sheet either way. */
+    focus: '50% 30%',
   },
   company: {
     name: 'company',
-    intent: 'A band across /entreprise. Hands at work — weaving, playing, counting — rather than a face; the page is about what the product does, not who it is for.',
-    present: false,
-    alt: '',
-    credit: null,
+    intent: 'A band across /entreprise, breaking the column. Nothing sits on it, so it can be the one brightly-lit frame in the set — an object photographed against a pale ground rather than a subject in darkness.',
+    present: true,
+    alt: 'Un masque africain en laiton, photographié de face sur un fond gris clair',
+    credit: 'Fournie par le propriétaire — photographe et licence à confirmer avant la mise en ligne',
+    widths: [800, 1200],
+    /* Centred: this one is an object photographed square-on, so any weighting cuts it. */
+    focus: '50% 48%',
   },
   /* No `as const` here, deliberately. It would freeze `present` to the literal `false`, so
      `photo()` would be typed as always returning null and the flag could never mean anything
@@ -75,11 +99,22 @@ export function photoCredits(): ReadonlyArray<{ name: string; credit: string }> 
   return out
 }
 
-/** The widths `public/photos/README.md` asks for, in the order a `srcset` wants them. */
+/** The widths asked for; a slot records the ones it actually got in `widths`. */
 export const PHOTO_WIDTHS = [800, 1600] as const
-/** AVIF first, JPEG last — a browser takes the first type it understands. */
+
+/**
+ * WebP first, JPEG behind it — a browser takes the first type it understands.
+ *
+ * **AVIF is deliberately absent, and it was removed on a measurement rather than a hunch.**
+ * `scripts/photo-import.mjs` encodes through the Chromium this repo already has, and
+ * `canvas.toDataURL('image/avif')` does not throw or return null: it **silently hands back a
+ * PNG**. Shipping that behind `<source type="image/avif">` would serve PNG bytes, several
+ * times the weight, to every modern browser — chosen first, precisely because they support
+ * the format the file is not — with nothing anywhere reporting a fault. The importer now
+ * refuses any encode whose returned type is not the one it asked for. If AVIF is ever worth
+ * having, it needs a real encoder; it does not need this list to mention it.
+ */
 export const PHOTO_TYPES = [
-  { ext: 'avif', mime: 'image/avif' },
   { ext: 'webp', mime: 'image/webp' },
   { ext: 'jpg', mime: 'image/jpeg' },
 ] as const
