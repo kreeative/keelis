@@ -20,10 +20,22 @@
   color: var(--ink-600);
   max-width: 34ch;
 }
+/* **The body grows downward, not away from its own button.**
+
+   `flex: 1` alone pinned the action to the thumb — right — and left the field marooned at
+   the top: on `/inscription/courriel` that is one short input, then **four hundred pixels of
+   nothing**, then « Continuer ». Measured on a 390×844 screen, and it was on all nine steps,
+   because they share this shell.
+
+   The reference keeps the question at the top and the form and its action together at the
+   bottom, where the hand is. `justify-content: flex-end` is the whole of that: a step whose
+   body is already tall — the NIP keypad, the document upload — fills the space and is
+   unaffected, and a step with one field stops looking like a screen with a piece missing. */
 .body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: var(--sp-4);
 }
 .actions {

@@ -32,3 +32,15 @@
 .full::after {
   background: var(--scrim-full);
 }
+
+/* **The dissolve rides on `::before`, because `::after` is the scrim's** and a frame may well
+   want both: the page colour poured over the top edge so the picture has no beginning, and a
+   wash at the foot so type can sit on it. They are opposite operations at opposite ends. */
+.dissolve::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: var(--scrim-dissolve);
+}

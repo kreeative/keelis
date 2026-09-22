@@ -216,6 +216,22 @@
   );
   --scrim-full: linear-gradient(180deg, oklch(0.16 0.018 62 / 0.62) 0%, oklch(0.16 0.018 62 / 0.72) 100%);
 
+  /* **The dissolve, which is a different job from a scrim.**
+
+     A scrim darkens a picture so type can sit on it. This one does the opposite: it carries
+     the *page's own colour* down over the top of the frame so the photograph has no edge
+     where it begins. The reference has none — cream at the status bar, fading through the
+     sky of the picture, with the title sitting over where the ferns start — and ours drew a
+     hard horizontal line across the screen at exactly the point the eye arrives. That line
+     is the single biggest thing between this app and the reference it was built from.
+
+     It must be `--surface` **exactly**, and written out rather than `var(--surface)`, because
+     a gradient needs both ends of the ramp and CSS cannot take an alpha of a custom property
+     without `color-mix` doing it in a space that greys the midpoint. The pair is duplicated
+     per theme for the same reason every other token here is. 22% is measured: shorter and the
+     seam is still visible, longer and it eats the subject. */
+  --scrim-dissolve: linear-gradient(180deg, oklch(0.985 0.008 90) 0%, oklch(0.985 0.008 90 / 0.86) 6%, oklch(0.985 0.008 90 / 0) 22%);
+
   /* ---- Typography ---- */
   /* Poppins, self-hosted (see fonts.css). No system fallback comes close to it, so the
      stack lists geometric neighbours only as a last resort before the platform sans. */
@@ -441,6 +457,7 @@
   --grad-cta: linear-gradient(180deg, oklch(0.928 0.080 97) 0%, oklch(0.872 0.096 93) 100%);
   --grad-cta-hover: linear-gradient(180deg, oklch(0.868 0.090 95) 0%, oklch(0.812 0.104 91) 100%);
   --grad-canvas: linear-gradient(180deg, var(--canvas-bg) 0%, oklch(0.182 0.020 64) 100%);
+  --scrim-dissolve: linear-gradient(180deg, oklch(0.215 0.022 68) 0%, oklch(0.215 0.022 68 / 0.86) 6%, oklch(0.215 0.022 68 / 0) 22%);
   --grad-key: linear-gradient(180deg, oklch(0.365 0.031 68) 0%, oklch(0.335 0.029 68) 100%);
   --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
@@ -512,6 +529,7 @@
     --grad-cta: linear-gradient(180deg, oklch(0.928 0.080 97) 0%, oklch(0.872 0.096 93) 100%);
     --grad-cta-hover: linear-gradient(180deg, oklch(0.868 0.090 95) 0%, oklch(0.812 0.104 91) 100%);
     --grad-canvas: linear-gradient(180deg, var(--canvas-bg) 0%, oklch(0.182 0.020 64) 100%);
+  --scrim-dissolve: linear-gradient(180deg, oklch(0.215 0.022 68) 0%, oklch(0.215 0.022 68 / 0.86) 6%, oklch(0.215 0.022 68 / 0) 22%);
     --grad-key: linear-gradient(180deg, oklch(0.365 0.031 68) 0%, oklch(0.335 0.029 68) 100%);
     --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');

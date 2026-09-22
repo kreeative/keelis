@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
-import { Field } from '@/components'
+import { Field, Icon } from '@/components'
 import { StepShell } from './StepShell'
 import { useStepFocus } from './useStepFocus'
 import { stepEyebrow } from './steps'
@@ -50,6 +50,8 @@ export function StepEmail() {
       <Field
         label="Adresse courriel"
         hideLabel
+        leading={<Icon name="mail" size={18} />}
+        chip
         type="email"
         inputMode="email"
         autoComplete="email"

@@ -64,3 +64,21 @@
 /* A caution, not a refusal: the message appears but the field's border stays neutral. */
 .warning { color: var(--warn); }
 .messageIcon { flex-shrink: 0; margin-top: 1px; }
+
+/* The leading mark as a disc, from the reference's own field: an icon alone in a pale row
+   reads as a stray glyph, and the same icon on a circle reads as a fitting — which is what
+   says « this line is for an address » before the placeholder is read. Pale rather than
+   filled, because it labels the field and must not compete with what gets typed into it. */
+.chip {
+  padding-left: var(--sp-2);
+}
+.chip > span,
+.chip > svg {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  background: var(--fill-subtle);
+  color: var(--ink-600);
+}

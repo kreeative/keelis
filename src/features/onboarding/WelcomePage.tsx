@@ -72,8 +72,13 @@ export default function WelcomePage() {
       </div>
 
       {/* `sizes` is the screen's real measure, not `100vw`: the column caps at 520px, so a
-          phone that fetched for the viewport would pull the 1600 for nothing. */}
-      <Photo name="welcome" className={styles.hero} sizes="(min-width: 520px) 520px, 100vw" scrim="bottom" priority />
+          phone that fetched for the viewport would pull the wider file for nothing.
+
+          **`dissolve`, not `scrim`.** Nothing sits on this frame — the sheet covers its foot
+          — so there is no type to protect, and what it needed was the opposite: the page's
+          colour poured over the top edge so the picture has no line where it starts. The
+          reference has no such line, and ours drew one straight across the screen. */}
+      <Photo name="welcome" className={styles.hero} sizes="(min-width: 520px) 520px, 100vw" dissolve priority />
 
       <div className={styles.sheet}>
         <div className={styles.actions}>

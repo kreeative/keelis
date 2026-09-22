@@ -39,12 +39,19 @@ export interface PhotoProps {
    * has to hold by construction. The scrim is that construction.
    */
   scrim?: 'none' | 'bottom' | 'full'
+  /**
+   * Pour the page's own colour over the **top** edge, so the photograph has no line where it
+   * begins. Not a scrim — the opposite operation, at the other end of the frame — and the
+   * thing the reference does that this app was missing: it dissolves into the page, while
+   * ours drew a hard horizontal rule across the screen at the point the eye arrives.
+   */
+  dissolve?: boolean
   /** The first image on a screen is worth fetching eagerly; anything below the fold is not. */
   priority?: boolean
   className?: string
 }
 
-export function Photo({ name, sizes = '100vw', scrim = 'none', priority = false, className }: PhotoProps) {
+export function Photo({ name, sizes = '100vw', scrim = 'none', dissolve = false, priority = false, className }: PhotoProps) {
   const slot = photo(name)
   if (!slot) return null
 
@@ -56,7 +63,7 @@ export function Photo({ name, sizes = '100vw', scrim = 'none', priority = false,
 
   return (
     <div
-      className={cn(styles.frame, scrim !== 'none' && styles[scrim], className)}
+      className={cn(styles.frame, scrim !== 'none' && styles[scrim], dissolve && styles.dissolve, className)}
       data-photo={slot.name}
       /* Through a custom property rather than an inline `object-position`, so the crop stays
          a value the stylesheet owns and a screen can still override it for its own box. */

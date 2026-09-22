@@ -327,7 +327,34 @@ function auditScript() {
       const fs = parseFloat(cs.fontSize)
       if (fs < 12 && !seen.has(key('fs'))) { seen.add(key('fs')); out.push({ kind: 'font-size', detail: `${fs}px "${el.textContent.trim().slice(0, 30)}"` }) }
       const fg = parseColor(cs.color)
-      const bg = effectiveBg(el, fg)
+      /**
+       * **A photograph under this text that is not an ancestor of it.**
+       *
+       * `effectiveBg` walks the DOM, which finds a frame the text sits *inside*. It cannot
+       * see one the text merely sits *over* — a hero positioned behind a type block by
+       * z-index is a sibling, so the walk goes straight past it to the page colour and
+       * reports a clean ratio against a background the reader never sees.
+       *
+       * That is not hypothetical: overlapping the welcome title onto the hero, to match the
+       * reference, put the whole lede on a dark corridor and this audit said « clean ». The
+       * text was illegible in the screenshot and perfect in the numbers.
+       *
+       * Geometry answers it where ancestry cannot: ask what is actually stacked under the
+       * middle of the line.
+       */
+      const overPhoto = (() => {
+        const r = el.getBoundingClientRect()
+        const x = Math.round(r.left + r.width / 2)
+        const y = Math.round(r.top + r.height / 2)
+        if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return null
+        for (const node of document.elementsFromPoint(x, y)) {
+          if (node === el) continue
+          if (node.contains && node.contains(el)) continue // an ancestor: effectiveBg has it
+          if (node.hasAttribute && node.hasAttribute('data-photo')) return node
+        }
+        return null
+      })()
+      const bg = overPhoto ? { unmeasurable: true } : effectiveBg(el, fg)
       if (bg && bg.unmeasurable) {
         /* Text on a photograph with no scrim. Reporting a ratio here would be reporting a
            number about a colour nothing knows — the failure this whole helper exists to

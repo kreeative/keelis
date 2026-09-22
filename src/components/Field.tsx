@@ -27,6 +27,8 @@ interface BaseProps {
   hideLabel?: boolean
   /** Leading adornment (icon or text) */
   leading?: ReactNode
+  /** Draw the leading mark on a disc, the way the reference's fields do. */
+  chip?: boolean
   /** Trailing adornment (button, text) */
   trailing?: ReactNode
   className?: string
@@ -60,7 +62,7 @@ function Message({ id, kind, children }: { id?: string; kind: MessageKind; child
 
 export interface FieldProps extends BaseProps, Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {}
 
-export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ label, hint, error, success, warning, hideLabel, leading, trailing, className, id, ...rest }, ref) {
+export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ label, hint, error, success, warning, hideLabel, leading, chip = false, trailing, className, id, ...rest }, ref) {
   const auto = useId()
   const inputId = id ?? auto
   const describedBy = [hint ? `${inputId}-hint` : null, success ? `${inputId}-success` : null, warning ? `${inputId}-warning` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
@@ -70,7 +72,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ l
         {label}
       </label>
       <div className={styles.control}>
-        {leading ? <span className={styles.adornment}>{leading}</span> : null}
+        {leading ? <span className={cn(styles.adornment, chip && styles.chip)}>{leading}</span> : null}
         <input ref={ref} id={inputId} className={styles.input} aria-invalid={error ? true : undefined} aria-describedby={describedBy} {...rest} />
         {trailing ? <span className={cn(styles.adornment, styles.trailing)}>{trailing}</span> : null}
       </div>
