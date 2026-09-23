@@ -353,6 +353,49 @@ async function checkSkipLink(browser) {
  * confirmation drops the cursor at the top of the document and the person has to Tab all
  * the way back to the button they were on.
  */
+/**
+ * A sheet's list must not scroll sideways, and the check has to *hover a row* to find out.
+ *
+ * `ListRow`'s hover fill bleeds 12px past its container, which inside the sheet's scroll
+ * body is scrollable overflow. iOS Safari keeps a tapped row in :hover, so the country picker
+ * scrolled its whole list sideways under the finger — radios cut off at the edge — while
+ * headless Chromium showed nothing: its mouse never rests on a row and its scrollbar paints
+ * nothing. Measuring at rest passes; measuring with a row hovered is the only honest probe.
+ */
+async function checkSheetOverflow(browser) {
+  const where = 'Le sélecteur de pays'
+  const page = await browser.newPage({ viewport: { width: 390, height: 900 } })
+  await page.addInitScript((s) => localStorage.setItem('keewal.session', s), JSON.stringify(DEMO_SESSION))
+  try {
+    await page.goto(`${BASE}/profil/informations`, { waitUntil: 'domcontentloaded' })
+    await page.waitForTimeout(2500)
+    const opener = page.getByRole('button', { name: /Pays/ }).first()
+    if ((await opener.count()) === 0) {
+      fail(where, 'no country picker on /profil/informations to open')
+      return
+    }
+    await opener.click()
+    await page.waitForTimeout(700)
+    const rows = page.getByRole('dialog').getByRole('radio')
+    if ((await rows.count()) < 4) {
+      fail(where, 'the picker opened with fewer than four rows — nothing to hover')
+      return
+    }
+    await rows.nth(3).hover()
+    const overflow = await page.evaluate(() => {
+      const dlg = document.querySelector('[role="dialog"]')
+      return [...dlg.querySelectorAll('*')]
+        .filter((el) => /auto|scroll/.test(getComputedStyle(el).overflowY))
+        .map((el) => el.scrollWidth - el.clientWidth)
+        .filter((d) => d > 0)
+    })
+    if (overflow.length) fail(where, `with a row hovered the sheet scrolls sideways by ${overflow.join(', ')}px — on a phone the list shifts and its radios are cut off`)
+    await page.keyboard.press('Escape')
+  } finally {
+    await page.close()
+  }
+}
+
 async function checkSheet(browser) {
   const where = 'La feuille de confirmation'
   const page = await browser.newPage({ viewport: { width: 390, height: 900 } })
@@ -473,6 +516,7 @@ try {
   if (!ONLY) {
     await checkSkipLink(browser)
     await checkSheet(browser)
+    await checkSheetOverflow(browser)
     await checkTypedAmount(browser)
   }
 } finally {

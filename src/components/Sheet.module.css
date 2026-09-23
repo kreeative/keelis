@@ -68,6 +68,20 @@
      rows down to two as you type, and without it the whole list shifts sideways the moment
      the scrollbar goes. The colours come from :root — see base.css. */
   scrollbar-gutter: stable;
+  /* **A row must not bleed inside a scroller, and on a phone it did.** `ListRow`'s hover
+     fill grows the row 12px past each edge of whatever holds it, which is right in a card
+     and wrong here: this body is a scroll container, so the extra width on the right is
+     *scrollable overflow* — 353px of content in a 341px box, measured — and iOS Safari,
+     which keeps a tapped row in :hover, then scrolls the whole list sideways under the
+     finger: the country picker's radios cut off at the edge and a scroll indicator along
+     its foot. Headless Chromium hides it twice over, with a mouse that never rests on a row
+     and an overlay scrollbar that paints nothing. Zero bleed, since the rows already span
+     the body; and no sideways scrolling at all, whatever else lands in here. */
+  --row-bleed: 0px;
+  /* And the rest inset a ChoiceList option keeps: the hover rule recomputes padding from
+     --row-pad, and with it unset a hovered row lost the four pixels its neighbours have. */
+  --row-pad: var(--sp-1);
+  overflow-x: hidden;
 }
 .footer {
   display: flex;
