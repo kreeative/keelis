@@ -90,40 +90,22 @@
 .description { color: var(--ink-600); }
 .facts { margin-top: var(--sp-2); }
 
+/* Acheter / Vendre. It was a sticky bar docked above the nav pill with its own ground and
+   hairline; it is two buttons in the flow now, directly under the period control, where the
+   owner asked for them. Rendered twice — once inside the chart block for phones and tablets,
+   once in the desktop grid's aside — and CSS shows one, so the DOM never carries two
+   focusable pairs at once. */
 .bar {
-  position: sticky;
-  bottom: calc(var(--navbar-height) + var(--navbar-gap) * 2 + var(--safe-bottom) + var(--sp-2));
-  z-index: 2;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-3);
-  margin-top: var(--sp-7);
-  margin-inline: calc(-1 * var(--gutter));
-  padding: var(--sp-3) var(--gutter);
-  background: var(--surface);
-  border-top: 1px solid var(--line);
 }
-/* Fill the strip between the bar and the bottom nav so the bar reads as docked. */
-.bar::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  height: var(--sp-3);
-  background: var(--surface);
-}
+.barInline { margin-top: var(--sp-4); }
+.barAside { display: none; }
 
 @media (min-width: 768px) {
   .page { padding-bottom: var(--sp-7); }
-  .bar {
-    position: static;
-    margin-inline: 0;
-    padding: 0;
-    border-top: 0;
-    max-width: 480px;
-  }
-  .bar::after { content: none; }
+  .barInline { max-width: 480px; }
 }
 
 @media (min-width: 1024px) {
@@ -147,7 +129,8 @@
   .actions { grid-area: actions; margin-top: var(--sp-6); }
   .holdings { grid-area: holdings; margin-top: var(--sp-6); }
   .about { grid-area: about; margin-top: var(--sp-6); }
-  .bar { grid-area: bar; margin-top: 0; align-self: end; max-width: none; }
+  .barInline { display: none; }
+  .barAside { display: grid; grid-area: bar; margin-top: 0; align-self: end; }
 }
 
 /* Sits under the market facts, quiet: it is an offer to explain, not a call to action. */

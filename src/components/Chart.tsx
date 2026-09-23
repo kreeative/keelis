@@ -281,13 +281,11 @@ export function Chart({ points, height = 200, tone, formatValue, formatTime, for
             <rect x="0" y="0" width={Math.max(0, ax)} height={H} />
           </clipPath>
         </defs>
-        {/* The scale, under everything: hairlines at round levels, and one along the foot to
-            close the box. They are drawn first so the curve crosses *over* them — a gridline
-            on top of the line would cut it into segments. */}
-        {priceTicks.map((t) => (
-          <line key={t.v} x1={0} x2={PLOT_W} y1={t.y} y2={t.y} className={styles.grid} vectorEffect="non-scaling-stroke" />
-        ))}
-        {axes ? <line x1={0} x2={PLOT_W} y1={H} y2={H} className={styles.axis} vectorEffect="non-scaling-stroke" /> : null}
+        {/* No gridlines. The scale used to draw a hairline at every round level and one along
+            the foot, and the owner asked for them to go: on a dark ground four horizontal
+            rules behind a curve read as a ruled page, not a scale. The levels are still
+            there — the labels down the right sit exactly on them — and a label at a height
+            is a scale; a line through the curve at that height was decoration. */}
         {/* The series is drawn twice while scrubbing: once dimmed for the whole period, then
             again clipped to everything left of the cursor. What you have scrubbed past
             stays lit and what you have not yet reached recedes, so the eye is held at the

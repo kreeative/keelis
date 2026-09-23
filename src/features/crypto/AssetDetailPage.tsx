@@ -1,6 +1,6 @@
 /**
  * /crypto/:id — live price as the hero, chart mirrored into the hero on hover,
- * holdings, facts, and a sticky Acheter / Vendre bar on mobile.
+ * holdings, facts, and Acheter / Vendre directly under the period control.
  */
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -303,6 +303,13 @@ export default function AssetDetailPage() {
             </Button>
           ) : null}
         </div>
+        {/* **The trade pair sits under the period control, not at the foot of the screen.** It
+            was a sticky bar pinned above the nav pill, and the owner asked for it here: the
+            chart is what you read before you buy, so the buttons belong where the reading
+            ends. From 1024px the pair keeps its seat in the aside beside the hero, which is
+            the same decision in a layout that has a beside — so it is rendered in both places
+            and CSS shows one, the way the market row's venue is. */}
+        <TradeBar className={styles.barInline} id={id} hasHolding={hasHolding} />
       </div>
 
       <div className={styles.actions}>
@@ -325,15 +332,22 @@ export default function AssetDetailPage() {
       <HoldingsSection asset={asset} holding={holding} loading={holdings.data === undefined && holdings.loading} />
       <AboutSection asset={asset} onLearn={() => setLearn(true)} />
 
-      <div className={styles.bar}>
-        <Button size="lg" block onClick={() => navigate(`/crypto/${id}/acheter`)}>
-          Acheter
-        </Button>
-        <Button size="lg" block variant="secondary" disabled={!hasHolding} onClick={() => navigate(`/crypto/${id}/vendre`)}>
-          Vendre
-        </Button>
-      </div>
+      <TradeBar className={styles.barAside} id={id} hasHolding={hasHolding} />
           {learn ? <LearnSheet topic="cours" open onClose={() => setLearn(false)} /> : null}
 </div>
+  )
+}
+
+/** Acheter / Vendre. Both are destinations, so both are links: a buy must survive a long-press. */
+function TradeBar({ id, hasHolding, className }: { id: string; hasHolding: boolean; className?: string }) {
+  return (
+    <div className={`${styles.bar} ${className}`}>
+      <Button size="lg" block to={`/crypto/${id}/acheter`}>
+        Acheter
+      </Button>
+      <Button size="lg" block variant="secondary" disabled={!hasHolding} to={`/crypto/${id}/vendre`}>
+        Vendre
+      </Button>
+    </div>
   )
 }
