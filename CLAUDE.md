@@ -38,6 +38,15 @@ and the old wordmark only escaped that by shipping as outlines rather than as ty
   `--mark-disc` picks one by theme, so only the used one is fetched, and `tone="ink"` /
   `tone="paper"` pins one where the surface decides instead (the virtual card is always
   dark, so it always takes the paper disc). Do not replace it with a drawn circle.
+- **The disc is flat now, and the K on it is still the artwork's.** The emboss's dark rim
+  along the foot of the disc read as a drop shadow at 36px on the welcome screen, and the
+  owner pointed at it: « I don't want the shadow ». `tint-mark.mjs` flattens the *face* to
+  one grey before tinting — the median of the face beside the letter, measured off the source
+  rather than typed — and leaves every pixel of the **letter** exactly as drawn, anti-aliasing
+  included. The letter is found by a radius *and* a threshold, because the foot's shadow is as
+  dark as the K and a threshold alone would have kept the thing it was there to remove. The
+  rule above still holds: nothing here is a drawn circle, the K is the sheet's own, and
+  `pnpm check:marks` still pins the committed discs to what the script makes.
 - **The mark gets clear space, not paragraph spacing.** A logo set with the same air as a
   line of body text reads as crowded. Any screen that pairs the wordmark with a heading
   gives it `.mark-clear` — at least its own height before the next thing starts. Check the

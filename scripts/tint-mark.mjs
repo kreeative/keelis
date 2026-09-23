@@ -3,7 +3,8 @@
  * Tint the monogram discs into the palette, without redrawing them.
  *
  * The brand sheet draws the K disc *embossed* — a raised letter, a lit rim, a soft shadow —
- * and both exports are pure greyscale (measured: zero chroma on every opaque pixel). That was
+ * (the shading is flattened below, on the owner's instruction; the letter is kept) and
+ * both exports are pure greyscale (measured: zero chroma on every opaque pixel). That was
  * invisible while the app was monochrome. On warm brown it is not: a neutral disc among warm
  * neutrals reads as a cold patch, the same failure the token guard now catches for `oklch(L 0 0)`.
  *
@@ -39,8 +40,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
    always-dark card; the ink disc goes on the cream page. Both stay near-neutral: this is a
    surface, not the accent, so it borrows the warmth without borrowing the gold. */
 const JOBS = [
-  { src: 'brand-src/mark-paper-grey.png', dst: 'public/brand/mark-paper.png', chroma: 0.03, hue: 88 },
-  { src: 'brand-src/mark-ink-grey.png', dst: 'public/brand/mark-ink.png', chroma: 0.026, hue: 68 },
+  { src: 'brand-src/mark-paper-grey.png', dst: 'public/brand/mark-paper.png', chroma: 0.03, hue: 88, paper: true },
+  { src: 'brand-src/mark-ink-grey.png', dst: 'public/brand/mark-ink.png', chroma: 0.026, hue: 68, paper: false },
 ]
 
 // ---------- colour ----------
@@ -229,14 +230,62 @@ function encodePng(width, height, pixels) {
 
 // ---------- run ----------
 
+/**
+ * The disc is flat now, and the K on it is still the artwork's.
+ *
+ * The sheet draws the disc embossed — a lit rim along the top, a dark one along the bottom —
+ * and at 36px on the welcome screen that dark rim reads as a drop shadow under the disc. The
+ * owner pointed at it and said « I don't want the shadow ». So the *face* is flattened to one
+ * grey, measured off the source itself (the median of the face beside the letter, so a
+ * re-export at a different brightness flattens to its own face and not to a number typed
+ * here), and the **letter is left exactly as drawn**: every pixel inside the letter's zone
+ * that is not face-coloured keeps its own grey, anti-aliasing included. That is the line
+ * `CLAUDE.md` draws — the K is artwork, a circle is a circle — and this keeps the artwork
+ * and drops the shading.
+ *
+ * The letter zone is a radius, not a threshold alone: the dark rim at the foot of the paper
+ * disc is as dark as the letter, and a threshold by itself would have kept the shadow it
+ * was meant to remove.
+ */
+const LETTER_RADIUS = 44
+function flatten(width, height, pixels, paper) {
+  const cx = (width - 1) / 2
+  const cy = (height - 1) / 2
+  const isLetter = (g) => (paper ? g < 200 : g > 60)
+  /* The face's own grey: the median of the ring just outside the letter zone. */
+  const ring = []
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4
+      if (pixels[i + 3] < 255) continue
+      const d = Math.hypot(x - cx, y - cy)
+      if (d >= LETTER_RADIUS + 2 && d <= LETTER_RADIUS + 12) ring.push(pixels[i])
+    }
+  }
+  ring.sort((a, b) => a - b)
+  const face = ring[ring.length >> 1]
+  const out = Buffer.from(pixels)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4
+      if (out[i + 3] === 0) continue
+      const d = Math.hypot(x - cx, y - cy)
+      if (d < LETTER_RADIUS && isLetter(out[i])) continue
+      out[i] = out[i + 1] = out[i + 2] = face
+    }
+  }
+  return out
+}
+
 /** Tint one file; returns the PNG bytes rather than writing, so `--check` can compare. */
-function tint({ src, chroma, hue }) {
-  const { width, height, pixels } = decodePng(readFileSync(join(ROOT, src)))
+function tint({ src, chroma, hue, paper }) {
+  const { width, height, pixels: shaded } = decodePng(readFileSync(join(ROOT, src)))
+  const pixels = flatten(width, height, shaded, paper)
   const lut = buildLut(chroma, hue)
   const out = Buffer.alloc(pixels.length)
   for (let i = 0; i < pixels.length; i += 4) {
     /* The source is neutral, so the red channel *is* the grey level. Alpha is copied
-       untouched: the emboss's soft shadow lives in it. */
+       untouched: it is the disc's own edge. */
     const g = pixels[i]
     out[i] = lut[g * 3]
     out[i + 1] = lut[g * 3 + 1]
