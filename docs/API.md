@@ -241,6 +241,14 @@ opérateur ne sont pas les nôtres, et la personne qui paie ne fait pas la diff�
 | GET | `/notifications/prefs` | `NotificationPrefs` |
 | PATCH | `/notifications/prefs` | `NotificationPrefs` |
 
+### Learn
+
+DP'PA — « les Derniers Papos à Propos de l'Argent » — est la rubrique d'actualité de l'onglet Learn. Chaque *papo* est une brève : un titre, la nouvelle en une ligne, pourquoi elle concerne le lecteur, une source nommée. Le back-end les sert du plus récent au plus ancien ; l'ordre est le sien.
+
+| Méthode | Chemin | Réponse |
+| --- | --- | --- |
+| GET | `/learn/papos` | `Papo[]` |
+
 ### Profil
 
 | Méthode | Chemin | Réponse |

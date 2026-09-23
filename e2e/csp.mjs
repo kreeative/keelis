@@ -16,7 +16,7 @@ import { join } from 'node:path'
 import { chromium } from 'playwright-core'
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:4173'
-const ROUTES = ['/', '/crypto', '/crypto/btc', '/carte', '/carte/details', '/epargne', '/convertir', '/envoyer', '/envoyer/operateurs', '/fonds', '/profil', '/profil/donnees', '/profil/risque', '/notifications', '/entreprise', '/bienvenue', '/crypto/btc/recevoir']
+const ROUTES = ['/', '/crypto', '/crypto/btc', '/carte', '/carte/details', '/apprendre', '/epargne', '/convertir', '/envoyer', '/envoyer/operateurs', '/fonds', '/profil', '/profil/donnees', '/profil/risque', '/notifications', '/entreprise', '/bienvenue', '/crypto/btc/recevoir']
 
 function findChromium() {
   const root = process.env.PLAYWRIGHT_BROWSERS_PATH ?? '/opt/pw-browsers'

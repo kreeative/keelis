@@ -528,6 +528,30 @@ export interface AppNotification {
   link?: string
 }
 
+// ---------- Learn ----------
+
+/**
+ * A « papo » — Ivorian nouchi for a piece of news, the thing people tell each other — about
+ * money. DP'PA, « les Derniers Papos à Propos de l'Argent », is the Learn tab's briefing: the
+ * TL;DR of what moved this week, each one in the length of a message, with why it matters
+ * to somebody holding francs, shares or coins in this app.
+ */
+export interface Papo {
+  id: string
+  /** The headline, as a sentence. */
+  title: string
+  /** The whole story in one line — the part somebody forwards. */
+  tldr: string
+  /** Why it matters to *you*: what it does to a balance, a rate, a price on this app. */
+  why: string
+  /** Where the story sits — a market, a currency, a regulator, a coin. */
+  tag: 'brvm' | 'ngx' | 'bceao' | 'fcfa' | 'naira' | 'crypto' | 'epargne'
+  /** ISO date of the story. */
+  date: string
+  /** The publication it is drawn from, named — a brief with no source is a rumour. */
+  source: string
+}
+
 // ---------- Profile ----------
 
 export interface Device {
@@ -699,6 +723,10 @@ export interface KeewalApi {
     markAllRead(): Promise<void>
     prefs(): Promise<NotificationPrefs>
     setPrefs(prefs: NotificationPrefs): Promise<NotificationPrefs>
+  }
+  learn: {
+    /** DP'PA — newest first. */
+    papos(): Promise<Papo[]>
   }
   profile: {
     me(): Promise<User>

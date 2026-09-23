@@ -7,7 +7,7 @@
  */
 import { forwardRef, type SVGProps } from 'react'
 import {
-  ArrowDownLeft, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUpFromLine, ArrowUpRight, Banknote, Bell, BellOff, Building2, Calendar, CalendarClock, Camera, ChartCandlestick, ChartLine, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, CircleAlert, CircleCheck, CirclePlus, CircleUserRound, CircleX, Clock, CloudOff, Coins, Copy, CreditCard, Delete, Download, ExternalLink, Eye, EyeOff, FileSignature, FileText, Filter, Fingerprint, Flag, Gem, Gift, Globe, HelpCircle, House, Info, Landmark, Languages, Link2, Lock, LockKeyhole, LogOut, Mail, MessageCircle, Minus, Monitor, Moon, MoreHorizontal, Pencil, PiggyBank, Plus, QrCode, Receipt, Repeat, RotateCw, Scan, ScanFace, Search, Send, Settings, Share2, Shield, ShieldCheck, Smartphone, Snowflake, Split, Star, StarOff, Sun, Sunrise, Target, ThumbsDown, ThumbsUp, Trash2, TrendingDown, TrendingUp, TriangleAlert, Upload, User, Users, Wallet, WifiOff, X,
+  ArrowDownLeft, ArrowDownToLine, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUpFromLine, ArrowUpRight, Banknote, Bell, BellOff, BookOpen, Building2, Calendar, CalendarClock, Camera, ChartCandlestick, ChartLine, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, CircleAlert, CircleCheck, CirclePlus, CircleUserRound, CircleX, Clock, CloudOff, Coins, Copy, CreditCard, Delete, Download, ExternalLink, Eye, EyeOff, FileSignature, FileText, Filter, Fingerprint, Flag, Gem, Gift, Globe, HelpCircle, House, Info, Landmark, Languages, Link2, Lock, LockKeyhole, LogOut, Mail, MessageCircle, Minus, Monitor, Moon, MoreHorizontal, Pencil, PiggyBank, Plus, QrCode, Receipt, Repeat, RotateCw, Scan, ScanFace, Search, Send, Settings, Share2, Shield, ShieldCheck, Smartphone, Snowflake, Split, Star, StarOff, Sun, Sunrise, Target, ThumbsDown, ThumbsUp, Trash2, TrendingDown, TrendingUp, TriangleAlert, Upload, User, Users, Wallet, WifiOff, X,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -22,6 +22,7 @@ export const ICONS = {
   banknote: Banknote,
   bell: Bell,
   'bell-off': BellOff,
+  'book-open': BookOpen,
   'building-2': Building2,
   calendar: Calendar,
   camera: Camera,

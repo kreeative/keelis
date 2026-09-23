@@ -46,6 +46,7 @@ import type {
   KeewalApi,
   MoneyMovementResult,
   NotificationPrefs,
+  Papo,
   OnboardingState,
   Order,
   PriceHistory,
@@ -270,6 +271,10 @@ export function createRestApi(opts: HttpOptions): KeewalApi {
       markAllRead: () => http.patch<void>('/notifications', { read: true }),
       prefs: () => http.get<NotificationPrefs>('/notifications/prefs'),
       setPrefs: (prefs: NotificationPrefs) => http.patch<NotificationPrefs>('/notifications/prefs', prefs),
+    },
+
+    learn: {
+      papos: () => http.get<Papo[]>('/learn/papos'),
     },
 
     profile: {

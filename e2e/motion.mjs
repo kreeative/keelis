@@ -346,8 +346,8 @@ async function run() {
 
     // Switch tabs: a cross-fade, never a slide.
     await page.waitForTimeout(500)
-    await page.locator('nav[aria-label="Navigation principale"] a[aria-label^="Épargne"]').first().click()
-    const tabbed = await arrivalOf('/epargne')
+    await page.locator('nav[aria-label="Navigation principale"] a[aria-label^="Learn"]').first().click()
+    const tabbed = await arrivalOf('/apprendre')
     if (tabbed.name !== 'fade') fail('arrival', `switching tabs arrives "${tabbed.name}", expected the cross-fade — a tab change is not a stack move`)
     else if (Math.abs(tabbed.x) > 1) fail('arrival', `a tab change is sliding ${tabbed.x}px — it should only fade`)
     else notes.push('arrival: push slides in from the right, back from the left, a tab change only fades')
@@ -361,12 +361,12 @@ async function run() {
        we look — and the end state is read at the same time, because a cascade that leaves a
        section at 0.98 opacity for ever is worse than none. */
     const earlyHidden = await page.evaluate(() => {
-      const host = document.querySelector('[data-path="/epargne"]')
+      const host = document.querySelector('[data-path="/apprendre"]')
       const box = host?.querySelector('[data-cascade], .page')
       if (!box) return null
       return [...box.children].filter((k) => parseFloat(getComputedStyle(k).opacity) < 0.99).length
     })
-    if (earlyHidden === null) fail('cascade', '/epargne has no [data-cascade] or .page container to deal out')
+    if (earlyHidden === null) fail('cascade', '/apprendre has no [data-cascade] or .page container to deal out')
     else if (earlyHidden === 0) fail('cascade', 'right after a tab change every section is already fully opaque — nothing is cascading')
 
     /* And the capsule went with it. It sat under the first tab for ever because the link's
@@ -389,7 +389,7 @@ async function run() {
     // The cascade, settled: declared delays in order, end state exact.
     await page.waitForTimeout(600)
     const cascade = await page.evaluate(() => {
-      const host = document.querySelector('[data-path="/epargne"]')
+      const host = document.querySelector('[data-path="/apprendre"]')
       const box = host?.querySelector('[data-cascade], .page')
       if (!box) return null
       const step = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stagger-step')) || 0
@@ -401,7 +401,7 @@ async function run() {
         }),
       }
     })
-    if (!cascade || cascade.kids.length < 2) fail('cascade', 'not enough sections on /epargne to measure a stagger')
+    if (!cascade || cascade.kids.length < 2) fail('cascade', 'not enough sections on /apprendre to measure a stagger')
     else {
       const named = cascade.kids.filter((k) => k.name.includes('cascade-in'))
       if (named.length < 2) fail('cascade', `only ${named.length} section(s) carry the cascade animation`)

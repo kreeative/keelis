@@ -30,6 +30,7 @@ export const QK = {
   goals: 'savings:goals',
   fundingSources: 'funding:sources',
   notifications: 'notifications',
+  papos: 'learn:papos',
   notificationPrefs: 'notifications:prefs',
   security: 'profile:security',
   devices: 'profile:devices',

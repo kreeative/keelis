@@ -1,0 +1,127 @@
+.page {
+  display: flex;
+  flex-direction: column;
+}
+.lede {
+  margin: 0;
+  max-width: 44ch;
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-block);
+  margin-top: var(--space-section);
+}
+
+/* The rubric's name and what the letters stand for, said once under it — an acronym nobody
+   has met yet is a puzzle, and the expansion is the joke and the promise at the same time. */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.headTitle {
+  margin: 0;
+}
+.headSub {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+}
+
+.papos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-items);
+}
+.papo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.papoMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.papoDate {
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  color: var(--ink-400);
+  font-variant-numeric: tabular-nums;
+}
+.papoTitle {
+  margin: 0;
+  text-wrap: balance;
+}
+.papoTldr {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink-900);
+}
+/* Why it matters to the reader: the one line the rubric exists for, set apart by its
+   glyph and its rule rather than by a colour the palette does not have to spare. */
+.papoWhy {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: var(--sp-1) 0 0;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--ink-600);
+}
+.papoWhyIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--accent);
+}
+.papoSource {
+  margin: 0;
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  color: var(--ink-400);
+}
+.note {
+  margin: 0;
+  font-size: var(--fs-label);
+  line-height: var(--lh-label);
+  color: var(--ink-400);
+}
+
+.lessonIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar);
+  height: var(--avatar);
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+/* Two columns from 1024px: the briefs are what changes, the lessons are what stays, and on
+   a wide screen the one you came for should not be a scroll past the other. */
+@media (min-width: 1024px) {
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'bar bar'
+      'lede lede'
+      'papos lessons';
+    column-gap: var(--sp-8);
+    align-items: start;
+  }
+  .page > :first-child { grid-area: bar; }
+  .lede { grid-area: lede; }
+  .section:nth-of-type(1) { grid-area: papos; }
+  .section:nth-of-type(2) { grid-area: lessons; }
+}

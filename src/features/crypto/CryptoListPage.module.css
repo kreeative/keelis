@@ -19,6 +19,8 @@
   color: var(--ink-600);
 }
 
+/* The search leads the screen, under the bar and above everything the tab used to open on. */
+.search { margin-top: var(--sp-2); }
 .controls {
   display: flex;
   flex-direction: column;
@@ -53,7 +55,7 @@
     align-items: center;
     justify-content: space-between;
   }
-  .controls > :first-child { flex: 0 1 360px; }
+  .search { max-width: 420px; }
   .spark { display: inline-flex; }
   .venueWide { display: inline; }
 }

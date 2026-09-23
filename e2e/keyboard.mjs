@@ -72,7 +72,7 @@ const ROUTES = (process.argv.find((a) => a.startsWith('--routes='))?.slice(9)?.s
   '/', '/activite', '/crypto', '/crypto/sonatel', '/crypto/sonatel/acheter', '/crypto/btc/vendre',
   '/crypto/btc/envoyer', '/crypto/btc/recevoir', '/crypto/recurrents',
   '/carte', '/carte/details', '/envoyer', '/envoyer/operateurs', '/convertir',
-  '/epargne', '/epargne/deposer', '/epargne/retirer', '/epargne/objectifs/nouveau',
+  '/apprendre', '/epargne', '/epargne/deposer', '/epargne/retirer', '/epargne/objectifs/nouveau',
   '/fonds', '/profil', '/profil/informations', '/profil/securite', '/profil/notifications', '/profil/documents',
   '/profil/fiscalite', '/profil/aide', '/profil/donnees', '/profil/risque', '/notifications',
 ]).map((path) => ({ path }))

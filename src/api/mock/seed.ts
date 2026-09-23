@@ -23,6 +23,7 @@ import type {
   TransactionCategory,
   Pocket,
   User,
+  Papo,
 } from '../types'
 
 export const NOW = new Date()
@@ -532,6 +533,68 @@ export const seedNotifications: AppNotification[] = [
 ]
 
 // ---------- Funding ----------
+
+/**
+ * DP'PA — the demo's briefs. **Demonstration content**: the stories are the kind of thing the
+ * feed exists for and the dates are relative so they never look stale, but no editor wrote
+ * them, and the screen says so. A live feed is an editorial job before it is an endpoint.
+ */
+export const seedPapos: Papo[] = [
+  {
+    id: 'papo_01',
+    title: 'La BCEAO laisse son taux directeur à 3,50 %',
+    tldr: 'Pas de baisse cette fois : la banque centrale attend que l’inflation repasse sous 3 % dans l’Union.',
+    why: 'Le taux de votre compte Épargne suit ce taux à distance. Tant qu’il ne bouge pas, vos 4,00 % par an ne bougent pas non plus.',
+    tag: 'bceao',
+    date: daysAgo(1),
+    source: 'Communiqué du Comité de politique monétaire',
+  },
+  {
+    id: 'papo_02',
+    title: 'Sonatel verse son dividende le 22 : 1 600 F CFA par action',
+    tldr: 'Le détachement est passé, l’argent arrive sur les comptes des actionnaires cette semaine.',
+    why: 'Si vous détenez SNTS, le versement apparaîtra sur votre compte Actifs comme un revenu, pas comme une vente. Le cours a baissé du montant du dividende le jour du détachement — ce n’est pas une perte.',
+    tag: 'brvm',
+    date: daysAgo(3),
+    source: 'Avis BRVM',
+  },
+  {
+    id: 'papo_03',
+    title: 'Le naira se stabilise autour de 1 550 pour un dollar',
+    tldr: 'Troisième mois sans grande secousse, le plus calme depuis la libéralisation du change.',
+    why: 'Une conversion naira → franc CFA passe par le dollar ou l’euro ; un naira stable, c’est un taux qui ne vous surprend pas entre le devis et la confirmation.',
+    tag: 'naira',
+    date: daysAgo(5),
+    source: 'Cotations CBN et FMDQ',
+  },
+  {
+    id: 'papo_04',
+    title: 'Dangote Refinery fixe son prix d’introduction',
+    tldr: 'Le prospectus est publié : la fourchette et le calendrier de l’entrée à la NGX sont connus.',
+    why: 'Rien à acheter avant le 14 octobre. Le prospectus est le seul document qui engage l’entreprise ; la leçon « Comprendre une introduction en bourse » dit quoi y lire.',
+    tag: 'ngx',
+    date: daysAgo(8),
+    source: 'Prospectus déposé auprès de la SEC Nigeria',
+  },
+  {
+    id: 'papo_05',
+    title: 'Bitcoin perd 12 % en une semaine, puis en reprend la moitié',
+    tldr: 'Une liquidation de positions à effet de levier, pas une nouvelle sur le réseau lui-même.',
+    why: 'Un compte Crypto a vu sa valeur bouger d’autant. C’est la volatilité normale du produit, et la raison pour laquelle sa part dans l’ensemble compte plus que son prix du jour.',
+    tag: 'crypto',
+    date: daysAgo(11),
+    source: 'Données de marché agrégées',
+  },
+  {
+    id: 'papo_06',
+    title: 'Le franc CFA reste à 655,957 pour un euro',
+    tldr: 'Ce n’est pas une nouvelle, et c’est la nouvelle : la parité fixée par traité n’a pas bougé depuis 1999.',
+    why: 'Toute conversion vers l’euro se fait à ce taux, et seule la marge varie. Si un bureau vous propose « un meilleur taux », c’est sa marge qu’il a changée, pas le taux.',
+    tag: 'fcfa',
+    date: daysAgo(14),
+    source: 'Accord de coopération monétaire UEMOA–France',
+  },
+]
 
 export const seedFundingSources: FundingSource[] = [
   { id: 'src_bank', kind: 'bank', label: 'Banque liée', mask: 'Compte ···· 4821', eta: '1 à 3 jours ouvrables', etaMinutes: 2_880, feePct: 0, limitPerDay: 15_000_000 },

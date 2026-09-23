@@ -141,6 +141,8 @@ const routes = [
   ['PATCH', '/notifications', () => mockApi.notifications.markAllRead()],
   ['GET', '/notifications', () => mockApi.notifications.list()],
 
+  ['GET', '/learn/papos', () => mockApi.learn.papos()],
+
   ['GET', '/me/security', () => mockApi.profile.security()],
   ['PATCH', '/me/security', (_p, body) => mockApi.profile.setSecurity(body)],
   ['GET', '/me/devices', () => mockApi.profile.devices()],

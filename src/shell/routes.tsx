@@ -47,6 +47,7 @@ const TransferProvidersPage = L(() => import('@/features/checking/TransferProvid
 const ConvertPage = L(() => import('@/features/fx/ConvertPage'))
 // Savings
 const SavingsPage = L(() => import('@/features/savings/SavingsPage'))
+const LearnPage = L(() => import('@/features/learn/LearnPage'))
 const SavingsMovePage = lazy(() => import('@/features/savings/SavingsMovePage'))
 const GoalPage = L(() => import('@/features/savings/GoalPage'))
 // Funds
@@ -118,6 +119,8 @@ export function AppRoutes() {
             <Route path="/envoyer" element={<SendMoneyPage />} />
             <Route path="/envoyer/operateurs" element={<TransferProvidersPage />} />
             <Route path="/convertir" element={<ConvertPage />} />
+
+            <Route path="/apprendre" element={<LearnPage />} />
 
             <Route path="/epargne" element={<SavingsPage />} />
             <Route path="/epargne/deposer" element={<SavingsMovePage direction="deposit" />} />

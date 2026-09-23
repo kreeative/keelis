@@ -44,7 +44,7 @@ VITE_API_URL=https://api.votredomaine.com/v1
   fichier que des soldes réels.
 
 Aucun écran ne change, parce qu'aucun écran ne sait à qui il parle.
-[`docs/API.md`](docs/API.md) est la spécification complète : 65 points d'entrée, la forme des
+[`docs/API.md`](docs/API.md) est la spécification complète : 66 points d'entrée, la forme des
 erreurs, le flux d'évènements, et ce que le back-end doit garantir.
 
 **Et ce n'est pas une promesse sur papier.** `server/reference.mjs` est un back-end de

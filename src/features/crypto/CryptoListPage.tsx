@@ -159,12 +159,35 @@ export default function CryptoListPage() {
              the rate is the fact this row exists to carry. */
           `${formatMoney(monthlyTotal(recurring.data), { locale })} par mois`
 
+  const searching = query.trim().length > 0
   const firstLoad = (market.assets === undefined && market.loading) || (filter === 'mine' && holdings.data === undefined && holdings.loading)
   const marketFailed = market.assets === undefined && !!market.error
 
   return (
     <div className={cn('page', styles.page)}>
       <AppBar title="Actifs" />
+      {/* **The search is the first thing on the screen, because the tab is a magnifier.** It
+          sat under the book's chart, the IPO card and the recurring row — a search box on
+          the second screen of a tab whose icon promises one. And while somebody types, the
+          three cards above the list step aside: results that land below the fold are
+          results nobody sees, and a portfolio curve is not what a person spelling
+          « Sonatel » is looking at. Clearing the field brings the page back. */}
+      <div className={styles.search}>
+        <Field
+          label="Rechercher un actif"
+          hideLabel
+          type="text"
+          inputMode="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          placeholder="Rechercher une action, une crypto"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          leading={<Icon name="search" size={20} />}
+        />
+      </div>
+      {searching ? null : (
+        <>
       <Card padding="lg" className={styles.heroCard}>
         <section className={styles.hero} aria-label="Solde du compte Crypto">
           <p className="t-name">Valeur du portefeuille</p>
@@ -223,19 +246,10 @@ export default function CryptoListPage() {
         </List>
       </Card>
 
+        </>
+      )}
+
       <div className={styles.controls}>
-        <Field
-          label="Rechercher un actif"
-          hideLabel
-          type="text"
-          inputMode="search"
-          enterKeyHint="search"
-          autoComplete="off"
-          placeholder="Rechercher un actif"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          leading={<Icon name="search" size={20} />}
-        />
         <ChipBar chips={FILTERS} value={filter} onChange={setFilter} label="Filtrer les actifs" />
       </div>
 

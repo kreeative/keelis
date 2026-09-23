@@ -55,6 +55,7 @@ import {
   seedCard,
   seedDevices,
   seedFundingSources,
+  seedPapos,
   seedGoals,
   seedHoldingsRaw,
   seedNotifications,
@@ -1048,6 +1049,13 @@ export const mockApi: KeewalApi = {
       await simulate()
       writeJson(KEYS.prefs, prefs)
       return prefs
+    },
+  },
+
+  learn: {
+    async papos() {
+      await simulate()
+      return seedPapos.map((p) => ({ ...p }))
     },
   },
 

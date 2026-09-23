@@ -652,7 +652,12 @@ async function internalTransfer(browser) {
 
     await page.getByRole('button', { name: /Terminé/ }).last().click()
     await waitForText(page, /Disponible/, 'the chequing screen after the transfer')
-    await page.getByRole('link', { name: 'Épargne', exact: true }).first().click()
+    /* Épargne has no tab any more — its door is the account row on Accueil — so the flow
+       walks in the way a person does: home, then the row. Client-side on purpose: a `goto`
+       reloads the document and the demo's in-memory balances with it, and the transfer this
+       flow is checking for would be reset before it was read. */
+    await page.getByRole('link', { name: 'Accueil', exact: true }).first().click()
+    await page.getByRole('link', { name: /^Épargne/ }).first().click()
     await waitForText(page, /Solde/, 'the savings screen after the transfer')
     await page.waitForTimeout(1200)
     const after = francs((await page.locator('body').innerText()).match(/Solde.{0,60}/s)?.[0] ?? '')

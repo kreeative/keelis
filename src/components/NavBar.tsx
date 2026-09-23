@@ -21,24 +21,32 @@ interface NavItem {
   end: boolean
 }
 
-/** Mobile bottom bar — 5 tabs, as specified. */
+/**
+ * Mobile bottom bar — 5 tabs, as specified.
+ *
+ * Two of them changed on the owner's instruction. **The market tab is a magnifier**, not a
+ * chart: what somebody comes to that screen for is a security by name, so the tab says
+ * « search » and the screen opens on its search box. **The savings tab is gone**, because
+ * Épargne is a row on Accueil and a tab that duplicates a row is a tab spent twice; its
+ * seat goes to **Learn** — the book — Keewal Meere's financial-literacy lessons and DP'PA,
+ * « les Derniers Papos à Propos de l'Argent ».
+ */
 export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/', label: 'Accueil', icon: 'house', end: true },
-  { to: '/crypto', label: 'Actifs', icon: 'chart-line', end: false },
+  { to: '/crypto', label: 'Rechercher un actif', icon: 'search', end: false },
   { to: '/carte', label: 'Carte', icon: 'credit-card', end: false },
-  { to: '/epargne', label: 'Épargne', icon: 'piggy-bank', end: false },
+  { to: '/apprendre', label: 'Learn', icon: 'book-open', end: false },
   { to: '/profil', label: 'Profil', icon: 'circle-user-round', end: false },
 ]
 
-/** Desktop rail — the same destinations plus Activité, which has its own entry there. */
+/** Desktop rail — the same destinations plus Activité, which has its own entry there. The
+    rail used to open with a search *action* above a separate « Actifs » row, both leading
+    to /crypto; with the market tab itself a search, one row says it. */
 const RAIL_ITEMS: readonly NavItem[] = [
-  /* Search leads the rail, as it does in the reference: on a desktop the first thing you
-     reach for is the thing you cannot see. */
-  { to: '/crypto', label: 'Rechercher un actif', icon: 'search', end: true },
   { to: '/', label: 'Accueil', icon: 'house', end: true },
-  { to: '/crypto', label: 'Actifs', icon: 'chart-line', end: false },
+  { to: '/crypto', label: 'Rechercher un actif', icon: 'search', end: false },
   { to: '/carte', label: 'Carte', icon: 'credit-card', end: false },
-  { to: '/epargne', label: 'Épargne', icon: 'piggy-bank', end: false },
+  { to: '/apprendre', label: 'Learn', icon: 'book-open', end: false },
   { to: '/activite', label: 'Activité', icon: 'clock', end: false },
 ]
 
@@ -170,8 +178,8 @@ export function NavBar({ unread = 0 }: { unread?: number }) {
               aria-hidden="true"
             />
           ) : null}
-          {RAIL_ITEMS.map((item, i) => (
-            <RailLink key={`${item.to}-${i}`} item={item} action={item.icon === 'search'} />
+          {RAIL_ITEMS.map((item) => (
+            <RailLink key={item.to} item={item} />
           ))}
         </ul>
 

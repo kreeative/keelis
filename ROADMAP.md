@@ -60,7 +60,7 @@ là : `LearnSheet` explique une introduction en bourse et comment lire un cours,
 ## 4. Back-end et moteur
 
 Rien de tout cela ne peut exister côté interface. Le contrat est écrit et le client HTTP
-aussi : [`docs/API.md`](docs/API.md), 65 points d'entrée, la forme des erreurs, le flux
+aussi : [`docs/API.md`](docs/API.md), 66 points d'entrée, la forme des erreurs, le flux
 d'évènements. Brancher un back-end qui le satisfait est une variable d'environnement.
 
 **Et le contrat a été exécuté, pas seulement rédigé.** `server/reference.mjs` le sert en

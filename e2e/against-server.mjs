@@ -241,7 +241,13 @@ try {
   await page.goto(`${APP}/crypto/sonatel/acheter`, { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: '5', exact: true }).first().waitFor({ timeout: 15_000 })
   for (const d of ['5', '0', '0', '0', '0']) await page.getByRole('button', { name: d, exact: true }).first().click()
-  await page.getByRole('button', { name: /Continuer|Acheter/ }).last().click()
+  /* Two steps, not one: the amount, then the aperçu, then the sheet. This walk pressed one
+     button and waited for the dialog, and had been failing since the flows were stepped —
+     on main, before any change in the batch that fixed it. An instrument nobody runs is an
+     instrument that is wrong for as long as nobody runs it. */
+  await page.getByRole('button', { name: /^Continuer$/ }).last().click()
+  await page.getByRole('button', { name: /^Acheter$/ }).last().waitFor({ timeout: 15_000 })
+  await page.getByRole('button', { name: /^Acheter$/ }).last().click()
   await page.getByRole('dialog').waitFor({ timeout: 15_000 })
   await page.getByRole('dialog').getByRole('button', { name: /Confirmer|Acheter/ }).last().click()
   await wait(/Achat effectué/, 'the order did not complete against the back-end')
