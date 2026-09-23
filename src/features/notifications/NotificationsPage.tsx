@@ -61,7 +61,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader
         back={-1}
         title="Notifications"

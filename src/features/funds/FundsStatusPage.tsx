@@ -46,7 +46,7 @@ export default function FundsStatusPage() {
   const notFound = tx.error?.code === 'not_found'
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       {/* The hero amount is the dominant element; without it the title takes over. */}
       <PageHeader close back="/" title="Statut du dépôt" hideTitle={!!data} />
 

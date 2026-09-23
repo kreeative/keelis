@@ -132,7 +132,7 @@ function NewGoal() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader close back="/epargne" title="Nouvel objectif" eyebrow="Épargne" className={styles.head} />
 
       <div className={styles.form}>
@@ -283,7 +283,7 @@ function GoalDetail({ goal, free }: { goal: SavingsGoal; free: number | undefine
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader
         back="/epargne"
         title={goal.name}
@@ -443,7 +443,7 @@ export default function GoalPage() {
 
   if (goals.loading) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back="/epargne" title="Objectif" level="h2" className={styles.head} hideTitle />
         <Skeleton width="60%" height="var(--fs-display)" />
         <Skeleton width="40%" height={16} className={styles.skeletonLine} />
@@ -453,7 +453,7 @@ export default function GoalPage() {
 
   if (goals.error && !goals.data) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back="/epargne" title="Objectif" level="h2" className={styles.head} />
         <ErrorState error={goals.error} onRetry={() => void goals.refetch()} />
       </div>
@@ -462,7 +462,7 @@ export default function GoalPage() {
 
   if (!goal) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back="/epargne" title="Objectif introuvable" level="h2" className={styles.head} />
         <EmptyState
           message="Cet objectif n’existe plus ou a été supprimé."

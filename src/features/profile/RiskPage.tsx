@@ -56,7 +56,7 @@ export default function RiskPage() {
 
   if (saved.loading && saved.data === undefined) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back="/profil" title="Profil d’investisseur" />
         <Skeleton height={96} shape="card" />
       </div>
@@ -65,7 +65,7 @@ export default function RiskPage() {
 
   if (saved.error && saved.data === undefined) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back="/profil" title="Profil d’investisseur" />
         <ErrorState error={saved.error} onRetry={() => void saved.refetch()} />
       </div>
@@ -76,7 +76,7 @@ export default function RiskPage() {
   if (saved.data && !editing) {
     const level = RISK_LEVELS[saved.data.level]
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back="/profil" title="Profil d’investisseur" />
         <Card padding="lg" elevation={1} className={styles.result}>
           <Badge tone="neutral" size="xs">
@@ -98,7 +98,7 @@ export default function RiskPage() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/profil" title="Profil d’investisseur" />
       <p className={styles.intro}>
         Quatre questions. Elles ne donnent accès à rien et n’interdisent rien : elles décident de ce

@@ -231,9 +231,58 @@ img, svg {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0ms !important;
+    /* Delay too, and this line waited for the first delay to exist: nothing in the app used
+       one until the cascade below, and with duration zeroed but delay kept, a reduced-motion
+       user would stare at an *empty slot* for the length of each child's stagger — the
+       animation holding its `from` state (opacity 0) through the wait. Motion reduced to a
+       blink is still the end state arriving late. */
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ---- The cascade: a screen's sections follow it in, they do not appear with it ----
+
+   The wrapper in AppShell slides or fades the screen as a whole; this is the level below.
+   The sections of an arriving screen rise in sequence — first at once, each next one
+   `--stagger-step` later, capped at the seventh — on the arrival spring. It reads as the
+   screen being dealt rather than pasted.
+
+   Two containers opt in: the global `.page`, which most screens already wrap themselves in,
+   and `data-cascade`, for screens whose root is a module class (Accueil's canvas column,
+   the two-column layouts) — those name the container whose children really are the
+   sections. A container inside a container compounds: the inner one's children add their
+   stagger on top of the delay the inner container already carries. One level of that is
+   deliberate on /carte — the balance lands, then the side column deals itself out, worst
+   case 315ms of delay — but the cap is what keeps it honest. Two levels would put the last
+   sections past half a second of blank, so do not nest deeper.
+
+   **Only `fade` and `forward` cascade, and `back` does not, on purpose.** Going deeper or
+   switching tabs shows content you have not seen; coming back returns content you have —
+   a screen you return to should feel like it was there all along, so it keeps the plain
+   18px slide. `both` fill keeps children at their start (invisible) through their delay and
+   at their end for ever after; under reduced motion the block above collapses duration and
+   delay together, so everything is simply there. */
+:is([data-arrival='fade'], [data-arrival='forward']) :is(.page, [data-cascade]) > * {
+  animation: cascade-in var(--dur-bouncy) var(--ease-bouncy) both;
+}
+:is([data-arrival='fade'], [data-arrival='forward']) :is(.page, [data-cascade]) > :nth-child(2) { animation-delay: calc(1 * var(--stagger-step)); }
+:is([data-arrival='fade'], [data-arrival='forward']) :is(.page, [data-cascade]) > :nth-child(3) { animation-delay: calc(2 * var(--stagger-step)); }
+:is([data-arrival='fade'], [data-arrival='forward']) :is(.page, [data-cascade]) > :nth-child(4) { animation-delay: calc(3 * var(--stagger-step)); }
+:is([data-arrival='fade'], [data-arrival='forward']) :is(.page, [data-cascade]) > :nth-child(5) { animation-delay: calc(4 * var(--stagger-step)); }
+:is([data-arrival='fade'], [data-arrival='forward']) :is(.page, [data-cascade]) > :nth-child(6) { animation-delay: calc(5 * var(--stagger-step)); }
+:is([data-arrival='fade'], [data-arrival='forward']) :is(.page, [data-cascade]) > :nth-child(n + 7) { animation-delay: calc(6 * var(--stagger-step)); }
+
+@keyframes cascade-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--arrive-rise));
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

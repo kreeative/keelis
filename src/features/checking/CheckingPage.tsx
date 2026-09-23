@@ -129,7 +129,7 @@ export default function CheckingPage() {
   return (
     <div className={styles.page}>
       <AppBar title="Chèque" />
-      <div className={styles.layout}>
+      <div className={styles.layout} data-cascade>
         <Card padding="lg" className={styles.balanceCard}>
           <section className={styles.hero} aria-label="Solde du compte Chèque" aria-busy={account.loading || undefined}>
             <div className={styles.heroTop}>
@@ -146,7 +146,7 @@ export default function CheckingPage() {
           </section>
         </Card>
 
-        <aside className={styles.side}>
+        <aside className={styles.side} data-cascade>
           <CardPanel />
           {/* Under the card: the other currencies this account holds. */}
           <Pockets account={account.data} />

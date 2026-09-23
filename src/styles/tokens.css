@@ -374,6 +374,18 @@
   --ease-bouncy: linear(0, 0.0324, 0.1139, 0.2243, 0.3481, 0.4735, 0.5923, 0.6995, 0.7919, 0.8686, 0.9296, 0.9761, 1.0098, 1.0325, 1.0462, 1.0528, 1.0542, 1.0519, 1.0471, 1.0409, 1.0341, 1.0273, 1.021, 1.0153, 1.0105, 1.0065, 1.0033, 1.0009, 0.9992, 0.9981, 0.9974, 0.9971, 1);
   --dur-bouncy: 690ms;
 
+  /* ---- The cascade ----
+     A screen used to arrive as one slab: the wrapper slid or faded, and every section inside
+     it appeared in the same frame. The owner's reference for « something is still missing »
+     was a Framer build, and most of what Framer feels like is this one habit: children do
+     not appear with their parent, they follow it — each section 45ms behind the one before,
+     rising a step on the arrival spring. The rise is 12px: `--ease-bouncy`'s overshoot is a
+     share of the travel, so 12px settles with about a pixel of spring — felt, not watched.
+     The step is capped at the seventh child (270ms); a long page must not still be dealing
+     itself out while somebody reads it. */
+  --stagger-step: 45ms;
+  --arrive-rise: 12px;
+
   /* An exit is not a spring, and this one is a bezier on purpose. Something arriving has
      somewhere to settle; something leaving does not, and a wobble on the way out reads as
      hesitation — Apple accelerates those away instead. Faster than any entrance, too: you

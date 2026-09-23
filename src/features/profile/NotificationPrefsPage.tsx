@@ -39,7 +39,7 @@ export default function NotificationPrefsPage() {
   const data = prefs.data
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/profil" title="Notifications" />
       <p className={styles.intro}>Choisissez ce que Keewal Meere vous envoie. Les alertes de sécurité restent toujours actives.</p>
 

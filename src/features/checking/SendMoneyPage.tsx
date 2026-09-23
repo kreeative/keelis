@@ -285,7 +285,7 @@ export default function SendMoneyPage() {
 
   if (result) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <SendSuccess result={result} method={config.title} />
       </div>
     )
@@ -504,7 +504,7 @@ export default function SendMoneyPage() {
   ]
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <StepFlow title="Envoyer" exit="/carte" steps={steps} onFinish={() => setConfirmOpen(true)} finishLabel="Envoyer" />
 
       <ConfirmSheet

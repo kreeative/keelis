@@ -146,7 +146,7 @@ export default function SavingsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
-        <div className={styles.main}>
+        <div className={styles.main} data-cascade>
           <AppBar title="Épargne" />
 
           {/* Balance, curve and period are one statement — one surface. */}
@@ -225,7 +225,7 @@ export default function SavingsPage() {
           </section>
         </div>
 
-        <aside className={styles.aside}>
+        <aside className={styles.aside} data-cascade>
           {stats}
           {goalsPanel}
         </aside>

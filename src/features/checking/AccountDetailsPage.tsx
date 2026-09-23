@@ -81,7 +81,7 @@ export default function AccountDetailsPage() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/carte" title="Détails du compte" eyebrow={current.name} />
 
       <SegmentedControl

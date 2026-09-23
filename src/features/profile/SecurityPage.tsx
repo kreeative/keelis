@@ -99,7 +99,7 @@ export default function SecurityPage() {
   const list = devices.data
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/profil" title="Sécurité" />
       <p className={styles.intro}>Ces réglages protègent votre argent sur cet appareil et sur les autres.</p>
 

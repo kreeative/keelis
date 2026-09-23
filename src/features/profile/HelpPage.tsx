@@ -76,7 +76,7 @@ export default function HelpPage() {
   }, [query])
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/profil" title="Aide" />
 
       <div className={styles.layout}>

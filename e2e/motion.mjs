@@ -280,6 +280,23 @@ async function run() {
       const still = await page.locator('[role="dialog"]').count()
       if (still) fail('reduced-motion', 'the sheet is still animating out — reduced motion should get the end state immediately')
     }
+
+    /* The cascade under reduced motion, and this is the check that earns its place: the
+       global rule zeroed `animation-duration` and not `animation-delay`, which cost nothing
+       while no animation in the app carried a delay — the moment the cascade landed, a
+       reduced-motion user would have stared at each empty slot for the length of its
+       stagger, the animation holding opacity 0 through the wait. Click a tab and read the
+       sections in the same breath: every one must already be exactly where it ends. */
+    await page.locator('nav[aria-label="Navigation principale"] a[href="/"]').first().click()
+    await page.waitForFunction(() => document.querySelector('[data-path="/"]') !== null, { timeout: 10_000 })
+    const reducedCascade = await page.evaluate(() => {
+      const host = document.querySelector('[data-path="/"]')
+      const box = host?.querySelector('[data-cascade], .page')
+      if (!box) return null
+      return [...box.children].map((k) => parseFloat(getComputedStyle(k).opacity))
+    })
+    if (!reducedCascade) fail('reduced-motion', 'no cascade container on / to probe')
+    else if (reducedCascade.some((o) => o < 1)) fail('reduced-motion', `sections are invisible after a tab change (opacities ${reducedCascade.map((o) => o.toFixed(2)).join(', ')}) — a staggered delay is surviving the reduced-motion rule`)
     await page.close()
   }
 
@@ -335,6 +352,23 @@ async function run() {
     else if (Math.abs(tabbed.x) > 1) fail('arrival', `a tab change is sliding ${tabbed.x}px — it should only fade`)
     else notes.push('arrival: push slides in from the right, back from the left, a tab change only fades')
 
+    /* ---- 4b. The screen's sections follow it in — the cascade ----
+       The wrapper animates the screen as a whole; the cascade is the level below, and it is
+       the part a screenshot can never prove: children of `.page` / `[data-cascade]` rise in
+       DOM order, each a step behind the one before, capped so a long page is not still
+       dealing itself out while somebody reads it. Declared delays are read *after* settle —
+       computed `animation-delay` does not tick down, so the declaration is legible whenever
+       we look — and the end state is read at the same time, because a cascade that leaves a
+       section at 0.98 opacity for ever is worse than none. */
+    const earlyHidden = await page.evaluate(() => {
+      const host = document.querySelector('[data-path="/epargne"]')
+      const box = host?.querySelector('[data-cascade], .page')
+      if (!box) return null
+      return [...box.children].filter((k) => parseFloat(getComputedStyle(k).opacity) < 0.99).length
+    })
+    if (earlyHidden === null) fail('cascade', '/epargne has no [data-cascade] or .page container to deal out')
+    else if (earlyHidden === 0) fail('cascade', 'right after a tab change every section is already fully opaque — nothing is cascading')
+
     /* And the capsule went with it. It sat under the first tab for ever because the link's
        offsetParent is its own <li>, which makes every link's offsetLeft zero — invisible in
        the code, and one number here. */
@@ -351,6 +385,36 @@ async function run() {
     else if (Math.abs(capsule.pill - capsule.active) > 1) {
       fail('nav', `the capsule is not on the active tab (capsule at ${capsule.pill}, tab at ${capsule.active})`)
     } else notes.push(`nav: the capsule slid to the active tab at x=${capsule.pill}`)
+
+    // The cascade, settled: declared delays in order, end state exact.
+    await page.waitForTimeout(600)
+    const cascade = await page.evaluate(() => {
+      const host = document.querySelector('[data-path="/epargne"]')
+      const box = host?.querySelector('[data-cascade], .page')
+      if (!box) return null
+      const step = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stagger-step')) || 0
+      return {
+        step,
+        kids: [...box.children].map((k) => {
+          const cs = getComputedStyle(k)
+          return { name: cs.animationName, delay: Math.round(parseFloat(cs.animationDelay) * 1000), opacity: parseFloat(cs.opacity), transform: cs.transform }
+        }),
+      }
+    })
+    if (!cascade || cascade.kids.length < 2) fail('cascade', 'not enough sections on /epargne to measure a stagger')
+    else {
+      const named = cascade.kids.filter((k) => k.name.includes('cascade-in'))
+      if (named.length < 2) fail('cascade', `only ${named.length} section(s) carry the cascade animation`)
+      const delays = named.map((k) => k.delay)
+      const ordered = delays.every((d, i) => i === 0 || d >= delays[i - 1])
+      if (!ordered) fail('cascade', `delays are not in DOM order: ${delays.join(', ')}ms`)
+      if (delays[delays.length - 1] === delays[0]) fail('cascade', `every section has the same delay (${delays[0]}ms) — that is a slab with extra steps, not a stagger`)
+      const cap = 6 * cascade.step
+      if (Math.max(...delays) > cap + 1) fail('cascade', `a section waits ${Math.max(...delays)}ms, past the ${cap}ms cap — a long page must not still be dealing itself out`)
+      const unsettled = cascade.kids.filter((k) => k.opacity < 1 || (k.transform !== 'none' && k.transform !== 'matrix(1, 0, 0, 1, 0, 0)'))
+      if (unsettled.length) fail('cascade', `${unsettled.length} section(s) never reached their end state (opacity 1, no transform)`)
+      if (!failures.some((f) => f.startsWith('cascade:'))) notes.push(`cascade: ${named.length} sections dealt in over ${Math.max(...delays)}ms, all settled exactly`)
+    }
     await page.close()
   }
 

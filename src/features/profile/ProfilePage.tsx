@@ -59,7 +59,7 @@ export default function ProfilePage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.layout}>
+      <div className={styles.layout} data-cascade>
         <header className={styles.identity}>
           <Avatar label={fullName || 'Keewal Meere'} size={56} tone="accent" />
           <h1 className={`t-h1 ${styles.name}`}>{fullName || 'Votre profil'}</h1>

@@ -23,7 +23,7 @@ export default function TaxPage() {
   }, [docs.data])
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/profil" title="Fiscalité" />
       <p className={styles.intro}>Vos feuillets sont disponibles chaque année en février.</p>
 

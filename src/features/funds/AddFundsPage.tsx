@@ -162,7 +162,7 @@ export default function AddFundsPage() {
     : []
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader close back={-1} title="Ajouter des fonds" eyebrow={grouped ? undefined : `Étape ${!source ? 1 : step === 'amount' ? 2 : 3} sur 3`} />
 
       <div className={styles.layout}>

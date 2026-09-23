@@ -70,7 +70,7 @@ export default function HomePage() {
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
-        <div className={styles.main}>
+        <div className={styles.main} data-cascade>
           {/* The canvas: a dark island that holds the balance, the two actions people
               actually take, and the curve. It redefines the tokens its children read, so
               everything inside behaves as it would on a dark theme. */}
@@ -171,7 +171,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <aside className={styles.aside}>
+        <aside className={styles.aside} data-cascade>
           <AccountCards accounts={accounts.data} loading={accounts.loading} />
           <HoldingsPanel />
         </aside>

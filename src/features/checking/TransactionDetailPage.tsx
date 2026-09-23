@@ -69,7 +69,7 @@ export default function TransactionDetailPage() {
 
   if (notFound || (!tx && query.error && !query.refetching)) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back={-1} title="Transaction" />
         {notFound ? (
           <EmptyState
@@ -90,7 +90,7 @@ export default function TransactionDetailPage() {
 
   if (!tx) {
     return (
-      <div className={styles.page}>
+      <div className={styles.page} data-cascade>
         <PageHeader back={-1} title="Transaction" hideTitle />
         <div className={styles.hero} aria-busy="true">
           <Skeleton shape="circle" width={48} height={48} />
@@ -164,7 +164,7 @@ export default function TransactionDetailPage() {
   if (tx.note) details.push({ label: 'Note', value: tx.note })
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back={-1} />
 
       <section className={styles.hero} aria-label="Résumé de la transaction">

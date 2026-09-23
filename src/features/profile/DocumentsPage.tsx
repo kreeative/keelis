@@ -26,7 +26,7 @@ export default function DocumentsPage() {
   const items = useMemo(() => statements.data?.filter((s) => s.accountId === accountId) ?? [], [statements.data, accountId])
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/profil" title="Documents et relevés" />
 
       <div className={styles.layout}>

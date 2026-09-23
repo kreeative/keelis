@@ -62,7 +62,7 @@ const SOURCES: readonly SourceRow[] = [
 
 export default function DataSourcePage() {
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-cascade>
       <PageHeader back="/profil" title="Données et connexion" />
       <p className={styles.intro}>D’où vient chaque chiffre affiché dans l’application.</p>
 
