@@ -192,25 +192,43 @@ function auditScript() {
    * have the brightest frame that could ever be dropped into the slot. Text that clears the
    * threshold against *that* clears it against any photograph the owner licenses — which is a
    * real guarantee rather than a hope, and it can be checked before the photographs exist.
+   *
+   * **The dissolve is the same computation from the other end.** A frame that is a screen's
+   * underlay carries the page colour poured down over its top (`::before`), and the type sits
+   * on that; here the worst picture is not white but *whichever* of black and white the ink
+   * loses against — cream over black under dark ink in the light theme, brown over white
+   * under pale ink in the dark one. Both are composited, in paint order (picture, scrim,
+   * dissolve), and the one with the worse ratio against `fg` is the floor. Text that clears
+   * that clears any photograph; text sitting where the dissolve has let go gets a number
+   * against a picture nobody has chosen, which is the audit refusing to guess.
    */
-  function scrimFloor(el, frame) {
-    const ramp = gradientRamp(getComputedStyle(frame, '::after').backgroundImage)
-    if (!ramp) return null
+  function scrimFloor(el, frame, fg) {
+    const scrim = gradientRamp(getComputedStyle(frame, '::after').backgroundImage)
+    const dissolve = gradientRamp(getComputedStyle(frame, '::before').backgroundImage)
+    if (!scrim && !dissolve) return null
     const fr = frame.getBoundingClientRect()
     const er = el.getBoundingClientRect()
     if (fr.height <= 0) return null
     const t = Math.max(0, Math.min(1, (er.top + er.height / 2 - fr.top) / fr.height))
-    let lo = ramp[0]
-    let hi = ramp[ramp.length - 1]
-    for (let i = 0; i < ramp.length - 1; i++) {
-      if (t >= ramp[i].pos && t <= ramp[i + 1].pos) { lo = ramp[i]; hi = ramp[i + 1]; break }
+    const at = (ramp) => {
+      let lo = ramp[0]
+      let hi = ramp[ramp.length - 1]
+      for (let i = 0; i < ramp.length - 1; i++) {
+        if (t >= ramp[i].pos && t <= ramp[i + 1].pos) { lo = ramp[i]; hi = ramp[i + 1]; break }
+      }
+      const span = hi.pos - lo.pos
+      const k = span > 0 ? (t - lo.pos) / span : 0
+      const mix = (a, b) => a + (b - a) * k
+      return { r: mix(lo.r, hi.r), g: mix(lo.g, hi.g), b: mix(lo.b, hi.b), a: mix(lo.a, hi.a) }
     }
-    const span = hi.pos - lo.pos
-    const k = span > 0 ? (t - lo.pos) / span : 0
-    const mix = (a, b) => a + (b - a) * k
-    const scrim = { r: mix(lo.r, hi.r), g: mix(lo.g, hi.g), b: mix(lo.b, hi.b), a: mix(lo.a, hi.a) }
-    /* White is the worst case: the brightest photograph that could sit under this scrim. */
-    return blend(scrim, { r: 1, g: 1, b: 1, a: 1 })
+    const layers = [scrim && at(scrim), dissolve && at(dissolve)].filter(Boolean)
+    const over = (picture) => layers.reduce((acc, layer) => blend(layer, acc), picture)
+    const white = over({ r: 1, g: 1, b: 1, a: 1 })
+    if (!fg) return white
+    const black = over({ r: 0, g: 0, b: 0, a: 1 })
+    const lf = lum(fg)
+    const ratio = (c) => { const l = lum(c); return (Math.max(lf, l) + 0.05) / (Math.min(lf, l) + 0.05) }
+    return ratio(black) < ratio(white) ? black : white
   }
 
   /**
@@ -229,7 +247,7 @@ function auditScript() {
       /* A photo frame: stop here. Whatever is behind it is irrelevant, because a picture is
          painted over it, and the scrim is the only thing between this text and that picture. */
       if (node.hasAttribute && node.hasAttribute('data-photo')) {
-        const floor = scrimFloor(el, node)
+        const floor = scrimFloor(el, node, fg)
         if (floor) return acc ? blend(acc, floor) : floor
         return { unmeasurable: true }
       }
@@ -341,6 +359,14 @@ function auditScript() {
        *
        * Geometry answers it where ancestry cannot: ask what is actually stacked under the
        * middle of the line.
+       *
+       * The walk stops at the first ancestor that paints an opaque fill, because a photograph
+       * under an opaque sheet is a photograph nobody sees: the welcome frame is the whole
+       * screen's underlay now, and without this every line on the sheet riding over it was
+       * « on a photograph ». And a frame it does reach is measured through its scrim and its
+       * dissolve rather than declared unmeasurable — the type on the welcome screen sits on
+       * the frame's dissolved top third by design, and that is exactly the case the floor
+       * computation exists for.
        */
       const overPhoto = (() => {
         const r = el.getBoundingClientRect()
@@ -349,12 +375,18 @@ function auditScript() {
         if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return null
         for (const node of document.elementsFromPoint(x, y)) {
           if (node === el) continue
-          if (node.contains && node.contains(el)) continue // an ancestor: effectiveBg has it
+          if (node.contains && node.contains(el)) {
+            const ncs = getComputedStyle(node)
+            const solid = parseColor(ncs.backgroundColor)
+            const stops = gradientStops(ncs.backgroundImage)
+            if ((solid && solid.a >= 1) || (stops && stops.some((c) => c.a >= 1))) return null
+            continue // a see-through ancestor: effectiveBg has it
+          }
           if (node.hasAttribute && node.hasAttribute('data-photo')) return node
         }
         return null
       })()
-      const bg = overPhoto ? { unmeasurable: true } : effectiveBg(el, fg)
+      const bg = overPhoto ? (scrimFloor(el, overPhoto, fg) ?? { unmeasurable: true }) : effectiveBg(el, fg)
       if (bg && bg.unmeasurable) {
         /* Text on a photograph with no scrim. Reporting a ratio here would be reporting a
            number about a colour nothing knows — the failure this whole helper exists to

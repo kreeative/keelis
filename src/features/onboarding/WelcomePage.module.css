@@ -1,4 +1,6 @@
 .root {
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
   /* 520 rather than 420: the hero needs room to be a picture rather than a stamp, and the
      sentence reads at the same measure either way because `.lede` caps itself at 34ch. */
@@ -8,6 +10,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
+}
+/* With the photograph as the underlay the sheet reaches the foot of the screen itself, so
+   the root hands its bottom padding to the sheet. Everything but the frame sits above it. */
+.illustrated {
+  padding-bottom: 0;
+}
+.illustrated > :not(.hero) {
+  position: relative;
+  z-index: 1;
 }
 
 /* The spaced micro-label row. Three items, and the middle one is centred on the *page*
@@ -71,21 +82,24 @@
   letter-spacing: var(--ls-body);
 }
 
-/* The hero. `flex: 1` so it takes whatever the type and the sheet leave, with a floor that
-   keeps it a photograph rather than a letterbox, and a ceiling so a tall desktop window does
-   not turn the front door into a poster with the actions below the fold. */
+/* The underlay. The frame is taken out of the flow entirely and pinned to the root's own box
+   — under the label row, the mark and the title, whose colour the deep dissolve carries —
+   and it stops at 80% of the height. The sheet covers everything below that, so the missing
+   fifth is never seen; what it buys is a smaller picture, because `cover` scales to the
+   frame, and a smaller picture lifts the mask's face into the band between the sentence and
+   the fields. Measured at 390×844: the face runs from 209 to 344px, the sentence ends at
+   216 and the sheet begins at 417. Full height, it sat under the fields. */
 .hero {
-  flex: 1 1 0;
-  min-height: 180px;
-  max-height: 46vh;
+  position: absolute;
+  inset: 0 0 20%;
+  z-index: 0;
+  margin: 0;
   /* **Full-bleed, and unrounded.** It was inset in the gutter with `--r-panel` corners, and
      the 24px of the frame sat directly under the sheet's 32px doing the same job a different
      amount — two radii arguing at the one seam the eye is already on. A hero is the element
      that bleeds: the picture runs to the edges of the screen and the only rounding in the
      composition is the sheet riding up over it, which is what the reference does and why its
      seam reads as one move rather than two. */
-  margin-inline: calc(-1 * var(--gutter));
-  margin-bottom: calc(-1 * var(--sp-6));
 }
 /* **The picture must not decide the frame's height.** The welcome file is a portrait, and a
    block image at 100% width is as tall as its own ratio makes it — 575px on a 390px screen —
@@ -114,7 +128,10 @@
   background: var(--sheet-ground);
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;
   margin-inline: calc(-1 * var(--gutter));
-  padding: var(--sp-5) var(--gutter) var(--sp-2);
+  /* Pinned to the foot: whatever the screen's height, the picture takes the slack above the
+     sheet, never a band of ground below it. The safe area is the sheet's to pad now. */
+  margin-top: auto;
+  padding: var(--sp-5) var(--gutter) calc(var(--sp-3) + var(--safe-bottom));
   /* The sheet is not a card and takes no shadow: it rides over the frame, and what says so is
      the picture disappearing under its radius, not a drop shadow on a surface the size of
      the screen. */
@@ -223,8 +240,15 @@
    read as a card cut off, not as a sheet. Rounded all round there, with its own padding
    below, since there is no screen edge to hand the last pixels to. */
 @media (min-width: 768px) {
+  .illustrated {
+    padding-bottom: var(--sp-6);
+  }
   .illustrated .sheet {
     border-radius: var(--r-sheet);
     padding-bottom: var(--sp-5);
   }
 }
+/* The frame's top is not rounded on the desktop column, and it was tried: the dissolve makes
+   the top edge page-coloured, so there is nothing to round, and the clip's anti-aliasing
+   drew a hairline dark arc where the picture's own corner met the cream. An edge that is
+   not visible must not be given a shape. */

@@ -45,7 +45,7 @@ export interface PhotoProps {
    * thing the reference does that this app was missing: it dissolves into the page, while
    * ours drew a hard horizontal rule across the screen at the point the eye arrives.
    */
-  dissolve?: boolean
+  dissolve?: boolean | 'deep'
   /** The first image on a screen is worth fetching eagerly; anything below the fold is not. */
   priority?: boolean
   className?: string
@@ -63,7 +63,7 @@ export function Photo({ name, sizes = '100vw', scrim = 'none', dissolve = false,
 
   return (
     <div
-      className={cn(styles.frame, scrim !== 'none' && styles[scrim], dissolve && styles.dissolve, className)}
+      className={cn(styles.frame, scrim !== 'none' && styles[scrim], dissolve && styles.dissolve, dissolve === 'deep' && styles.deep, className)}
       data-photo={slot.name}
       /* Through a custom property rather than an inline `object-position`, so the crop stays
          a value the stylesheet owns and a screen can still override it for its own box. */

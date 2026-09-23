@@ -62,7 +62,9 @@ export const PHOTOS = {
       'The front door. One carved mask lit warm out of near-black, room around it — the app’s type sits above the frame, so what this needs is depth rather than a gap.',
     present: true,
     alt: 'Un masque dan bordé de cauris, porté par une personne qui joue d’une kora dans un couloir sombre',
-    credit: 'Fournie par le propriétaire — photographe et licence à confirmer avant la mise en ligne',
+    /* The owner's word: the image is free for anyone to use. The photographer is still
+       unnamed, and a name is worth printing the day one is known. */
+    credit: 'Image libre d’utilisation, fournie par le propriétaire',
     widths: [800, 1000],
     /* The mask sits high in the frame and the sheet covers the lower third, so the crop is
        weighted up — the hands on the kora are lost to the sheet either way. */
