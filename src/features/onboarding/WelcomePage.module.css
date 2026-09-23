@@ -7,7 +7,7 @@
   padding: calc(var(--safe-top) + var(--sp-4)) var(--gutter) calc(var(--sp-6) + var(--safe-bottom));
   display: flex;
   flex-direction: column;
-  gap: var(--sp-5);
+  gap: var(--sp-4);
 }
 
 /* The spaced micro-label row. Three items, and the middle one is centred on the *page*
@@ -32,8 +32,21 @@
   justify-self: center;
   white-space: nowrap;
 }
+/* The reference's top-right control is a filled disc. Ink on the page's own ground, not the
+   gold: it is a preference, not the thing the screen is for, and a gold disc in the corner
+   would compete with the one button below that is. Overrides the ghost variant's accent
+   ink and hover wash, which are for a text button. */
 .toggle {
   justify-self: end;
+  background: var(--ink-900);
+  color: var(--surface);
+  box-shadow: var(--elev-1);
+}
+.toggle:hover:not(:disabled) {
+  background: var(--ink-900);
+  color: var(--surface);
+  transform: var(--lift);
+  box-shadow: var(--elev-2);
 }
 
 .intro {
@@ -47,21 +60,23 @@
 .glyph {
   margin-bottom: var(--sp-2);
 }
+/* The one heading in the app at the body weight — argued in the component. The tracking
+   opens back up with it: negative tracking is what keeps a 600 heading from spreading, and
+   a 400 sentence at the same setting reads pinched. */
 .title {
   text-wrap: balance;
   margin: 0;
-}
-.lede {
-  max-width: 34ch;
-  margin: 0;
+  max-width: 24ch;
+  font-weight: var(--fw-body);
+  letter-spacing: var(--ls-body);
 }
 
 /* The hero. `flex: 1` so it takes whatever the type and the sheet leave, with a floor that
    keeps it a photograph rather than a letterbox, and a ceiling so a tall desktop window does
    not turn the front door into a poster with the actions below the fold. */
 .hero {
-  flex: 1;
-  min-height: 220px;
+  flex: 1 1 0;
+  min-height: 180px;
   max-height: 46vh;
   /* **Full-bleed, and unrounded.** It was inset in the gutter with `--r-panel` corners, and
      the 24px of the frame sat directly under the sheet's 32px doing the same job a different
@@ -71,6 +86,17 @@
      seam reads as one move rather than two. */
   margin-inline: calc(-1 * var(--gutter));
   margin-bottom: calc(-1 * var(--sp-6));
+}
+/* **The picture must not decide the frame's height.** The welcome file is a portrait, and a
+   block image at 100% width is as tall as its own ratio makes it — 575px on a 390px screen —
+   so the frame's content height was the picture's, `flex: 1` had nothing to shrink, and the
+   sign-in sat below the fold on every phone. Measured: the form began at 647px on an 844px
+   viewport. Absolutely filling the frame takes the picture out of the layout's arithmetic,
+   so the frame's height is whatever the type above and the sheet below leave it, and the
+   sheet is on screen when the screen opens — which is the one thing a login must be. */
+.hero img {
+  position: absolute;
+  inset: 0;
 }
 
 /* The sheet rides up over the frame, which is the whole move: the actions are on a surface,
@@ -88,7 +114,10 @@
   background: var(--sheet-ground);
   border-radius: var(--r-sheet) var(--r-sheet) 0 0;
   margin-inline: calc(-1 * var(--gutter));
-  padding: var(--sp-6) var(--gutter) var(--sp-2);
+  padding: var(--sp-5) var(--gutter) var(--sp-2);
+  /* The sheet is not a card and takes no shadow: it rides over the frame, and what says so is
+     the picture disappearing under its radius, not a drop shadow on a surface the size of
+     the screen. */
 }
 /* With no photograph the type block takes the room the hero would have had, so the screen
    is composed rather than top-heavy with a hole under it. */
@@ -97,14 +126,81 @@
   justify-content: center;
 }
 
+/* The greeting is the one centred line on the sheet, because it is the sheet's title and
+   the fields under it are symmetrical pills — a left-set line over two centred capsules
+   reads as a label that slipped. It is also one line, which is the length centring holds. */
+.hello {
+  text-align: center;
+  margin: 0;
+}
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+/* The pill inside the field. Ink-filled, the reference's own colour for it: a secondary
+   action drawn in the primary's gold would leave two gold fills on one sheet and nothing
+   saying which to press. No shadow — a lifted object inside a field reads as sitting on the
+   field rather than in it — and `--fs-small`, since it is a word at the end of a line and
+   not a button on the page. It is 44px tall inside a 52px field, which is why the field is
+   52px. */
+.inField {
+  min-height: var(--tap);
+  padding-inline: var(--sp-4);
+  font-size: var(--fs-small);
+  background: var(--ink-900);
+  color: var(--surface);
+  border: 0;
+  box-shadow: none;
+}
+.inField:hover:not(:disabled) {
+  background: var(--ink-900);
+  color: var(--surface);
+  box-shadow: none;
+  transform: none;
+}
 .actions {
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
+  margin-top: var(--sp-1);
 }
+/* Two text actions at the micro-label size, with a middle dot between them. The demo is a
+   button because it does something; the company page is a link because it is somewhere.
+   They share one class so they cannot be set two ways on the same line. */
 .footer {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
   margin: 0;
+}
+.footerLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding-inline: var(--sp-1);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  cursor: pointer;
+}
+.footerLink:hover {
+  text-decoration: underline;
+}
+.footerLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.footerLink:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* The toast viewport offsets itself by the desktop icon rail, which does not
@@ -119,5 +215,16 @@
 @media (min-width: 768px) {
   .toasts {
     right: var(--rail-width);
+  }
+}
+
+/* From 768px the column floats in the window and the sheet no longer reaches the foot of
+   the screen, so its bottom corners are on show: two square corners under two rounded ones
+   read as a card cut off, not as a sheet. Rounded all round there, with its own padding
+   below, since there is no screen edge to hand the last pixels to. */
+@media (min-width: 768px) {
+  .illustrated .sheet {
+    border-radius: var(--r-sheet);
+    padding-bottom: var(--sp-5);
   }
 }

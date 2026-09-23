@@ -82,3 +82,16 @@
   background: var(--fill-subtle);
   color: var(--ink-600);
 }
+
+/* The pill field: the reference's shape, and the one a control can live inside. The field
+   grows to `--control-lg` so a 44px pill sits in it with four pixels of air top and bottom
+   rather than touching both edges, and the input keeps the same radius so its own focus
+   and autofill paint do not square off the corners the wrapper rounded. */
+.pill .control,
+.pill .input {
+  border-radius: var(--r-pill);
+  min-height: var(--control-lg);
+}
+.pill .trailing {
+  padding-right: var(--sp-1);
+}

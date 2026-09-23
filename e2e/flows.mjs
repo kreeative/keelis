@@ -885,6 +885,55 @@ async function signUp(browser) {
 }
 
 /**
+ * Signing in on the front door.
+ *
+ * /bienvenue carries the sign-in itself now — address, a pill inside the code field that
+ * sends the code, the code, one button — and a screenshot of it proves exactly nothing
+ * about whether it works: a pill that never enables, a code field that refuses what was
+ * sent to it, or a button that stays grey with both fields filled all photograph perfectly.
+ * This types the demo account in the way a person would and expects to land on Accueil.
+ */
+async function signIn(browser) {
+  const flow = 'Connexion'
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+  await page.addInitScript(() => {
+    localStorage.clear()
+    localStorage.setItem('keewal.theme', 'light')
+  })
+  watchConsole(page, flow)
+  try {
+    await page.goto(`${BASE}/bienvenue`, { waitUntil: 'domcontentloaded' })
+    const email = page.getByLabel('Adresse courriel')
+    const code = page.getByLabel('Code à six chiffres')
+    const request = page.getByRole('button', { name: /Recevoir|Renvoyer/ })
+    const submit = page.getByRole('button', { name: 'Se connecter' })
+    await present(page, email, 'the sign-in form on the front door')
+
+    /* The whole form must be on the first screen of a phone. It was not: the portrait
+       photograph set its own height and the fields began 647px down an 844px viewport. */
+    const box = await submit.boundingBox()
+    if (!box || box.y + box.height > 844) fail(flow, `« Se connecter » sits at ${Math.round(box?.y ?? -1)}px on an 844px screen — the sign-in is below the fold`)
+
+    if (await request.isEnabled()) fail(flow, 'the code can be requested before any address is typed')
+    await email.fill('aissatou.ndiaye@exemple.sn')
+    await clickWhenEnabled(page, request, 'the « Recevoir » pill')
+    await waitForText(page, /Code de démonstration/, 'the code hint after sending')
+    if (!/Renvoyer/.test(await request.innerText())) fail(flow, 'the pill still reads « Recevoir » after the code was sent')
+
+    if (await submit.isEnabled()) fail(flow, '« Se connecter » is enabled with no code typed')
+    await code.fill('246810')
+    await clickWhenEnabled(page, submit, '« Se connecter »')
+    await present(page, page.getByText(/Valeur du portefeuille|Solde total/i), 'Accueil after signing in', 12_000)
+    if (!/\/$/.test(new URL(page.url()).pathname)) fail(flow, `signed in and landed on ${page.url()} rather than Accueil`)
+    await shot(page, 'signin-done')
+  } catch (e) {
+    fail(flow, e.message)
+  } finally {
+    await page.close()
+  }
+}
+
+/**
  * What happens when the network goes away mid-use.
  *
  * The rule this app sets itself is that cached figures stay on screen and the interface
@@ -1068,6 +1117,7 @@ const run = (name, fn) => {
   return fn(browser)
 }
 await run('signUp', signUp)
+await run('signIn', signIn)
 await run('buyAShare', buyAShare)
 await run('sellAShare', sellAShare)
 await run('sendThroughAnOperator', sendThroughAnOperator)

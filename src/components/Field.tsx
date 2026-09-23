@@ -29,6 +29,14 @@ interface BaseProps {
   leading?: ReactNode
   /** Draw the leading mark on a disc, the way the reference's fields do. */
   chip?: boolean
+  /**
+   * A pill rather than a rounded box, and a little taller. The reference's fields are pills
+   * because they hold a pill *inside* them — the secondary action sits in the field, at the
+   * end of the line it acts on, and a 44px pill needs a 52px field to sit in with air on
+   * both sides. A box at `--r-field` would draw a capsule inside a rounded rectangle, two
+   * radii arguing over eight pixels.
+   */
+  pill?: boolean
   /** Trailing adornment (button, text) */
   trailing?: ReactNode
   className?: string
@@ -62,12 +70,12 @@ function Message({ id, kind, children }: { id?: string; kind: MessageKind; child
 
 export interface FieldProps extends BaseProps, Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {}
 
-export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ label, hint, error, success, warning, hideLabel, leading, chip = false, trailing, className, id, ...rest }, ref) {
+export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field({ label, hint, error, success, warning, hideLabel, leading, chip = false, pill = false, trailing, className, id, ...rest }, ref) {
   const auto = useId()
   const inputId = id ?? auto
   const describedBy = [hint ? `${inputId}-hint` : null, success ? `${inputId}-success` : null, warning ? `${inputId}-warning` : null, error ? `${inputId}-error` : null].filter(Boolean).join(' ') || undefined
   return (
-    <div className={cn(styles.field, error && styles.hasError, className)}>
+    <div className={cn(styles.field, error && styles.hasError, pill && styles.pill, className)}>
       <label htmlFor={inputId} className={cn(styles.label, hideLabel && 'sr-only')}>
         {label}
       </label>
