@@ -118,7 +118,6 @@
   line-height: var(--lh-label);
   letter-spacing: var(--ls-label);
   font-weight: var(--fw-label);
-  text-transform: uppercase;
   color: var(--ink-400);
 }
 .wireValue {

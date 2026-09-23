@@ -269,7 +269,12 @@
   --fs-h2: 20px;       --lh-h2: 1.35;      --ls-h2: -0.015em;      --fw-h2: 600;
   --fs-body: 16px;     --lh-body: 1.625;   --ls-body: -0.016em;    --fw-body: 400;
   --fs-small: 14px;    --lh-small: 1.43;   --ls-small: 0;          --fw-small: 400;
-  --fs-label: 12px;    --lh-label: 1.33;   --ls-label: 0.135em;    --fw-label: 700;
+  /* The micro-label was 700, uppercase and tracked +0.135em — the kit's H6 — and the owner
+     pointed at it on the welcome screen's footer and asked never to see that font again,
+     anywhere. It is 500, sentence case and untracked now: still 12px, still the annotation
+     role, no longer shouting. `text-transform` went from every rule that copied these
+     tokens; a label style that survived in one file would be the same font coming back. */
+  --fs-label: 12px;    --lh-label: 1.33;   --ls-label: 0;          --fw-label: 500;
   /* The kit's title component: uppercase at 14px tracks essentially not at all. */
   --ls-section: -0.002em;
   --fs-nav: 12px;      /* bottom nav labels (spec said 11px; acceptance criteria forbid text < 12px, so 12px wins) */

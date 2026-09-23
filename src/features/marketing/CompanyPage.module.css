@@ -65,7 +65,6 @@
   line-height: var(--lh-label);
   letter-spacing: var(--ls-label);
   font-weight: var(--fw-label);
-  text-transform: uppercase;
   color: var(--ink-600);
 }
 /* Bounded by the scale at both ends: never smaller than an H1, never larger than the

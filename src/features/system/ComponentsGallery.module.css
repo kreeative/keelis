@@ -230,7 +230,6 @@
   font-size: var(--fs-label);
   font-weight: var(--fw-label);
   letter-spacing: var(--ls-label);
-  text-transform: uppercase;
   color: var(--ink-400);
 }
 .useRow + .useRow,

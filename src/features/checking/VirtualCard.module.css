@@ -47,7 +47,6 @@
   line-height: var(--lh-label);
   letter-spacing: var(--ls-label);
   font-weight: var(--fw-label);
-  text-transform: uppercase;
   color: var(--card-ink-muted);
 }
 .bottom {

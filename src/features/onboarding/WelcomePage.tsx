@@ -5,7 +5,7 @@
  * top, the mark and a light sentence, a photograph dissolving out of the page, and a rounded
  * sheet riding up over the frame. What the second look added is what the sheet *carries*.
  * It held three buttons — create, sign in, demo — and the reference holds the sign-in
- * itself: two pill fields with a disc for their icon, the secondary action as a small pill
+ * itself: two pill fields with a bare icon at their head — the disc the reference draws under it was tried and the owner read it as a shadow — the secondary action as a small pill
  * *inside* the field it acts on, one call to action, and « create an account » as a line of
  * text under it. Ours sent somebody to a separate screen to type their address, then to a
  * third to type the code. For the person the app is for, signing in is the front door; a
@@ -147,15 +147,12 @@ export default function WelcomePage() {
 
   return (
     <div className={`${styles.root} ${illustrated ? styles.illustrated : ''}`}>
-      {/* The spaced micro-label row. `.t-label` is already 12px uppercase tracked +0.135em —
-          the app's true micro-annotation role — so this is the existing type scale used for
-          the job it was defined for, not a new one. The name is a label rather than the
-          wordmark because the mark itself is directly below it, and a brand said twice in
-          forty pixels is a brand said once too often. The theme toggle is a filled disc, the
-          reference's own top-right control: an outline button in a row of labels reads as a
-          fourth label. */}
+      {/* One word and the theme control. The row used to open with « Keewal Meere » set as a
+          label, and the owner asked for it to go: the brand on this screen is the K, and a
+          name typed beside the mark was a second wordmark nobody drew. The toggle keeps its
+          44px hit area and draws a smaller disc inside it — the owner found the full-size
+          disc too big for a preference sitting in a corner. */}
       <header className={styles.top}>
-        <span className={`t-label ${styles.topName}`}>Keewal Meere</span>
         <span className={`t-label ${styles.topHere}`}>Bienvenue</span>
         <Button
           variant="ghost"
@@ -164,7 +161,7 @@ export default function WelcomePage() {
           aria-label="Basculer le thème"
           onClick={() => setTheme(resolved === 'dark' ? 'light' : 'dark')}
         >
-          <Icon name={resolved === 'dark' ? 'sun' : 'moon'} />
+          <Icon name={resolved === 'dark' ? 'sun' : 'moon'} size={16} />
         </Button>
       </header>
 
@@ -195,7 +192,6 @@ export default function WelcomePage() {
         <div className={styles.fields}>
           <Field
             pill
-            chip
             label="Adresse courriel"
             hideLabel
             leading={<Icon name="mail" size={18} />}
@@ -218,7 +214,6 @@ export default function WelcomePage() {
               arrived by another route (an SMS, a second device) should still be typeable. */}
           <Field
             pill
-            chip
             ref={codeRef}
             label="Code à six chiffres"
             hideLabel
@@ -252,7 +247,7 @@ export default function WelcomePage() {
           </Button>
         </div>
 
-        <p className={`t-label ${styles.footer}`}>
+        <p className={`t-small ${styles.footer}`}>
           {/* Only while the app *is* a demo. Connected to a back-end there is no such
               account, and a button that signs nobody in is worse than no button. */}
           {isLive ? null : (

@@ -135,7 +135,6 @@ img, svg {
   line-height: var(--lh-label);
   letter-spacing: var(--ls-label);
   font-weight: var(--fw-label);
-  text-transform: uppercase;
   color: var(--ink-400);
 }
 .t-medium { font-weight: var(--fw-medium); }
@@ -161,7 +160,6 @@ img, svg {
   line-height: 18px;
   font-weight: var(--fw-bold);
   letter-spacing: var(--ls-section);
-  text-transform: uppercase;
   color: var(--ink-900);
 }
 

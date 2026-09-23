@@ -8,7 +8,6 @@
   font-size: var(--fs-label);
   font-weight: var(--fw-label);
   letter-spacing: var(--ls-label);
-  text-transform: uppercase;
   line-height: var(--lh-label);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;

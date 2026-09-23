@@ -26,21 +26,14 @@
    the name beside it changes length is the thing that makes a row like this look assembled
    rather than set. A three-column grid with equal outer tracks does it without measuring. */
 .top {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: var(--sp-3);
   min-height: var(--tap);
 }
-.topName {
-  color: var(--ink-600);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .topHere {
-  color: var(--ink-400);
-  justify-self: center;
+  color: var(--ink-600);
   white-space: nowrap;
 }
 /* The reference's top-right control is a filled disc. Ink on the page's own ground, not the
@@ -48,16 +41,27 @@
    would compete with the one button below that is. Overrides the ghost variant's accent
    ink and hover wash, which are for a text button. */
 .toggle {
-  justify-self: end;
-  background: var(--ink-900);
+  background: transparent;
   color: var(--surface);
-  box-shadow: var(--elev-1);
+  box-shadow: none;
+}
+/* The disc is drawn inside the 44px control rather than being it: 32px is the size the
+   owner asked for, 44px is the size a finger needs, and a pseudo-element lets both be true. */
+.toggle::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: var(--r-pill);
+  background: var(--ink-900);
+}
+.toggle > * {
+  position: relative;
 }
 .toggle:hover:not(:disabled) {
-  background: var(--ink-900);
+  background: transparent;
   color: var(--surface);
   transform: var(--lift);
-  box-shadow: var(--elev-2);
+  box-shadow: none;
 }
 
 .intro {
