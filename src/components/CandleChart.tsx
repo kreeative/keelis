@@ -212,13 +212,13 @@ export function CandleChart({ points, buckets, height = 320, sma = 7, label, loa
           {label}. {candles.length} chandeliers, de {fv(candles[0]!.o)} à {fv(candles[candles.length - 1]!.c)}.
         </title>
 
+        {/* Labels at round levels, and no line at any of them: the same rule as the line
+            chart's scale, on the owner's instruction — a label at a height is a scale, a rule
+            through the candles at that height was decoration. */}
         {grid.map((v) => (
-          <g key={v}>
-            <line x1={0} x2={PLOT} y1={y(v)} y2={y(v)} className={styles.grid} />
-            <text x={PLOT + 6} y={y(v)} dy="0.32em" className={styles.scale}>
-              {fv(v)}
-            </text>
-          </g>
+          <text key={v} x={PLOT + 6} y={y(v)} dy="0.32em" className={styles.scale}>
+            {fv(v)}
+          </text>
         ))}
 
         {candles.map((c, i) => {

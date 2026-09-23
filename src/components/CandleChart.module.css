@@ -36,10 +36,6 @@
 .pos { color: var(--pos); }
 .neg { color: var(--neg); }
 
-.grid {
-  stroke: var(--line);
-  stroke-width: 1;
-}
 .scale {
   fill: var(--ink-400);
   font-size: var(--fs-label);
