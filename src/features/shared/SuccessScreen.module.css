@@ -1,3 +1,10 @@
+/* ---- The celebration ----
+   Everything below the mark follows in the cascade's own rhythm — same rise, same step,
+   because a screen that celebrates in a different metre from the app around it reads as an
+   interruption rather than a peak. The keyframes are redeclared here rather than reused
+   from base.css: a CSS module rewrites animation names against its own keyframes, so a
+   global name is only safe to reference with `:global`, and a copy that cannot be broken by
+   a bundler setting beats an alias that can. */
 .root {
   display: flex;
   flex-direction: column;
@@ -8,6 +15,23 @@
   max-width: 420px;
   margin-inline: auto;
 }
+.root > * {
+  animation: rise var(--dur-bouncy) var(--ease-bouncy) both;
+  /* **The whole choreography waits out the confirmation sheet's exit.** The success screen
+     mounts the moment the API resolves — while the sheet that asked « Confirmer » is still
+     leaving — and the frames proved the pop was spending its best moment behind a closing
+     veil. Every money flow's success follows a ConfirmSheet by doctrine, and the sheet's
+     exit is already a token, so the celebration begins exactly as the veil clears rather
+     than guessing with a magic number. Under reduced motion `--dur-exit` is 0ms and the
+     global rule zeroes the rest, so everything is simply there. */
+  animation-delay: var(--dur-exit);
+}
+.root > :nth-child(2) { animation-delay: calc(var(--dur-exit) + 1 * var(--stagger-step)); }
+.root > :nth-child(3) { animation-delay: calc(var(--dur-exit) + 2 * var(--stagger-step)); }
+.root > :nth-child(4) { animation-delay: calc(var(--dur-exit) + 3 * var(--stagger-step)); }
+.root > :nth-child(5) { animation-delay: calc(var(--dur-exit) + 4 * var(--stagger-step)); }
+.root > :nth-child(n + 6) { animation-delay: calc(var(--dur-exit) + 5 * var(--stagger-step)); }
+
 .mark {
   display: inline-flex;
   align-items: center;
@@ -18,6 +42,20 @@
   background: var(--accent-soft);
   color: var(--accent-text);
   margin-bottom: var(--sp-2);
+  /* The disc pops rather than rises — scale from half size on the arrival spring, whose
+     overshoot is a share of the travel: on 28px of growth that is a couple of pixels of
+     bounce, the one place in the app that much spring is the point. Declared after the
+     generic child rule so it wins the tie. */
+  animation: pop var(--dur-bouncy) var(--ease-bouncy) both;
+  animation-delay: var(--dur-exit);
+}
+
+/* The check draws through the disc once the pop is underway. `--ease-smooth` on purpose: a
+   stroke that wobbles while drawing reads as a hand shaking. */
+.check polyline {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-check 450ms var(--ease-smooth) calc(var(--dur-exit) + 220ms) both;
 }
 .hero {
   font-size: var(--fs-display);
@@ -41,3 +79,32 @@
 .detail dt { color: var(--ink-600); }
 .detail dd { font-variant-numeric: tabular-nums; text-align: right; }
 .actions { width: 100%; display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-5); }
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--arrive-rise));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes draw-check {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
