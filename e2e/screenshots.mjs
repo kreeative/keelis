@@ -202,10 +202,81 @@ function auditScript() {
    * that clears any photograph; text sitting where the dissolve has let go gets a number
    * against a picture nobody has chosen, which is the audit refusing to guess.
    */
+  /**
+   * The photograph itself, under the text, pixel by pixel.
+   *
+   * A frame with no scrim and no dissolve used to be « unmeasurable », which was the honest
+   * answer while the picture could be anything: the floor was computed against the brightest
+   * picture that could ever land in the slot. The welcome frame carries nothing over it now —
+   * the owner asked for the shadow on top of the picture to go — so the only thing under the
+   * type is the picture, and the picture is **committed**: it is in the repository, a test
+   * refuses a placeholder, and the audit runs on the very bytes that ship. Measuring those
+   * bytes is a guarantee about what ships; a different photograph re-runs the audit.
+   *
+   * The text's **line boxes** — not its element box — are mapped into the image through
+   * `object-fit: cover` and the slot's own `object-position`, each region is read off a
+   * canvas at natural size, and the pixel the ink loses against hardest is the floor: an
+   * audit reports the floor. Line boxes, because ink is only where the lines are: the welcome
+   * title's element box is 24ch wide and reaches the warm lamp at the end of the corridor,
+   * which the first version reported as 1.01:1 for a sentence whose two lines both end
+   * before it. Measured, not assumed — the lamp sits nine pixels past the longer line.
+   */
+  const PHOTO_CANVAS = new WeakMap()
+  function photoFloor(el, frame, fg) {
+    const img = frame.querySelector('img')
+    if (!img || !img.complete || !img.naturalWidth || !fg) return null
+    let cx = PHOTO_CANVAS.get(img)
+    if (!cx) {
+      const c = document.createElement('canvas')
+      c.width = img.naturalWidth
+      c.height = img.naturalHeight
+      cx = c.getContext('2d', { willReadFrequently: true })
+      try { cx.drawImage(img, 0, 0) } catch { return null }
+      PHOTO_CANVAS.set(img, cx)
+    }
+    const ir = img.getBoundingClientRect()
+    const er = el.getBoundingClientRect()
+    if (ir.width <= 0 || ir.height <= 0) return null
+    const scale = Math.max(ir.width / img.naturalWidth, ir.height / img.naturalHeight)
+    const pos = getComputedStyle(img).objectPosition.split(/\s+/).map((p) => (p.endsWith('%') ? parseFloat(p) / 100 : p === 'left' || p === 'top' ? 0 : p === 'right' || p === 'bottom' ? 1 : 0.5))
+    const ox = (ir.width - img.naturalWidth * scale) * (pos[0] ?? 0.5)
+    const oy = (ir.height - img.naturalHeight * scale) * (pos[1] ?? 0.5)
+    const toImg = (x, y) => [(x - ir.left - ox) / scale, (y - ir.top - oy) / scale]
+    const lines = (() => {
+      try {
+        const range = document.createRange()
+        range.selectNodeContents(el)
+        return [...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0)
+      } catch { return [] }
+    })()
+    const lf = lum(fg)
+    const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }
+    let worst = null
+    let worstRatio = Infinity
+    for (const box of lines.length ? lines : [er]) {
+      const [x0, y0] = toImg(box.left, box.top)
+      const [x1, y1] = toImg(box.right, box.bottom)
+      const sx = Math.max(0, Math.floor(Math.min(x0, x1)))
+      const sy = Math.max(0, Math.floor(Math.min(y0, y1)))
+      const sw = Math.min(img.naturalWidth, Math.ceil(Math.max(x0, x1))) - sx
+      const sh = Math.min(img.naturalHeight, Math.ceil(Math.max(y0, y1))) - sy
+      if (sw <= 0 || sh <= 0) continue
+      let data
+      try { data = cx.getImageData(sx, sy, sw, sh).data } catch { return null }
+      for (let i = 0; i < data.length; i += 4) {
+        const c = { r: lin(data[i]), g: lin(data[i + 1]), b: lin(data[i + 2]), a: 1 }
+        const l = lum(c)
+        const ratio = (Math.max(lf, l) + 0.05) / (Math.min(lf, l) + 0.05)
+        if (ratio < worstRatio) { worstRatio = ratio; worst = c }
+      }
+    }
+    return worst
+  }
+
   function scrimFloor(el, frame, fg) {
     const scrim = gradientRamp(getComputedStyle(frame, '::after').backgroundImage)
     const dissolve = gradientRamp(getComputedStyle(frame, '::before').backgroundImage)
-    if (!scrim && !dissolve) return null
+    if (!scrim && !dissolve) return photoFloor(el, frame, fg)
     const fr = frame.getBoundingClientRect()
     const er = el.getBoundingClientRect()
     if (fr.height <= 0) return null

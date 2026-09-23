@@ -166,25 +166,30 @@ export default function WelcomePage() {
       </header>
 
       <div className={styles.intro}>
-        <Wordmark glyphOnly size="md" className={styles.glyph} />
+        <Wordmark glyphOnly size="md" tone="paper" className={styles.glyph} />
         {/* Light, not demi: the reference sets its welcome line thin, and at this size a
             600 sentence over a photograph is a headline where a greeting is wanted. The one
             heading in the app that takes the body weight, and it is the one that is not a
             heading about anything — it is hello. */}
-        <h1 className={`t-h1 ${styles.title}`}>Votre argent, au même endroit.</h1>
+        <h1 className={`t-h1 ${styles.title}`}>Votre argent, réuni.</h1>
       </div>
 
       {/* **The photograph is the screen's underlay, and the sheet sits on it.** The owner asked
           for the image expanded under the sign-in rather than banded between the title and
-          the sheet: it fills the frame from the top edge, the type sits on its dissolved top
-          third, the mask emerges under the sentence, and the sheet rides over its foot. The
-          frame stops at 80% of the screen — the sheet covers everything below that anyway,
-          and a shorter frame is a smaller picture, which is what lifts the mask's face into
-          the band between the title and the sheet instead of leaving it under the fields.
+          the sheet: it fills the frame from the top edge with **nothing poured over it** — the
+          dissolve that carried the page colour down over the picture read as a shadow on top
+          of it, and the owner asked for that to go — the type sits on the picture itself, in
+          the card's pale ink whatever the theme, the mask emerges under the sentence, and the
+          sheet rides over its foot. The frame stops at 95% of the screen: `cover` scales the
+          picture to the frame, and the height is what places the mask's crown under the
+          sentence rather than behind it — at 80% the crown reached the title's second line
+          once a notch pushed the type down, and the audit read the pale ink against pale
+          cowries at 1.02:1. One line of title and 95% of frame put sixteen pixels between
+          the sentence and the crown under a notch, with the whole face still above the sheet.
 
           `sizes` is the screen's real measure, not `100vw`: the column caps at 520px, so a
           phone that fetched for the viewport would pull the wider file for nothing. */}
-      <Photo name="welcome" className={styles.hero} sizes="(min-width: 520px) 520px, 100vw" dissolve="deep" priority />
+      <Photo name="welcome" className={styles.hero} sizes="(min-width: 520px) 520px, 100vw" priority />
 
       <form className={styles.sheet} onSubmit={submit} noValidate aria-label="Connexion">
         <p className={`t-small t-muted ${styles.hello}`}>Bonjour. Connectez-vous à votre compte.</p>

@@ -36,6 +36,17 @@
   color: var(--ink-600);
   white-space: nowrap;
 }
+/* **The type over the photograph is the card's ink, in both themes.** There is no dissolve
+   under it any more — that was the shadow on top of the picture — so what the word, the mark
+   and the sentence sit on is the corridor itself, which the photo brief keeps dark. Dark ink
+   on it would vanish in the light theme, so the island borrows the virtual card's pair: a
+   surface that is always dark and ink that is always pale, whatever the page around it does.
+   The disc is pinned to the paper one for the same reason. */
+.illustrated .topHere { color: var(--card-ink-muted); }
+.illustrated .title { color: var(--card-ink); }
+.illustrated .toggle,
+.illustrated .toggle:hover:not(:disabled) { color: var(--card-surface); }
+.illustrated .toggle::before { background: var(--card-ink); }
 /* The reference's top-right control is a filled disc. Ink on the page's own ground, not the
    gold: it is a preference, not the thing the screen is for, and a gold disc in the corner
    would compete with the one button below that is. Overrides the ghost variant's accent
@@ -88,14 +99,15 @@
 
 /* The underlay. The frame is taken out of the flow entirely and pinned to the root's own box
    — under the label row, the mark and the title, whose colour the deep dissolve carries —
-   and it stops at 80% of the height. The sheet covers everything below that, so the missing
-   fifth is never seen; what it buys is a smaller picture, because `cover` scales to the
-   frame, and a smaller picture lifts the mask's face into the band between the sentence and
-   the fields. Measured at 390×844: the face runs from 209 to 344px, the sentence ends at
-   216 and the sheet begins at 417. Full height, it sat under the fields. */
+   and it stops at 95% of the height. `cover` scales the picture to the frame, so the frame's
+   height is the one dial that places the crown of the mask: at 80% the crown sat at 196px
+   and reached the sentence's second line under a notch; at 95% it sits at 232px, sixteen
+   pixels under a one-line sentence with the notch, and the face runs 249–409px, all of it
+   above the sheet at 421. Measured at 390×844, and the audit reads the ink against the
+   picture's own pixels line by line, so the number is checked rather than remembered. */
 .hero {
   position: absolute;
-  inset: 0 0 20%;
+  inset: 0 0 5%;
   z-index: 0;
   margin: 0;
   /* **Full-bleed, and unrounded.** It was inset in the gutter with `--r-panel` corners, and
@@ -246,6 +258,13 @@
 @media (min-width: 768px) {
   .illustrated {
     padding-bottom: var(--sp-6);
+  }
+  /* The column has a foot of its own here, and the sheet is rounded all round, so the frame
+     must end where the sheet's bottom corners begin to curve — a sliver of picture showed
+     under them at 1440px with the phone's 95%. The root's padding plus the sheet's radius
+     is exactly that line. */
+  .hero {
+    inset: 0 0 calc(var(--sp-6) + var(--r-sheet));
   }
   .illustrated .sheet {
     border-radius: var(--r-sheet);

@@ -44,8 +44,3 @@
   z-index: 1;
   background: var(--scrim-dissolve);
 }
-/* The deep dissolve, for a frame that is a screen's underlay with the type sitting on its
-   top third. The ramp is the token's; the reasoning is beside it in tokens.css. */
-.deep::before {
-  background: var(--scrim-underlay);
-}

@@ -231,16 +231,6 @@
      per theme for the same reason every other token here is. 22% is measured: shorter and the
      seam is still visible, longer and it eats the subject. */
   --scrim-dissolve: linear-gradient(180deg, oklch(0.985 0.008 90) 0%, oklch(0.985 0.008 90 / 0.86) 6%, oklch(0.985 0.008 90 / 0) 22%);
-  /* The deep dissolve, for a photograph that is the whole screen's underlay rather than a
-     band in it. The type sits *on* the frame there — the label row, the mark and the title
-     all inside its top third — so the page colour has to hold **opaque** through that band
-     and only then let go: the contrast audit composites the ramp over black *and* white at
-     the text's own height and takes the worse, so any alpha under the type is a ratio
-     against a picture nobody has chosen yet. Opaque to 31%, gone by 42%: measured on the
-     welcome frame at 390×844 with a notch, where the title's midline sits at 27% and the
-     mask's crown begins at 31% — the picture emerges under the sentence, which is what the
-     reference does. Same colour as --scrim-dissolve, for the same reason. */
-  --scrim-underlay: linear-gradient(180deg, oklch(0.985 0.008 90) 0%, oklch(0.985 0.008 90) 31%, oklch(0.985 0.008 90 / 0.7) 35%, oklch(0.985 0.008 90 / 0) 42%);
 
   /* ---- Typography ---- */
   /* Poppins, self-hosted (see fonts.css). No system fallback comes close to it, so the
@@ -485,7 +475,6 @@
   --grad-cta-hover: linear-gradient(180deg, oklch(0.868 0.090 95) 0%, oklch(0.812 0.104 91) 100%);
   --grad-canvas: linear-gradient(180deg, var(--canvas-bg) 0%, oklch(0.182 0.020 64) 100%);
   --scrim-dissolve: linear-gradient(180deg, oklch(0.215 0.022 68) 0%, oklch(0.215 0.022 68 / 0.86) 6%, oklch(0.215 0.022 68 / 0) 22%);
-  --scrim-underlay: linear-gradient(180deg, oklch(0.215 0.022 68) 0%, oklch(0.215 0.022 68) 31%, oklch(0.215 0.022 68 / 0.7) 35%, oklch(0.215 0.022 68 / 0) 42%);
   --grad-key: linear-gradient(180deg, oklch(0.365 0.031 68) 0%, oklch(0.335 0.029 68) 100%);
   --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
@@ -558,7 +547,6 @@
     --grad-cta-hover: linear-gradient(180deg, oklch(0.868 0.090 95) 0%, oklch(0.812 0.104 91) 100%);
     --grad-canvas: linear-gradient(180deg, var(--canvas-bg) 0%, oklch(0.182 0.020 64) 100%);
   --scrim-dissolve: linear-gradient(180deg, oklch(0.215 0.022 68) 0%, oklch(0.215 0.022 68 / 0.86) 6%, oklch(0.215 0.022 68 / 0) 22%);
-  --scrim-underlay: linear-gradient(180deg, oklch(0.215 0.022 68) 0%, oklch(0.215 0.022 68) 31%, oklch(0.215 0.022 68 / 0.7) 35%, oklch(0.215 0.022 68 / 0) 42%);
     --grad-key: linear-gradient(180deg, oklch(0.365 0.031 68) 0%, oklch(0.335 0.029 68) 100%);
     --key-press: oklch(0.25 0.024 67);
   --mark-disc: url('/brand/mark-paper.png');
