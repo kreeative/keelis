@@ -1,0 +1,52 @@
+/* Laptop only: below 1024px both doors keep the phone's composition, where the picture is the
+   welcome screen's underlay and the sign-up has no room for a second column. */
+.story {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .story {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    max-width: 520px;
+    width: 100%;
+    min-width: 0;
+  }
+  .eyebrow {
+    color: var(--ink-600);
+    margin: 0;
+  }
+  /* A headline, not a page title: the reference sets its story a size above everything else
+     on the screen, and the form's own heading stays the smaller of the two. */
+  .headline {
+    margin: 0;
+    font-size: var(--fs-hero);
+    line-height: var(--lh-hero);
+    letter-spacing: var(--ls-h1);
+    font-weight: var(--fw-h1);
+    text-wrap: balance;
+    max-width: 20ch;
+  }
+  .lede {
+    margin: 0;
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    letter-spacing: var(--ls-body);
+    color: var(--ink-600);
+    max-width: 44ch;
+  }
+  /* The reference's picture sits in a rounded frame under the paragraph, landscape, with
+     the page's own air around it. The welcome file is a portrait; `cover` with the slot's
+     focus keeps the face in the frame. */
+  .frame {
+    margin-top: var(--sp-4);
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--r-panel);
+    overflow: hidden;
+  }
+  .frame img {
+    position: absolute;
+    inset: 0;
+  }
+}

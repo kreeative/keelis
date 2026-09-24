@@ -275,6 +275,10 @@
   /* The sign-up question on a laptop: the reference sets « Create your account » a size above
      a page title, and 22px in a 440px column on a 1440px screen read as a caption. */
   --fs-h0: 32px;       --lh-h0: 1.2;       --ls-h0: -0.02em;       --fw-h0: 600;
+  /* The story headline beside a door on a laptop: a size above the sign-up question and a
+     size below the money display — at 48px it ran to six lines and pushed the picture off
+     the screen. */
+  --fs-hero: 40px;     --lh-hero: 1.12;
   --fs-h1: 22px;       --lh-h1: 1.32;      --ls-h1: -0.02em;       --fw-h1: 600;
   --fs-h2: 20px;       --lh-h2: 1.35;      --ls-h2: -0.015em;      --fw-h2: 600;
   --fs-body: 16px;     --lh-body: 1.625;   --ls-body: -0.016em;    --fw-body: 400;

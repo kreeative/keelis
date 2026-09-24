@@ -32,6 +32,7 @@ import { api, isLive } from '@/api'
 import { Button, Field, Icon, Photo, Wordmark, hasPhoto } from '@/components'
 import { useSession, useSettings, useToast } from '@/store'
 import { DEMO_CODE, DEMO_EMAIL } from './demo'
+import { SideStory } from './SideStory'
 import { asApiError } from './wizard'
 import styles from './WelcomePage.module.css'
 
@@ -154,6 +155,10 @@ export default function WelcomePage() {
           disc too big for a preference sitting in a corner. */}
       <header className={styles.top}>
         <span className={`t-label ${styles.topHere}`}>Bienvenue</span>
+        {/* The reference's login carries its wordmark at the top left of the laptop page. On
+            a phone the brand on this screen is the K alone, on the owner's instruction; on a
+            laptop the K sits over the form and the name takes the corner, as on the sign-up. */}
+        <Wordmark size="md" className={styles.brandTop} />
         <Button
           variant="ghost"
           iconOnly
@@ -165,6 +170,12 @@ export default function WelcomePage() {
         </Button>
       </header>
 
+      {/* The laptop's left column — a story and a picture beside the form, the reference's
+          own split. Nothing on a phone, where the picture is the underlay below. */}
+      <SideStory className={styles.story} />
+      <Photo name="welcome" className={styles.hero} sizes="(min-width: 520px) 520px, 100vw" priority />
+
+      <div className={styles.formCol}>
       <div className={styles.intro}>
         <Wordmark glyphOnly size="md" tone="paper" className={styles.glyph} />
         {/* Light, not demi: the reference sets its welcome line thin, and at this size a
@@ -189,7 +200,6 @@ export default function WelcomePage() {
 
           `sizes` is the screen's real measure, not `100vw`: the column caps at 520px, so a
           phone that fetched for the viewport would pull the wider file for nothing. */}
-      <Photo name="welcome" className={styles.hero} sizes="(min-width: 520px) 520px, 100vw" priority />
 
       <form className={styles.sheet} onSubmit={submit} noValidate aria-label="Connexion">
         <p className={`t-small t-muted ${styles.hello}`}>Bonjour. Connectez-vous à votre compte.</p>
@@ -268,6 +278,7 @@ export default function WelcomePage() {
           </Link>
         </p>
       </form>
+      </div>
 
       <div className={styles.toasts} />
     </div>

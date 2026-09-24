@@ -120,6 +120,27 @@
     max-width: 56ch;
   }
 }
+/* From 1024px the sign-up takes the reference's split too: the story and its picture on the
+   left, the question and its field on the right, the footer under both. */
+.story { display: none; }
+@media (min-width: 1024px) {
+  .frame {
+    max-width: var(--content-max);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'story main'
+      'foot foot';
+    grid-template-rows: 1fr auto;
+    column-gap: var(--sp-9);
+    padding-inline: var(--sp-8);
+    padding-top: var(--sp-7);
+    align-items: center;
+  }
+  .story { display: flex; grid-area: story; justify-self: end; }
+  .main { grid-area: main; width: 100%; max-width: 480px; justify-self: center; }
+  .foot { grid-area: foot; }
+}
 .main {
   flex: 1;
   display: flex;

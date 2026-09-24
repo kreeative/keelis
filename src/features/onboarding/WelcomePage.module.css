@@ -271,6 +271,64 @@
     padding-bottom: var(--sp-5);
   }
 }
+/* **From 1024px the door is the reference's split.** The owner photographed their login on a
+   monitor: the left half is a story with a picture, the right half is the form as a card, and
+   the wordmark and the footer bracket the two. So the underlay goes — the picture moves into
+   the story's frame — the type goes back to the page's own ink, since it no longer sits on
+   the corridor, and the sheet becomes a card: surface, hairline, lifted, centred in its
+   column. Below 1024px nothing here applies and the phone's composition stands. */
+.story { display: none; }
+.brandTop { display: none; }
+.formCol { display: contents; }
+@media (min-width: 1024px) {
+  .root {
+    max-width: var(--content-max);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'top top'
+      'story form';
+    grid-template-rows: auto 1fr;
+    column-gap: var(--sp-9);
+    row-gap: var(--sp-6);
+    padding: var(--sp-6) var(--sp-8) var(--sp-8);
+    align-items: center;
+  }
+  .illustrated { padding-bottom: var(--sp-8); }
+  .top { grid-area: top; align-self: start; }
+  .topHere { display: none; }
+  .brandTop { display: inline-flex; }
+  .story { display: flex; grid-area: story; justify-self: end; }
+  .hero { display: none; }
+  .formCol {
+    display: flex;
+    grid-area: form;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-5);
+    width: 100%;
+    max-width: 440px;
+    justify-self: center;
+  }
+  .intro { align-items: center; text-align: center; }
+  .title { max-width: 18ch; }
+  .illustrated .topHere { color: var(--ink-600); }
+  .illustrated .title { color: var(--ink-900); }
+  .illustrated .toggle,
+  .illustrated .toggle:hover:not(:disabled) { color: var(--surface); }
+  .illustrated .toggle::before { background: var(--ink-900); }
+  .illustrated .sheet,
+  .sheet {
+    width: 100%;
+    margin: 0;
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-panel);
+    box-shadow: var(--elev-2);
+    padding: var(--sp-6);
+  }
+}
+
 /* The frame's top is not rounded on the desktop column, and it was tried: the dissolve makes
    the top edge page-coloured, so there is nothing to round, and the clip's anti-aliasing
    drew a hairline dark arc where the picture's own corner met the cream. An edge that is

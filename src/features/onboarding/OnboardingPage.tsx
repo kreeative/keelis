@@ -27,6 +27,7 @@ import { StepName } from './StepName'
 import { StepPin } from './StepPin'
 import { StepProduct } from './StepProduct'
 import { StepTwoFactor } from './StepTwoFactor'
+import { SideStory } from './SideStory'
 import { STEP_COUNT, isStepSlug, previousStep, resumeSlug, stepIndex, type StepSlug } from './steps'
 import { WizardProvider, useWizard } from './wizard'
 import styles from './OnboardingPage.module.css'
@@ -95,6 +96,8 @@ function Wizard() {
         </div>
       </header>
       <div className={styles.frame}>
+        {/* The same story and picture the sign-in shows beside its form, on a laptop. */}
+        <SideStory className={styles.story} />
         <main className={styles.main}>
           {previous ? (
             <Button variant="ghost" icon={<Icon name="arrow-left" size={18} />} onClick={() => navigate(back)} className={styles.backInline}>
