@@ -20,11 +20,6 @@
 
   --accent: oklch(0.45 0.085 72);          /* links, ghost buttons, focus rings */
   --accent-text: oklch(0.38 0.080 70);     /* accent used as text on --accent-soft */
-  /* The gold the virtual card is engraved in. Deeper than --cta so a stroke on brushed
-     brown reads as metal catching light rather than as a button's fill; the same in both
-     themes, because the card is. Named in the accent family since it is the one place
-     outside the accent ramp that is allowed the accent's chroma. */
-  --accent-etch: oklch(0.78 0.105 84);
   --accent-soft: oklch(0.93 0.048 90);     /* badge background / selected state */
   --on-accent: oklch(0.99 0.006 90);       /* text placed on --accent */
 
@@ -245,6 +240,15 @@
   /* Financial figures use the same family with tabular figures, so columns line up.
      Bold, not black: at display sizes the size already carries the hierarchy. */
   --font-numeric: var(--font-sans);
+  /* The brand face on the virtual card: Playfair Display at its black weight, the owner's
+     choice for the name written on the card. Tracked tight — the owner asked for the letters
+     to sit with « little to no space between them, but not on top of each other »; −0.07em
+     is where Playfair's serifs just stop touching at 24px, measured: at −0.08em the two
+     e's of « Keewal » meet. */
+  --font-brand: "Playfair Display", "Georgia", "Times New Roman", serif;
+  --fs-card-name: 24px;
+  --ls-card-name: -0.07em;
+  --fw-card-name: 900;
   --fw-numeric: 500;
   /* Big figures need optical compensation twice over: at 48px the counters carry
      themselves, so the weight can come down and the tracking can come in. */

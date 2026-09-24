@@ -34,13 +34,6 @@
   position: absolute;
   inset: 0;
 }
-/* The drawn marks, between the metal and the type; dimmed with both when frozen. */
-.etch {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  transition: opacity var(--dur-smooth) var(--ease-smooth);
-}
 .face {
   position: relative;
   z-index: 1;
@@ -57,11 +50,17 @@
   display: flex;
   align-items: center;
 }
-/* The disc manages its own two colours; overriding `color` here painted the K in the
-   same ink as the disc and made it vanish. */
-.mark {
-  width: 28px;
-  height: 28px;
+/* The name, in the brand face, where the K disc was. Black weight and tight tracking:
+   the letters nearly touch and never overlap, which is what the owner asked for. The
+   line-height is 1 so the word sits on the card's top padding, not a line box's. */
+.name {
+  font-family: var(--font-brand);
+  font-size: var(--fs-card-name);
+  font-weight: var(--fw-card-name);
+  letter-spacing: var(--ls-card-name);
+  line-height: 1;
+  color: var(--card-ink);
+  white-space: nowrap;
 }
 .bottom {
   display: flex;
