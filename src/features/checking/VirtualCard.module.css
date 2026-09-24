@@ -59,8 +59,17 @@
   font-weight: var(--fw-card-name);
   letter-spacing: var(--ls-card-name);
   line-height: 1;
-  color: var(--card-ink);
   white-space: nowrap;
+}
+/* Everything written on the card is engraved the way the symbols are — the same gold, the
+   same relief — so the number reads as cut into the metal beside the cowrie rather than
+   printed on a photograph of it. The owner asked for the type to carry the texture. */
+.name,
+.number,
+.holder,
+.expiry {
+  color: var(--accent-etch);
+  text-shadow: var(--text-etch);
 }
 .bottom {
   display: flex;
@@ -73,7 +82,6 @@
   letter-spacing: var(--ls-h2);
   font-weight: var(--fw-h2);
   font-variant-numeric: tabular-nums;
-  color: var(--card-ink);
 }
 .foot {
   display: flex;
@@ -87,7 +95,6 @@
   line-height: var(--lh-small);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--card-ink-muted);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
