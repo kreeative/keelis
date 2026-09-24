@@ -1,0 +1,44 @@
+# Fetch commissioned artwork into the repository.
+#
+# The sandbox the app is built in cannot reach an image host — every CDN answers 403 from
+# its proxy — while GitHub's runners can. So a render made elsewhere (the card face, from
+# the owner's Higgsfield account) comes in through here: dispatch it with the URLs, and
+# it lands under `brand-src/`, which is not served, for `scripts/photo-import.mjs` to
+# encode into `public/photos/` like any other picture. Nothing here runs on its own.
+name: fetch-artwork
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 'Comma-separated https URLs to download'
+        required: true
+      dest:
+        description: 'Folder under brand-src/ to put them in'
+        required: true
+        default: 'card'
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download
+        run: |
+          set -euo pipefail
+          mkdir -p "brand-src/${{ inputs.dest }}"
+          i=0
+          IFS=',' read -ra URLS <<< "${{ inputs.urls }}"
+          for u in "${URLS[@]}"; do
+            i=$((i+1))
+            name=$(basename "${u%%\?*}")
+            curl -fsSL --retry 3 -o "brand-src/${{ inputs.dest }}/$i-$name" "$u"
+          done
+          ls -la "brand-src/${{ inputs.dest }}"
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add brand-src
+          git commit -m "Artwork fetched into brand-src/${{ inputs.dest }}" || echo 'nothing to commit'
+          git push
