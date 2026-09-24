@@ -16,7 +16,11 @@
 .illustrated {
   padding-bottom: 0;
 }
-.illustrated > :not(.hero) {
+/* Named, not `> :not(.hero)`: the form column is a `display: contents` wrapper on a phone,
+   which generates no box, so a rule on the direct children left the intro under the picture —
+   the name and the greeting vanished for a whole commit, and the painted-over audit could not
+   see it because it read the <img>'s transparent background as see-through. */
+.illustrated :is(.top, .intro, .sheet) {
   position: relative;
   z-index: 1;
 }
@@ -43,7 +47,8 @@
    surface that is always dark and ink that is always pale, whatever the page around it does.
    The disc is pinned to the paper one for the same reason. */
 .illustrated .topHere { color: var(--card-ink-muted); }
-.illustrated .title { color: var(--card-ink); }
+.illustrated .title,
+.illustrated .glyph { color: var(--card-ink); }
 .illustrated .toggle,
 .illustrated .toggle:hover:not(:disabled) { color: var(--card-surface); }
 .illustrated .toggle::before { background: var(--card-ink); }
@@ -278,7 +283,6 @@
    the corridor, and the sheet becomes a card: surface, hairline, lifted, centred in its
    column. Below 1024px nothing here applies and the phone's composition stands. */
 .story { display: none; }
-.brandTop { display: none; }
 .formCol { display: contents; }
 @media (min-width: 1024px) {
   .root {
@@ -296,8 +300,6 @@
   }
   .illustrated { padding-bottom: var(--sp-8); }
   .top { grid-area: top; align-self: start; }
-  .topHere { display: none; }
-  .brandTop { display: inline-flex; }
   .story { display: flex; grid-area: story; justify-self: end; }
   .hero { display: none; }
   .formCol {
@@ -313,7 +315,8 @@
   .intro { align-items: center; text-align: center; }
   .title { max-width: 18ch; }
   .illustrated .topHere { color: var(--ink-600); }
-  .illustrated .title { color: var(--ink-900); }
+  .illustrated .title,
+  .illustrated .glyph { color: var(--ink-900); }
   .illustrated .toggle,
   .illustrated .toggle:hover:not(:disabled) { color: var(--surface); }
   .illustrated .toggle::before { background: var(--ink-900); }

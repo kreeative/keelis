@@ -155,10 +155,6 @@ export default function WelcomePage() {
           disc too big for a preference sitting in a corner. */}
       <header className={styles.top}>
         <span className={`t-label ${styles.topHere}`}>Bienvenue</span>
-        {/* The reference's login carries its wordmark at the top left of the laptop page. On
-            a phone the brand on this screen is the K alone, on the owner's instruction; on a
-            laptop the K sits over the form and the name takes the corner, as on the sign-up. */}
-        <Wordmark size="md" className={styles.brandTop} />
         <Button
           variant="ghost"
           iconOnly
@@ -177,7 +173,10 @@ export default function WelcomePage() {
 
       <div className={styles.formCol}>
       <div className={styles.intro}>
-        <Wordmark glyphOnly size="md" tone="paper" className={styles.glyph} />
+        {/* The name, where the K disc stood — « Keewal Meere should have the same position as
+            the K ». In the card's ink on the phone, since it sits on the corridor; the page's
+            own ink on the laptop, where it sits over the form. */}
+        <Wordmark size="lg" className={styles.glyph} />
         {/* Light, not demi: the reference sets its welcome line thin, and at this size a
             600 sentence over a photograph is a headline where a greeting is wanted. The one
             heading in the app that takes the body weight, and it is the one that is not a

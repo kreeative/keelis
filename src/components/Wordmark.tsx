@@ -3,11 +3,17 @@
  *
  * **The wordmark is set as live text, and that is a stopgap.** It used to be a single
  * bezier path traced from the brand sheet — but that path spelled *Keelis*, and artwork
- * cannot be re-traced for a name it was never drawn for. Rather than ship a logo reading
- * the old name, the name is typeset in Poppins, the app's own face, until new artwork
- * exists. It is deliberately *not* set in the brand face: EtherealDemo-ExtraBold is a demo
- * release with no commercial licence, and the old wordmark only escaped that by shipping
- * as outlines rather than as type.
+ * cannot be re-traced for a name it was never drawn for. The name is typeset in
+ * `--font-brand` — Outfit at its black weight, tracked tight, the face the owner chose for
+ * the card once Playfair was rejected and the first logo's EtherealDemo-ExtraBold turned
+ * out never to have been in the repository. It stands in until the owner supplies or
+ * licenses the real one: Ethereal is a demo release with no commercial licence, and the old
+ * wordmark only escaped that by shipping as outlines rather than as type.
+ *
+ * **Where the name goes, it takes the K's place.** The owner: « Keewal Meere should have
+ * the same position as the K ». The welcome screen sets the name where the disc stood,
+ * above the greeting, on the phone and on the laptop alike; the disc keeps the rail, where
+ * a name does not fit in 56px.
  *
  * The monogram survives the rename intact, because the new name also starts with K. It is
  * *not* traced: the brand sheet draws it embossed, with a raised K and a lit rim, and a

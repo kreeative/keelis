@@ -573,7 +573,10 @@ async function paintedOverViolations(page) {
       const parts = inner.split(',')
       return parts.length > 3 ? parseFloat(parts[3]) || 0 : 1
     }
-    const opaque = (el) => [null, '::before', '::after'].some((pseudo) => {
+    /* A picture paints every pixel of its box whatever its background-color says — and the
+       welcome hero covered the wordmark and the greeting for a whole commit while this read
+       the <img>'s transparent background and called it see-through. */
+    const opaque = (el) => ['IMG', 'VIDEO', 'CANVAS'].includes(el.tagName) || [null, '::before', '::after'].some((pseudo) => {
       const s = getComputedStyle(el, pseudo)
       return alpha(s.backgroundColor) >= 0.9 || (s.backgroundImage && s.backgroundImage !== 'none')
     })
