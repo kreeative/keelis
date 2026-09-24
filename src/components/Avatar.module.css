@@ -11,9 +11,12 @@
 /* An asset with no bundled logo still has to read as a *mark*, not as a counterparty's
    initials: in a list where Bitcoin arrives in full colour, a grey ticker on a grey disc
    made the African equities — the ones this app is principally about — look like the
-   weakest rows on the screen. Full ink and the control weight, no invented hue: a brand
+   weakest rows on the screen. It is a **filled** disc now, ink with the ticker in paper —
+   zoomed in beside the coloured logos, the ink-on-wash version still read as the same
+   initials disc the activity list gives a merchant, and an asset is not a counterparty.
+   The fill carries the weight a logo has; there is still no invented hue, because a brand
    colour we made up would be a fabricated logo. */
-.mark { background: var(--fill-subtle); color: var(--ink-900); font-weight: var(--fw-bold); }
+.mark { background: var(--ink-900); color: var(--surface); font-weight: var(--fw-bold); letter-spacing: 0.02em; }
 .accent { background: var(--accent-soft); color: var(--accent-text); }
 .ink { background: var(--ink-900); color: var(--surface); }
 .text { line-height: 1; }
