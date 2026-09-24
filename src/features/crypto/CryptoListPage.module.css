@@ -87,3 +87,41 @@
   gap: var(--sp-2);
   margin-top: var(--space-block);
 }
+.bookChart > .periods { max-width: 480px; }
+
+/* The IPO card and the recurring row are not the market; on a phone they follow the book,
+   and `display: contents` keeps them direct children of the page for the cascade. From
+   1024px they stand in a column beside it, so the list — the thing the tab is for — starts
+   where the book ends instead of two cards further down. */
+.aside { display: contents; }
+
+@media (min-width: 1024px) {
+  .page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-areas:
+      'bar bar'
+      'search search'
+      'hero aside'
+      'controls aside'
+      'list aside';
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: var(--sp-8);
+    align-items: start;
+  }
+  .page > :first-child { grid-area: bar; }
+  .search { grid-area: search; }
+  .heroCard { grid-area: hero; }
+  .aside {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    grid-area: aside;
+    /* The hero card sits at the page's top edge; the aside's first card lines up with it. */
+    margin-top: 0;
+    min-width: 0;
+  }
+  .aside > .ipoCard, .aside > .recurringCard { margin-top: 0; }
+  .controls { grid-area: controls; }
+  .listCard { grid-area: list; }
+}

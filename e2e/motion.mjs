@@ -255,6 +255,62 @@ async function run() {
     await page.close()
   }
 
+  // ---- 2b. The bottom sheet follows the finger ----
+  //
+  // A sheet that can only be dismissed by a button is a modal in a sheet's shape. On a
+  // phone width the panel is held: pulled a little and let go it springs back; pulled past
+  // a third of its height it leaves — and it leaves from where the finger let go, not from
+  // the top. Driven with the mouse, since pointer events are what the gesture listens to.
+  {
+    const page = await newPage(context)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await ready(page, '/carte')
+    const opener = await openASheet(page)
+    if (!opener) fail('pull', 'could not open a sheet on /carte to pull')
+    else {
+      await page.waitForTimeout(800)
+      const box = await page.locator('[role="dialog"]').boundingBox()
+      const x = box.x + box.width / 2
+      const y = box.y + 12
+      const pull = async (dy, steps = 12) => {
+        await page.mouse.move(x, y)
+        await page.mouse.down()
+        for (let i = 1; i <= steps; i += 1) {
+          await page.mouse.move(x, y + (dy * i) / steps)
+          await page.waitForTimeout(16)
+        }
+        await page.mouse.up()
+      }
+      const topOf = () => page.evaluate(() => { const p = document.querySelector('[role="dialog"]'); return p ? Math.round(p.getBoundingClientRect().top) : null })
+      const rest = await topOf()
+      /* Held: the panel is where the finger is, not where the stylesheet put it. */
+      await page.mouse.move(x, y)
+      await page.mouse.down()
+      for (let i = 1; i <= 8; i += 1) { await page.mouse.move(x, y + (box.height * 0.15 * i) / 8); await page.waitForTimeout(16) }
+      const held = await topOf()
+      if (held === null || held < rest + box.height * 0.1) fail('pull', `the sheet did not follow the finger (rest ${rest}, held ${held})`)
+      await page.mouse.up()
+      await page.waitForTimeout(700)
+      const back = await topOf()
+      const stillOpen = await page.locator('[role="dialog"]').count()
+      if (!stillOpen) fail('pull', 'a short pull dismissed the sheet — it should spring back')
+      else if (back === null || Math.abs(back - rest) > 1) fail('pull', `the sheet did not spring back to rest (rest ${rest}, now ${back})`)
+      /* Let go past a third: it goes, and the exit starts where it was let go. */
+      await pull(box.height * 0.5)
+      await page.waitForTimeout(30)
+      const leaving = await page.evaluate(() => {
+        const p = document.querySelector('[role="dialog"]')
+        return { top: p ? Math.round(p.getBoundingClientRect().top) : null, attr: document.documentElement.dataset.sheet ?? null }
+      })
+      if (leaving.attr !== 'closing') fail('pull', `a long pull did not dismiss the sheet (data-sheet is ${leaving.attr})`)
+      else if (leaving.top !== null && leaving.top < rest + box.height * 0.3) fail('pull', `the exit restarted from the top (rest ${rest}, exit began at ${leaving.top}) instead of from where the finger let go`)
+      await page.waitForTimeout(600)
+      if (await page.locator('[role="dialog"]').count()) fail('pull', 'the sheet is still in the tree after being pulled away')
+      notes.push(`pull: the sheet followed the finger to ${held}, sprang back to ${rest}, and left from ${leaving.top} when let go`)
+    }
+    await page.close()
+  }
+
   // ---- 3. Reduced motion gets the end state, not a faster animation ----
   {
     const page = await newPage(context, { reducedMotion: 'reduce' })

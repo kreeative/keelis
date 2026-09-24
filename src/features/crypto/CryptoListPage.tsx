@@ -206,13 +206,14 @@ export default function CryptoListPage() {
               height={140}
               label={`Valeur du portefeuille crypto sur ${rangePeriod(bookRange)}`}
             />
-            <SegmentedControl segments={RANGES} value={bookRange} onChange={setBookRange} label="Période du portefeuille" size="sm" bare />
+            <SegmentedControl segments={RANGES} value={bookRange} onChange={setBookRange} label="Période du portefeuille" size="sm" bare className={styles.periods} />
           </div>
         </section>
       </Card>
 
       {/* A market nobody has explained is a market nobody buys into. The demo carries one
           real, dated event so the education has something concrete to hang on. */}
+      <div className={styles.aside} data-cascade>
       <Card padding="lg" elevation={1} className={styles.ipoCard}>
         <Badge tone="neutral" icon>
           Bientôt en bourse
@@ -245,6 +246,7 @@ export default function CryptoListPage() {
           />
         </List>
       </Card>
+      </div>
 
         </>
       )}

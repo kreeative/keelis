@@ -133,7 +133,7 @@ export default function CheckingPage() {
         <Card padding="lg" className={styles.balanceCard}>
           <section className={styles.hero} aria-label="Solde du compte Chèque" aria-busy={account.loading || undefined}>
             <div className={styles.heroTop}>
-              <p className="t-name">Disponible</p>
+              <p className="t-name">Solde</p>
               <Button variant="ghost" iconOnly aria-label={hidden ? 'Afficher les soldes' : 'Masquer les soldes'} aria-pressed={hidden} onClick={toggleHidden} className={styles.eye}>
                 <Icon name={hidden ? 'eye-off' : 'eye'} size={20} />
               </Button>

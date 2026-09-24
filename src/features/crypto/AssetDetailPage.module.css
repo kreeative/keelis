@@ -50,7 +50,7 @@
   gap: var(--sp-3);
   flex-wrap: wrap;
 }
-.chartControls > .tabs { flex: 1; min-width: 0; }
+.chartControls > .tabs { flex: 1; min-width: 0; max-width: 480px; }
 .proToggle { flex-shrink: 0; }
 .tabs.tabs.tabs { min-height: calc(var(--tap) + 2 * var(--sp-1)); }
 
@@ -117,8 +117,8 @@
       'hero bar'
       'chart actions'
       'chart holdings'
-      'chart about'
-      'chart .';
+      'about holdings'
+      'about .';
     grid-template-rows: auto auto auto auto auto 1fr;
     column-gap: var(--sp-8);
     align-items: start;
@@ -144,13 +144,19 @@
    Four content-sized cells that wrap rather than shrink: a figure that has to be read
    against three others cannot be the thing that gives up width. */
 .ohlc {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  /* Two by two on a phone, so a bitcoin-sized figure never leaves one cell orphaned on a
+     second line under three others; four across from 480px, where they fit. Content-sized
+     columns, because a figure read against three others cannot be the thing that shrinks. */
+  grid-template-columns: repeat(2, max-content);
   align-items: baseline;
-  gap: var(--sp-2) var(--sp-4);
+  gap: var(--sp-1) var(--sp-5);
   margin: var(--sp-3) 0 0;
   font-size: var(--fs-small);
   line-height: var(--lh-small);
+}
+@media (min-width: 480px) {
+  .ohlc { grid-template-columns: repeat(4, max-content); column-gap: var(--sp-4); }
 }
 .ohlcCell {
   display: flex;

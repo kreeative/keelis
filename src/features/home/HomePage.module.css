@@ -96,6 +96,10 @@
 .eye:hover { color: var(--ink-900); }
 
 .chartBlock { display: flex; flex-direction: column; gap: var(--sp-2); align-items: stretch; }
+/* Five labels spread across a 900px card put them a hand's width apart, which reads as five
+   things rather than one control; capped, the row stays a control. Below the cap it is the
+   full width it always was. */
+.chartBlock > .periods { max-width: 480px; }
 
 .asideMobile { margin-top: 0; }
 .aside { display: none; }

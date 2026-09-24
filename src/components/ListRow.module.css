@@ -23,11 +23,19 @@
 /* The fill reaches the edges of whatever holds it. In a padded card it bleeds --sp-3 back
    outward, because the row's box stops short of the card's edge; in an unpadded one the row
    already spans the card, so it simply keeps its own inset and there is nothing to bleed. */
-.interactive:hover {
+.interactive:hover,
+.interactive:active {
   background: var(--surface-alt);
   margin-inline: calc(-1 * var(--row-bleed, var(--sp-3)));
   padding-inline: calc(var(--row-pad, 0px) + var(--row-bleed, var(--sp-3)));
   width: auto;
+}
+/* Under a finger the fill lands at once — an iOS cell highlights the instant it is touched,
+   and a highlight that eases in over 300ms arrives after the tap has already ended. It is a
+   step darker than hover so a press reads as a press on a row the pointer was already on. */
+.interactive:active {
+  background: var(--fill-subtle);
+  transition-duration: var(--dur-press);
 }
 .interactive:focus-visible { box-shadow: var(--focus-ring); border-radius: var(--r-field); position: relative; z-index: 1; }
 

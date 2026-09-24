@@ -36,14 +36,23 @@
      smallest bounce — 0.6%, four pixels — and the longer duration a long slide needs. */
   animation: rise var(--dur-bouncy) var(--ease-snappy);
   outline: none;
+  /* The handle and the title are the sheet's own; a vertical gesture there is a pull, never
+     a scroll, so the browser is told not to claim it. The body keeps its own rule below. */
+  touch-action: none;
 }
+/* Held by a finger: no transition fights the hand, and the text under it is not selected
+   by a pull that wanders sideways. */
+.panel[data-dragging] { animation: none; user-select: none; -webkit-user-select: none; }
 
 /* Dismissed. There was no exit at all before this: the sheet was unmounted the instant it
    closed, so a surface that took 690ms to arrive vanished between two frames. Going out is
    not a spring — nothing that leaves should wobble — and it is faster than coming in,
    because you do not wait for a thing you have already dismissed. */
-.closing .backdrop { animation: fade var(--dur-exit) var(--ease-exit) reverse both; }
-.closing .panel { animation: rise var(--dur-exit) var(--ease-exit) reverse both; }
+.closing .backdrop { animation: unveil var(--dur-exit) var(--ease-exit) both; }
+/* Leaves from wherever it is: at rest that is 0, and after a pull it is where the finger let
+   go — `--sheet-y` is written by the gesture and read here, so a sheet released a third of
+   the way down does not jump back to the top before it goes. */
+.closing .panel { animation: drop var(--dur-exit) var(--ease-exit) both; }
 
 .handle {
   width: var(--handle-w);
@@ -68,6 +77,9 @@
      rows down to two as you type, and without it the whole list shifts sideways the moment
      the scrollbar goes. The colours come from :root — see base.css. */
   scrollbar-gutter: stable;
+  /* Vertical scrolling is the body's; the pull takes over only once the list is at its top,
+     which the gesture checks before it claims a move. */
+  touch-action: pan-y;
   /* **A row must not bleed inside a scroller, and on a phone it did.** `ListRow`'s hover
      fill grows the row 12px past each edge of whatever holds it, which is right in a card
      and wrong here: this body is a scroll container, so the extra width on the right is
@@ -108,5 +120,7 @@
 }
 
 @keyframes rise { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes drop { from { transform: translateY(var(--sheet-y, 0px)); } to { transform: translateY(100%); } }
+@keyframes unveil { from { opacity: var(--sheet-veil, 1); } to { opacity: 0; } }
 @keyframes pop { from { transform: scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }

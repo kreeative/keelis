@@ -73,6 +73,12 @@
    whole travel spends most of it as neither colour. */
 .barActive { color: var(--on-cta); transition-duration: var(--dur-press); }
 .barIcon { position: relative; display: inline-flex; }
+/* The glyph pops as the capsule arrives under it — iOS's symbol bounce on a tab tap. Scale
+   from 0.7 on the bounciest curve: the overshoot is a percentage of the travel, and on a
+   travel of 0.3 it is a visible pip rather than a sixth of a pixel. Keyed on the class, so it
+   plays once per arrival and never on a re-render. */
+.barActive .barIcon { animation: tabPop var(--dur-bouncy) var(--ease-bouncy) both; }
+@keyframes tabPop { from { transform: scale(0.7); } to { transform: scale(1); } }
 
 @media (max-width: 359px) {
   .barLink { width: 48px; }
@@ -175,6 +181,7 @@
      with it — fast, because a glyph that fades over the capsule's whole travel spends most
      of it as neither colour. */
   .railActive { color: var(--on-cta); transition-duration: var(--dur-press); }
+  .railActive .railIcon { animation: tabPop var(--dur-bouncy) var(--ease-bouncy) both; }
 
 
   /* The dot anchors to the glyph's corner, not to the 44px control around it. */

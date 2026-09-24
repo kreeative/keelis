@@ -112,7 +112,7 @@ export default function HomePage() {
                 formatValue={(v) => (hidden ? '••••' : formatMoney(v, { locale }))}
                 formatTime={(t) => (range === '1D' ? formatDateTime(t, { locale }) : formatDate(t, { locale }))}
               />
-              <SegmentedControl segments={RANGES.map((r) => ({ value: r.value, label: r.label }))} value={range} onChange={setRange} label="Période du graphique" size="sm" bare />
+              <SegmentedControl segments={RANGES.map((r) => ({ value: r.value, label: r.label }))} value={range} onChange={setRange} label="Période du graphique" size="sm" bare className={styles.periods} />
             </div>
 
             {/* The two actions sit at the foot of the canvas, under the curve: the balance
