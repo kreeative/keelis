@@ -80,6 +80,18 @@ export const PHOTOS = {
     /* Centred: this one is an object photographed square-on, so any weighting cuts it. */
     focus: '50% 48%',
   },
+  card: {
+    name: 'card',
+    intent:
+      'The face of the virtual card, under the K disc, the last four digits and the holder’s name. A dark brown brushed-metal card lit by one warm light, engraved in fine gold line the way a metal card is laser-etched: a cowrie shell from its slotted underside on the right half, with Adinkra symbols — Duafe, Dwennimmen, Adinkrahene, Nkyinkyim — scattered around it like the doodles on a Revolut metal card. The left third and the bottom band stay plain, because that is where the type sits.',
+    present: true,
+    alt: 'Face de carte en métal brun brossé, gravée à l’or d’un cauri et de symboles adinkra',
+    credit: 'Rendu commandé par le propriétaire sur son compte Higgsfield (GPT Image) — libre d’utilisation dans l’application',
+    widths: [800, 1600],
+    /* The picture is 3:2 and the card is 1.586:1, so the crop is vertical only; centred, the
+       cowrie's tip and foot both stay inside the card. */
+    focus: '50% 50%',
+  },
   /* No `as const` here, deliberately. It would freeze `present` to the literal `false`, so
      `photo()` would be typed as always returning null and the flag could never mean anything
      — a manifest unable to express the one thing it exists to say. `satisfies` keeps the

@@ -1,9 +1,21 @@
 /**
- * The virtual card. Same ink on the same dark surface in both themes (--card-*),
- * no gradient, no chip graphic, no network logo.
+ * The virtual card. Same ink on the same dark surface in both themes (--card-*), no chip
+ * graphic, no network logo.
+ *
+ * **Its face is artwork now, under the type.** The owner put a Revolut metal card beside a
+ * cowrie print and a sheet of Adinkra symbols and asked for the same: a card that is an
+ * object with something engraved on it, in the app's own iconography. The face is the
+ * `card` photo slot — a brushed brown metal rendered on the owner's Higgsfield account,
+ * the cowrie and four Adinkra symbols etched in gold on the right half, the left third and
+ * the foot left plain because that is where the type sits. The gradient stays underneath
+ * as the ground: with the slot switched off the card is exactly what it was.
+ *
+ * The « Virtuelle » label moved from the top-right to beside the mark, because the
+ * top-right corner is where the engraving is, and a label over an engraving is a label
+ * nobody can read — the contrast audit measures it against the picture's own pixels.
  */
 import type { Card } from '@/api/types'
-import { Badge, Icon, Skeleton, Wordmark } from '@/components'
+import { Badge, Icon, Photo, Skeleton, Wordmark } from '@/components'
 import { cn } from '@/lib/cn'
 import styles from './VirtualCard.module.css'
 
@@ -15,6 +27,11 @@ export function VirtualCard({ card, className }: { card: Card; className?: strin
   const frozen = card.frozen
   return (
     <div className={cn(styles.card, className)}>
+      {/* The card is 400px at most, so the 800px file serves a 2× phone; `sizes` says so,
+          or the browser fetches the 1600px file for a card that never grows past 400. */}
+      {/* Frozen dims the engraving with the type: a face that stayed lit under greyed
+          figures read as a card with a fault, not a card put on hold. */}
+      <Photo name="card" className={cn(styles.art, frozen && styles.faded)} sizes="(min-width: 432px) 400px, calc(100vw - 32px)" />
       <div className={cn(styles.face, frozen && styles.faded)}>
         <div className={styles.top}>
           <Wordmark glyphOnly tone="paper" className={styles.mark} />

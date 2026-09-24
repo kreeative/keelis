@@ -20,7 +20,23 @@
     border-color: var(--line);
   }
 }
+/* The engraved face, under everything. The frame is the card's own box and the picture
+   covers it; the gradient the card already paints is the ground behind the picture, so a
+   card with the slot switched off is exactly the card that shipped before the artwork. */
+.art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: none;
+  transition: opacity var(--dur-smooth) var(--ease-smooth);
+}
+.art img {
+  position: absolute;
+  inset: 0;
+}
 .face {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -30,10 +46,11 @@
 .faded {
   opacity: 0.55;
 }
+/* Mark and label together at the left, where the metal is plain; the engraving owns the
+   right of the card and a label over it would be a label nobody can read. */
 .top {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--sp-3);
 }
 /* The disc manages its own two colours; overriding `color` here painted the K in the
@@ -87,6 +104,7 @@
 .frozenLayer {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
