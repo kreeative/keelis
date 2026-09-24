@@ -25,13 +25,26 @@
   flex-direction: column;
   min-width: 0;
 }
+/* The bar. On a phone it is the column's width — an arrow and a moon over the question,
+   as it always was; from 768px it spans the page and carries the brand at the left and the
+   sign-in at the right, the reference's own header. */
 .top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
   min-height: var(--tap);
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
   padding-top: var(--sp-4);
+}
+.side {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 0;
 }
 .back {
   margin-left: calc(-1 * var(--sp-3));
@@ -40,6 +53,72 @@
 .theme {
   margin-right: calc(-1 * var(--sp-3));
   color: var(--ink-600);
+}
+.brand,
+.haveAccount,
+.backInline,
+.foot {
+  display: none;
+}
+.brand {
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--r-field);
+}
+.brand:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+.link {
+  color: var(--accent);
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  border-radius: var(--r-field);
+}
+.link:hover {
+  text-decoration: underline;
+}
+.link:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+@media (min-width: 768px) {
+  .top {
+    max-width: none;
+    padding-inline: var(--sp-7);
+    padding-block: var(--sp-5) 0;
+  }
+  .back {
+    display: none;
+  }
+  /* A link is a tap target whatever it looks like: the wordmark is 20px tall and the bar
+     gives it the full 44. */
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+  .haveAccount {
+    display: inline;
+    color: var(--ink-600);
+  }
+  .theme {
+    margin-right: 0;
+  }
+  .frame {
+    max-width: 480px;
+  }
+  /* Above the question, ghost, the way the reference's later steps carry it. */
+  .backInline {
+    display: inline-flex;
+    align-self: flex-start;
+    margin-top: var(--sp-7);
+    margin-left: calc(-1 * var(--sp-3));
+  }
+  .foot {
+    display: block;
+    padding-block: var(--sp-6) var(--sp-4);
+    max-width: 56ch;
+  }
 }
 .main {
   flex: 1;

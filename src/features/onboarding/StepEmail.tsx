@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
 import { Field, Icon } from '@/components'
 import { StepShell } from './StepShell'
+import shell from './StepShell.module.css'
 import { useStepFocus } from './useStepFocus'
 import { stepEyebrow } from './steps'
 import { asApiError, useWizard } from './wizard'
@@ -41,15 +42,27 @@ export function StepEmail() {
   return (
     <StepShell
       eyebrow={connexion ? 'Connexion' : stepEyebrow('courriel')}
-      title="Quelle est votre adresse courriel ?"
-      description={connexion ? 'Entrez l’adresse associée à votre compte Keewal Meere.' : 'Nous vous enverrons un code à six chiffres pour la confirmer.'}
+      /* The first screen is the door, and the reference names it — « Create your account » —
+         rather than asking; the question is the field's own label. Signing in keeps the
+         question, since that door is /bienvenue and this is its second chance. */
+      title={connexion ? 'Quelle est votre adresse courriel ?' : 'Créez votre compte'}
+      description={connexion ? 'Entrez l’adresse associée à votre compte Keewal Meere.' : 'Entrez votre adresse courriel : nous vous enverrons un code à six chiffres pour la confirmer.'}
       submitDisabled={!valid}
       submitting={busy}
       onSubmit={() => void submit()}
+      footer={
+        connexion ? null : (
+          <p className={`t-small t-muted ${shell.legal}`}>
+            En continuant, vous acceptez les conditions d’utilisation et la politique de confidentialité de Keewal Meere.{' '}
+            <Link to="/entreprise" className={shell.legalLink}>
+              Les lire
+            </Link>
+          </p>
+        )
+      }
     >
       <Field
         label="Adresse courriel"
-        hideLabel
         leading={<Icon name="mail" size={18} />}
         chip
         type="email"
