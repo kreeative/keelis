@@ -34,6 +34,13 @@
   position: absolute;
   inset: 0;
 }
+/* The drawn marks, between the metal and the type; dimmed with both when frozen. */
+.etch {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transition: opacity var(--dur-smooth) var(--ease-smooth);
+}
 .face {
   position: relative;
   z-index: 1;
@@ -46,25 +53,15 @@
 .faded {
   opacity: 0.55;
 }
-/* Mark and label together at the left, where the metal is plain; the engraving owns the
-   right of the card and a label over it would be a label nobody can read. */
 .top {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
 }
 /* The disc manages its own two colours; overriding `color` here painted the K in the
    same ink as the disc and made it vanish. */
 .mark {
   width: 28px;
   height: 28px;
-}
-.kind {
-  font-size: var(--fs-label);
-  line-height: var(--lh-label);
-  letter-spacing: var(--ls-label);
-  font-weight: var(--fw-label);
-  color: var(--card-ink-muted);
 }
 .bottom {
   display: flex;

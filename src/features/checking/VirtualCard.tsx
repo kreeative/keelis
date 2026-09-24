@@ -10,12 +10,14 @@
  * the foot left plain because that is where the type sits. The gradient stays underneath
  * as the ground: with the slot switched off the card is exactly what it was.
  *
- * The « Virtuelle » label moved from the top-right to beside the mark, because the
- * top-right corner is where the engraving is, and a label over an engraving is a label
- * nobody can read — the contrast audit measures it against the picture's own pixels.
+ * There is no « Virtuelle » label on it. The owner asked for the word to go: the card is
+ * the K, the number and the name, the way a real one is, and the screen's own title
+ * already says which account it belongs to. The symbols are drawn, not rendered — see
+ * `CardEngraving` for why.
  */
 import type { Card } from '@/api/types'
 import { Badge, Icon, Photo, Skeleton, Wordmark } from '@/components'
+import { CardEngraving } from './CardEngraving'
 import { cn } from '@/lib/cn'
 import styles from './VirtualCard.module.css'
 
@@ -32,10 +34,12 @@ export function VirtualCard({ card, className }: { card: Card; className?: strin
       {/* Frozen dims the engraving with the type: a face that stayed lit under greyed
           figures read as a card with a fault, not a card put on hold. */}
       <Photo name="card" className={cn(styles.art, frozen && styles.faded)} sizes="(min-width: 432px) 400px, calc(100vw - 32px)" />
+      <div className={cn(styles.etch, frozen && styles.faded)}>
+        <CardEngraving />
+      </div>
       <div className={cn(styles.face, frozen && styles.faded)}>
         <div className={styles.top}>
           <Wordmark glyphOnly tone="paper" className={styles.mark} />
-          <span className={styles.kind}>Virtuelle</span>
         </div>
         <div className={styles.bottom}>
           <p className={styles.number} aria-label={frozen ? 'Numéro masqué' : `Carte se terminant par ${card.last4.split('').join(' ')}`}>

@@ -20,6 +20,11 @@
 
   --accent: oklch(0.45 0.085 72);          /* links, ghost buttons, focus rings */
   --accent-text: oklch(0.38 0.080 70);     /* accent used as text on --accent-soft */
+  /* The gold the virtual card is engraved in. Deeper than --cta so a stroke on brushed
+     brown reads as metal catching light rather than as a button's fill; the same in both
+     themes, because the card is. Named in the accent family since it is the one place
+     outside the accent ramp that is allowed the accent's chroma. */
+  --accent-etch: oklch(0.78 0.105 84);
   --accent-soft: oklch(0.93 0.048 90);     /* badge background / selected state */
   --on-accent: oklch(0.99 0.006 90);       /* text placed on --accent */
 

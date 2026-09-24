@@ -83,9 +83,9 @@ export const PHOTOS = {
   card: {
     name: 'card',
     intent:
-      'The face of the virtual card, under the K disc, the last four digits and the holder’s name. A dark brown brushed-metal card lit by one warm light, engraved in fine gold line the way a metal card is laser-etched: a cowrie shell from its slotted underside on the right half, with Adinkra symbols — Duafe, Dwennimmen, Adinkrahene, Nkyinkyim — scattered around it like the doodles on a Revolut metal card. The left third and the bottom band stay plain, because that is where the type sits.',
+      'The ground of the virtual card, under the K disc, the last four digits and the holder’s name: a plain dark brown brushed-metal card face lit by one warm light from the top, with nothing on it at all. The engraving — the cowrie and the four Adinkra symbols — is drawn by CardEngraving over this picture, so the picture must carry no marks of its own: a rendered symbol is a hand’s symbol, and the owner asked for even ones.',
     present: true,
-    alt: 'Face de carte en métal brun brossé, gravée à l’or d’un cauri et de symboles adinkra',
+    alt: 'Face de carte en métal brun brossé, sans inscription',
     credit: 'Rendu commandé par le propriétaire sur son compte Higgsfield (GPT Image) — libre d’utilisation dans l’application',
     widths: [800, 1600],
     /* The picture is 3:2 and the card is 1.586:1, so the crop is vertical only; centred, the
