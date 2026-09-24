@@ -1,0 +1,6 @@
+[
+  { "code": "DANGCEM.XNSA", "timestamp": 1758618000, "gmtoffset": 0, "open": 480, "high": 486, "low": 478, "close": 485, "volume": 1250000, "previousClose": 480, "change": 5, "change_p": 1.0417 },
+  { "code": "MTNN.XNSA", "timestamp": 1758618000, "gmtoffset": 0, "open": "NA", "high": "NA", "low": "NA", "close": "NA", "volume": "NA", "previousClose": 350, "change": "NA", "change_p": "NA" },
+  { "code": "NPN.JSE", "timestamp": 1758618000, "gmtoffset": 0, "open": 480000, "high": 486500, "low": 478000, "close": 484200, "volume": 210000, "previousClose": 481000, "change": 3200, "change_p": 0.6653 },
+  { "code": "SCOM.XNAI", "timestamp": 1758618000, "gmtoffset": 0, "open": 24.5, "high": 25.1, "low": 24.4, "close": 25, "volume": 8400000, "previousClose": 24.6, "change": 0.4, "change_p": 1.626 }
+]

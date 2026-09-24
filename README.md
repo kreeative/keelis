@@ -44,7 +44,7 @@ VITE_API_URL=https://api.votredomaine.com/v1
   fichier que des soldes réels.
 
 Aucun écran ne change, parce qu'aucun écran ne sait à qui il parle.
-[`docs/API.md`](docs/API.md) est la spécification complète : 66 points d'entrée, la forme des
+[`docs/API.md`](docs/API.md) est la spécification complète : 68 points d'entrée, la forme des
 erreurs, le flux d'évènements, et ce que le back-end doit garantir.
 
 **Et ce n'est pas une promesse sur papier.** `server/reference.mjs` est un back-end de
@@ -54,6 +54,20 @@ référence — sans dépendance, la logique simulée servie en HTTP — qui ré
 pnpm server                              # http://localhost:8787/v1
 VITE_API_URL=http://localhost:8787/v1 pnpm build && pnpm preview
 pnpm e2e:server                          # les deux, automatiquement, puis un parcours réel
+```
+
+**Et les chiffres de marché sont réels dès que le serveur tourne.** `server/feeds/` lit
+CoinGecko pour les cryptomonnaies (en euros, croisés une fois à la parité 655,957),
+ExchangeRate-API pour la table de taux, et — avec `EODHD_API_KEY` — EODHD pour les titres de
+Lagos, Johannesburg et Nairobi. Aucune clé ne passe par le navigateur : la politique de
+sécurité l'interdit, et une clé dans une variable `VITE_` est une clé publiée. Ce qu'aucun
+flux ne couvre reste une valeur de démonstration **et le dit** — la page de l'actif nomme sa
+source, l'écran « Données et connexion » porte une ligne par nature de chiffre, et la BRVM,
+qu'aucun flux public ne cote, y reste marquée « Démo » jusqu'à ce qu'un fournisseur la porte.
+
+```bash
+pnpm feeds:probe                         # lit chaque flux une fois et affiche ce qui revient
+EODHD_API_KEY=… pnpm server              # les actions aussi
 ```
 
 `pnpm e2e:server` compile l'application configurée, vérifie que le paquet livré ne contient

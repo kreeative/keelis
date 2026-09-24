@@ -10,13 +10,13 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '@/api'
-import { ApiError } from '@/api/types'
+import { ApiError, type FxRates } from '@/api/types'
 import { Button, Callout, Card, Icon, Picker, Sheet, StatGrid } from '@/components'
 import { AmountEntry, StepFlow, SuccessScreen, useAccount, type FlowStep } from '@/features/shared'
 import { CURRENCIES, CURRENCY_ORDER, isCurrency, type Currency } from '@/lib/currency'
 import { TIER_LABEL, quote } from '@/lib/fx'
-import { formatMoney, formatNumber, parseAmountInput } from '@/lib/format'
-import { QK, invalidate, useSettings } from '@/store'
+import { formatMoney, formatNumber, formatRelative, parseAmountInput } from '@/lib/format'
+import { QK, invalidate, useQuery, useSettings } from '@/store'
 import styles from './ConvertPage.module.css'
 
 /* Built once: the same sixteen rows serve both ends of the pair. The code leads because a
@@ -54,8 +54,13 @@ export default function ConvertPage() {
     return a.pockets?.find((p) => p.currency === from)?.amount ?? 0
   }, [account.data, from])
 
+  /* The table the back-end charges from, so the screen quotes what the server takes. Until
+     it arrives the demonstration table prices the pair — and the note below says so, since
+     `live` is only true once the server's own answer is in hand. */
+  const rates = useQuery<FxRates>(QK.fxRates, () => api.fx.rates())
+  const table = rates.data?.perEur
   const amount = parseAmountInput(raw)
-  const q = useMemo(() => quote(from, to, amount), [from, to, amount])
+  const q = useMemo(() => quote(from, to, amount, table), [from, to, amount, table])
   const money = (v: number, c: Currency) => formatMoney(v, { locale, currency: c })
 
   /**
@@ -218,7 +223,10 @@ export default function ConvertPage() {
             </Callout>
           ) : (
             <Callout variant="note" icon="info">
-              {TIER_LABEL[q.tier]}. Les taux affichés sont des taux de démonstration, pas une cotation de marché.
+              {TIER_LABEL[q.tier]}.{' '}
+              {rates.data?.live
+                ? `Taux ${rates.data.provider ?? 'du marché'}, mis à jour ${formatRelative(rates.data.updatedAt, { locale })}. La marge est la seule part qui revient à Keewal Meere.`
+                : 'Les taux affichés sont des taux de démonstration, pas une cotation de marché.'}
             </Callout>
           )}
         </>

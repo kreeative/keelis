@@ -1,0 +1,7 @@
+{
+  "bitcoin": { "eur": 60000, "eur_market_cap": 1180000000000, "eur_24h_vol": 28000000000, "eur_24h_change": 1.25, "last_updated_at": 1758600000 },
+  "ethereum": { "eur": 2500.5, "eur_market_cap": 300000000000, "eur_24h_vol": 12000000000, "eur_24h_change": -0.8, "last_updated_at": 1758600000 },
+  "solana": { "eur": 130.25, "eur_market_cap": 60000000000, "eur_24h_vol": 2000000000, "eur_24h_change": 3.1, "last_updated_at": 1758600000 },
+  "ripple": { "usd": 0.55 },
+  "cardano": { "eur": 0, "eur_24h_change": 0 }
+}

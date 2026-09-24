@@ -197,7 +197,10 @@ déguisé, et l'application ne le présente jamais ainsi.
 
 | Méthode | Chemin | Réponse |
 | --- | --- | --- |
+| GET | `/fx/rates` | `FxRates` — la table de taux, unités par euro, XOF et XAF toujours à la parité |
 | POST | `/fx/conversions` | `MoneyMovementResult` pour `FxConvertRequest` |
+
+L'écran de conversion cote à partir de `/fx/rates` et le back-end débite à partir de la même table : ce qui est affiché est ce qui est facturé. Un back-end sans flux de taux renvoie sa table de démonstration avec `live: false`, et l'écran le dit. Quoi que la table contienne pour XOF et XAF, le client y réécrit 655,957 : une parité fixée par traité n'est pas une cotation.
 
 Une conversion déplace de l'argent **entre les devises d'un même compte**. `Account.pockets`
 porte ce que le compte détient hors de sa devise principale ; une poche apparaît à la
@@ -208,6 +211,14 @@ Le back-end doit inscrire **deux lignes** au grand livre, une par devise : une s
 ne pourrait montrer qu'un côté de l'opération. L'arrondi se fait **une seule fois, à la
 fin**, à l'unité mineure de la devise reçue, et la marge est rendue dans `fee`, exprimée
 dans la devise vendue.
+
+### Marché
+
+| Méthode | Chemin | Réponse |
+| --- | --- | --- |
+| GET | `/market/sources` | `MarketSource[]` — une ligne par nature de chiffre (`crypto`, `equity`, `fx`) : `live`, `demo` ou `error`, le fournisseur, l'heure de la dernière lecture |
+
+Chaque `CryptoAsset` porte en plus un `priceSource` facultatif — fournisseur et heure de lecture. Absent, le cours est une valeur de démonstration et la page de l'actif le dit.
 
 ### Alimentation et envois
 

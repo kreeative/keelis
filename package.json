@@ -22,7 +22,8 @@
     "e2e:keyboard": "node e2e/keyboard.mjs",
     "e2e:motion": "node e2e/motion.mjs",
     "e2e:server": "node e2e/against-server.mjs",
-    "server": "node server/reference.mjs"
+    "server": "node server/reference.mjs",
+    "feeds:probe": "node scripts/feeds-probe.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.544.0",

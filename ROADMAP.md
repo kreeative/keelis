@@ -60,7 +60,7 @@ là : `LearnSheet` explique une introduction en bourse et comment lire un cours,
 ## 4. Back-end et moteur
 
 Rien de tout cela ne peut exister côté interface. Le contrat est écrit et le client HTTP
-aussi : [`docs/API.md`](docs/API.md), 66 points d'entrée, la forme des erreurs, le flux
+aussi : [`docs/API.md`](docs/API.md), 68 points d'entrée, la forme des erreurs, le flux
 d'évènements. Brancher un back-end qui le satisfait est une variable d'environnement.
 
 **Et le contrat a été exécuté, pas seulement rédigé.** `server/reference.mjs` le sert en
@@ -81,7 +81,10 @@ publique, inscrite dans le JavaScript livré à chaque visiteur.
 
 - KYC : registres d'identité locaux, contrôle PPE, listes de sanctions
 - Rails de paiement : Wave, Orange Money, MTN ; Flutterwave, Paystack, Bizao
-- Données de marché : cours en direct et différés, historiques
+- Données de marché : cours en direct et différés, historiques — **fait pour ce qui a un
+  flux** : le back-end de référence lit CoinGecko (crypto), ExchangeRate-API (taux) et, avec
+  `EODHD_API_KEY`, EODHD (NGX, JSE, NSE). **La BRVM n'a pas de flux public** : Sonatel, NSIA
+  et CIE restent en démonstration, et l'écran « Données et connexion » le dit.
 - Garde et BaaS : ouverture de compte, exécution, documents fiscaux
 
 ## 6. Sécurité et conformité

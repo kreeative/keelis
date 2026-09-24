@@ -8,7 +8,7 @@ import { api } from '@/api'
 import type { ChartRange, CryptoAsset, Holding, PriceHistory, PricePoint } from '@/api/types'
 import type { Stat } from '@/components'
 import { AmountDisplay, Button, CandleChart, Chart, Delta, ErrorState, Icon, Money, QuickActions, SegmentedControl, Skeleton, SkeletonAmount, StatGrid } from '@/components'
-import { MASKED, formatCrypto, formatDate, formatDateTime, formatTime, moneyAriaLabel, splitMoney } from '@/lib/format'
+import { MASKED, formatCrypto, formatDate, formatDateTime, formatRelative, formatTime, moneyAriaLabel, splitMoney } from '@/lib/format'
 import { QK, useSettings, useToast } from '@/store'
 import { cn } from '@/lib/cn'
 import { RANGES, formatCompactMoney, formatCompactQuantity, rangePeriod } from './cryptoFormat'
@@ -77,6 +77,10 @@ function AboutSection({ asset, onLearn }: { asset: CryptoAsset; onLearn: () => v
     // render anyway, as a heading with nothing under it.
     ...(asset.networks.length > 0 ? [{ label: 'Réseaux', value: asset.networks.map((n) => n.name).join(', ') }] : []),
     ...(asset.assetClass === 'equity' && asset.market ? [{ label: 'Place de cotation', value: asset.market }] : []),
+    // Where the figure above came from — named, with the time of the read, or « Démonstration »
+    // in so many words. A price with no source is a rumour, and a real one from an unknown
+    // moment is not much better.
+    { label: 'Source du cours', value: asset.priceSource ? `${asset.priceSource.provider}, ${formatRelative(asset.priceSource.updatedAt, { locale })}` : 'Démonstration' },
   ]
   return (
     <section className={cn(styles.section, styles.about)} aria-labelledby="about-title">

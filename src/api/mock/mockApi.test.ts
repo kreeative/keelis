@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { __resetMockState, mockApi, mockControls } from './mockApi'
+import { __advancePrices, __resetMockState, __setFxRates, __setMarketPrices, __setMarketSeries, mockApi, mockControls } from './mockApi'
 import { IDS } from './seed'
 import { ApiError } from '../types'
 
@@ -260,5 +260,68 @@ describe('converting between currencies', () => {
     const after = (await mockApi.accounts.list()).find((a) => a.id === IDS.checking)!
     // Fifteen zero balances would be a filing cabinet, not a wallet.
     expect(after.pockets?.some((p) => p.currency === 'NGN')).toBe(false)
+  })
+})
+
+describe('what a feed writes in', () => {
+  it('replaces a price, names its source, and leaves the ticker off it', async () => {
+    const before = (await mockApi.crypto.getAsset('btc')).price
+    __setMarketPrices([{ id: 'btc', price: 40_000_000, change24hPct: 2 }], { provider: 'CoinGecko', updatedAt: '2026-09-23T10:00:00.000Z' })
+    const btc = await mockApi.crypto.getAsset('btc')
+    expect(btc.price).toBe(40_000_000)
+    expect(btc.priceSource).toEqual({ provider: 'CoinGecko', updatedAt: '2026-09-23T10:00:00.000Z' })
+    expect(btc.change24hPct).toBe(2)
+    expect(before).not.toBe(40_000_000)
+    // The random walk must not drift a real figure between two reads — and it still walks
+    // the ones no feed covers, so the demonstration stays alive.
+    const sonatelBefore = (await mockApi.crypto.getAsset('sonatel')).price
+    __advancePrices()
+    expect((await mockApi.crypto.getAsset('btc')).price).toBe(40_000_000)
+    expect((await mockApi.crypto.getAsset('sonatel')).price).not.toBe(sonatelBefore)
+    expect((await mockApi.crypto.getAsset('sonatel')).priceSource).toBeUndefined()
+  })
+
+  it('refuses a price of nothing and an unknown id', async () => {
+    const before = (await mockApi.crypto.getAsset('eth')).price
+    __setMarketPrices([{ id: 'eth', price: 0, change24hPct: 1 }, { id: 'nope', price: 5, change24hPct: 1 }], { provider: 'X', updatedAt: 'now' })
+    const eth = await mockApi.crypto.getAsset('eth')
+    expect(eth.price).toBe(before)
+    expect(eth.priceSource).toBeUndefined()
+  })
+
+  it('serves a real series in place of the generated one, and derives the sparkline from 1D', async () => {
+    const pts = Array.from({ length: 50 }, (_, i) => ({ t: 1_700_000_000_000 + i * 60_000, p: 100 + i }))
+    __setMarketSeries('btc', '1D', pts)
+    const h = await mockApi.crypto.history('btc', '1D')
+    expect(h.points).toHaveLength(50)
+    expect(h.change).toBe(49)
+    const btc = await mockApi.crypto.getAsset('btc')
+    expect(btc.sparkline).toHaveLength(24)
+    expect(btc.sparkline[0]).toBe(100)
+    expect(btc.sparkline[23]).toBe(149)
+    // Another range is still generated: the feed wrote one range in, not all of them.
+    expect((await mockApi.crypto.history('btc', '1W')).points.length).not.toBe(50)
+  })
+
+  it('quotes conversions from the live table, with the pegs pinned', async () => {
+    expect((await mockApi.fx.rates()).live).toBe(false)
+    __setFxRates({ NGN: 2000, XOF: 655.96 }, 'ExchangeRate-API', '2026-09-23T00:00:00.000Z')
+    const r = await mockApi.fx.rates()
+    expect(r.live).toBe(true)
+    expect(r.provider).toBe('ExchangeRate-API')
+    expect(r.perEur.NGN).toBe(2000)
+    expect(r.perEur.XOF).toBe(655.957)
+    // 655 957 F CFA is exactly 1 000 €; at 2 000 naira to the euro, the mid is 2 000 000.
+    const res = await mockApi.fx.convert({ accountId: IDS.checking, from: 'XOF', to: 'NGN', amount: 655_957 })
+    const tx = (await mockApi.transactions.list({ accountId: IDS.checking, limit: 5 })).find((t) => t.currency === 'NGN')
+    expect(tx?.amount).toBe(2_000_000 * (1 - 0.018))
+    expect(res.fee).toBe(Math.round(655_957 * 0.018))
+  })
+
+  it('is cleared by a reset', async () => {
+    __setFxRates({ NGN: 2000 }, 'X')
+    __resetMockState()
+    expect((await mockApi.fx.rates()).live).toBe(false)
+    expect((await mockApi.market.sources()).every((s) => s.status === 'demo')).toBe(true)
   })
 })

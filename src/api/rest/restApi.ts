@@ -41,9 +41,11 @@ import type {
   Device,
   FundingSource,
   FxConvertRequest,
+  FxRates,
   GoalInput,
   Holding,
   KeewalApi,
+  MarketSource,
   MoneyMovementResult,
   NotificationPrefs,
   Papo,
@@ -252,7 +254,12 @@ export function createRestApi(opts: HttpOptions): KeewalApi {
     },
 
     fx: {
+      rates: () => http.get<FxRates>('/fx/rates'),
       convert: (req: FxConvertRequest) => http.post<MoneyMovementResult>('/fx/conversions', req),
+    },
+
+    market: {
+      sources: () => http.get<MarketSource[]>('/market/sources'),
     },
 
     funding: {

@@ -20,9 +20,18 @@
  *     VITE_API_URL=http://localhost:8787/v1 pnpm build && pnpm preview
  *
  * `e2e/against-server.mjs` does exactly that, and drives the money flows through it.
+ *
+ * **It is also where the real market figures come in.** `server/feeds/` reads CoinGecko for
+ * the coins, ExchangeRate-API for the rate table and — given `EODHD_API_KEY` — EODHD for
+ * the Lagos, Johannesburg and Nairobi listings, and writes them into the same in-memory
+ * state the routes serve. Nothing in the browser talks to a provider: the CSP forbids it,
+ * and a provider key in a `VITE_` variable is a key published to every visitor. What the
+ * feeds do not cover stays a demonstration figure and stays labelled as one; `FEEDS=off`
+ * turns them off, which the e2e walk does.
  */
 import { createServer as createHttpServer } from 'node:http'
 import { createServer as createViteServer } from 'vite'
+import { createFeeds } from './feeds/index.mjs'
 
 const PORT = Number(process.env.PORT ?? 8787)
 const PREFIX = '/v1'
@@ -43,8 +52,17 @@ globalThis.localStorage = {
 }
 
 const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'warn' })
-const { mockApi } = await vite.ssrLoadModule('/src/api/mock/mockApi.ts')
+const { mockApi, __setMarketPrices, __setMarketSeries, __setFxRates, __setMarketSources } = await vite.ssrLoadModule('/src/api/mock/mockApi.ts')
 const { IDS } = await vite.ssrLoadModule('/src/api/mock/seed.ts')
+const { CFA_PER_EUR, DEMO_PER_EUR } = await vite.ssrLoadModule('/src/lib/fx.ts')
+const { CURRENCY_ORDER } = await vite.ssrLoadModule('/src/lib/currency.ts')
+
+const feeds = createFeeds({
+  hooks: { setPrices: __setMarketPrices, setSeries: __setMarketSeries, setRates: __setFxRates, setSources: __setMarketSources },
+  xofPerEur: CFA_PER_EUR,
+  demoPerEur: DEMO_PER_EUR,
+  currencies: CURRENCY_ORDER,
+})
 
 /** `ApiError` carries a `code`; everything else is a 500 we did not anticipate. */
 function statusFor(code) {
@@ -103,7 +121,13 @@ const routes = [
   ['POST', '/card/reveal', () => mockApi.card.reveal()],
 
   ['GET', '/assets', () => mockApi.crypto.listAssets()],
-  ['GET', '/assets/:id/history', (p, _b, q) => mockApi.crypto.history(p.id, q.get('range') ?? '1D')],
+  /* A chart asks, the feed fetches (or serves what it fetched a moment ago), then the mock
+     answers from the series the feed wrote in — or generates one, for what is not covered. */
+  ['GET', '/assets/:id/history', async (p, _b, q) => {
+    const range = q.get('range') ?? '1D'
+    await feeds.ensureHistory(p.id, range)
+    return mockApi.crypto.history(p.id, range)
+  }],
   ['GET', '/assets/:id/address', (p, _b, q) => mockApi.crypto.receiveAddress(p.id, q.get('network'))],
   ['PATCH', '/assets/:id/watch', (p, body) => mockApi.crypto.setWatched(p.id, body.watched)],
   ['GET', '/assets/:id', (p) => mockApi.crypto.getAsset(p.id)],
@@ -128,7 +152,10 @@ const routes = [
   ['POST', '/savings/withdraw', (_p, body) => mockApi.savings.withdraw(body.amount, body.toAccountId)],
   ['GET', '/savings', () => mockApi.savings.summary()],
 
+  ['GET', '/fx/rates', () => mockApi.fx.rates()],
   ['POST', '/fx/conversions', (_p, body) => mockApi.fx.convert(body)],
+
+  ['GET', '/market/sources', () => mockApi.market.sources()],
 
   ['GET', '/funding/sources', () => mockApi.funding.sources()],
   ['POST', '/funding', (_p, body) => mockApi.funding.addFunds(body)],
@@ -284,4 +311,6 @@ const server = createHttpServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Reference back-end on http://localhost:${PORT}${PREFIX} — ${routes.length} endpoints, chequing account ${IDS.checking}`)
+  /* After listen, not before: a provider that is slow to answer must not hold the port. */
+  void feeds.start()
 })

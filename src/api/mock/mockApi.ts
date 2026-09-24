@@ -9,7 +9,7 @@ import { createPrng } from '@/lib/prng'
 import { readJson, remove, writeJson } from '@/lib/storage'
 import { formatMoney } from '@/lib/format'
 import { roundTo, type Currency } from '@/lib/currency'
-import { quote } from '@/lib/fx'
+import { DEMO_PER_EUR, pinPegs, quote } from '@/lib/fx'
 import { handleRule } from '@/lib/transferHandle'
 import { isComplete, levelForAnswers } from '@/lib/risk'
 import {
@@ -23,13 +23,16 @@ import {
   type ChartRange,
   type CryptoAsset,
   type CryptoSendRequest,
+  type FxRates,
   type Holding,
   type KeewalApi,
+  type MarketSource,
   type OnboardingState,
   type Pocket,
   type Order,
   type PriceHistory,
   type PricePoint,
+  type PriceSource,
   type Quote,
   type QuoteRequest,
   type RecurringBuy,
@@ -164,6 +167,20 @@ class MockState {
   devices = seedDevices.map((d) => ({ ...d }))
   listeners = new Set<(e: ApiEvent) => void>()
   priceListeners = new Set<(a: CryptoAsset[]) => void>()
+  /**
+   * What a feed has written in, when the reference server runs one. The three are
+   * demonstration until then: the rate table is the one `lib/fx` ships, every source row
+   * reads `demo`, and no real series exists, so `assetSeries` generates one. They live on
+   * the state so `__resetMockState` clears them like everything else.
+   */
+  rates: FxRates = { perEur: { ...DEMO_PER_EUR }, live: false, updatedAt: NOW.toISOString() }
+  sources: MarketSource[] = [
+    { kind: 'crypto', status: 'demo' },
+    { kind: 'equity', status: 'demo' },
+    { kind: 'fx', status: 'demo' },
+  ]
+  /** Real price series keyed `id/range`, consulted before anything is generated. */
+  series = new Map<string, PricePoint[]>()
   tickerHandle: ReturnType<typeof setInterval> | null = null
   tick = 0
 
@@ -240,11 +257,13 @@ class MockState {
     return makeAccounts(this.bookValue('equity'), this.bookValue('crypto'), this.balances, this.pockets)
   }
 
-  /** Random-walk price tick */
+  /** Random-walk price tick. An asset a feed prices is left alone: a real figure must
+      not be walked away from between two reads. */
   advancePrices() {
     this.tick += 1
     const rng = createPrng(0xabc123 + this.tick)
     for (const a of this.assets) {
+      if (a.priceSource) continue
       const base24h = a.price / (1 + a.change24hPct / 100)
       const next = a.price * (1 + rng.range(-0.004, 0.004))
       a.price = next
@@ -329,6 +348,8 @@ function generateHistory(seedKey: number, endPrice: number, range: ChartRange, d
 /** One asset's price series for a range. Shared by the asset chart and the book's chart. */
 function assetSeries(id: string, range: ChartRange): PricePoint[] {
   const a = state.asset(id)
+  const real = state.series.get(`${id}/${range}`)
+  if (real) return real.map((p) => ({ ...p }))
   const idx = state.assets.indexOf(a)
   const driftByRange: Record<ChartRange, number> = { '1D': a.change24hPct / 100, '1W': 0.04, '1M': 0.11, '1Y': 0.9, MAX: 6 }
   const pts = generateHistory(7000 + idx * 31 + range.length, a.price, range, driftByRange[range])
@@ -924,6 +945,10 @@ export const mockApi: KeewalApi = {
   },
 
   fx: {
+    async rates() {
+      await simulate()
+      return { ...state.rates, perEur: { ...state.rates.perEur } }
+    },
     async convert(req) {
       await simulate()
       if (req.from === req.to) throw new ApiError('Choisissez deux devises différentes.', 'validation')
@@ -935,7 +960,7 @@ export const mockApi: KeewalApi = {
 
       /* The rate, the tier and the fee come from `lib/fx` — the same module the screen
          quoted from, so what was shown is what is charged. */
-      const q = quote(req.from, req.to, req.amount)
+      const q = quote(req.from, req.to, req.amount, state.rates.perEur)
       state.setPocketAmount(req.from, roundTo(available - req.amount, req.from))
       state.setPocketAmount(req.to, roundTo(state.pocketAmount(req.to) + q.amountOut, req.to))
 
@@ -945,6 +970,13 @@ export const mockApi: KeewalApi = {
       state.addTransaction({ accountId: IDS.checking, type: 'transfer_in', status: 'posted', amount: q.amountOut, currency: req.to, counterparty: `Conversion depuis ${req.from}`, category: 'transfer', date: new Date().toISOString(), postedAt: new Date().toISOString(), channel: 'app' })
       state.emit({ type: 'accounts' })
       return { fee: q.feeIn, transactionId: out.id, status: 'posted', eta: 'Instantané', etaMinutes: 0 }
+    },
+  },
+
+  market: {
+    async sources() {
+      await simulate()
+      return state.sources.map((s) => ({ ...s }))
     },
   },
 
@@ -1139,4 +1171,69 @@ export function __advancePrices() {
 /** Test hook to reset in-memory state */
 export function __resetMockState() {
   Object.assign(state, new MockState())
+}
+
+// ---------- what a feed writes in ----------
+//
+// The reference server runs the market feeds (`server/feeds/`) and writes what they read
+// through these four. They are the only way a real figure enters this module, and each one
+// leaves everything it was not given exactly as it was: a feed that covers four equities out
+// of seven changes four prices and the other three stay demonstration figures — with no
+// `priceSource`, so the screen still says so for each of them.
+
+export interface MarketPriceUpdate {
+  id: string
+  /** In the account's home currency, already converted. */
+  price: number
+  change24hPct: number
+  marketCap?: number
+  volume24h?: number
+}
+
+/** Write live prices in. Unknown ids are ignored, so a feed's map may be wider than the seed. */
+export function __setMarketPrices(updates: MarketPriceUpdate[], source: PriceSource) {
+  let touched = false
+  for (const u of updates) {
+    const a = state.assets.find((x) => x.id === u.id)
+    if (!a || !(u.price > 0) || !Number.isFinite(u.change24hPct)) continue
+    a.price = u.price
+    a.change24hPct = u.change24hPct
+    a.change24h = a.price - a.price / (1 + u.change24hPct / 100)
+    if (u.marketCap !== undefined && u.marketCap > 0) a.marketCap = u.marketCap
+    if (u.volume24h !== undefined && u.volume24h >= 0) a.volume24h = u.volume24h
+    a.priceSource = { ...source }
+    /* A sparkline is the last 24 reads; a real one arrives with the 1D series (below).
+       Until it has, the new price is appended so the tail is at least the truth. */
+    if (a.sparkline[a.sparkline.length - 1] !== a.price) a.sparkline = [...a.sparkline.slice(1), a.price]
+    touched = true
+  }
+  if (!touched) return
+  for (const l of state.priceListeners) l(state.assets.map((a) => ({ ...a, sparkline: [...a.sparkline] })))
+  state.emit({ type: 'accounts' })
+}
+
+/**
+ * Write a real series in for one asset and one range. The 1D series also becomes the
+ * sparkline — 24 points sampled across it — so the row and the chart agree.
+ */
+export function __setMarketSeries(id: string, range: ChartRange, points: PricePoint[]) {
+  const a = state.assets.find((x) => x.id === id)
+  if (!a || points.length < 2) return
+  const sorted = points.filter((p) => Number.isFinite(p.t) && p.p > 0).sort((x, y) => x.t - y.t)
+  if (sorted.length < 2) return
+  state.series.set(`${id}/${range}`, sorted)
+  if (range === '1D') {
+    const n = 24
+    a.sparkline = Array.from({ length: n }, (_, i) => sorted[Math.round((i * (sorted.length - 1)) / (n - 1))]!.p)
+  }
+}
+
+/** Write a rate table in. The pegs are pinned here too, so no caller can forget. */
+export function __setFxRates(perEur: Partial<Record<Currency, number>>, provider: string, updatedAt = new Date().toISOString()) {
+  state.rates = { perEur: pinPegs(perEur), live: true, provider, updatedAt }
+}
+
+/** Replace the source rows the « Données et connexion » screen reads. */
+export function __setMarketSources(sources: MarketSource[]) {
+  state.sources = sources.map((s) => ({ ...s }))
 }

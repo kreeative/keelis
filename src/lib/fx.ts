@@ -1,11 +1,19 @@
 /**
  * Conversion between the currencies Keewal Meere holds, and the spread Keewal Meere earns on it.
  *
- * **The rates here are demonstration rates.** They are anchored to real orders of
- * magnitude so the app behaves plausibly, but they are not a market feed and no screen may
- * present them as a live quote — every surface that shows one says so. The two pegged
- * rates are the exception and are exact: XOF and XAF are fixed to the euro at 655.957 by
- * treaty, so those two numbers are facts, not estimates.
+ * **The table written here is a demonstration table.** It is anchored to real orders of
+ * magnitude so the app behaves plausibly, but it is not a market feed and no screen may
+ * present it as a live quote — every surface that shows one says so. The two pegged rates
+ * are the exception and are exact: XOF and XAF are fixed to the euro at 655.957 by treaty,
+ * so those two numbers are facts, not estimates.
+ *
+ * **A live table comes from the API, never from this file.** `api.fx.rates()` returns the
+ * table the back-end quotes from — demonstration when it has no feed, a provider's when it
+ * does — and every function below takes that table as its last argument. The screen and
+ * the server's `convert` then price from the same figures, which is the whole point: a
+ * screen quoting demonstration rates against a server charging live ones would show one
+ * price and take another. `pinPegs` is how a table gets in, and it is what keeps the two
+ * treaty numbers exact whatever a feed sends for them.
  *
  * The spread is how the product makes money on a conversion, and it is quoted *explicitly*
  * — never buried in a worse rate with no mention. Keewal Meere's money rule is that fees are
@@ -21,7 +29,13 @@ import { CURRENCIES, roundTo, type Currency } from './currency'
 export const CFA_PER_EUR = 655.957
 
 /** Units of each currency per 1 EUR. EUR is the base because the two pegs are to it. */
-const PER_EUR: Readonly<Record<Currency, number>> = {
+export type RateTable = Readonly<Record<Currency, number>>
+
+/**
+ * The demonstration table. Every function here defaults to it, so a screen with no table
+ * in hand still prices — and says it is pricing from demonstration rates.
+ */
+export const DEMO_PER_EUR: RateTable = {
   EUR: 1,
   // Fixed by treaty. Not a quote, not rounded, not to be "refreshed" from a feed.
   XOF: CFA_PER_EUR,
@@ -39,6 +53,28 @@ const PER_EUR: Readonly<Record<Currency, number>> = {
   ETB: 125,
   DZD: 145,
   TND: 3.4,
+}
+
+/**
+ * Build a full table from whatever a feed sent, with the treaty written over it.
+ *
+ * A feed is asked for the euro against every currency in the registry, and it may answer
+ * for some of them, or with a figure that is not a number. Anything missing or unusable
+ * keeps the demonstration value for that one currency rather than poisoning the table. And
+ * EUR, XOF and XAF are set here, unconditionally: a feed quotes XOF at 655.96 or 655.957
+ * depending on the day's rounding, and a peg that drifts by rounding is a peg the app has
+ * stopped treating as a treaty.
+ */
+export function pinPegs(partial: Partial<Record<Currency, number>>): Record<Currency, number> {
+  const table = { ...DEMO_PER_EUR } as Record<Currency, number>
+  for (const code of Object.keys(DEMO_PER_EUR) as Currency[]) {
+    const v = partial[code]
+    if (typeof v === 'number' && Number.isFinite(v) && v > 0) table[code] = v
+  }
+  table.EUR = 1
+  table.XOF = CFA_PER_EUR
+  table.XAF = CFA_PER_EUR
+  return table
 }
 
 /**
@@ -94,8 +130,8 @@ export function spreadTier(from: Currency, to: Currency): SpreadTier {
 }
 
 /** The unmarked rate: how many `to` one `from` buys. */
-export function midRate(from: Currency, to: Currency): number {
-  return PER_EUR[to] / PER_EUR[from]
+export function midRate(from: Currency, to: Currency, table: RateTable = DEMO_PER_EUR): number {
+  return table[to] / table[from]
 }
 
 /**
@@ -106,8 +142,8 @@ export function midRate(from: Currency, to: Currency): number {
  * applying the rate, say — loses up to a unit on every step and compounds across a
  * two-leg cross.
  */
-export function quote(from: Currency, to: Currency, amountIn: number): FxQuote {
-  const mid = midRate(from, to)
+export function quote(from: Currency, to: Currency, amountIn: number, table: RateTable = DEMO_PER_EUR): FxQuote {
+  const mid = midRate(from, to, table)
   if (from === to) {
     return { from, to, amountIn, amountOut: roundTo(amountIn, to), midRate: 1, rate: 1, spread: 0, tier: 'anchor', feeIn: 0, pegged: false }
   }
@@ -130,9 +166,9 @@ export function quote(from: Currency, to: Currency, amountIn: number): FxQuote {
 }
 
 /** Convert with no spread — for valuing a portfolio, which is not a trade. */
-export function convertAtMid(amount: number, from: Currency, to: Currency): number {
+export function convertAtMid(amount: number, from: Currency, to: Currency, table: RateTable = DEMO_PER_EUR): number {
   if (from === to) return amount
-  return roundTo(amount * midRate(from, to), to)
+  return roundTo(amount * midRate(from, to, table), to)
 }
 
 /** Human label for why a pair costs what it costs. */

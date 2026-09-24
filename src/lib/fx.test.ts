@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CURRENCIES, CURRENCY_ORDER, roundTo } from './currency'
-import { SPREADS, convertAtMid, midRate, quote, spreadTier } from './fx'
+import { DEMO_PER_EUR, SPREADS, convertAtMid, midRate, pinPegs, quote, spreadTier } from './fx'
 
 describe('the euro peg', () => {
   it('is exact in both directions — it is a treaty, not a quote', () => {
@@ -120,5 +120,32 @@ describe('the currency registry', () => {
   it('marks both CFA francs as pegged and nothing else', () => {
     const pegged = CURRENCY_ORDER.filter((c) => CURRENCIES[c].pegged)
     expect(pegged).toEqual(['XOF', 'XAF'])
+  })
+})
+
+describe('a live table', () => {
+  it('prices from the table it is given, and the demonstration one without', () => {
+    const live = pinPegs({ NGN: 1795.4, USD: 1.17 })
+    expect(midRate('EUR', 'NGN', live)).toBe(1795.4)
+    expect(midRate('EUR', 'NGN')).toBe(1700)
+    expect(quote('EUR', 'NGN', 100, live).midRate).toBe(1795.4)
+    expect(convertAtMid(100, 'EUR', 'USD', live)).toBe(117)
+  })
+
+  it('pins the two pegs and the base whatever the feed sent for them', () => {
+    // A feed rounds the franc to 655.96; a treaty does not round.
+    const live = pinPegs({ XOF: 655.96, XAF: 656, EUR: 1.0001, NGN: 1795.4 })
+    expect(live.XOF).toBe(655.957)
+    expect(live.XAF).toBe(655.957)
+    expect(live.EUR).toBe(1)
+    expect(midRate('XOF', 'XAF', live)).toBe(1)
+  })
+
+  it('keeps the demonstration figure for anything missing or unusable', () => {
+    const live = pinPegs({ NGN: Number.NaN, ZAR: -3, KES: 0 })
+    expect(live.NGN).toBe(DEMO_PER_EUR.NGN)
+    expect(live.ZAR).toBe(DEMO_PER_EUR.ZAR)
+    expect(live.KES).toBe(DEMO_PER_EUR.KES)
+    for (const c of CURRENCY_ORDER) expect(live[c]).toBeGreaterThan(0)
   })
 })

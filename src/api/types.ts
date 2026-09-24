@@ -260,6 +260,20 @@ export interface CryptoAsset {
   market: string
   /** Equities only: the sector, for grouping and for a plain-language explanation. */
   sector?: string
+  /**
+   * Where the price came from, when it came from somewhere. **Absent means demonstration**:
+   * a random walk around a plausible starting figure, and the asset page says so. Present,
+   * it names the provider and the moment the figure was read, because a real price with
+   * no time on it is a real price from an unknown day.
+   */
+  priceSource?: PriceSource
+}
+
+export interface PriceSource {
+  /** « CoinGecko », « EODHD » — the provider, named, since a figure with no source is a rumour. */
+  provider: string
+  /** ISO timestamp of the read the figure came from. */
+  updatedAt: string
 }
 
 export type AssetClass = 'equity' | 'crypto'
@@ -497,6 +511,42 @@ export interface TransferRequest {
   method: 'internal' | 'operator' | 'wire'
 }
 
+/**
+ * The table the back-end quotes conversions from — the same table `lib/fx` prices with on
+ * the screen, so what is shown is what is charged. `perEur` is units of each currency per
+ * euro, with XOF and XAF **always** the treaty peg whatever the source: a back-end that sent
+ * a market rate for the CFA franc would have the client pin it back.
+ */
+export interface FxRates {
+  perEur: Record<Currency, number>
+  /** False when the table is the demonstration one, and the conversion screen says so. */
+  live: boolean
+  /** The rate provider, when there is one. */
+  provider?: string
+  updatedAt: string
+}
+
+/**
+ * Where each class of market figure in the app comes from, for the « Données et connexion »
+ * screen. One row per kind, so a deployment with crypto live and the BRVM still on
+ * demonstration figures says exactly that, rather than « connected ».
+ */
+export type MarketSourceKind = 'crypto' | 'equity' | 'fx'
+
+export interface MarketSource {
+  kind: MarketSourceKind
+  /**
+   * `live` — the figures come from the provider named. `demo` — no feed is configured for
+   * this kind. `error` — a feed is configured and its last read failed, so the figures on
+   * screen are the last good ones, or demonstration ones if there never was a good read.
+   */
+  status: 'live' | 'demo' | 'error'
+  provider?: string
+  updatedAt?: string
+  /** What is and is not covered, in one sentence: « 4 titres sur 7 ; la BRVM n’est pas couverte ». */
+  detail?: string
+}
+
 export interface FxConvertRequest {
   accountId: string
   from: Currency
@@ -705,8 +755,14 @@ export interface KeewalApi {
     }
   }
   fx: {
+    /** The table conversions are priced from. The screen quotes from it, the server charges from it. */
+    rates(): Promise<FxRates>
     /** Move money between two currencies inside the same account. */
     convert(req: FxConvertRequest): Promise<MoneyMovementResult>
+  }
+  market: {
+    /** Where the prices and the rates come from, one row per kind. */
+    sources(): Promise<MarketSource[]>
   }
   funding: {
     sources(): Promise<FundingSource[]>

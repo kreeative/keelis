@@ -1,0 +1,9 @@
+{
+  "result": "success",
+  "provider": "https://www.exchangerate-api.com",
+  "documentation": "https://www.exchangerate-api.com/docs/free",
+  "time_last_update_unix": 1758585601,
+  "time_last_update_utc": "Tue, 23 Sep 2026 00:00:01 +0000",
+  "base_code": "EUR",
+  "rates": { "EUR": 1, "USD": 1.1723, "XOF": 655.96, "XAF": 655.96, "NGN": 1795.4, "ZAR": 20.31, "EGP": 56.8, "KES": 151.2, "GHS": 14.3, "MAD": 10.55, "TZS": 2880, "UGX": 4120, "RWF": 1690, "ETB": 168.5, "DZD": 152.1, "TND": 3.41, "GBP": 0.87 }
+}

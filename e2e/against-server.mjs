@@ -158,7 +158,9 @@ try {
   await assertFree(APP_PORT, 'the back-end walk')
 
   console.log('Starting the reference back-end…')
-  run('node', ['server/reference.mjs'], { PORT: String(API_PORT) })
+  /* Feeds off: this walk asserts the app against the contract, not against a third party's
+     uptime — and the sandbox it runs in cannot reach one anyway. */
+  run('node', ['server/reference.mjs'], { PORT: String(API_PORT), FEEDS: 'off' })
   await waitFor(`${API}/accounts`, 'the reference back-end')
 
   /* A configured build: this is also what proves the mock is gone — the same Rollup

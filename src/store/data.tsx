@@ -31,6 +31,8 @@ export const QK = {
   fundingSources: 'funding:sources',
   notifications: 'notifications',
   papos: 'learn:papos',
+  fxRates: 'fx:rates',
+  marketSources: 'market:sources',
   notificationPrefs: 'notifications:prefs',
   security: 'profile:security',
   devices: 'profile:devices',
