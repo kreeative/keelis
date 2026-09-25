@@ -166,7 +166,6 @@
    same relief — so the type reads as cut into the metal beside the cowrie rather than
    printed on a photograph of it. */
 .holder,
-.last4,
 .pan,
 .key,
 .value {
@@ -178,25 +177,18 @@
 /* The foot line, on both sides at the same place: the name 9.06 mm in from the left and
    7.5 mm up from the bottom edge — inside the band ISO/IEC 7811-1 keeps for a cardholder's
    name — so turning the card over leaves the name where it was. */
-.holder,
-.last4 {
+.holder {
   position: absolute;
+  left: 10.58cqw;
   bottom: 8.76cqw;
   margin: 0;
   font-size: var(--foot-size);
   line-height: 1.2;
   letter-spacing: 0.08em;
-}
-.holder {
-  left: 10.58cqw;
   max-width: 52cqw;
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
-}
-.last4 {
-  right: 10.58cqw;
-  font-variant-numeric: tabular-nums;
 }
 
 /* The bank's name on the verso, small, at the other end of the foot line — the way the back

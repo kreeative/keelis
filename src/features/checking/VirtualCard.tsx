@@ -10,12 +10,17 @@
  * 7811 puts the tape, and the whole face scales as one piece at every width the screen gives
  * it instead of keeping 24px margins on a card that got smaller.
  *
- * **The recto is artwork, under the name.** The owner put a Revolut metal card beside a
- * cowrie print and a sheet of Adinkra symbols and asked for the same: a card that is an
- * object with something engraved on it, in the app's own iconography. The face is the `card`
- * photo slot — a brushed brown metal rendered on the owner's Higgsfield account, the cowrie,
- * a mask and four Adinkra symbols etched in gold toward the top-right corner, the left half
- * and the foot left plain because that is where the chip and the type sit. The gradient stays
+ * **The recto is the owner's own composition.** They put a Revolut metal card beside a cowrie
+ * print and a sheet of Adinkra symbols and asked for the same; five renders of a wedge of six
+ * different marks followed; then they opened the Figma file of the card, moved things where
+ * they wanted them and sent a screenshot: « look what I did, this is what I mean ». The face
+ * is the `card` photo slot — the brushed brown metal rendered on their Higgsfield account,
+ * with **one mark, the cowrie, six times** at one size, each tilted its own way, clustered
+ * toward the top-right corner exactly where they put them (composited in
+ * `brand-src/card/card-face.png` from the plain plate and the cut-out cowrie the Figma file
+ * carries). The left two thirds and the foot stay plain because that is where the chip and
+ * the type sit, and the foot carries **the holder's name alone**, as their card does — the
+ * last four digits went to the verso with the rest of the number. The gradient stays
  * underneath as the ground: with the slot switched off the card is exactly what it was.
  *
  * There is no « Virtuelle » label on it, and no K disc: the name on the card is the owner's own
@@ -101,9 +106,6 @@ export function VirtualCard({ card, turned = false, secrets = null, onTurn, clas
               <ChipCuts />
             </span>
             <span className={styles.holder}>{card.holderName}</span>
-            <span className={styles.last4} aria-label={frozen ? 'Numéro masqué' : `Carte se terminant par ${card.last4.split('').join(' ')}`}>
-              {frozen ? '•••• ••••' : `···· ${card.last4}`}
-            </span>
           </div>
         </div>
         <div className={cn(styles.side, styles.back)} role="group" aria-label="Verso de la carte" aria-hidden={!back || undefined} inert={!back}>

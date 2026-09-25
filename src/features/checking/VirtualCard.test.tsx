@@ -22,7 +22,8 @@ describe('VirtualCard', () => {
     render(<VirtualCard card={CARD} />)
     expect(verso()).toBeNull()
     expect(screen.queryByText(/5412/)).toBeNull()
-    expect(screen.getByLabelText('Carte se terminant par 7 3 6 4')).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Carte se terminant/)).toBeNull()
+    expect(screen.getAllByText('AÏSSATOU NDIAYE').length).toBeGreaterThan(0)
   })
 
   it('shows every number on the verso once turned, and hides the recto', () => {
@@ -32,7 +33,8 @@ describe('VirtualCard', () => {
     expect(within(back!).getByText(/5412 7702 3391 7364/)).toBeInTheDocument()
     expect(within(back!).getByText('09/28')).toBeInTheDocument()
     expect(within(back!).getByText('318')).toBeInTheDocument()
-    expect(screen.getByLabelText('Carte se terminant par 7 3 6 4').closest('[aria-hidden="true"]')).not.toBeNull()
+    const front = screen.getAllByText('AÏSSATOU NDIAYE').find((el) => !back!.contains(el))
+    expect(front?.closest('[aria-hidden="true"]')).not.toBeNull()
   })
 
   it('masks what is secret on the verso while the numbers are on their way', () => {

@@ -83,9 +83,9 @@ export const PHOTOS = {
   card: {
     name: 'card',
     intent:
-      'The face of the virtual card, under the name, the last four digits and the holder’s name. A dark brown brushed-metal card lit by one warm light from the top, laser-engraved in textured butter-gold line: six marks at one size scattered freely inside an invisible wedge whose point is the top-right corner — densest there, thinning toward the centre, each at its own angle — a cowrie shell from its slotted underside, a West African mask ringed with cowries, Duafe, Dwennimmen, Adinkrahene and Nkyinkyim. The left half and the bottom band stay plain, because that is where the type sits.',
+      'The face of the virtual card, under the wordmark, the chip and the holder’s name. A dark brown brushed-metal card lit by one warm light from the top, laser-engraved in textured copper-gold line with one mark, the cowrie shell seen from its slotted underside, six times at one size: clustered toward the top-right corner, each tilted its own way, two along the top edge, three in a loose row beneath, one below those — the owner’s own placement, taken off their Figma card. The left two thirds and the bottom band stay plain, because that is where the wordmark, the chip and the name sit.',
     present: true,
-    alt: 'Face de carte en métal brun brossé, gravée à l’or d’un cauri, d’un masque bordé de cauris et de quatre symboles adinkra',
+    alt: 'Face de carte en métal brun brossé, gravée à l’or de six cauris groupés vers le coin supérieur droit',
     credit: 'Rendu commandé par le propriétaire sur son compte Higgsfield (GPT Image) — libre d’utilisation dans l’application',
     widths: [800, 1600],
     /* The picture is 3:2 and the card is 1.586:1, so the crop is vertical only; centred, the
