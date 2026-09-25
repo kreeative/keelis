@@ -3,12 +3,14 @@
  * 53.98 mm with 3.18 mm corners — with a recto and a verso. Same ink on the same dark surface
  * in both themes (--card-*), no network logo.
  *
- * **Everything on it is placed in millimetres of that card.** The owner asked for a real card
- * at real card measurements, so the stylesheet works in `cqw` of the card's own width (100cqw
- * = 85.60 mm) and every position is a measurement off a physical card rather than a padding:
- * the chip sits where ISO/IEC 7816-2 puts the contacts, the magnetic stripe where ISO/IEC
- * 7811 puts the tape, and the whole face scales as one piece at every width the screen gives
- * it instead of keeping 24px margins on a card that got smaller.
+ * **Everything on it is placed in proportions of that card.** The stylesheet works in `cqw`
+ * of the card's own width, so the whole face scales as one piece at every width the screen
+ * gives it instead of keeping 24px margins on a card that got smaller. The recto's positions
+ * are the owner's: they composed the card at 400 × 252 in Figma and said « use the
+ * measurements I use in the front card », so the wordmark, the chip and the name sit where
+ * they put them, as fractions of the width — and their chip landed on the ISO/IEC 7816-2
+ * contact position within a few pixels, which is why it reads as a real card. The verso's
+ * stripe is where ISO/IEC 7811 puts the tape.
  *
  * **The recto is the owner's own composition.** They put a Revolut metal card beside a cowrie
  * print and a sheet of Adinkra symbols and asked for the same; five renders of a wedge of six
@@ -30,8 +32,11 @@
  * the metal, in the same gold.
  *
  * **The verso is where the numbers are**, as on a card whose front is kept clean: the stripe,
- * the full number, the expiry and the security code, with the holder on the same line as on
- * the recto and the bank's name small at the other end of it. Turning the card over *is* asking for the
+ * the full number, the expiry and the security code — and neither the wordmark nor the
+ * holder's name, which are on the front, and the owner does not want twice (« the logo is
+ * already on the front, don't put it on the back », « the name also is already on the
+ * front »). The recto also carries the network's mark at the foot's right end, where every
+ * real card has it — typeset, until the owner supplies the licensed artwork. Turning the card over *is* asking for the
  * numbers — `CardPanel` owns that, so the rules stay in one place: an explicit request, hidden
  * again after 30 s, never on a frozen card. The side facing away is `inert` and hidden from
  * assistive technology, so nothing reads or tabs into the back of a card nobody can see.
@@ -106,6 +111,7 @@ export function VirtualCard({ card, turned = false, secrets = null, onTurn, clas
               <ChipCuts />
             </span>
             <span className={styles.holder}>{card.holderName}</span>
+            <span className={styles.network}>VISA</span>
           </div>
         </div>
         <div className={cn(styles.side, styles.back)} role="group" aria-label="Verso de la carte" aria-hidden={!back || undefined} inert={!back}>
@@ -132,8 +138,6 @@ export function VirtualCard({ card, turned = false, secrets = null, onTurn, clas
               </div>
             </dl>
           </div>
-          <span className={styles.holder}>{card.holderName}</span>
-          <Wordmark className={styles.issuer} />
         </div>
       </div>
       {onTurn && !frozen ? <div className={styles.touch} onClick={onTurn} aria-hidden="true" /> : null}

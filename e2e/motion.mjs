@@ -311,6 +311,76 @@ async function run() {
     await page.close()
   }
 
+  // ---- 2c. The card turns over ----
+  //
+  // « Afficher les numéros » turns the card to its verso: a real turn in depth on the arrival
+  // spring, not a cross-fade between two pictures of a card. Read off the flipper's own
+  // transform every frame, in the page: the angle has to pass through the middle (a snap
+  // is not a turn), swing *past* square and settle (a spring overshoots — a bezier never
+  // reaches 181°), end at exactly 180, and hand visibility from the recto to the verso only
+  // once the turn is over, so no side is hidden while any of it can be seen. Under reduced
+  // motion the card is simply the other way up on the next frame.
+  {
+    const sampleTurn = (page) => page.evaluate(async () => {
+      const back = document.querySelector('[aria-label="Verso de la carte"]')
+      const flipper = back?.parentElement
+      const front = flipper?.firstElementChild
+      const button = [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Afficher les numéros')
+      if (!back || !front || !button) return null
+      const angle = () => {
+        const m = new DOMMatrixReadOnly(getComputedStyle(flipper).transform)
+        const deg = (Math.atan2(-m.m13, m.m11) * 180) / Math.PI
+        return Math.round((((deg % 360) + 360) % 360) * 10) / 10
+      }
+      const vis = () => ({ front: getComputedStyle(front).visibility, back: getComputedStyle(back).visibility })
+      const t0 = performance.now()
+      const samples = []
+      button.click()
+      await new Promise((done) => {
+        const tick = () => {
+          samples.push({ t: Math.round(performance.now() - t0), angle: angle(), ...vis() })
+          if (performance.now() - t0 < 1100) requestAnimationFrame(tick)
+          else done()
+        }
+        requestAnimationFrame(tick)
+      })
+      return samples
+    })
+    const page = await newPage(context)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await ready(page, '/carte')
+    const turn = await sampleTurn(page)
+    if (!turn) fail('turn', 'no card with a verso and an « Afficher les numéros » button on /carte')
+    else {
+      const angles = turn.map((s) => s.angle)
+      const last = turn[turn.length - 1]
+      const mid = turn.filter((s) => s.angle > 20 && s.angle < 160)
+      const peak = Math.max(...angles)
+      if (mid.length < 3) fail('turn', `the card snapped rather than turned: angles ${angles.slice(0, 12).join(', ')}…`)
+      if (peak < 183) fail('turn', `the turn never swings past square (peak ${peak}°) — the arrival spring overshoots by about ten degrees over 180`)
+      if (Math.abs(last.angle - 180) > 0.5) fail('turn', `the card did not settle at 180° (${last.angle}° after ${last.t}ms)`)
+      if (last.front !== 'hidden' || last.back !== 'visible') fail('turn', `once turned, the recto should be hidden and the verso visible (recto ${last.front}, verso ${last.back})`)
+      const first = turn[0]
+      if (first.back !== 'visible') fail('turn', 'the verso is still hidden as the turn toward it begins — it must be visible before any of it can be seen')
+      const hiddenEarly = turn.find((s) => s.angle < 90 && s.front === 'hidden')
+      if (hiddenEarly) fail('turn', `the recto was hidden at ${hiddenEarly.angle}°, while it still faced the viewer`)
+      if (!failures.some((f) => f.startsWith('turn:'))) notes.push(`turn: ${turn.length} frames, through ${mid.length} mid-turn angles, peak ${peak}° before settling at ${last.angle}°`)
+    }
+    await page.close()
+
+    const reduced = await newPage(context, { reducedMotion: 'reduce' })
+    await reduced.setViewportSize({ width: 390, height: 844 })
+    await ready(reduced, '/carte')
+    const flat = await sampleTurn(reduced)
+    if (!flat) fail('reduced-motion', 'no card to turn on /carte')
+    else {
+      const first = flat.find((s) => s.t > 40) ?? flat[0]
+      if (Math.abs(first.angle - 180) > 0.5) fail('reduced-motion', `the card is still turning under reduced motion (${first.angle}° at ${first.t}ms) — it should be the other way up at once`)
+      if (first.front !== 'hidden' || first.back !== 'visible') fail('reduced-motion', `under reduced motion the sides should swap at once (recto ${first.front}, verso ${first.back} at ${first.t}ms)`)
+    }
+    await reduced.close()
+  }
+
   // ---- 3. Reduced motion gets the end state, not a faster animation ----
   {
     const page = await newPage(context, { reducedMotion: 'reduce' })

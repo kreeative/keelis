@@ -12,8 +12,7 @@
   container-type: inline-size;
   perspective: 1200px;
   color: var(--card-ink);
-  /* The size of the foot line's type, which the issuer's name on the verso also reads to sit
-     on the same baseline. */
+  /* The size of the foot line's type, on both sides. */
   --foot-size: clamp(12px, 3.9cqw, 14px);
 }
 
@@ -123,30 +122,31 @@
 
 /* The name, engraved like everything else on the card — the symbols' gold through the
    letters, and the same two hairlines of relief, as a filter since a drawing has no text to
-   shadow. It sits on the chip's left edge, 9.06 mm in, and as far down from the top as it is
-   in from the side: the old 24px put it 5.7 mm from the corner of a 358px card, which is the
-   « too near the edge » the owner saw. 4.45 mm tall, and it keeps more than its own height
-   clear above the chip. */
+   shadow. Where it sits is the owner's own measurement: on the 400 × 252 card they composed in
+   Figma the wordmark's corner is 36px in and 36px down and its letters 17.8px tall, and
+   « use the measurements I use in the front card » makes those the numbers — 9cqw, 9cqw and
+   4.45cqw of the card's width, so they hold at every width the screen gives it. */
 .name {
   --wordmark-ink: var(--accent-etch);
-  --wordmark-height: 5.2cqw;
+  --wordmark-height: 4.45cqw;
   position: absolute;
-  left: 10.58cqw;
-  top: 10.58cqw;
+  left: 9cqw;
+  top: 9cqw;
   filter: var(--etch-relief);
 }
 
-/* The chip: a 12 × 10 mm contact plate centred on the field ISO/IEC 7816-2 gives the eight
-   contacts (10.25–19.87 mm from the left edge, 19.23–28.55 mm from the top) — so 9.06 mm
-   in and 18.89 mm down, with 1.6 mm corners. The same relief as the engraving reads as a
-   plate set into the metal rather than one printed on top of it. */
+/* The chip, where the owner put it on their card: 50px in and 83px down on the 400 × 252
+   composition, 42 × 30 with 4px corners — 12.5cqw, 20.75cqw, 10.5 × 7.5cqw, 1cqw. That is
+   the ISO/IEC 7816-2 contact position within a few pixels, which is why a card measured off
+   a sketch still reads as a real one. The same relief as the engraving reads as a plate set
+   into the metal rather than one printed on top of it. */
 .chip {
   position: absolute;
-  left: 10.58cqw;
-  top: 22.07cqw;
-  width: 14.02cqw;
-  height: 11.68cqw;
-  border-radius: 1.87cqw;
+  left: 12.5cqw;
+  top: 20.75cqw;
+  width: 10.5cqw;
+  height: 7.5cqw;
+  border-radius: 1cqw;
   overflow: hidden;
   background: var(--grad-accent-chip);
   color: var(--accent-chip-line);
@@ -174,9 +174,9 @@
   white-space: nowrap;
 }
 
-/* The foot line, on both sides at the same place: the name 9.06 mm in from the left and
-   7.5 mm up from the bottom edge — inside the band ISO/IEC 7811-1 keeps for a cardholder's
-   name — so turning the card over leaves the name where it was. */
+/* The foot line: the name 36px in from the left on the owner's card (9cqw) and 35px up from
+   the bottom edge (8.76cqw, inside the band ISO/IEC 7811-1 keeps for a cardholder's name),
+   tracked +0.04em — measured against the owner's own to within two pixels. */
 .holder {
   position: absolute;
   left: 10.58cqw;
@@ -184,24 +184,30 @@
   margin: 0;
   font-size: var(--foot-size);
   line-height: 1.2;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   max-width: 52cqw;
   overflow: hidden;
   text-overflow: ellipsis;
   text-transform: uppercase;
 }
-
-/* The bank's name on the verso, small, at the other end of the foot line — the way the back
-   of a card names who issued it. 2.65 mm tall, and lifted by the type's descent (0.27em of
-   the foot size, measured) so its letters stand on the holder's baseline, not on the bottom
-   of the holder's line box. */
-.issuer {
-  --wordmark-ink: var(--accent-etch);
-  --wordmark-height: 3.1cqw;
+/* The network's mark, at the foot's other end — bottom-right, where every real card carries
+   it, on the holder's line and inset like the name. It is **typeset**, a stand-in: the Visa
+   mark is a trademark with its own brand rules, and the app holds no licensed artwork for it;
+   when the owner supplies the official file (through fetch-artwork.yml, under brand-src/), it
+   replaces this word the way the wordmark replaced its own stand-in. Poppins ships no italic,
+   so the slant is the browser's. */
+.network {
   position: absolute;
-  right: 10.58cqw;
-  bottom: calc(8.76cqw + 0.27 * var(--foot-size));
-  filter: var(--etch-relief);
+  right: 9cqw;
+  bottom: 8.76cqw;
+  margin: 0;
+  font-size: 7.5cqw;
+  line-height: 1.2;
+  font-weight: var(--fw-bold);
+  font-style: italic;
+  letter-spacing: -0.02em;
+  color: var(--accent-etch);
+  text-shadow: var(--text-etch);
 }
 
 /* The verso. The stripe is the half-inch tape (12.7 mm) laid 4.3 mm down, over the

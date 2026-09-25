@@ -586,7 +586,7 @@ export const mockApi: KeewalApi = {
     async reveal() {
       await simulate()
       await new Promise((r) => setTimeout(r, 400))
-      return { pan: `5412 7702 3391 ${state.card.last4}`, cvv: '318' }
+      return { pan: `4539 7702 3391 ${state.card.last4}`, cvv: '318' }
     },
   },
 
