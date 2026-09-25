@@ -57,6 +57,24 @@ where a name does not fit in 56px.
   dark as the K and a threshold alone would have kept the thing it was there to remove. The
   rule above still holds: nothing here is a drawn circle, the K is the sheet's own, and
   `pnpm check:marks` still pins the committed discs to what the script makes.
+- **The card has a Figma file, and the marks are layers in it.** The owner asked for one « so I
+  can exactly modify like I want »: `Keewal Meere — Carte` in their team
+  (https://www.figma.com/design/DcZ2jjCH3PZiGE8i83VkkJ). It is the card at the app's own
+  400 × 252, built from `brand-src/card/figma/`: `metal.png` is the render with every mark's
+  region patched back to plain metal (brightness-matched from the same rows, feathered, left
+  to right so no patch copies a mark), and `mark-*.png` are the six marks cut out with
+  `marks.json` saying where each sat in the 2048 × 1360 render, so the card's own positions
+  are those coordinates scaled. The plate and the marks are image fills on their own layers,
+  the number, holder and expiry are live Poppins in `--accent-etch` with the two hairlines of
+  relief as drop shadows, and a « Ressources » section beside it holds the full render. **Two
+  things are the owner's to finish by hand**, because the Figma MCP server's Starter plan
+  allows twenty tool calls a month and the twentieth landed before they were done: the name
+  is still the Outfit Black stand-in as a text layer, to be replaced by
+  `public/brand/wordmark.png` dropped in as an alpha mask over a gold rectangle, and the
+  spare copies in « Ressources » still carry a flat placeholder fill. The sandbox cannot
+  open a tunnel to `mcp.figma.com` (the same policy wall every image host answers with), so
+  `.github/workflows/figma-upload.yml` POSTs files from a runner to the single-use upload
+  URLs `upload_assets` issues — dispatch it within ten minutes of asking for them.
 - **The mark gets clear space, not paragraph spacing.** A logo set with the same air as a
   line of body text reads as crowded. Any screen that pairs the wordmark with a heading
   gives it `.mark-clear` — at least its own height before the next thing starts. Check the
