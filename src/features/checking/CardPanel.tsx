@@ -1,6 +1,11 @@
 /**
  * Virtual card block: the card itself, the reveal panel (auto-hides after 30 s)
  * and the freeze switch (optimistic, with rollback).
+ *
+ * Showing the numbers turns the card over: its verso is where they are printed, so the card
+ * faces back while they are shown — from the moment they are asked for, so the turn covers
+ * the wait — and faces front again when they are hidden, by hand or by the countdown.
+ * Touching the card does the same as the button.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/api'
@@ -9,17 +14,10 @@ import { Button, ErrorState, Icon, ListRow, Skeleton, Switch } from '@/component
 import { QK, setQueryData, useToast } from '@/store'
 import { useCard } from '@/features/shared'
 import { cn } from '@/lib/cn'
-import { VirtualCard, VirtualCardSkeleton, expiryLabel } from './VirtualCard'
+import { VirtualCard, VirtualCardSkeleton, expiryLabel, groupPan } from './VirtualCard'
 import styles from './CardPanel.module.css'
 
 const REVEAL_SECONDS = 30
-
-function groupPan(pan: string): string {
-  return pan
-    .replace(/\s+/g, '')
-    .replace(/(.{4})/g, '$1 ')
-    .trim()
-}
 
 export function CardPanel({ className }: { className?: string }) {
   const { toast } = useToast()
@@ -57,7 +55,7 @@ export function CardPanel({ className }: { className?: string }) {
   const frozen = card?.frozen ?? false
 
   const reveal = async () => {
-    if (!card || frozen) return
+    if (!card || frozen || revealing) return
     setRevealing(true)
     try {
       const s = await api.card.reveal()
@@ -105,7 +103,16 @@ export function CardPanel({ className }: { className?: string }) {
 
   return (
     <section className={cn(styles.panel, className)} aria-label="Carte virtuelle" aria-busy={!card || undefined}>
-      {card ? <VirtualCard card={card} /> : <VirtualCardSkeleton />}
+      {card ? (
+        <VirtualCard
+          card={card}
+          turned={secrets !== null || revealing}
+          secrets={secrets}
+          onTurn={secrets ? hide : () => void reveal()}
+        />
+      ) : (
+        <VirtualCardSkeleton />
+      )}
 
       <div className={styles.reveal}>
         {secrets && card ? (

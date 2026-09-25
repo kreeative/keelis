@@ -1,27 +1,92 @@
+/* The card, at ISO/IEC 7810 ID-1: 85.60 × 53.98 mm, 3.18 mm corners.
+
+   It is its own size container, and everything inside is placed in `cqw` of its width — so
+   100cqw is 85.60 mm and 1 mm is 1.1682cqw. Each measurement is written in millimetres of a
+   real card beside the value, because that is what the numbers are: the chip, the stripe and
+   the type land where they would on a card in a hand, at whatever width the screen gives it. */
 .card {
   position: relative;
   width: 100%;
   max-width: 400px;
-  aspect-ratio: 1.586;
-  border-radius: var(--r-card);
-  background: var(--grad-card);
+  aspect-ratio: 85.6 / 53.98;
+  container-type: inline-size;
+  perspective: 1200px;
   color: var(--card-ink);
-  padding: var(--sp-5);
-  overflow: hidden;
-  border: 1px solid transparent;
+  /* The size of the foot line's type, which the issuer's name on the verso also reads to sit
+     on the same baseline. */
+  --foot-size: clamp(12px, 3.9cqw, 14px);
 }
-/* The card keeps the same ink in both themes; in dark mode a hairline separates
-   it from the page, which is almost the same value. */
-:global([data-theme='dark']) .card {
+
+/* The two sides turn together, as one object. The turn is the arrival spring: the other side
+   is something arriving, and over 180° its overshoot is about ten degrees — the card swings
+   past square and settles, the way a card flipped on a table does. Reduced motion takes the
+   duration to 0 and the card is simply the other way up. */
+.flipper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--dur-bouncy) var(--ease-bouncy);
+}
+.turned .flipper {
+  transform: rotateY(180deg);
+}
+/* A pointer resting on the card tips it a few degrees toward the turn: the one hint that it
+   is an object with another side, before anybody has read the button under it. */
+@media (hover: hover) {
+  .card:has(.touch:hover) .flipper {
+    transform: rotateY(-8deg);
+  }
+  .card.turned:has(.touch:hover) .flipper {
+    transform: rotateY(188deg);
+  }
+}
+
+/* A side: the metal, clipped to the 3.18 mm corner. `clip-path` repeats the radius because
+   Safari lets a child escape `overflow: hidden` once its parent is turned in 3D. */
+.side {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 3.715cqw;
+  clip-path: inset(0 round 3.715cqw);
+  background: var(--grad-card);
+  border: 1px solid transparent;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.front {
+  transform: rotateY(0deg);
+}
+.back {
+  transform: rotateY(180deg);
+}
+/* The side facing away is also hidden outright once the turn is over — out of hit-testing and
+   out of what the audits read, not merely turned away. `visibility` switches at the *end* of a
+   turn away and at the *start* of a turn toward, so no side is hidden while any of it can be
+   seen; under reduced motion both happen at once. */
+.back,
+.turned .front {
+  visibility: hidden;
+  transition: visibility 0s linear var(--dur-bouncy);
+}
+.front,
+.turned .back {
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+/* The card keeps the same ink in both themes; in dark mode a hairline separates it from the
+   page, which is almost the same value. */
+:global([data-theme='dark']) .side {
   border-color: var(--line);
 }
 @media (prefers-color-scheme: dark) {
-  :global(:root:not([data-theme='light'])) .card {
+  :global(:root:not([data-theme='light'])) .side {
     border-color: var(--line);
   }
 }
-/* The engraved face, under everything. The frame is the card's own box and the picture
-   covers it; the gradient the card already paints is the ground behind the picture, so a
+
+/* The engraved face, under everything. The frame is the side's own box and the picture
+   covers it; the gradient the side already paints is the ground behind the picture, so a
    card with the slot switched off is exactly the card that shipped before the artwork. */
 .art {
   position: absolute;
@@ -34,71 +99,187 @@
   position: absolute;
   inset: 0;
 }
+/* The back's metal: the same picture, drawn 1.754 times the card's width from its left edge,
+   so the card shows only the plain half of the frame — the left 57%, where nothing is
+   engraved. */
+.backArt {
+  position: absolute;
+  inset: 0;
+}
+.backArt img {
+  width: 175.4%;
+  max-width: none;
+  object-position: 0% 50%;
+}
 .face {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
   transition: opacity var(--dur-smooth) var(--ease-smooth);
 }
 .faded {
   opacity: 0.55;
 }
-.top {
-  display: flex;
-  align-items: center;
-}
-/* The name, where the K disc was: the owner's wordmark, engraved like everything else on
-   the card — the symbols' gold through the letters, and the same two hairlines of relief,
-   as a filter since a drawing has no text to shadow. */
+
+/* The name, engraved like everything else on the card — the symbols' gold through the
+   letters, and the same two hairlines of relief, as a filter since a drawing has no text to
+   shadow. It sits on the chip's left edge, 9.06 mm in, and as far down from the top as it is
+   in from the side: the old 24px put it 5.7 mm from the corner of a 358px card, which is the
+   « too near the edge » the owner saw. 4.45 mm tall, and it keeps more than its own height
+   clear above the chip. */
 .name {
   --wordmark-ink: var(--accent-etch);
+  --wordmark-height: 5.2cqw;
+  position: absolute;
+  left: 10.58cqw;
+  top: 10.58cqw;
   filter: var(--etch-relief);
 }
+
+/* The chip: a 12 × 10 mm contact plate centred on the field ISO/IEC 7816-2 gives the eight
+   contacts (10.25–19.87 mm from the left edge, 19.23–28.55 mm from the top) — so 9.06 mm
+   in and 18.89 mm down, with 1.6 mm corners. The same relief as the engraving reads as a
+   plate set into the metal rather than one printed on top of it. */
+.chip {
+  position: absolute;
+  left: 10.58cqw;
+  top: 22.07cqw;
+  width: 14.02cqw;
+  height: 11.68cqw;
+  border-radius: 1.87cqw;
+  overflow: hidden;
+  background: var(--grad-accent-chip);
+  color: var(--accent-chip-line);
+  filter: var(--etch-relief);
+}
+.cuts {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+}
+
 /* Everything written on the card is engraved the way the symbols are — the same gold, the
-   same relief — so the number reads as cut into the metal beside the cowrie rather than
-   printed on a photograph of it. The owner asked for the type to carry the texture. */
-.number,
+   same relief — so the type reads as cut into the metal beside the cowrie rather than
+   printed on a photograph of it. */
 .holder,
-.expiry {
+.last4,
+.pan,
+.key,
+.value {
   color: var(--accent-etch);
   text-shadow: var(--text-etch);
-}
-.bottom {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-}
-.number {
-  font-size: var(--fs-h2);
-  line-height: var(--lh-h2);
-  letter-spacing: var(--ls-h2);
-  font-weight: var(--fw-h2);
-  font-variant-numeric: tabular-nums;
-}
-.foot {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-4);
-}
-.holder,
-.expiry {
-  font-size: var(--fs-small);
-  line-height: var(--lh-small);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
-.expiry {
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
+
+/* The foot line, on both sides at the same place: the name 9.06 mm in from the left and
+   7.5 mm up from the bottom edge — inside the band ISO/IEC 7811-1 keeps for a cardholder's
+   name — so turning the card over leaves the name where it was. */
+.holder,
+.last4 {
+  position: absolute;
+  bottom: 8.76cqw;
+  margin: 0;
+  font-size: var(--foot-size);
+  line-height: 1.2;
+  letter-spacing: 0.08em;
 }
+.holder {
+  left: 10.58cqw;
+  max-width: 52cqw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+.last4 {
+  right: 10.58cqw;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The bank's name on the verso, small, at the other end of the foot line — the way the back
+   of a card names who issued it. 2.65 mm tall, and lifted by the type's descent (0.27em of
+   the foot size, measured) so its letters stand on the holder's baseline, not on the bottom
+   of the holder's line box. */
+.issuer {
+  --wordmark-ink: var(--accent-etch);
+  --wordmark-height: 3.1cqw;
+  position: absolute;
+  right: 10.58cqw;
+  bottom: calc(8.76cqw + 0.27 * var(--foot-size));
+  filter: var(--etch-relief);
+}
+
+/* The verso. The stripe is the half-inch tape (12.7 mm) laid 4.3 mm down, over the
+   5.54–15.82 mm band ISO/IEC 7811 keeps for its tracks: the one thing that says « the back
+   of a card » before a single number is read. */
+.stripe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 5.02cqw;
+  height: 14.84cqw;
+  background: var(--grad-card-stripe);
+}
+.details {
+  position: absolute;
+  left: 10.58cqw;
+  right: 10.58cqw;
+  top: 26.9cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 2.9cqw;
+}
+.pan,
+.meta,
+.meta dd {
+  margin: 0;
+}
+.pan {
+  font-size: clamp(16px, 5.6cqw, 22px);
+  line-height: 1.2;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8cqw;
+  row-gap: 1cqw;
+}
+.pair {
+  display: flex;
+  align-items: baseline;
+  gap: 1.8cqw;
+}
+/* Sentence case, like every label in the app: the tracked uppercase micro-label is the font
+   the owner asked never to see again. « CVV » is capitals because it is an acronym. */
+.key {
+  font-size: 12px;
+  line-height: 1.2;
+}
+.value {
+  font-size: clamp(14px, 4.4cqw, 17px);
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Touching the card turns it — above both sides, so it is always the thing under a finger,
+   and invisible, so the card underneath is what a person sees. It is a shortcut for a pointer
+   only (see the component); the button under the card is the way in for everyone else. */
+.touch {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 3.715cqw;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .frozenLayer {
   position: absolute;
   inset: 0;
@@ -114,8 +295,13 @@
   background: var(--card-ink);
   color: var(--card-surface);
 }
+
 .skeleton {
   width: 100%;
   max-width: 400px;
-  aspect-ratio: 1.586;
+  aspect-ratio: 85.6 / 53.98;
+  container-type: inline-size;
+}
+.skeleton .skeletonFace {
+  border-radius: 3.715cqw;
 }

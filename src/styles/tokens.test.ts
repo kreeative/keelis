@@ -172,10 +172,13 @@ describe('the focus ring can actually be seen, on every surface it can land on',
      light and the gold in dark for precisely that reason) and taking the ring with it.
 
      `--card-surface` is deliberately absent: it is the **virtual payment card**, which is
-     always dark in both themes, and `VirtualCard.tsx` renders no button, link, `onClick` or
-     `tabIndex` — nothing focusable can land on it. Its pair measures 2.34:1 in light and
-     asserting on it would fail the build over a combination that cannot occur. (It is also
-     not the `Card` component's fill, which is the `--surface` family. The name misleads.) */
+     always dark in both themes, and `VirtualCard.tsx` renders no button, link or `tabIndex`
+     — nothing focusable can land on it. Touching the card turns it over, but that is a
+     pointer shortcut on a `div` that takes no focus; the keyboard's way in is « Afficher les
+     numéros » under the card, on the page's own ground. Its pair measures 2.34:1 in light
+     and asserting on it would fail the build over a combination that cannot occur. (It is
+     also not the `Card` component's fill, which is the `--surface` family. The name
+     misleads.) */
   const light = declarations(CSS, ':root {\n  color-scheme: light;')
   const dark = declarations(CSS, ':root[data-theme="dark"] {')
 

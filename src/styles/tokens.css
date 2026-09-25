@@ -259,6 +259,19 @@
   /* The same two hairlines for the drawn name on the card: a mask has no text to shadow, so
      the relief is a filter on the mark's wrapper, painting around the letters it lets through. */
   --etch-relief: drop-shadow(0 -1px 0 oklch(0.12 0.02 60 / 0.55)) drop-shadow(0 1px 0 oklch(0.95 0.05 90 / 0.22));
+  /* The chip is a gold contact plate set into the card, in the marks' gold — centred on
+     --accent-etch's lightness, so it belongs to the engraving instead of arriving from a stock
+     card — but polished rather than cut: it runs yellower where the light catches it (hue 88)
+     and down to the copper of the marks in its shadow (68), which is what makes a plate read
+     as metal where a flat fill of the same colour read as a peach-coloured sticker. It is lit
+     on the card's own diagonal (148deg, --grad-card's) because it sits on the same tilted
+     plane. The gaps between the contacts are cut in a darker bronze. Both are named in the
+     accent family for the same reason --accent-etch is. */
+  --grad-accent-chip: linear-gradient(148deg, oklch(0.87 0.075 88) 0%, oklch(0.744 0.095 78) 50%, oklch(0.62 0.085 68) 100%);
+  --accent-chip-line: oklch(0.45 0.065 62);
+  /* The magnetic stripe on the verso: a tape's near-black, warm like everything else here,
+     with a hair of gloss at the top edge — a value-fall downward, the direction light falls. */
+  --grad-card-stripe: linear-gradient(180deg, oklch(0.20 0.014 64) 0%, oklch(0.135 0.010 60) 40%, oklch(0.11 0.008 58) 100%);
   --fw-numeric: 500;
   /* Big figures need optical compensation twice over: at 48px the counters carry
      themselves, so the weight can come down and the tracking can come in. */

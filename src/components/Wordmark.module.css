@@ -2,19 +2,21 @@
    through the sheet's letters, so it follows whatever colour it is given: the page's ink by
    default, --wordmark-ink where a surface decides (the card's engraved gold). The heights
    are the tokens' — each gives the width the typeset stand-in had at that size, so nothing
-   beside the mark moved when the drawing replaced the type. */
+   beside the mark moved when the drawing replaced the type — and --wordmark-height is the
+   same kind of override as the ink: the card sets its name in millimetres of itself, so the
+   name scales with the card instead of staying one size on every card width. */
 .mark { display: inline-flex; align-items: center; color: var(--wordmark-ink, var(--ink-900)); }
 .word {
   --art: url('/brand/wordmark.png');
   display: block;
-  height: var(--wordmark-md);
+  height: var(--wordmark-height, var(--wordmark-md));
   aspect-ratio: 1656 / 235;
   background-color: currentColor;
   -webkit-mask: var(--art) center / contain no-repeat;
   mask: var(--art) center / contain no-repeat;
 }
-.sm .word { height: var(--wordmark-sm); }
-.lg .word { height: var(--wordmark-lg); }
+.sm .word { height: var(--wordmark-height, var(--wordmark-sm)); }
+.lg .word { height: var(--wordmark-height, var(--wordmark-lg)); }
 
 /* The embossed disc from the brand sheet, as an image: the raised K and the lit rim are
    in the artwork, and a flat vector would throw them away. --mark-disc follows the theme;
