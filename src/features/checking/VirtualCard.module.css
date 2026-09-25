@@ -221,14 +221,42 @@
   height: 14.84cqw;
   background: var(--grad-card-stripe);
 }
+/* Under the stripe, the small print and the contactless arcs share a band, the way the back of
+   a real card sets its legend beside the antenna's mark; the numbers take the band below. The
+   legend is 12px — the floor for text in this app, which on a card is large print, and still
+   what a person can read — in the engraving's gold like everything cut into the metal. */
+.legend {
+  position: absolute;
+  left: 9cqw;
+  width: 66cqw;
+  top: 22.5cqw;
+  margin: 0;
+  font-size: var(--fs-label);
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--accent-etch);
+  text-shadow: var(--text-etch);
+}
+.contactless {
+  position: absolute;
+  right: 9cqw;
+  top: 22.5cqw;
+  width: 9cqw;
+  height: 9cqw;
+  fill: none;
+  stroke: var(--accent-etch);
+  stroke-width: 7;
+  stroke-linecap: round;
+  filter: var(--etch-relief);
+}
 .details {
   position: absolute;
-  left: 10.58cqw;
-  right: 10.58cqw;
-  top: 26.9cqw;
+  left: 9cqw;
+  right: 9cqw;
+  top: 40cqw;
   display: flex;
   flex-direction: column;
-  gap: 2.9cqw;
+  gap: 1.8cqw;
 }
 .pan,
 .meta,

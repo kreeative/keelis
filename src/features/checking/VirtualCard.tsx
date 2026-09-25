@@ -32,6 +32,7 @@
  * the metal, in the same gold.
  *
  * **The verso is where the numbers are**, as on a card whose front is kept clean: the stripe,
+ * the issuer's small print under it with the contactless arcs beside it, then
  * the full number, the expiry and the security code — and neither the wordmark nor the
  * holder's name, which are on the front, and the owner does not want twice (« the logo is
  * already on the front, don't put it on the back », « the name also is already on the
@@ -72,6 +73,30 @@ function ChipCuts() {
     <svg className={styles.cuts} viewBox="0 0 120 100" aria-hidden="true" focusable="false">
       <rect x="38" y="22" width="44" height="56" rx="10" />
       <path d="M0 36H38M0 64H38M82 36H120M82 64H120M60 0V22M60 78V100" />
+    </svg>
+  )
+}
+
+/**
+ * The issuer's small print, as the back of every real card carries it: who issued the card,
+ * on whose network, whose property it stays, and where to turn for help. It is one constant
+ * so it is one edit — and it has to be true before a real card ships: the app is agréée by no
+ * authority today (/entreprise says so), so this line is the card's copy as the owner asked
+ * for it, not a licence the codebase can point at. Help is the app's own Aide, not a phone
+ * number nobody answers. Three lines at the 12px floor on a phone's card: the first draft
+ * said the same in six and ran into the number.
+ */
+const VERSO_LEGEND = 'Émise par Keewal Meere sous licence de Visa International. Reste la propriété de l’émetteur. Assistance : Profil › Aide.'
+
+/**
+ * The contactless indicator — EMVCo's four arcs, the mark every card with an antenna carries;
+ * the owner named it « the Wi-Fi symbol » and asked for it on the back. Stroked in the
+ * engraving's gold, drawn in one viewBox so it scales with the card.
+ */
+function Contactless() {
+  return (
+    <svg className={styles.contactless} viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <path d="M31.5 40.4A15 15 0 0 1 31.5 59.6M43 30.7A30 30 0 0 1 43 69.3M54.5 21.1A45 45 0 0 1 54.5 78.9M66 11.4A60 60 0 0 1 66 88.6" />
     </svg>
   )
 }
@@ -122,6 +147,8 @@ export function VirtualCard({ card, turned = false, secrets = null, onTurn, clas
             <Photo name="card" className={styles.art} sizes={ART_SIZES} />
           </div>
           <span className={styles.stripe} aria-hidden="true" />
+          <p className={styles.legend}>{VERSO_LEGEND}</p>
+          <Contactless />
           <div className={styles.details}>
             <p className={styles.pan}>
               <span className="sr-only">Numéro : </span>
