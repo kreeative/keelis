@@ -1,0 +1,38 @@
+# Uploads files from this repository into a Figma file, through the upload URLs the Figma
+# MCP server hands out (`upload_assets`). It exists for the same reason as fetch-artwork.yml:
+# the sandbox that builds this app cannot open a tunnel to mcp.figma.com, so the POST has to
+# happen from a runner. The URLs are single-use and expire ten minutes after they are issued,
+# so dispatch this within a minute or two of asking for them.
+#
+# Input `uploads` is a JSON array: [{"url": "<submit url>", "file": "brand-src/…/x.png"}, …]
+name: Upload artwork to Figma
+on:
+  workflow_dispatch:
+    inputs:
+      uploads:
+        description: 'JSON array of {"url": "<figma submit url>", "file": "<path in repo>"}'
+        required: true
+        type: string
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: POST each file to its upload URL
+        env:
+          UPLOADS: ${{ inputs.uploads }}
+        run: |
+          set -euo pipefail
+          echo "$UPLOADS" | jq -c '.[]' | while read -r item; do
+            url=$(echo "$item" | jq -r .url)
+            file=$(echo "$item" | jq -r .file)
+            case "$file" in
+              *.png) type=image/png ;;
+              *.jpg|*.jpeg) type=image/jpeg ;;
+              *.webp) type=image/webp ;;
+              *.svg) type=image/svg+xml ;;
+              *) echo "unsupported file type: $file" >&2; exit 1 ;;
+            esac
+            echo "== $file"
+            curl -sS --fail-with-body -X POST -F "file=@$file;type=$type" "$url" | jq -c '{imageHash, targetNodeId, placement}'
+          done

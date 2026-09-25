@@ -1,0 +1,54 @@
+{
+ "W": 2048,
+ "H": 1360,
+ "marks": [
+  {
+   "name": "cowrie",
+   "file": "mark-cowrie.png",
+   "x": 1367,
+   "y": 26,
+   "w": 237,
+   "h": 286
+  },
+  {
+   "name": "mask",
+   "file": "mark-mask.png",
+   "x": 1653,
+   "y": 138,
+   "w": 244,
+   "h": 326
+  },
+  {
+   "name": "dwennimmen",
+   "file": "mark-dwennimmen.png",
+   "x": 1229,
+   "y": 374,
+   "w": 305,
+   "h": 244
+  },
+  {
+   "name": "duafe",
+   "file": "mark-duafe.png",
+   "x": 1827,
+   "y": 405,
+   "w": 199,
+   "h": 300
+  },
+  {
+   "name": "adinkrahene",
+   "file": "mark-adinkrahene.png",
+   "x": 1515,
+   "y": 623,
+   "w": 229,
+   "h": 221
+  },
+  {
+   "name": "nkyinkyim",
+   "file": "mark-nkyinkyim.png",
+   "x": 1837,
+   "y": 765,
+   "w": 146,
+   "h": 320
+  }
+ ]
+}
