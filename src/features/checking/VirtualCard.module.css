@@ -223,17 +223,21 @@
 }
 /* Under the stripe, the small print and the contactless arcs share a band, the way the back of
    a real card sets its legend beside the antenna's mark; the numbers take the band below. The
-   legend is 12px — the floor for text in this app, which on a card is large print, and still
-   what a person can read — in the engraving's gold like everything cut into the metal. */
+   legend is **small print** — the owner: « c'est vraiment petit, petit, petit, plus petit que
+   tout le reste des caractères sur la carte » — so it is the one text in the app under the
+   12px floor, on purpose: 2.4cqw of the card, about 8.6px on a phone, the proportion a real
+   card's legal line has to its number. Nothing on it is needed to use the app (help is
+   Profil › Aide, reachable without reading it), and it faces away, hidden, until the card is
+   turned. In the engraving's gold like everything cut into the metal. */
 .legend {
   position: absolute;
   left: 9cqw;
-  width: 66cqw;
-  top: 22.5cqw;
+  width: 62cqw;
+  top: 23cqw;
   margin: 0;
-  font-size: var(--fs-label);
-  line-height: 1.2;
-  letter-spacing: 0;
+  font-size: 2.4cqw;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
   color: var(--accent-etch);
   text-shadow: var(--text-etch);
 }
