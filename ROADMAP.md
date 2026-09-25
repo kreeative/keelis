@@ -54,7 +54,8 @@ là : `LearnSheet` explique une introduction en bourse et comment lire un cours,
   modale retient le focus et le rend au bouton qui l'a ouverte
 - Motion : le solde se pose, la courbe se dessine — **fait**, et coupée sous
   `prefers-reduced-motion`
-- **Nouvelle marque.** Le mot-symbole est composé en Poppins, en attendant : l'ancien tracé
+- **Nouvelle marque** — **fait.** Le mot-symbole est désormais le dessin fourni par le propriétaire,
+  et non plus une police de substitution. Avant lui, il était composé en attendant : l'ancien tracé
   épelait *Keelis*. Le monogramme, lui, survit. Décision du propriétaire
 
 ## 4. Back-end et moteur

@@ -50,21 +50,16 @@
   display: flex;
   align-items: center;
 }
-/* The name, in the brand face, where the K disc was. Black weight and tight tracking:
-   the letters nearly touch and never overlap, which is what the owner asked for. The
-   line-height is 1 so the word sits on the card's top padding, not a line box's. */
+/* The name, where the K disc was: the owner's wordmark, engraved like everything else on
+   the card — the symbols' gold through the letters, and the same two hairlines of relief,
+   as a filter since a drawing has no text to shadow. */
 .name {
-  font-family: var(--font-brand);
-  font-size: var(--fs-card-name);
-  font-weight: var(--fw-card-name);
-  letter-spacing: var(--ls-card-name);
-  line-height: 1;
-  white-space: nowrap;
+  --wordmark-ink: var(--accent-etch);
+  filter: var(--etch-relief);
 }
 /* Everything written on the card is engraved the way the symbols are — the same gold, the
    same relief — so the number reads as cut into the metal beside the cowrie rather than
    printed on a photograph of it. The owner asked for the type to carry the texture. */
-.name,
 .number,
 .holder,
 .expiry {

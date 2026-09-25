@@ -240,15 +240,12 @@
   /* Financial figures use the same family with tabular figures, so columns line up.
      Bold, not black: at display sizes the size already carries the hierarchy. */
   --font-numeric: var(--font-sans);
-  /* The brand face on the virtual card: Outfit at its black weight, standing in for the
-     first logo's EtherealDemo-ExtraBold, which the repository does not hold. Tracked tight
-     because the owner asked for the letters to sit with « little to no space between them,
-     but not on top of each other »: measured at 22px, −0.045em is where Outfit's round
-     letters just stop touching. */
-  --font-brand: "Outfit", "Poppins", system-ui, sans-serif;
-  --fs-card-name: 22px;
-  --ls-card-name: -0.045em;
-  --fw-card-name: 900;
+  /* The wordmark is the owner's drawing (public/brand/wordmark.png), so it has heights, not
+     font sizes. Each is the height at which it is as wide as the Outfit Black stand-in was at
+     that size — 99, 132 and 199px — so the layouts around it did not move when it arrived. */
+  --wordmark-sm: 14px;
+  --wordmark-md: 19px;
+  --wordmark-lg: 28px;
   /* The type on the card is engraved like its symbols, in **the symbols' own colour**: the
      owner asked for the text to be exactly the colour of the graphics, so this is sampled off
      the render — the median of the lit quartile of its gold pixels, 214/157/97 — rather than
@@ -259,6 +256,9 @@
      this is the one kind that is the texture rather than an effect. */
   --accent-etch: oklch(0.744 0.105 70);
   --text-etch: 0 -1px 0 oklch(0.12 0.02 60 / 0.55), 0 1px 0 oklch(0.95 0.05 90 / 0.22);
+  /* The same two hairlines for the drawn name on the card: a mask has no text to shadow, so
+     the relief is a filter on the mark's wrapper, painting around the letters it lets through. */
+  --etch-relief: drop-shadow(0 -1px 0 oklch(0.12 0.02 60 / 0.55)) drop-shadow(0 1px 0 oklch(0.95 0.05 90 / 0.22));
   --fw-numeric: 500;
   /* Big figures need optical compensation twice over: at 48px the counters carry
      themselves, so the weight can come down and the tracking can come in. */

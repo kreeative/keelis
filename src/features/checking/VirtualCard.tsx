@@ -11,13 +11,13 @@
  * as the ground: with the slot switched off the card is exactly what it was.
  *
  * There is no « Virtuelle » label on it, and no K disc: the owner asked for the name
- * written on the card instead — « Keewal Meere » in Playfair Display Black, tracked tight
- * — the way a metal card carries its bank's name and nothing else. The symbols are the
+ * on the card instead — the owner's own wordmark, engraved in the symbols' gold — the way
+ * a metal card carries its bank's name and nothing else. The symbols are the
  * render's own: the owner liked their etched texture, and what they wanted changed was the
  * size — the cowrie was bigger than the others, and now the five are one size.
  */
 import type { Card } from '@/api/types'
-import { Badge, Icon, Photo, Skeleton } from '@/components'
+import { Badge, Icon, Photo, Skeleton, Wordmark } from '@/components'
 import { cn } from '@/lib/cn'
 import styles from './VirtualCard.module.css'
 
@@ -36,7 +36,7 @@ export function VirtualCard({ card, className }: { card: Card; className?: strin
       <Photo name="card" className={cn(styles.art, frozen && styles.faded)} sizes="(min-width: 432px) 400px, calc(100vw - 32px)" />
       <div className={cn(styles.face, frozen && styles.faded)}>
         <div className={styles.top}>
-          <span className={styles.name}>Keewal Meere</span>
+          <Wordmark className={styles.name} />
         </div>
         <div className={styles.bottom}>
           <p className={styles.number} aria-label={frozen ? 'Numéro masqué' : `Carte se terminant par ${card.last4.split('').join(' ')}`}>

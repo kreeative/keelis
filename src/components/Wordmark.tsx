@@ -1,14 +1,18 @@
 /**
  * Keewal Meere marks.
  *
- * **The wordmark is set as live text, and that is a stopgap.** It used to be a single
- * bezier path traced from the brand sheet — but that path spelled *Keelis*, and artwork
- * cannot be re-traced for a name it was never drawn for. The name is typeset in
- * `--font-brand` — Outfit at its black weight, tracked tight, the face the owner chose for
- * the card once Playfair was rejected and the first logo's EtherealDemo-ExtraBold turned
- * out never to have been in the repository. It stands in until the owner supplies or
- * licenses the real one: Ethereal is a demo release with no commercial licence, and the old
- * wordmark only escaped that by shipping as outlines rather than as type.
+ * **The wordmark is the owner's artwork.** « Keewal Meere » drawn in the face of the first
+ * logo, supplied by the owner as a PDF of the brand sheet: « the brand name in full letters
+ * is to replace the sans-serif font… I don't want to see the brand name written in
+ * sans-serif when here is the logo ». It replaces the stand-in that set the name in Outfit
+ * Black while the repository had no artwork for the new name. The face itself
+ * (EtherealDemo-ExtraBold) is still never set as live text and never shipped as a webfont:
+ * the name ships as a drawing, which is how the old wordmark shipped too.
+ *
+ * It is drawn as a **mask**, not shown as a picture: `public/brand/wordmark.png` is the
+ * sheet's white letters on transparency, and the element paints `currentColor` through
+ * them. So one file is the ink on the cream page, the paper on the dark theme and the
+ * engraved gold on the card, with no second export to keep in step.
  *
  * **Where the name goes, it takes the K's place.** The owner: « Keewal Meere should have
  * the same position as the K ». The welcome screen sets the name where the disc stood,
@@ -29,7 +33,7 @@ export interface WordmarkProps {
   className?: string
   /** Just the K in its disc — for the rail, the avatar, the card. */
   glyphOnly?: boolean
-  /** Force one version. Leave unset to follow the theme. */
+  /** Force one version of the disc. Leave unset to follow the theme. */
   tone?: 'ink' | 'paper'
 }
 
@@ -39,7 +43,7 @@ export function Wordmark({ size = 'md', className, glyphOnly = false, tone }: Wo
   }
   return (
     <span className={cn(styles.mark, styles[size], className)} role="img" aria-label="Keewal Meere">
-      <span className={styles.word} aria-hidden="true">Keewal&nbsp;Meere</span>
+      <span className={styles.word} />
     </span>
   )
 }

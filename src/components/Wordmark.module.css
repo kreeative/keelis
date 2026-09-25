@@ -1,18 +1,20 @@
-/* Typeset, not traced — see the component. The brand face at its black weight, tracked
-   tight, the same tokens the card's name is set with, so the name is one mark wherever it
-   is written. */
-.mark { display: inline-flex; align-items: center; color: var(--ink-900); }
+/* The owner's wordmark, drawn as a mask — see the component. The element paints its colour
+   through the sheet's letters, so it follows whatever colour it is given: the page's ink by
+   default, --wordmark-ink where a surface decides (the card's engraved gold). The heights
+   are the tokens' — each gives the width the typeset stand-in had at that size, so nothing
+   beside the mark moved when the drawing replaced the type. */
+.mark { display: inline-flex; align-items: center; color: var(--wordmark-ink, var(--ink-900)); }
 .word {
+  --art: url('/brand/wordmark.png');
   display: block;
-  font-family: var(--font-brand);
-  font-size: var(--fs-card-name);
-  font-weight: var(--fw-card-name);
-  letter-spacing: var(--ls-card-name);
-  line-height: 1;
-  white-space: nowrap;
+  height: var(--wordmark-md);
+  aspect-ratio: 1656 / 235;
+  background-color: currentColor;
+  -webkit-mask: var(--art) center / contain no-repeat;
+  mask: var(--art) center / contain no-repeat;
 }
-.sm .word { font-size: var(--fs-body); }
-.lg .word { font-size: var(--fs-h0); }
+.sm .word { height: var(--wordmark-sm); }
+.lg .word { height: var(--wordmark-lg); }
 
 /* The embossed disc from the brand sheet, as an image: the raised K and the lit rim are
    in the artwork, and a flat vector would throw them away. --mark-disc follows the theme;
